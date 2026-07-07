@@ -43,6 +43,9 @@ HALF_S = 1.5
 MIN_DIST_S = 0.6
 MAX_HEATMAP_EVENTS = 220
 TARGET_SF = 200.0
+LONG_TRACE_S = 180.0
+LONG_ROW_S = 30.0
+LONG_TARGET_SF = 100.0
 
 
 def bandpass(x: np.ndarray, sf: float, lo: float, hi: float) -> np.ndarray:
@@ -170,6 +173,117 @@ def analyze_patient(pt: str, ch_map: dict[str, str], clip_idxs: list[int], downl
         "duration_s": total_s,
         "example": example,
     }
+
+
+def build_long_trace(pt: str, ch_map: dict[str, str], clip_idxs: list[int], download_missing: bool):
+    """Return up to 3 minutes of one MTL channel's N3 clips for visual QC."""
+    by_channel: dict[str, list[dict]] = {}
+    for rec in load_patient_n3(pt, ch_map, clip_idxs, download_missing):
+        by_channel.setdefault(rec["channel"], []).append(rec)
+    if not by_channel:
+        return None
+
+    def channel_score(item):
+        chan, recs = item
+        dur = sum(len(r["x"]) / r["sf"] for r in recs)
+        return (dur, len(recs), chan)
+
+    channel, recs = max(by_channel.items(), key=channel_score)
+    recs = sorted(recs, key=lambda r: r["clip"])
+    segments = []
+    boundaries = []
+    total_s = 0.0
+    roi_group = recs[0]["roi_group"]
+
+    for rec in recs:
+        if total_s >= LONG_TRACE_S:
+            break
+        x = rec["x"]
+        sf = rec["sf"]
+        take_s = min(len(x) / sf, LONG_TRACE_S - total_s)
+        take_n = max(2, int(take_s * sf))
+        x = x[:take_n]
+
+        so = bandpass(x, sf, *SO_BAND)
+        sp = np.abs(signal.hilbert(bandpass(x, sf, *SPINDLE_BAND)))
+        sp_z = (sp - sp.mean()) / (sp.std() + 1e-12)
+
+        n_target = max(2, int(round(take_s * LONG_TARGET_SF)))
+        src_t = np.arange(take_n) / sf
+        dst_t = np.linspace(0, take_s, n_target, endpoint=False)
+        segments.append({
+            "raw_uv": np.interp(dst_t, src_t, x) * 1e6,
+            "so_uv": np.interp(dst_t, src_t, so) * 1e6,
+            "sp_z": np.interp(dst_t, src_t, sp_z),
+        })
+        total_s += take_s
+        boundaries.append(total_s)
+
+    if not segments:
+        return None
+
+    return {
+        "pt": pt,
+        "channel": channel,
+        "roi_group": roi_group,
+        "sf": LONG_TARGET_SF,
+        "raw_uv": np.concatenate([s["raw_uv"] for s in segments]),
+        "so_uv": np.concatenate([s["so_uv"] for s in segments]),
+        "sp_z": np.concatenate([s["sp_z"] for s in segments]),
+        "duration_s": total_s,
+        "n_clips_used": len(segments),
+        "boundaries": [b for b in boundaries[:-1] if b < total_s],
+    }
+
+
+def save_long_trace_figure(trace: dict, out_dir: str):
+    pt = trace["pt"]
+    sf = trace["sf"]
+    duration_s = trace["duration_s"]
+    n_rows = max(1, math.ceil(duration_s / LONG_ROW_S))
+    fig, axes = plt.subplots(n_rows, 1, figsize=(14, max(3.2, 1.55 * n_rows)), sharex=True)
+    axes = np.atleast_1d(axes)
+
+    for row, ax in enumerate(axes):
+        start_s = row * LONG_ROW_S
+        stop_s = min(duration_s, (row + 1) * LONG_ROW_S)
+        i0 = int(round(start_s * sf))
+        i1 = int(round(stop_s * sf))
+        t = np.arange(i1 - i0) / sf
+        raw = trace["raw_uv"][i0:i1]
+        so = trace["so_uv"][i0:i1]
+        sp = trace["sp_z"][i0:i1]
+        if len(raw) == 0:
+            ax.axis("off")
+            continue
+
+        ylo, yhi = np.nanpercentile(np.r_[raw, so], [1, 99])
+        yr = max(yhi - ylo, 1.0)
+        sp_scale = np.nanpercentile(sp, 95) - np.nanpercentile(sp, 5)
+        sp_scaled = yhi - 0.1 * yr + ((sp - np.nanmedian(sp)) / (sp_scale + 1e-12)) * 0.35 * yr
+
+        ax.plot(t, raw, color="0.72", lw=0.55, label="raw LFP" if row == 0 else None)
+        ax.plot(t, so, color="tab:blue", lw=1.2, label="SO 0.5-1.25 Hz" if row == 0 else None)
+        ax.plot(t, sp_scaled, color="tab:orange", lw=0.85,
+                label="spindle env 11-16 Hz (scaled)" if row == 0 else None)
+        for b in trace["boundaries"]:
+            if start_s < b < stop_s:
+                ax.axvline(b - start_s, color="0.25", lw=0.7, ls=":")
+        ax.set_ylim(ylo - 0.2 * yr, yhi + 0.35 * yr)
+        ax.set_ylabel(f"{start_s:.0f}-{stop_s:.0f}s\nuV", fontsize=8)
+        ax.tick_params(labelsize=8)
+        if row == 0:
+            ax.legend(fontsize=8, ncol=3, loc="upper right")
+
+    axes[-1].set_xlabel("seconds within each 30 s row; row boundaries/dotted lines mark atlas clip breaks")
+    fig.suptitle(
+        f"{pt}: long N3 temporal strip, {duration_s/60:.1f} min "
+        f"({trace['channel']}, {trace['roi_group']}; concatenated atlas clips)",
+        y=0.995,
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.97])
+    fig.savefig(os.path.join(out_dir, f"{pt}_n3_long_trace_180s.png"), dpi=150)
+    plt.close(fig)
 
 
 def save_patient_figure(res: dict, out_dir: str):
@@ -322,7 +436,9 @@ def main():
         pts = pts[:args.max_patients]
 
     patient_dir = os.path.join(OUT, "patients")
+    long_dir = os.path.join(OUT, "long_traces")
     os.makedirs(patient_dir, exist_ok=True)
+    os.makedirs(long_dir, exist_ok=True)
     results = []
     rows = []
     for i, pt in enumerate(pts, 1):
@@ -337,6 +453,11 @@ def main():
             print(f"[{i}/{len(pts)}] {pt}: no SO events")
             continue
         save_patient_figure(res, patient_dir)
+        long_trace = build_long_trace(pt, ch_map, idxs, download_missing=not args.cached_only)
+        long_trace_png = ""
+        if long_trace is not None:
+            save_long_trace_figure(long_trace, long_dir)
+            long_trace_png = os.path.join("long_traces", f"{pt}_n3_long_trace_180s.png")
         results.append(res)
         rows.append({
             "pt": pt,
@@ -346,6 +467,8 @@ def main():
             "duration_s": round(res["duration_s"], 1),
             "n_so_events": res["n_events"],
             "patient_png": os.path.join("patients", f"{pt}_n3_so_triggered_nesting.png"),
+            "long_trace_png": long_trace_png,
+            "long_trace_duration_s": round(long_trace["duration_s"], 1) if long_trace is not None else 0,
         })
         print(f"[{i}/{len(pts)}] {pt}: {res['n_events']} SO events, {res['duration_s']/60:.1f} min")
 

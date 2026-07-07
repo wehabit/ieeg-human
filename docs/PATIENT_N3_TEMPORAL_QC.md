@@ -10,6 +10,7 @@ Script: `analysis/patient_n3_temporal_qc.py`
 Output folder: `outputs/patient_n3_temporal_qc/`
 
 - `patients/*_n3_so_triggered_nesting.png`: one figure per patient.
+- `long_traces/*_n3_long_trace_180s.png`: up to 3 minutes of raw N3 temporal strip per patient.
 - `all_patients_so_triggered_contact_sheet.png`: all patient SO-trough-locked averages in one grid.
 - `all_patients_so_trough_locked_heatmap.png`: all-patient SO-trough-locked heatmap.
 - `patient_n3_temporal_summary.csv`: clips, channel coverage, duration, and event counts.
@@ -45,6 +46,11 @@ The Pattnaik/Litt atlas is not a continuous full-night dataset. It provides N3
 clips, usually up to 10 clips per patient. So "full N3" means all available N3
 clips for that patient, across all normative mesiotemporal channels.
 
+The long temporal strips use **one representative MTL channel per patient** and
+show up to **180 seconds** of N3. These are concatenated 30 s atlas clips, with
+clip breaks marked by dotted vertical lines; they should be read as long visual
+QC, not as uninterrupted physiology.
+
 ## What Each Patient Figure Shows
 
 1. **Raw N3 example**: gray raw LFP, blue slow oscillation, orange spindle envelope.
@@ -53,6 +59,26 @@ clips for that patient, across all normative mesiotemporal channels.
 3. **SO-trough-locked event heatmap**: each row is one detected slow-oscillation
    cycle. The dark trough at time 0 and red/blue rhythm around it show that the
    slow wave is not only a grand-average artifact.
+
+## What The Long Trace Shows
+
+`long_traces/*_n3_long_trace_180s.png` is the answer to "what does this look
+like over minutes?" Each row is 30 s. Gray is the raw LFP, blue is the
+0.5-1.25 Hz slow oscillation, and orange is the scaled 11-16 Hz spindle
+envelope.
+
+What to infer:
+
+- You can see whether the patient has sustained N3 slow oscillations over
+  minutes, not just a hand-picked 8 s example.
+- You can see whether spindle power comes in bursts riding on that slow rhythm.
+- You can spot noisy clips, discontinuities, or patients with weaker slow waves.
+
+What not to infer:
+
+- The strips are not one continuous 3-minute recording unless no dotted clip
+  break appears.
+- They are not the formal PAC statistic; they are the time-domain intuition.
 
 ## What The Contact Sheet Is For
 

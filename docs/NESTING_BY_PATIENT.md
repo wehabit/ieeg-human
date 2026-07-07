@@ -25,7 +25,30 @@ This is the correct caveat to state alongside the grand-average and the group MI
 the effect is real and majority-present, but modest and patient-variable — which is exactly why the
 independent 1 kHz replication (`slow_ripple_coupling`, SO→spindle `p = 6×10⁻⁵`) matters.
 
+## De-circularized validation (`nesting_validation`)
+
+The sorted heatmap above **double-dips** (rows sorted by the same spindle value that is
+colour-plotted), so its gradient is *display only, not evidence*. `nesting_validation.py` re-tests
+the effect three non-circular ways:
+
+1. **Mean ± CI (no sorting).** Grand up-state spindle-z = **0.058, 95% CI [0.040, 0.077]** — excludes
+   zero. The effect is real without any ordering, and visibly small.
+2. **Split-half.** Rank patients by up-state spindle on **odd** SO events, display the mean envelope
+   from their **even** events. The structure survives: **Spearman(odd, even) r = 0.56, p = 2.7×10⁻⁵**
+   → per-patient nesting is a **stable, reproducible trait**, not double-dipping.
+3. **Sort by an independent variable (SO trough depth).** Essentially no gradient:
+   **Spearman(depth, spindle) r = 0.036** (significant only from n≈15k; negligible size). A deeper
+   slow wave does **not** meaningfully predict more spindle.
+
+**Conclusion.** The N3 SO→spindle nesting is **real and reproducible at the patient level**
+(CI excludes 0; cross-validates at r=0.56), but **modest** (z≈0.06) and **not a function of
+slow-wave size** — reliable in aggregate, mostly stochastic per event. This matches the modest
+group MI_z (p=0.030) and the 42/49 heterogeneity, and is why the decisive evidence is the
+independent 1 kHz replication (`slow_ripple_coupling`, p=6×10⁻⁵), not this atlas alone.
+
 ## Outputs
+- `outputs/nesting_by_patient/nesting_validation.png` — the three non-circular views + stats.
+- `outputs/nesting_by_patient/validation_stats.json` — split-half r/p, depth r/p, up-state CI.
 - `outputs/nesting_by_patient/per_patient_nesting.png` — one small-multiple panel per patient
   (SO wave + spindle envelope), sorted by up-state nesting.
 - `outputs/nesting_by_patient/so_trough_locked_spindle_heatmap.png` — SO-trough-locked spindle

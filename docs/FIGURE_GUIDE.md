@@ -56,6 +56,11 @@ average: the spindle envelope peaks on the SO up-state (panel B, 10,292 events),
 time-frequency map shows the slow wave building into the trough with faster bands modulated
 around it. *This is the Kipnis Fig 2b / mouse spike-triggered-average view, at the field level.*
 
+**nesting_by_patient — `per_patient_nesting` / `so_trough_locked_spindle_heatmap`**
+Sanity check on the grand average: per-patient and per-event N3 SO-triggered spindle nesting.
+Positive in 42/49 patients (86%) but heterogeneous (median 0.057) — real and majority-present,
+not uniform. See [NESTING_BY_PATIENT.md](NESTING_BY_PATIENT.md).
+
 **HFO-phase — `ripple_so_phase` (Zurich cohort, 2 kHz, event-based)**
 Independent 3rd cohort using expert-marked ripples/fast-ripples: what SO phase does each event land
 on? Entorhinal/amygdala cluster; hippocampal *ripples* don't — because these are epilepsy HFO

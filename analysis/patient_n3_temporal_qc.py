@@ -7,8 +7,12 @@ atlas, use all available N3 clips and all available normative MTL channels to
 show:
 
   1. a raw example segment with the slow oscillation and spindle envelope,
-  2. the patient's SO-trough-triggered average, and
-  3. a Kipnis-style event heatmap of slow oscillation cycles.
+  2. the patient's SO-trough-locked average, and
+  3. an SO-trough-locked event heatmap of slow oscillation cycles.
+
+This is a temporal QC visualization, not a new inferential test. The locking
+rhythm is the detected N3 slow oscillation: 0.5-1.25 Hz, i.e. cycles of about
+0.8-2.0 s.
 
 Important limitation: the atlas provides 30 s N3 clips, not continuous full-night
 N3. "Full duration" here means all available N3 clips for that patient. The
@@ -195,14 +199,14 @@ def save_patient_figure(res: dict, out_dir: str):
 
     ax1 = fig.add_subplot(gs[1])
     ax1b = ax1.twinx()
-    ax1.plot(t, res["avg_so_uv"], color="tab:blue", lw=2.2, label="SO-triggered LFP/SO wave")
+    ax1.plot(t, res["avg_so_uv"], color="tab:blue", lw=2.2, label="SO-trough-locked LFP/SO wave")
     ax1b.plot(t, res["avg_sp_z"], color="tab:orange", lw=1.8, label="spindle envelope")
     ax1.axvline(0, color="k", lw=0.8, ls=":")
     ax1.set_ylabel("SO wave (uV)", color="tab:blue")
     ax1b.set_ylabel("spindle envelope (z)", color="tab:orange")
     ax1.set_xlabel("time from SO trough (s)")
     ax1.set_title(
-        f"SO-trough-triggered average: {res['n_events']} events, "
+        f"SO-trough-locked average: {res['n_events']} events, "
         f"{res['n_traces']} channel-clips, {res['duration_s']/60:.1f} min N3 clips"
     )
     h1, l1 = ax1.get_legend_handles_labels()
@@ -224,9 +228,9 @@ def save_patient_figure(res: dict, out_dir: str):
         )
         ax2.axvline(0, color="k", lw=0.8, ls=":")
         ax2.set_ylabel("SO events")
-        ax2.set_xlabel("time from SO trough (s)")
-        ax2.set_title("Kipnis-style event heatmap: each row is one N3 SO cycle (SO-filtered LFP, z)")
-    fig.suptitle("Patient-level N3 slow-fast nesting QC (atlas clips; SO->spindle only)", y=0.99)
+        ax2.set_xlabel("time from SO trough (s; SO band 0.5-1.25 Hz)")
+        ax2.set_title("SO-trough-locked event heatmap: each row is one detected N3 SO cycle")
+    fig.suptitle("Patient-level N3 SO-spindle temporal QC (atlas clips; no ripple claim)", y=0.99)
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, f"{pt}_n3_so_triggered_nesting.png"), dpi=150)
     plt.close(fig)
@@ -237,7 +241,7 @@ def save_group_figures(results: list[dict], out_dir: str):
         return
     t = results[0]["t"]
 
-    # Patient heatmap: each row is one patient's SO-triggered slow wave.
+    # Patient heatmap: each row is one patient's SO-trough-locked slow wave.
     mat = []
     labels = []
     for r in results:
@@ -263,13 +267,16 @@ def save_group_figures(results: list[dict], out_dir: str):
     ax.axvline(0, color="k", lw=0.8, ls=":")
     ax.set_xlabel("time from SO trough (s)")
     ax.set_ylabel("patients")
-    ax.set_title("Kipnis-style patient heatmap: N3 SO-triggered slow field wave")
+    ax.set_title(
+        "N3 SO-trough-locked slow-oscillation heatmap\n"
+        "Rows = patients; time 0 = detected 0.5-1.25 Hz SO trough (~0.8-2.0 s/cycle)"
+    )
     step = max(1, math.ceil(len(labels) / 28))
     ax.set_yticks(np.arange(0.5, len(labels), step))
     ax.set_yticklabels(labels[::step], fontsize=7)
-    fig.colorbar(im, ax=ax, label="patient-normalized SO wave")
+    fig.colorbar(im, ax=ax, label="patient-normalized SO-filtered LFP")
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "all_patients_kipnis_style_so_heatmap.png"), dpi=150)
+    fig.savefig(os.path.join(out_dir, "all_patients_so_trough_locked_heatmap.png"), dpi=150)
     plt.close(fig)
 
     # Contact sheet of all patient averages.
@@ -288,7 +295,10 @@ def save_group_figures(results: list[dict], out_dir: str):
         ax2.tick_params(labelsize=7)
     for ax in axes[n:]:
         ax.axis("off")
-    fig.suptitle("Every patient: N3 SO-triggered wave (blue) and spindle envelope (orange)", y=0.995)
+    fig.suptitle(
+        "Per-patient QC: SO-trough-locked slow wave (blue) and spindle envelope (orange)",
+        y=0.995,
+    )
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "all_patients_so_triggered_contact_sheet.png"), dpi=150)
     plt.close(fig)

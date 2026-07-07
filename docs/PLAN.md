@@ -48,13 +48,13 @@ comparison set. Mirrors the mouse dHPC vs LEC contrast.
 
 | Module | Human (LFP, state atlas) | Mouse analogue |
 |---|---|---|
-| **M1 Spectral state map** | Per-channel band power (slow 0.5–4, delta, theta 6–10, spindle 11–16, gamma, HFO 80–200) per state; test wake→N2→N3 slow-band rise | Field theta amplitude by epoch |
-| **M2 Slow-phase → fast-amp coupling** | Tort modulation index: 0.5–4 Hz phase vs spindle & ripple amplitude, per state | Theta spike-field PLV / PPC |
-| **M3 Preferred slow phase** | Phase histogram of nested spindle/ripple events on the SO cycle | Preferred theta-phase histograms |
-| **M4 Regional gradient** | Hippocampus vs entorhinal vs neocortex coordination | dHPC vs LEC 50 Hz gradient |
-| **M5 Bridge figure** | Overlay mouse (driven theta, 6–10 Hz) vs human (natural NREM slow, 0.5–4 Hz); frame the stim-frequency hypothesis | — |
+| **Slow-power Spectral state map** | Per-channel band power (slow 0.5–4, delta, theta 6–10, spindle 11–16, gamma, HFO 80–200) per state; test wake→N2→N3 slow-band rise | Field theta amplitude by epoch |
+| **Spindle-coupling Slow-phase → fast-amp coupling** | Tort modulation index: 0.5–4 Hz phase vs spindle & ripple amplitude, per state | Theta spike-field PLV / PPC |
+| **Phase-preference Preferred slow phase** | Phase histogram of nested spindle/ripple events on the SO cycle | Preferred theta-phase histograms |
+| **Region-profile Regional gradient** | Hippocampus vs entorhinal vs neocortex coordination | dHPC vs LEC 50 Hz gradient |
+| **Bridge Bridge figure** | Overlay mouse (driven theta, 6–10 Hz) vs human (natural NREM slow, 0.5–4 Hz); frame the stim-frequency hypothesis | — |
 
-**M5 is the payoff for the grant / one-pager.** It states the design hypothesis explicitly: to
+**Bridge is the payoff for the grant / one-pager.** It states the design hypothesis explicitly: to
 engage the Kipnis mechanism, vibrotactile stimulation during NREM should aim to **enhance the native
 slow-wave coordination** (slow / Jiang-Xie testing frequencies), not 50 Hz. The mouse 50 Hz result
 was target *engagement*; the human atlas defines the *target state*.
@@ -80,7 +80,7 @@ was target *engagement*; the human atlas defines the *target state*.
   a clearance measurement. State this every time.
 
 ## Deliverables
-- `analysis/` one script per module (M1–M5), CLI'd like the mouse scripts.
+- `analysis/` one script per module (Slow-power–Bridge), CLI'd like the mouse scripts.
 - `outputs/` figures (png+svg) + csv per module.
 - `docs/` a short markdown writeup per module in the DEC4 house style (plain-English answer, method,
   result table, caveats).
@@ -91,7 +91,7 @@ Python + MNE-Python, numpy/scipy, `tensorpac` (or custom Tort MI), pandas, matpl
 
 ## Sequence
 1. **M0 data fetch + loader** — download atlas, parse region/state metadata into a tidy index.
-2. **M1 spectral state map** — the anchor result; confirms H1 before anything fancy.
-3. **M2 PAC** — the core coordination metric (H2).
-4. **M3–M4** — phase preference and regional gradient.
-5. **M5 bridge figure** — mouse↔human, feeds the one-pager.
+2. **Slow-power spectral state map** — the anchor result; confirms H1 before anything fancy.
+3. **Spindle-coupling PAC** — the core coordination metric (H2).
+4. **Phase-preference–Region-profile** — phase preference and regional gradient.
+5. **Bridge bridge figure** — mouse↔human, feeds the one-pager.

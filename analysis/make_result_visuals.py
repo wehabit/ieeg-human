@@ -1,13 +1,13 @@
 """
-Result visuals - make the M1/M2 findings visible from the raw clips + summary CSVs.
+Result visuals - make the Slow-power/Spindle-coupling findings visible from the raw clips + summary CSVs.
 
 Produces (outputs/result_visuals/):
   1. example_traces.png    - real iEEG, wake vs N3, one mesiotemporal channel (slow waves appear)
   2. psd_by_state.png       - that channel's power spectrum by state (slow-band bump grows in N3)
-  3. m1_paired_slope.png    - population: slow-band power W->N3, one line per patient
+  3. slow_power_paired_slope.png    - population: slow-band power W->N3, one line per patient
   4. comodulogram.png       - that channel: phase-freq x amp-freq coupling, wake vs N3
   5. tort_phase_amp.png     - that channel: mean spindle amp across the slow-osc phase, wake vs N3
-  6. m2_paired_slope.png    - population: coupling MI_z W->N3, one line per patient
+  6. spindle_coupling_paired_slope.png    - population: coupling MI_z W->N3, one line per patient
 """
 import os
 import numpy as np, pandas as pd
@@ -19,8 +19,8 @@ import atlas
 
 OUT = os.path.join(atlas.ROOT, "outputs", "result_visuals")
 os.makedirs(OUT, exist_ok=True)
-M1 = os.path.join(atlas.ROOT, "outputs", "m1_spectral_state_map", "channel_state_bandpower.csv")
-M2 = os.path.join(atlas.ROOT, "outputs", "m2_slow_spindle_pac", "channel_state_pac.csv")
+SLOW_CSV = os.path.join(atlas.ROOT, "outputs", "slow_power_by_state", "channel_state_bandpower.csv")
+PAC_CSV = os.path.join(atlas.ROOT, "outputs", "slow_spindle_coupling", "channel_state_pac.csv")
 
 
 def bp(x, sf, lo, hi):
@@ -45,7 +45,7 @@ def load_channel_state(pt, chan, state, max_clips=8):
 
 def pick_representative():
     """Channel with high N3 coupling that also has wake data cached."""
-    m2 = pd.read_csv(M2)
+    m2 = pd.read_csv(PAC_CSV)
     cand = m2[m2.roi_group.isin(["hippocampal", "parahippocampal", "entorhinal"])]
     piv = cand.pivot_table(index=["pt", "channel", "roi_group"], columns="state", values="mi_z")
     piv = piv.dropna(subset=["W", "N3"]) if {"W", "N3"} <= set(piv.columns) else piv
@@ -116,8 +116,8 @@ def main():
     plt.title(f"Power spectrum by state — {chan} ({grp})\nslow-band power grows into N3")
     plt.legend(); plt.tight_layout(); plt.savefig(os.path.join(OUT, "psd_by_state.png"), dpi=150); plt.close()
 
-    # 3. M1 population paired slopegraph
-    m1 = pd.read_csv(M1)
+    # 3. Slow-power population paired slopegraph
+    m1 = pd.read_csv(SLOW_CSV)
     ent = m1[m1.roi_group.isin(["entorhinal", "parahippocampal"])]
     piv = ent.groupby(["pt", "state"])["slow"].mean().unstack("state")[["W", "N3"]].dropna()
     plt.figure(figsize=(5, 6))
@@ -125,8 +125,8 @@ def main():
         plt.plot([0, 1], [r.W, r.N3], "-o", color="tab:blue", alpha=0.4, mfc="white")
     plt.plot([0, 1], [piv.W.mean(), piv.N3.mean()], "-o", color="black", lw=3, label="mean")
     plt.xticks([0, 1], ["Wake", "N3"]); plt.ylabel("relative slow-band power (0.5-4 Hz)")
-    plt.title(f"M1: slow power rises W->N3\n{ (piv.N3>piv.W).sum() }/{len(piv)} patients, p=2.9e-6")
-    plt.legend(); plt.tight_layout(); plt.savefig(os.path.join(OUT, "m1_paired_slope.png"), dpi=150); plt.close()
+    plt.title(f"Slow-power: slow power rises W->N3\n{ (piv.N3>piv.W).sum() }/{len(piv)} patients, p=2.9e-6")
+    plt.legend(); plt.tight_layout(); plt.savefig(os.path.join(OUT, "slow_power_paired_slope.png"), dpi=150); plt.close()
 
     # 4. comodulogram W vs N3
     fig, ax = plt.subplots(1, 2, figsize=(11, 4.5))
@@ -156,8 +156,8 @@ def main():
     plt.title(f"Spindle amplitude across the slow-oscillation cycle — {chan}\nflat=no coupling (Wake), peaked=coupling (N3)")
     plt.legend(); plt.tight_layout(); plt.savefig(os.path.join(OUT, "tort_phase_amp.png"), dpi=150); plt.close()
 
-    # 6. M2 population paired slopegraph (MI_z)
-    m2 = pd.read_csv(M2)
+    # 6. Spindle-coupling population paired slopegraph (MI_z)
+    m2 = pd.read_csv(PAC_CSV)
     e2 = m2[m2.roi_group.isin(["entorhinal", "parahippocampal"])]
     p2 = e2.groupby(["pt", "state"])["mi_z"].mean().unstack("state")[["W", "N3"]].dropna()
     plt.figure(figsize=(5, 6))
@@ -166,8 +166,8 @@ def main():
     plt.plot([0, 1], [p2.W.mean(), p2.N3.mean()], "-o", color="black", lw=3, label="mean")
     plt.axhline(0, color="k", ls=":", lw=0.8)
     plt.xticks([0, 1], ["Wake", "N3"]); plt.ylabel("slow->spindle coupling (MI_z)")
-    plt.title(f"M2: coupling rises W->N3\n{(p2.N3>p2.W).sum()}/{len(p2)} patients, p=0.030")
-    plt.legend(); plt.tight_layout(); plt.savefig(os.path.join(OUT, "m2_paired_slope.png"), dpi=150); plt.close()
+    plt.title(f"Spindle-coupling: coupling rises W->N3\n{(p2.N3>p2.W).sum()}/{len(p2)} patients, p=0.030")
+    plt.legend(); plt.tight_layout(); plt.savefig(os.path.join(OUT, "spindle_coupling_paired_slope.png"), dpi=150); plt.close()
 
     print(f"[visuals] wrote 6 figures to {OUT}")
 

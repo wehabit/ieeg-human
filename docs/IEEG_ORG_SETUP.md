@@ -39,7 +39,7 @@ Times are in **seconds**.
 | HUP211_phaseII | ~210 h | 512 Hz | 48 ch |
 | HUP171/177/182_phaseII | 190–286 h | 512 Hz | 31–35 ch |
 
-These are the **same HUP patients as our Pennsieve atlas** (M1–M6), but the full continuous
+These are the **same HUP patients as our Pennsieve atlas** (Slow-power–Ripple-coupling), but the full continuous
 phase-II monitoring — many full nights. Use 1024 Hz ones (HUP165/157/130) for ripples. Rerun the
 probe anytime with `python analysis/ieeg_find_datasets.py`.
 
@@ -56,7 +56,7 @@ There is no public catalog repo, so browse the portal:
 ## Practical notes on size
 5000 Hz × many channels × hours = large. Don't pull a whole night at once. Pull **windows**
 (e.g. 5–10 min blocks across the night, or the NREM periods), a handful of MTL channels at a time.
-Then feed the `.npz` into an M6/M7-style pipeline (bipolar → SO phase → spindle/ripple/fast-ripple
+Then feed the `.npz` into an Ripple-coupling/Nesting-timecourse-style pipeline (bipolar → SO phase → spindle/ripple/fast-ripple
 coupling), now with true overnight coverage and state transitions.
 
 ## Useful ieeg-portal GitHub repos

@@ -1,0 +1,7 @@
+numpy
+scipy
+pandas
+matplotlib
+mne
+tensorpac
+h5py

@@ -1,0 +1,20 @@
+# raw downloaded atlas data — large, redistributable only under CC-BY-NC-SA
+data/raw/
+*.edf
+*.mat
+*.npz
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+
+# iEEG.org credentials + downloads (never commit)
+data/ieeg_secret/
+data/ieeg_portal/
+
+# freeze: exclude all data + logs (raw EEG, downloads, credentials, run logs)
+data/
+*.log
+outputs/*.log

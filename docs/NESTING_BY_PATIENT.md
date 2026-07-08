@@ -54,3 +54,32 @@ independent 1 kHz replication (`slow_ripple_coupling`, p=6×10⁻⁵), not this 
 - `outputs/nesting_by_patient/so_trough_locked_spindle_heatmap.png` — SO-trough-locked spindle
   envelope; rows = patients (top) and rows = individual SO events (bottom), columns = time.
 - `outputs/nesting_by_patient/per_patient_upstate.csv` — per-patient up-state spindle-z + event count.
+
+## Cross-cohort replication (all three cohorts, stacked)
+
+`nesting_validation_cohorts.py` runs the same non-circular tests on all three cohorts (spindle for
+all; ripple for the two ≥1 kHz cohorts; the 204 Hz atlas cannot reach 80–120 Hz). Cohorts are shown
+separately (replication), not pooled.
+
+| Cohort | Band | up-state z [95% CI] | >0? | split-half r (p) |
+|---|---|---|---|---|
+| Atlas 204 Hz (n=49) | spindle | 0.058 [0.041, 0.076] | yes | 0.59 (8e-6) |
+| Falach 1 kHz (n=15) | spindle | −0.005 [−0.035, 0.025] | no | 0.58 (0.024) |
+| Falach 1 kHz | ripple | −0.003 [−0.013, 0.007] | no | 0.79 (5e-4) |
+| Zurich 2 kHz (n=9) | spindle | 0.032 [0.016, 0.048] | yes | 0.67-0.73 (~0.03) |
+| Zurich 2 kHz | ripple | −0.001 [−0.006, 0.002] | no | 0.67 (0.050) |
+
+**Key finding.** The fixed post-trough up-state window does **not** uniformly replicate — atlas and
+Zurich spindle are >0, but Falach spindle and both ripple bands sit at ~0. Split-half r is high
+everywhere (subjects internally consistent), so this is not noise; it is a **polarity/montage
+confound**: bipolar SO polarity is not standardized, so "post-trough" maps to different physiological
+phases across cohorts.
+
+**This does NOT contradict the coupling result.** M6's SO→spindle/ripple coupling uses **phase-agnostic
+Tort MI** (p = 6×10⁻⁵ / 0.0015), which detects SO-phase modulation of amplitude *regardless of where
+in the cycle it peaks* — so it survives across cohorts while the fixed-window temporal claim does not.
+
+**Conclusion / what to claim.** Lead with the **phase-amplitude coupling** (robust, phase/polarity
+independent). Do **not** headline the "rides the post-trough up-state" temporal narrative — it is
+real in the atlas/Zurich spindle but fragile across cohorts. Proper fix: orient SO polarity per
+channel (or align to each channel's own preferred SO phase) before the fixed-window average.

@@ -21,3 +21,10 @@ absence. An event-based spindle→ripple test is the proper follow-up if the leg
 
 ## Outputs
 - `outputs/hierarchical_coupling/hierarchical_coupling.png` — 2 cohorts × 3 legs, aligned curves + CI.
+
+## Reconciliation (event-based, `staresina_style`)
+The continuous phase-amplitude method above under-detected the spindle→ripple leg. The event-based
+Staresina reproduction (`staresina_style.py`, HUP165 full night) finds ripple peaks significantly
+clustered to spindle phase in **16/28 channels** (and spindle→SO phase in 27/28). So the spindle→ripple
+leg IS present event-based — the continuous method was simply less sensitive to it. Magnitude is modest
+(R≈0.03–0.05) vs the canonical Staresina R≈0.2–0.4. Net: the nesting is reproduced (both legs), modestly.

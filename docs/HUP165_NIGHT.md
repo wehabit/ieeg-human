@@ -1,0 +1,47 @@
+# HUP165 — one full NREM night (iEEG.org), polarity-robust SO coupling
+
+First analysis on **continuous full-night** data — the thing no clip cohort (atlas/Falach/Zurich)
+could do. `hup165_night_coupling.py` runs the same polarity-robust, cross-validated coupling
+(`nesting_phase_aligned` method) on **HUP165_phaseII** (iEEG.org, 1024 Hz): ~4 h of NREM across a
+single ~9 h night (blocks 11–20 h into the recording), 28 bipolar MTL channels (LA/LB/LC/LH),
+60/120 Hz notched. Statistics are over the 28 channels (one patient), repeated in 6 time bins.
+
+## Result
+
+| Band | whole-night cross-val modulation [95% CI over channels] |
+|---|---|
+| **SO→spindle** | **0.095 [0.075, 0.116]** ✓>0 — strongest of all cohorts |
+| **SO→ripple** | **0.051 [0.033, 0.074]** ✓>0 — clearly significant (unlike the short clips) |
+
+Both bands are the **cleanest and strongest** here — continuous natural NREM gives far more SO
+cycles and ripple events than any clip dataset, resolving the ripple coupling that was borderline
+in Falach/Zurich.
+
+## Across the night (per time bin, mean over 28 channels)
+
+| hrs | SO→spindle | SO→ripple |
+|---|---|---|
+| 11.6 | 0.105 | 0.059 |
+| 13.1 | 0.085 | 0.045 |
+| 14.6 | 0.092 | 0.049 |
+| 16.1 | 0.071 | 0.043 |
+| 17.6 | 0.091 | 0.040 |
+| 19.1 | 0.101 | 0.040 |
+
+**Coupling is present and positive across the ENTIRE night** for both bands. Spindle coupling is
+roughly stable (~0.07–0.11); ripple coupling declines gently early→late (0.059→0.040) — consistent
+with slow-wave sleep dominating the early night.
+
+## Caveats
+- **n = 1 patient.** Statistics are over that patient's 28 bipolar channels (not independent — shared
+  reference/anatomy), so this is a within-patient demonstration on a full night, not population
+  inference. Its value is continuity (whole night) and the strength/consistency of the effect across
+  every channel and every third of the night.
+- Epilepsy patient; SOZ channels were **not** excluded here (no per-channel SOZ pulled for HUP165),
+  so the ripple band may include some pathological HFOs. A SOZ-excluded re-run is the clean next step.
+- Blind NREM staging (delta-power threshold), not scored PSG.
+
+## Where it fits
+Complements the three clip cohorts: those give **cross-subject replication** (SO→spindle in all 3,
+polarity-robust); HUP165 gives the **within-night, continuous** view — the coupling holds across a
+whole real night and, uniquely, resolves SO→ripple cleanly.

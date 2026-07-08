@@ -83,3 +83,22 @@ in the cycle it peaks* — so it survives across cohorts while the fixed-window 
 independent). Do **not** headline the "rides the post-trough up-state" temporal narrative — it is
 real in the atlas/Zurich spindle but fragile across cohorts. Proper fix: orient SO polarity per
 channel (or align to each channel's own preferred SO phase) before the fixed-window average.
+
+## Polarity-robust resolution (`nesting_phase_aligned`)
+
+The fixed-window non-replication above was a **polarity confound**, and fixing it resolves the story.
+`nesting_phase_aligned.py` aligns each channel to **its own preferred SO phase**, cross-validated:
+half A (interleaved 5 s blocks) gives the preferred phase; half B is measured at that phase. θ* from
+A, tested on B → non-circular; per-channel alignment → polarity-independent.
+
+| Cohort | SO→spindle (cross-val modulation [CI]) | SO→ripple |
+|---|---|---|
+| Atlas 204 Hz (n=51) | 0.047 [0.026, 0.070] ✓>0 | — (204 Hz Nyquist) |
+| Falach 1 kHz (n=15) | 0.047 [0.008, 0.097] ✓>0 | 0.011 [−0.008, 0.033] n.s. |
+| Zurich 2 kHz (n=9) | 0.024 [0.014, 0.036] ✓>0 | 0.016 [0.010, 0.022] ✓>0 |
+
+**Conclusion.** **SO→spindle coupling replicates across all three independent cohorts** (CI excludes
+0 in each) — the earlier Falach "null" was polarity, not biology. **SO→ripple** replicates in Zurich
+and is positive-but-underpowered in Falach (n=15) — real but weaker/less consistent than spindle.
+This is the defensible, polarity-robust version of the coupling claim; the fixed-window temporal
+narrative should still not be headlined.

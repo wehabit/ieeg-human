@@ -42,6 +42,10 @@ On a **separate cohort** at higher sampling (ripples now accessible):
 → *The full NREM nesting — slow oscillation organizing both spindles and ripples — is present in
 human MTL across independent cohorts.*
 
+A polarity-robust, cross-validated re-test (`nesting_phase_aligned`) confirms **SO→spindle coupling
+replicates in all three cohorts** (atlas, Falach, Zurich; CI excludes 0 in each); SO→ripple replicates
+in Zurich and is positive-but-underpowered in Falach.
+
 *(A third cohort, HFO-phase (Zurich, 2 kHz, expert-marked HFOs), adds fast-ripples and shows the coupling
 tracks physiological rather than pathological events — supporting detail, not part of the core
 spine.)*

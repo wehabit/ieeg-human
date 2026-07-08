@@ -11,7 +11,7 @@ Events detected by standard amplitude thresholds. Aggregate panels (A,C) use amp
 (polarity-free). Phase panels (B,D): per-channel Rayleigh (absolute phase is montage-arbitrary, so
 we report clustering, not absolute phase, and show one example channel).
 """
-import os, glob, re
+import os, glob, re, argparse
 import numpy as np, pandas as pd
 from scipy import signal
 from scipy.stats import circmean
@@ -41,6 +41,7 @@ def rayleigh(ph):
 
 
 def main():
+    ap=argparse.ArgumentParser(); ap.add_argument('--sp-thr',type=float,default=1.5); ap.add_argument('--rp-thr',type=float,default=2.0); ap.add_argument('--tag',default=''); A_=ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
     idx = pd.read_csv(os.path.join(DIR, "index.csv"))
     hw_so = int(1.5 * SF); hw_sp = int(0.4 * SF)
@@ -63,8 +64,8 @@ def main():
             rpz = (rp_env - rp_env.mean())/(rp_env.std()+1e-12)
             # events
             so_tr, _ = signal.find_peaks(-so, height=so.std(), distance=int(0.8*SF))
-            sp_pk, _ = signal.find_peaks(spz, height=1.5, distance=int(0.3*SF))
-            rp_pk, _ = signal.find_peaks(rpz, height=2.0, distance=int(0.02*SF))
+            sp_pk, _ = signal.find_peaks(spz, height=A_.sp_thr, distance=int(0.3*SF))
+            rp_pk, _ = signal.find_peaks(rpz, height=A_.rp_thr, distance=int(0.02*SF))
             sp_tr, _ = signal.find_peaks(-sp, height=sp.std(), distance=int(0.05*SF))
             # A: SO-trough-triggered spindle env
             for e in so_tr[(so_tr > hw_so) & (so_tr < len(x)-hw_so)]:
@@ -116,7 +117,7 @@ def main():
                  "SO→spindle strong; spindle→ripple weak (as measured)", y=1.0, fontsize=12)
     fig.tight_layout()
     for ext in ("png", "svg"):
-        fig.savefig(os.path.join(OUT, f"staresina_style.{ext}"), dpi=150, bbox_inches="tight")
+        fig.savefig(os.path.join(OUT, f"staresina_style{A_.tag}.{ext}"), dpi=150, bbox_inches="tight")
     print(f"[staresina] A n={A['n']} SO troughs; C n={C['n']} spindle troughs")
     print(f"[staresina] spindle-peak SO-phase clustered in {sB}/{nB} channels; "
           f"ripple-peak spindle-phase clustered in {sD}/{nD} channels")

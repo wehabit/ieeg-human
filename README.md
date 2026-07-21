@@ -1,8 +1,10 @@
 # Locus-coeruleus infraslow coupling in human iEEG — **result: negative**
 
 > **Standalone branch.** This branch (`lc-infraslow-3ABD`) holds one self-contained study and is
-> **not intended to be merged**. `master` holds a different study (Kipnis NREM slow-oscillation
-> nesting in human MTL) with its own README; some shared infrastructure in `analysis/` belongs to it.
+> **not intended to be merged**. `master` holds a different study — NREM hierarchical nesting
+> (slow oscillation → spindle → ripple) in human MTL, after
+> [Staresina 2015](https://doi.org/10.1038/nn.4119) — with its own README; some shared
+> infrastructure in `analysis/` belongs to it.
 
 Does the **locus coeruleus** leave a shared **~0.02 Hz (~50 s) rhythm** in sleep spindles and heart
 rate during NREM ([Lecci 2017](https://doi.org/10.1126/sciadv.1602026); [Osorio-Forero 2021](https://doi.org/10.1016/j.cub.2021.09.041)), and does that coupling differ between lighter and
@@ -103,7 +105,7 @@ independently invalidated an earlier version of these results:
 - coherence is biased by window length (floor ≈ 1/K), so any contrast between conditions must use
   **length-matched** windows
 
-## Honest limitations
+## Limitations
 
 Epilepsy patients on anti-seizure medication, many tachycardic in NREM · staging is **not** scored
 AASM (no EOG/EMG in iEEG; N2/N3 approximated by a Gaussian mixture on slow-wave power, hence

@@ -47,7 +47,7 @@ Ripple-coupling completes the human coordination picture the Gyuri pointer set i
 | dHPC vs LEC | Region-profile | region gradient |
 
 The slow oscillation organizes **both** spindles and ripples in human NREM MTL — the full nesting
-that the Kipnis mechanism links to clearance. The 50 Hz mouse drive engaged none of this native
+that the Kipnis/Jiang-Xie clearance hypothesis invokes. The 50 Hz mouse drive engaged none of this native
 structure; the design implication (Bridge) stands and is now stronger.
 
 ## Caveats

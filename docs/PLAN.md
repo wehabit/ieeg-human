@@ -1,4 +1,4 @@
-# Human iEEG Test of the Kipnis Sleep-Coordination Mechanism
+# Human iEEG Test of NREM Hierarchical Nesting (slow oscillation -> spindle -> ripple)
 
 Phase-1 analysis plan. Goal: test whether the coordinated slow-wave field activity that the
 Kipnis / Jiang-Xie work links to sleep-dependent CSF perfusion and clearance is present, and
@@ -8,14 +8,13 @@ requires **no new patient access or committee approval**.
 ## Why this dataset, why now
 
 The Buzsáki mouse pilot (Dec4, `hpaticmousebuzsakilab`) found that 50 Hz vibrotactile drive
-produced **theta (6–10 Hz) spike-field organization** in dorsal hippocampus, but **not** the Kipnis
-**0.5–4 Hz slow-wave coordination**. See `DEC4_ALL_DHPC_KIPNIS_COORDINATION.md` and
+produced **theta (6–10 Hz) spike-field organization** in dorsal hippocampus, but **not** **0.5-4 Hz slow-wave coordination**. See `DEC4_ALL_DHPC_KIPNIS_COORDINATION.md` and
 `DEC4_THETA_COUPLING_STATES.md` in that repo. The documented reason: there was **no natural NREM
-state** in the mouse pilot — only stimulation epochs. The frequency/state mismatch with Kipnis was
+state** in the mouse pilot — only stimulation epochs. The frequency/state mismatch with the clearance literature was
 the central caveat.
 
 Human overnight iEEG closes exactly that gap: it contains **natural N2 / N3 / REM / wake** states,
-so we can finally ask whether the Kipnis-band coordination appears where and when the mechanism
+so we can finally ask whether the slow-band coordination appears where and when the mechanism
 predicts.
 
 ### Dataset
@@ -30,11 +29,11 @@ predicts.
 Hippocampus, entorhinal cortex, parahippocampal, amygdala (mesiotemporal), plus a neocortical
 comparison set. Mirrors the mouse dHPC vs LEC contrast.
 
-## The Kipnis prediction, stated as testable hypotheses
+## The nesting prediction, stated as testable hypotheses
 
 - **H1 (state-dependence of coordination).** Slow-wave (0.5–4 Hz) power and coordination in
   hippocampus/EC increase across wake → N2 → N3, and fall in REM. This is the human version of "is
-  there Kipnis-band coordination, and is it in the state the mechanism needs."
+  there slow-band coordination, and is it in the state the mechanism needs."
 - **H2 (nesting / phase-amplitude coupling).** The slow-oscillation phase organizes faster events
   (spindles 11–16 Hz; ripples/HFO 80–200 Hz). Coupling strength is maximal in N3/N2, minimal in
   wake/REM. This is the LFP analogue of the mouse **spike-field PLV** — instead of spikes-to-theta,
@@ -55,7 +54,7 @@ comparison set. Mirrors the mouse dHPC vs LEC contrast.
 | **Bridge Bridge figure** | Overlay mouse (driven theta, 6–10 Hz) vs human (natural NREM slow, 0.5–4 Hz); frame the stim-frequency hypothesis | — |
 
 **Bridge is the payoff for the grant / one-pager.** It states the design hypothesis explicitly: to
-engage the Kipnis mechanism, vibrotactile stimulation during NREM should aim to **enhance the native
+engage this substrate, vibrotactile stimulation during NREM should aim to **enhance the native
 slow-wave coordination** (slow / Jiang-Xie testing frequencies), not 50 Hz. The mouse 50 Hz result
 was target *engagement*; the human atlas defines the *target state*.
 
@@ -72,7 +71,7 @@ was target *engagement*; the human atlas defines the *target state*.
 - **Normative epilepsy patients, interictal.** Clips are curated as non-epileptic, but these are not
   healthy brains.
 - **LFP only, no spikes.** Coordination here is field-level PAC, not spike-field locking. It is the
-  correct level for the Kipnis field-wave claim but is not identical to the mouse unit analysis.
+  correct level for the field-wave claim but is not identical to the mouse unit analysis.
 - **Segmented clips, not continuous overnight.** Within-clip nesting is testable; long-range
   SO→spindle→ripple sequences and full-night dynamics are not (that needs iEEG.org / DABI raw data —
   a Phase-1b extension).

@@ -1,7 +1,7 @@
 # Slow-power by state — anchor result (tests H1)
 
 **Question:** In human mesiotemporal cortex, does slow-wave (0.5–4 Hz) power rise from wake into
-deep NREM (W → N2 → N3), as the Kipnis / Jiang-Xie sleep-coordination mechanism predicts? This is
+deep NREM (W → N2 → N3), as the Kipnis / Jiang-Xie clearance hypothesis would require? This is
 the natural-sleep contrast the Buzsáki mouse pilot could not run (it had only 50 Hz drive, no
 scored NREM), and it is the entorhinal analogue of the mouse LEC arm.
 

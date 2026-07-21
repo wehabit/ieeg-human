@@ -4,8 +4,7 @@ Spindle-coupling - Slow-oscillation -> spindle phase-amplitude coupling (tests H
 This is the human LFP analogue of the mouse spike-field PLV. In the mouse, spikes locked
 to the theta-phase of the field wave. Here there are no spikes (204 Hz LFP), so we ask the
 field-level version of the same question: does the phase of the slow oscillation (0.5-1.25 Hz)
-organize the amplitude of sleep spindles (11-16 Hz)? That nesting IS the Kipnis 'coordinated
-field wave', and the Kipnis prediction is that it is maximal in N3/N2 and minimal in wake/REM.
+organize the amplitude of sleep spindles (11-16 Hz)? That nesting is the coordinated field wave, and the prediction is that it is maximal in N3/N2 and minimal in wake/REM.
 
 Metric: Tort modulation index (KL divergence of the phase-binned amplitude distribution from
 uniform), with a circular-shift surrogate null -> MI_z. Also the preferred coupling phase (H3:
@@ -178,7 +177,7 @@ def main():
     ax[0].axhline(0, color="k", lw=0.7, ls=":")
     ax[0].set_xticks(range(len(order))); ax[0].set_xticklabels(order)
     ax[0].set_xlabel("state"); ax[0].set_ylabel("slow->spindle coupling (surrogate-corrected MI_z)")
-    ax[0].set_title("Spindle-coupling: slow-oscillation -> spindle coupling by state\n(surrogate-corrected; Kipnis H2: peaks N3, absent wake/REM)")
+    ax[0].set_title("Spindle-coupling: slow-oscillation -> spindle coupling by state\n(surrogate-corrected; H2: peaks N3, absent wake/REM)")
     ax[0].legend(fontsize=8)
     # H3: preferred SO phase of spindle power, N3, mesiotemporal
     n3 = df[(df.state == "N3") & df.roi_group.isin(["entorhinal", "parahippocampal"])]

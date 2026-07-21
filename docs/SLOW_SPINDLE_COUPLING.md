@@ -1,12 +1,12 @@
 # Slow-oscillation → spindle coupling (tests H2, H3)
 
-**Question:** Is the *coordination* the Kipnis / Jiang-Xie mechanism cares about — the slow field
+**Question:** Is the *coordination* the clearance hypothesis cares about — the slow field
 wave organizing faster activity — present in human mesiotemporal cortex, and is it state-dependent?
 This is the human LFP analogue of the mouse **spike-field PLV**: the mouse locked *spikes* to the
 theta phase of the field; here (no spikes at 204 Hz) we lock *spindle amplitude* (11–16 Hz) to the
 phase of the slow oscillation (0.5–1.25 Hz). That nesting **is** the coordinated field wave.
 
-**Kipnis prediction (H2):** coupling maximal in N3/N2, minimal in wake/REM.
+**Nesting prediction (H2):** coupling maximal in N3/N2, minimal in wake/REM.
 
 ## Plain-English answer
 

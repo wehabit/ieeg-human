@@ -4,7 +4,7 @@ HFO-phase - SO-phase of EXPERT-MARKED ripples & fast-ripples  [ds003498, Zurich,
 Independent 3rd cohort, and a different, stronger design than Ripple-coupling: instead of amplitude-envelope
 coupling, we use the dataset's **expert/detector-marked** ripple and fast-ripple events and ask
 what slow-oscillation phase each event lands on. If events cluster at a preferred SO phase
-(Rayleigh test), the slow oscillation organizes them -- the event-based version of the Kipnis /
+(Rayleigh test), the slow oscillation organizes them -- the event-based version of the
 mouse ripple result, in human MTL.
 
 Bonus the 204 Hz atlas and even the 1 kHz Falach set could not give: **fast ripples (200-500 Hz)**.

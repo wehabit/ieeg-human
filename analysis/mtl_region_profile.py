@@ -2,7 +2,7 @@
 Region-profile - Regional gradient (human analogue of the mouse `spike_50hz_interpretation` figure:
 dHPC driven-up vs LEC net-suppressed = region-specific processing).
 
-Here we ask the human version: does the Kipnis NREM coordination differ across
+Here we ask the human version: does NREM hierarchical nesting differ across
 hippocampal vs entorhinal/parahippocampal vs temporal-neocortex sites? Built from the
 already-computed Slow-power (slow-band power) and Spindle-coupling (slow->spindle MI_z) tables — no re-download.
 

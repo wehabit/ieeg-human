@@ -1,5 +1,5 @@
 """
-iEEG.org (IEEG Portal) downloader — continuous full-night iEEG for the Kipnis project.
+iEEG.org (IEEG Portal) downloader — continuous full-night iEEG for this project.
 
 Credentials live in data/ieeg_secret/credentials.json (gitignored), never in code.
 

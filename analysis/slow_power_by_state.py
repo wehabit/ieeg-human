@@ -1,7 +1,7 @@
 """
 Slow-power - Spectral state map (the anchor result, tests H1).
 
-Kipnis prediction: slow-wave (0.5-4 Hz) coordination in mesiotemporal cortex is
+Nesting prediction: slow-wave (0.5-4 Hz) coordination in mesiotemporal cortex is
 state-dependent -- it should rise wake -> N2 -> N3. This is the human analogue of the
 mouse 'field amplitude by epoch' step, but now across NATURAL sleep states that the
 mouse pilot never had.
@@ -145,7 +145,7 @@ def main():
         plt.fill_between(xs, s.ci_lo, s.ci_hi, alpha=0.15)
     plt.xticks(range(len(order)), order)
     plt.xlabel("sleep/wake state"); plt.ylabel("relative slow-band power (0.5-4 Hz)")
-    plt.title("Slow-power: mesiotemporal slow-wave power by state\n(Kipnis H1: rises W->N2->N3)")
+    plt.title("Slow-power: mesiotemporal slow-wave power by state\n(H1: rises W->N2->N3)")
     plt.legend(fontsize=8); plt.tight_layout()
     for ext in ("png", "svg"):
         plt.savefig(os.path.join(OUT, f"slow_power_by_state.{ext}"), dpi=150)

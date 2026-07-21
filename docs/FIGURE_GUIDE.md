@@ -1,6 +1,6 @@
 # Figure Guide — what each analysis is, in plain English
 
-You are testing **one question**: *does the human brain show the Kipnis NREM slow-wave
+You are testing **one question**: *does the human brain show NREM slow-wave
 coordination that the mouse pilot couldn't produce?* Every figure is a piece of that.
 
 The mouse study (Gyuri pointer set) used **single neurons + a vibration stimulus**. The human
@@ -29,7 +29,7 @@ Rock-solid: 20/21 patients, p=2.9e-6.
 
 **Spindle-coupling — `spindle_coupling_by_state` / `comodulogram` / `tort_phase_amp` / `spindle_coupling_paired_slope`**
 That slow wave **organizes** spindles (fast bursts cluster at one phase of the slow wave), and
-only in NREM. *This is the coordination — the actual Kipnis mechanism.* Real but noisier:
+only in NREM. *This is the coordination — the nesting itself.* Real but noisier:
 17/22 patients, p=0.030 (independently replicated in Ripple-coupling, p=6e-5).
 - `comodulogram` is the clearest: dark (no coupling) in wake, bright hotspot (coupling) in N3.
 - `tort_phase_amp` is the same thing as a bar chart: flat in wake, peaked in N3.

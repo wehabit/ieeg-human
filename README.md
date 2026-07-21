@@ -20,6 +20,25 @@ vibrotactile drive organized dorsal-hippocampal firing at **theta**, but not in 
 [docs/FIGURE_GUIDE.md](docs/FIGURE_GUIDE.md) (plain-English map of every figure) ·
 [docs/PLAN.md](docs/PLAN.md).
 
+---
+
+## The main finding — the coordination itself
+
+**Spindles and ripples ride the slow-oscillation up-state.** Left: a raw entorhinal segment with the
+slow oscillation and the spindle/ripple envelopes. Right: the SO-trough-triggered grand average over
+10,292 events — spindle power (orange) peaks just before the up-state, with ripple power (red)
+nested inside it.
+
+![SO-triggered nesting: spindle and ripple envelopes rise on the slow-oscillation up-state](outputs/nesting_timecourse/so_triggered_nesting.png)
+
+**Event-based replication across a full continuous night** (HUP165, iEEG.org, 153,353 SO troughs).
+The SO→spindle leg is strong and phase-locked in **27/28 channels**; the spindle→ripple leg is weak
+in our data, so the *full* three-level hierarchy is **not** supported here — only its first leg.
+
+![Staresina-style nesting on a full night: SO to spindle strong, spindle to ripple weak](outputs/staresina_style/staresina_style.png)
+
+*Every figure explained in plain English: [docs/FIGURE_GUIDE.md](docs/FIGURE_GUIDE.md).*
+
 ## Datasets used (all open; raw data gitignored)
 
 | # | Dataset | Rate | Coverage | Used by |

@@ -1,0 +1,47 @@
+{
+  "dataset": "HUP165_phaseII",
+  "block": {
+    "block": "175",
+    "file": "block_0175.npz",
+    "start_sec": "64110.0",
+    "dur_sec": "600.0",
+    "n_samples": "614400"
+  },
+  "sfreq": 1024.0,
+  "best_channel": "EKG1",
+  "summary": {
+    "EKG1": {
+      "n_beats": 949,
+      "hr_median": 91.83856502242152,
+      "hr_iqr": [
+        88.65800865800865,
+        95.29279214213491
+      ],
+      "rr_median_s": 0.6533203125,
+      "artifact_frac": 0.04430379746835443,
+      "mean_beats_per_min": 94.9
+    },
+    "EKG2": {
+      "n_beats": 1216,
+      "hr_median": 122.14711729622266,
+      "hr_iqr": [
+        92.39097744360902,
+        187.03586321934947
+      ],
+      "rr_median_s": 0.4912109375,
+      "artifact_frac": 0.254320987654321,
+      "mean_beats_per_min": 121.6
+    },
+    "EKG1-EKG2": {
+      "n_beats": 1596,
+      "hr_median": 152.07920792079207,
+      "hr_iqr": [
+        139.00452488687782,
+        249.7560975609756
+      ],
+      "rr_median_s": 0.39453125,
+      "artifact_frac": 0.4307210031347962,
+      "mean_beats_per_min": 159.6
+    }
+  }
+}

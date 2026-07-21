@@ -1,0 +1,27 @@
+{
+  "dataset": "HUP165_phaseII",
+  "window_h": [
+    11.466666666666667,
+    13.8
+  ],
+  "dur_min": 140.0,
+  "fast_spindle_peak_hz": 12.5,
+  "sigma_band": [
+    11.5,
+    13.5
+  ],
+  "nbeats": 12811,
+  "median_hr_bpm": 91.83856502242152,
+  "rr_dropped_frac": 0.000234192037470726,
+  "ied_masked_frac": 0.12141062903025795,
+  "sigma_coh_at_0p02": 0.06969439845542952,
+  "sigma_coh_band_max": 0.06969439845542952,
+  "sigma_band_peak_hz": 0.01953125,
+  "crit_bin": 0.10146573557272476,
+  "crit_band": 0.18429826930822735,
+  "K": 29,
+  "significant_at_0p02": false,
+  "significant_band_corrected": false,
+  "swa_control_coh_at_0p02": 0.006178026075435686,
+  "swa_control_band_max": 0.08952238506887296
+}

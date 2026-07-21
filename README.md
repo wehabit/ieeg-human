@@ -1,12 +1,19 @@
-# iEEG — Human test of the Kipnis sleep-coordination substrate
+# iEEG — Human test of NREM hierarchical nesting (slow oscillation → spindle → ripple)
 
-Does the NREM slow oscillation organize faster activity (spindles, ripples) in **human medial
-temporal lobe** — the candidate neural substrate that Kipnis / Jiang-Xie link to sleep-dependent
-CSF clearance? We test this on **open, public** human intracranial EEG, with **no new patient
-access or committee approval required**. (Clearance itself is not measured here.)
+Does the NREM slow oscillation organize faster activity — spindles and ripples — in **human medial
+temporal lobe**? This is the **hierarchical nesting** described by
+[Staresina et al. 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) in the human hippocampus,
+and the question here is whether it replicates across **independent, open** iEEG cohorts, with **no
+new patient access or committee approval required**.
+
+Related work this nesting is often connected to — and which this repository does **not** test:
+sleep-dependent CSF clearance and its noradrenergic control
+([Hauglund et al. 2025, *Cell*](https://doi.org/10.1016/j.cell.2024.11.027)). **No clearance is
+measured here**; the nesting is a candidate neural substrate, and that link remains a hypothesis
+belonging to those authors, not a result of this work.
 
 Sister project to the Buzsáki mouse pilot (`hpaticmousebuzsakilab`): the mouse showed 50 Hz
-vibrotactile drive organized dorsal-hippocampal firing at **theta**, but not at the Kipnis
+vibrotactile drive organized dorsal-hippocampal firing at **theta**, but not in the
 **0.5–4 Hz slow-wave** band — because it had no natural NREM. This project supplies that state.
 
 **Start here:** [docs/iEEG_EVIDENCE_BRIEF.md](docs/iEEG_EVIDENCE_BRIEF.md) (2-page spine) ·

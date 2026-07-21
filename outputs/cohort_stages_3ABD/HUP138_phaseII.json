@@ -1,0 +1,64 @@
+{
+  "subject": "HUP138_phaseII",
+  "status": "ok",
+  "sf": 1024.0,
+  "cortical_chans": [
+    "LF12",
+    "RF12",
+    "F8"
+  ],
+  "ekg": "EKG1",
+  "night_h": 13.0,
+  "fast_spindle_peak_hz": 15.375,
+  "fsp_is_real_peak": true,
+  "hours_streamed": 7.0,
+  "n_nrem_epochs": 379,
+  "n_N2": 377,
+  "n_N3": 2,
+  "gmm_separation": 18.631585156314113,
+  "N2": {
+    "n_epochs": 377,
+    "3D_mi": 3.5992919453082686e-06,
+    "3D_mi_z": -0.7539066282926021,
+    "3D_n_epochs": 377,
+    "3B_n_so": 2722,
+    "3B_modulation": 0.9650232297949088,
+    "3B_z": 9.60606060488779,
+    "3A": null,
+    "3A_block_min": 59.5
+  },
+  "N3": {
+    "n_epochs": 2,
+    "3D_mi": null,
+    "3D_mi_z": null,
+    "3D_n_epochs": 2,
+    "3B_n_so": 0,
+    "3B_modulation": null,
+    "3B_z": null,
+    "3A": null,
+    "3A_block_min": 0.0
+  },
+  "NREM_pooled": {
+    "block_min": 59.5,
+    "purity": 1.0,
+    "used_min": 55.0,
+    "3A": {
+      "at": 2.230584984092798e-05,
+      "bmax": 0.09680127023393126,
+      "K": 23,
+      "crit": 0.12730543165483876,
+      "n_sec": 3173,
+      "nperseg": 256
+    },
+    "3B": {
+      "n_so": 2743,
+      "modulation": 0.9807765675260356,
+      "z": 11.43321631305569
+    },
+    "3D": {
+      "mi": 9.496385203045128e-05,
+      "mi_z": -0.5673088260079279,
+      "n_epochs": 379
+    }
+  }
+}

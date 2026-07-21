@@ -49,11 +49,11 @@ Per subject: ~7 h streamed from the highest-delta night, 3 signals derived (1 Hz
 
 ## 3. The three tests
 
-| Test | What it asks | Measure |
-|---|---|---|
-| **3A** *(primary)* | Do spindle power and heart rate rise and fall **together every ~50 s**? | Magnitude-squared coherence between the 1 Hz spindle-power series and instantaneous heart rate, read at the pre-specified **0.02 Hz**. Significance via the analytic threshold `1 − α^(1/(K−1))` for K Welch segments. |
-| **3B** | Does heart rate shift systematically **around the slow-oscillation trough**? | SO-trough-triggered average heart rate; modulation depth vs a random-trigger null (z). |
-| **3D** | Does the slow oscillation **organise spindles** (context/QC)? | Tort modulation index between SO phase and spindle amplitude, surrogate-corrected. |
+| Test | What it asks | Measure | Source |
+|---|---|---|---|
+| **3A** *(primary)* | Do spindle power and heart rate rise and fall **together every ~50 s**? | Magnitude-squared coherence between the 1 Hz spindle-power series and instantaneous heart rate, read at the pre-specified **0.02 Hz**. Significance via the analytic threshold `1 − α^(1/(K−1))` for K Welch segments. | Lecci 2017; Osorio-Forero 2021 |
+| **3B** | Does heart rate shift systematically **around the slow-oscillation trough**? | SO-trough-triggered average heart rate; modulation depth vs a random-trigger null (z). | Chen & Mednick 2022 |
+| **3D** | Does the slow oscillation **organise spindles** (context/QC)? | Tort modulation index between SO phase and spindle amplitude, surrogate-corrected. | Staresina 2015; Helfrich 2018; Winer 2019 |
 
 **Staging caveat.** iEEG has no EOG/EMG, so **true AASM N2/N3 scoring is impossible**. NREM epochs
 were split by a 2-component Gaussian mixture on log slow-wave power — high-SWA = "N3-like",
@@ -80,6 +80,31 @@ It does not survive the control. Counting exceedances at **every** frequency bin
 0.02 Hz ranks **2nd of 63 bins**, and the background exceedance (11.6%) is ~2× the 6% that a
 simulation on independent signals predicts. Retested against the *empirical* background rather than
 the simulated one, 0.02 Hz gives **p = 0.013** — and it is not the largest bin.
+
+#### Where the 6% and 11.6% come from
+
+These two numbers decide the retraction, so they are worth stating precisely.
+
+- **6% — what chance alone produces.** `validate_3A_false_positive_rate.py` generates **2000 pairs of
+  independent synthetic signals** (no coupling by construction) in four spectral shapes — white,
+  pink 1/f, brown 1/f², and AR1 ρ=0.99 (strongly autocorrelated, the condition that normally inflates
+  coherence) — each 55 min at 1 Hz, pushed through the **identical `msc_block()` code path**. The rate
+  at which coherence at 0.02 Hz crosses the analytic threshold is **0.055 / 0.063 / 0.065 / 0.059**.
+  So the test delivers ≈ its nominal α = 0.05 *when the two signals share nothing*.
+  (The same simulation shows the **band-maximum** test gives **34%** false positives — which is why
+  only a pre-specified frequency point is reported anywhere in this work.)
+
+- **11.6% — what the real data produces where no effect is predicted.** For each of the 23 subjects
+  the **full** coherence spectrum was computed, and at **every** frequency bin the number of subjects
+  exceeding their own threshold was counted. Averaged over the 63 bins spanning 0.005–0.25 Hz, that
+  is **11.6%** (≈2.7 of 23 per bin).
+
+The inference: if only chance were operating, the real data would also sit near 6%. It sits at ~2×
+that, so genuine shared low-frequency structure exists between sigma power and heart rate — but it is
+present at *arbitrary* frequencies. **11.6% is therefore the correct null against which 0.02 Hz must
+be judged, and against it the result is neither strong nor the largest bin.** The simulation
+established that the *statistic* was sound; it could not establish that the *data* were free of
+generic shared structure.
 
 **Interpretation:** real sigma-power and heart-rate series share genuine **broadband low-frequency
 structure** (arousals, state changes, drift), strongest at the lowest frequencies and decaying. There
@@ -142,6 +167,74 @@ Also null when split by fast (>12 Hz) vs slow (<12 Hz) individual spindle peak (
 1 h continuous, 2048 Hz), recorded with **EOG and EMG**, so real sleep staging is possible, on
 cortical grids at an independent site. If the effect is absent there too, this becomes a clean,
 well-controlled negative.
+
+---
+---
+
+## 9. References
+
+### The tests
+
+**3A — infraslow spindle↔heart coupling**
+- Lecci S, Fernandez LMJ, Weber FD, Cardis R, Chatton J-Y, Born J, Lüthi A (2017). *Coordinated
+  infraslow neural and cardiac oscillations mark fragility and offline periods in mammalian sleep.*
+  **Science Advances** 3:e1602026. [10.1126/sciadv.1602026](https://doi.org/10.1126/sciadv.1602026)
+  — defines the 0.02 Hz sigma-power oscillation and its cardiac counterpart; source of the ~50 s
+  periodicity, the S2 > SWS claim, and the fast-spindle-peak band.
+- Osorio-Forero A, Cardis R, Vantomme G, Guillaume-Gentil A, Katsioudi G, Devenoges C, Fernandez LMJ,
+  Lüthi A (2021). *Noradrenergic circuit control of non-REM sleep substates.* **Current Biology**
+  31:5009–5023. [10.1016/j.cub.2021.09.041](https://doi.org/10.1016/j.cub.2021.09.041)
+  — shows the LC drives the infraslow spindle-clustering rhythm and coordinates infraslow heart rate.
+
+**3B — slow-oscillation ↔ heartbeat coupling**
+- Chen P-C, Zhang J, Thayer JF, Mednick SC (2022). *Understanding the roles of central and autonomic
+  activity during sleep in the improvement of working memory and episodic memory.* **PNAS**
+  119(44):e2123417119. [10.1073/pnas.2123417119](https://doi.org/10.1073/pnas.2123417119)
+  — the event-based autonomic–central coupling framework this test follows.
+
+**3D — slow-oscillation → spindle coupling**
+- Staresina BP, Bergmann TO, Bonnefond M, van der Meij R, Jensen O, Deuker L, Elger CE, Axmacher N,
+  Fell J (2015). *Hierarchical nesting of slow oscillations, spindles and ripples in the human
+  hippocampus.* **Nature Neuroscience** 18:1679–1686. [10.1038/nn.4119](https://doi.org/10.1038/nn.4119)
+- Helfrich RF, Mander BA, Jagust WJ, Knight RT, Walker MP (2018). *Old brains come uncoupled in
+  sleep: slow wave–spindle synchrony, brain atrophy and forgetting.* **Neuron** 97:221–230.
+  [10.1016/j.neuron.2017.11.020](https://doi.org/10.1016/j.neuron.2017.11.020)
+- Winer JR, Mander BA, Helfrich RF, Maass A, Harrison TM, Baker SL, Knight RT, Jagust WJ, Walker MP
+  (2019). *Sleep as a potential biomarker of tau and β-amyloid burden in the human brain.*
+  **J Neurosci** 39:6315–6324.
+  [10.1523/JNEUROSCI.0503-19.2019](https://doi.org/10.1523/JNEUROSCI.0503-19.2019)
+  — the disease link motivating the whole study: impaired SO–spindle coupling predicts medial
+  temporal tau.
+
+### Why the LC is the target
+- Jacobs HIL et al. (2021). *In vivo and neuropathology data support locus coeruleus integrity as
+  indicator of Alzheimer's disease pathology and cognitive decline.* **Sci Transl Med** 13:eabj2511.
+  [10.1126/scitranslmed.abj2511](https://doi.org/10.1126/scitranslmed.abj2511)
+
+### Methods
+- Tort ABL, Komorowski R, Eichenbaum H, Kopell N (2010). *Measuring phase-amplitude coupling between
+  neuronal oscillations of different frequencies.* **J Neurophysiol** 104:1195–1210. — the modulation
+  index used in 3D.
+- Welch PD (1967). *The use of FFT for the estimation of power spectra.* **IEEE Trans Audio
+  Electroacoust** 15:70–73. — the segmented spectral estimator underlying 3A.
+- Halliday DM, Rosenberg JR, Amjad AM, Breeze P, Conway BA, Farmer SF (1995). *A framework for the
+  analysis of mixed time series/point process data.* **Prog Biophys Mol Biol** 64:237–278. — source
+  of the analytic coherence confidence limit `1 − α^(1/(K−1))`.
+- Pan J, Tompkins WJ (1985). *A real-time QRS detection algorithm.* **IEEE Trans Biomed Eng**
+  32:230–236. — R-peak detection (used before switching to NeuroKit2).
+- Makowski D, Pham T, Lau ZJ, et al. (2021). *NeuroKit2: a Python toolbox for neurophysiological
+  signal processing.* **Behavior Research Methods** 53:1689–1696. — the validated R-peak detection
+  actually used.
+
+### Data
+- Pattnaik AR, Litt B et al. — Normative iEEG Sleep & Wake Atlas, Pennsieve
+  [10.26275/xhte-d11l](https://doi.org/10.26275/xhte-d11l)
+- iEEG.org (IEEG Portal) — HUP phase-II continuous recordings; the cohort used here.
+- OpenNeuro **ds003848** — the replication target (iEEG sleep + verified ECG + EOG/EMG).
+
+*PDFs of the primary references are in the companion literature repository under
+`papers/lc_infraslow_sleep_coupling/`.*
+
 
 ---
 

@@ -31,9 +31,18 @@ nested inside it.
 
 ![SO-triggered nesting: spindle and ripple envelopes rise on the slow-oscillation up-state](outputs/nesting_timecourse/so_triggered_nesting.png)
 
-**Event-based replication across a full continuous night** (HUP165, iEEG.org, 153,353 SO troughs).
-The SO→spindle leg is strong and phase-locked in **27/28 channels**; the spindle→ripple leg is weak
-in our data, so the *full* three-level hierarchy is **not** supported here — only its first leg.
+**Event-based replication across a full continuous night** (HUP165, iEEG.org — 153,353 SO troughs,
+748,028 spindle troughs). **Both legs of the Staresina hierarchy are present in this single
+subject:** spindle peaks lock to SO phase in **27/28 channels**, and ripple peaks lock to spindle
+phase in **16/28 channels** — so SO ⊃ spindle ⊃ ripple is reproduced, though modestly
+(R ≈ 0.03–0.05 vs the canonical R ≈ 0.2–0.4).
+
+⚠️ **Method matters here.** The *continuous* phase-amplitude approach across cohorts
+(Falach n=15, Zurich n=9) finds the spindle→ripple leg null-to-tiny and concludes the full
+hierarchy is **not** supported — see [docs/HIERARCHICAL_COUPLING.md](docs/HIERARCHICAL_COUPLING.md).
+The *event-based* test above is more sensitive to that leg and does detect it. The two are
+reconciled in that document; the honest summary is **SO→spindle robust across three cohorts,
+spindle→ripple detectable event-based but weak and method-dependent.**
 
 ![Staresina-style nesting on a full night: SO to spindle strong, spindle to ripple weak](outputs/staresina_style/staresina_style.png)
 

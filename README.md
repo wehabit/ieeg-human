@@ -86,6 +86,7 @@ reports/HUP165_phaseII_3A_results.html   worked single-subject report (self-cont
 docs/LC_INFRASLOW_3ABD_SUMMARY.md    the write-up
 docs/DATA_INVENTORY_LC_INFRASLOW.md  what public data can and cannot support these tests
 docs/DEC_3A_METHOD_NOTES.md          method notes / traps
+docs/HUP165_N2_N3_RESULTS.md         full N2/N3 breakdown for the worked subject
 ```
 
 ## Method notes worth reading before reusing any of this

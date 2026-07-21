@@ -15,7 +15,7 @@ vibrotactile drive organized dorsal-hippocampal firing at **theta**, but not at 
 
 ---
 
-## 🔬 On this branch (`lc-infraslow-3A`): the locus-coeruleus infraslow test — **result: negative**
+## 🔬 On this branch (`lc-infraslow-3ABD`): the locus-coeruleus infraslow test — **result: negative**
 
 A second, self-contained study asking whether the **locus coeruleus** leaves a shared
 **~0.02 Hz (~50 s) rhythm** in sleep spindles and heart rate during NREM

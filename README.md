@@ -5,7 +5,7 @@
 > nesting in human MTL) with its own README; some shared infrastructure in `analysis/` belongs to it.
 
 Does the **locus coeruleus** leave a shared **~0.02 Hz (~50 s) rhythm** in sleep spindles and heart
-rate during NREM (Lecci 2017; Osorio-Forero 2021), and does that coupling differ between lighter and
+rate during NREM ([Lecci 2017](https://doi.org/10.1126/sciadv.1602026); [Osorio-Forero 2021](https://doi.org/10.1016/j.cub.2021.09.041)), and does that coupling differ between lighter and
 deeper NREM? The LC degenerates early in neurodegenerative disease, so weakened coupling was a
 candidate biomarker.
 
@@ -18,11 +18,16 @@ hypothesis, dataset, tests, subject flow, results, limitations, references.
 
 ## The three tests
 
-| | Question | Result | Source |
+| | Question | Result | Source paper |
 |---|---|---|---|
-| **3A** | Do spindle power and heart rate rise and fall together every ~50 s? | **negative** — retracted after a frequency-specificity control | Lecci 2017; Osorio-Forero 2021 |
-| **3B** | Does heart rate shift around the slow-oscillation trough? | **null** (p = 0.11) | Chen & Mednick 2022 |
-| **3D** | Does the slow oscillation organise spindles? | **null** (p = 0.40), raw effect ~6×10⁻⁵ | Staresina 2015; Helfrich 2018 |
+| **3A** | Do spindle power and heart rate rise and fall together every ~50 s? | **negative** — retracted after a frequency-specificity control | [Lecci 2017, *Sci Adv*](https://doi.org/10.1126/sciadv.1602026) · [Osorio-Forero 2021, *Curr Biol*](https://doi.org/10.1016/j.cub.2021.09.041) |
+| **3B** | Does heart rate shift around the slow-oscillation trough? | **null** (p = 0.11) | [Chen & Mednick 2022, *PNAS*](https://doi.org/10.1073/pnas.2123417119) |
+| **3D** | Does the slow oscillation organise spindles? | **null** (p = 0.40), raw effect ~6×10⁻⁵ | [Staresina 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) · [Helfrich 2018, *Neuron*](https://doi.org/10.1016/j.neuron.2017.11.020) |
+
+Why it mattered clinically: [Winer 2019, *J Neurosci*](https://doi.org/10.1523/JNEUROSCI.0503-19.2019)
+(impaired SO–spindle coupling predicts medial-temporal tau) and
+[Jacobs 2021, *Sci Transl Med*](https://doi.org/10.1126/scitranslmed.abj2511)
+(LC integrity indexes Alzheimer's pathology and cognitive decline).
 
 **Subject flow:** 25 subjects with depth electrodes + EKG → 2 excluded (no usable cortical channels)
 → **23 analysed** → 17 passed the staging-quality filter. **No N2-like vs N3-like difference in any

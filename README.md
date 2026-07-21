@@ -13,6 +13,48 @@ vibrotactile drive organized dorsal-hippocampal firing at **theta**, but not at 
 [docs/FIGURE_GUIDE.md](docs/FIGURE_GUIDE.md) (plain-English map of every figure) ·
 [docs/PLAN.md](docs/PLAN.md).
 
+---
+
+## 🔬 On this branch (`lc-infraslow-3A`): the locus-coeruleus infraslow test — **result: negative**
+
+A second, self-contained study asking whether the **locus coeruleus** leaves a shared
+**~0.02 Hz (~50 s) rhythm** in sleep spindles and heart rate during NREM
+(Lecci 2017; Osorio-Forero 2021), and whether that coupling differs between lighter and deeper NREM.
+
+**📄 Read this first: [docs/LC_INFRASLOW_3ABD_SUMMARY.md](docs/LC_INFRASLOW_3ABD_SUMMARY.md)** — the
+full write-up: hypothesis, dataset, the three tests, subject flow, results, limitations, references.
+
+**What enabled it.** Of 52 candidate iEEG.org **HUP phase-II** datasets, 39 were reachable and
+**every one carries an EKG channel** next to the depth electrodes — public iEEG almost never has
+cardiac signals. **25 subjects** have both; see
+[docs/DATA_INVENTORY_LC_INFRASLOW.md](docs/DATA_INVENTORY_LC_INFRASLOW.md).
+
+**The three tests** (run on lateral neocortical contacts, per sleep stage):
+
+| | Question | Result |
+|---|---|---|
+| **3A** | Do spindle power and heart rate rise and fall together every ~50 s? | **negative** — retracted after a frequency-specificity control |
+| **3B** | Does heart rate shift around the slow-oscillation trough? | **null** (p = 0.11) |
+| **3D** | Does the slow oscillation organise spindles? | **null** (p = 0.40), raw effect ~6×10⁻⁵ |
+
+**Subject flow:** 25 with depth+EKG → 2 excluded (no usable cortical channels) → **23 analysed** →
+17 passed the staging-quality filter. No N2-like vs N3-like difference in any test.
+
+**Why 3A was retracted.** 7/23 subjects cleared threshold at 0.02 Hz — but counting exceedances at
+*every* frequency showed a background of **11.6%** (vs the **6%** a simulation on independent signals
+predicts), with 0.02 Hz only **2nd of 63 bins**. Spindle power and heart rate do share genuine
+broadband low-frequency structure — but there is no ~50 s peak.
+
+**Reusable regardless of the negative result:** a calibrated coherence pipeline (the band-maximum
+test has a **34%** false-positive rate; only a pre-specified frequency point is defensible) and the
+documented traps in [docs/DEC_3A_METHOD_NOTES.md](docs/DEC_3A_METHOD_NOTES.md) — notably that
+shift/phase surrogates are **invalid** for oscillatory coherence.
+
+*Worked example on one subject (self-contained HTML):*
+[reports/HUP165_phaseII_3A_results.html](reports/HUP165_phaseII_3A_results.html)
+
+---
+
 ## Datasets used (all open; raw data gitignored)
 
 | # | Dataset | Rate | Coverage | Used by |

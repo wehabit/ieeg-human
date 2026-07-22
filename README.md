@@ -59,12 +59,27 @@ iEEG.org HUP cohort — the 25 subjects that carry **simultaneous depth electrod
 answer is **no**, with no N2/N3 difference in any test. It is not merged into `master`.
 
 **Note on an apparent conflict.** That branch reports its SO→spindle test (3D) as null, while this
-study reports SO→spindle coupling as robust. These are different measurements, not a contradiction:
-here the question is whether coupling is **state-dependent** (MI_z, N3 vs wake/REM, *mesiotemporal*
-contacts, curated IED-annotated clips); there it is how **large** the coupling is in absolute terms
-(raw MI, *lateral neocortical* contacts, continuous streams, narrower individual spindle band, slow
-oscillations detected on the channel average). A coupling can be reliably state-dependent and still
-small in magnitude. The full comparison is in that branch's README.
+study reports SO→spindle coupling as robust. These are **different measurements, not a
+contradiction** — and the differences are documented rather than glossed:
+
+| | **this study (`master`)** | **branch 3D** |
+|---|---|---|
+| **Coupling estimator** | **event-locked circular statistics** (SO phase at each detected spindle peak; Rayleigh / V-test) — the method of [Staresina 2015](https://doi.org/10.1038/nn.4119) and [Helfrich 2018](https://doi.org/10.1016/j.neuron.2017.11.020) | **continuous Tort modulation index** over all timepoints |
+| **Events detected** | SOs and spindles detected by amplitude threshold | **none** — every sample is binned by phase |
+| **Region** | mesiotemporal depth — hippocampus, entorhinal, parahippocampal, amygdala (+ temporal neocortex) | **lateral neocortical** contacts |
+| **Channels** | **per channel**, then aggregated | **channel average** (attenuates SOs where contacts are desynchronised) |
+| **Data** | curated clips — atlas 204 Hz n=22 · Falach 1 kHz n=15 · Zurich 2 kHz n=9, **SOZ-excluded, IED-annotated** — plus HUP165 full night | 7 h continuous streams, HUP cohort n=23, automatic IED masking |
+| **SO band** | 0.5–1.25 Hz (event detection) | 0.5–1.25 Hz |
+| **Spindle band** | 11–16 Hz fixed | individual fast-spindle peak ± 1 Hz |
+| **Reported quantity** | **MI_z / phase clustering**, compared *between states* | **raw MI**, absolute magnitude |
+| **Verdict** | coupling is **state-dependent**: N3 > wake/REM (p = 0.030 atlas; p = 6×10⁻⁵ Falach; replicates in 3 cohorts; 27/28 channels event-based) | absolute coupling **small** (raw MI ~6×10⁻⁵), no N2/N3 difference (p = 0.40) |
+
+**Which one follows the source papers?** This study does. Both Staresina 2015 and Helfrich 2018
+measure SO–spindle coupling **event-based** — detect discrete SO and spindle events, take the SO
+phase at each spindle peak, and test the circular distribution. `staresina_style.py` implements
+exactly that. Branch 3D instead uses a continuous modulation index over every timepoint, which
+dilutes the estimate across a record that is mostly neither spindle nor slow oscillation — a
+plausible driver of its null, independent of any biology. That branch's README states this openly.
 
 ## Datasets used (all open; raw data gitignored)
 

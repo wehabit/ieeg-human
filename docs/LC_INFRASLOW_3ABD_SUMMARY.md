@@ -53,8 +53,8 @@ Per subject: ~7 h streamed from the highest-delta night, 3 signals derived (1 Hz
 | Test | What it asks | Measure | Source |
 |---|---|---|---|
 | **3A** *(primary)* | Do spindle power and heart rate rise and fall **together every ~50 s**? | Magnitude-squared coherence between the 1 Hz spindle-power series and instantaneous heart rate, read at the pre-specified **0.02 Hz**. Significance via the analytic threshold `1 − α^(1/(K−1))` for K Welch segments. | Lecci 2017; Osorio-Forero 2021 |
-| **3B** | Does heart rate shift systematically **around the slow-oscillation trough**? | SO-trough-triggered average heart rate; modulation depth vs a random-trigger null (z). | Chen & Mednick 2022 |
-| **3D** | Does the slow oscillation **organise spindles** (context/QC)? | Tort modulation index between SO phase and spindle amplitude, surrogate-corrected. | Staresina 2015; Helfrich 2018; Winer 2019 |
+| **3B** | Does heart rate shift systematically **around the slow-oscillation trough**? | SO down-state-triggered average HR (SO 0.15–4 Hz, RR at 4 Hz cubic spline, ±5 s), reported as **% above stage-mean HR** and **SO→HR peak latency**. *(Superseded method: modulation depth vs a random-trigger null.)* | **Naji 2019** — *not* the 2022 review |
+| **3D** | Does the slow oscillation **organise spindles**? | **Event-locked**: detect SO and spindle events per channel, Rayleigh test on the SO phase at each spindle peak. *(Superseded method: continuous Tort modulation index over all timepoints — this produced a false null.)* | Staresina 2015; Helfrich 2018 |
 
 **Staging caveat.** iEEG has no EOG/EMG, so **true AASM N2/N3 scoring is impossible**. NREM epochs
 were split by a 2-component Gaussian mixture on log slow-wave power — high-SWA = "N3-like",
@@ -157,10 +157,10 @@ events by amplitude threshold, Rayleigh test on the SO phase at each spindle pea
 
 | | result |
 |---|---|
-| subjects with ≥1 significant channel | **20 / 22** |
-| median fraction of channels significant | **82%** |
+| subjects with ≥1 significant channel | **21 / 23** |
+| median fraction of channels significant | **83%** |
 | median resultant vector length R | **0.073** |
-| **N2-like vs N3-like** (quality-filtered, paired) | median R 0.068 vs 0.063, n = 19, **p = 0.40** — null; fraction significant 0.83 vs 0.50, p = 0.16 |
+| **N2-like vs N3-like** (quality-filtered, paired) | median R 0.071 vs 0.069, n = 20, **p = 0.29** — null; fraction significant 0.83 vs 0.58, p = 0.16 |
 
 R ≈ 0.07 agrees with the independent estimate from `master` (R ≈ 0.03–0.05, significant in 27/28
 channels) obtained by a separate analysis path — so the two studies are consistent, and the apparent
@@ -175,13 +175,13 @@ Also null when split by fast (>12 Hz) vs slow (<12 Hz) individual spindle peak (
 1. **No evidence for the LC infraslow fingerprint** (~0.02 Hz shared spindle/heart rhythm) in human
    intracranial recordings from 23 epilepsy patients. The one apparently positive result did not
    survive a frequency-specificity control.
-2. **SO→spindle coupling (3D) IS present** — 20/22 subjects, median 82% of channels significant,
+2. **SO→spindle coupling (3D) IS present** — 21/23 subjects, median 83% of channels significant,
    R ≈ 0.073 — agreeing with the independent estimate on `master`. This *reverses* an earlier null in
    this document, which was caused by not following the source papers' event-based method.
 3. **SO→heartbeat coupling (3B) is present but ~25× weaker** than Naji 2019's frontal-scalp values,
    and their N2 ≫ SWS pattern does not reproduce. Region (lateral iEEG vs frontal scalp) is the most
    likely cause.
-4. **No N2-like vs N3-like difference in any test** (3A n/a; 3B 0.47% vs 0.48%; 3D p = 0.40).
+4. **No N2-like vs N3-like difference in any test** (3A n/a; 3B 0.47% vs 0.48%; 3D p = 0.29).
 5. This is a **negative result for the LC infraslow hypothesis in epilepsy patients**, not a
    refutation of Lecci/Osorio-Forero, who worked in healthy sleepers with scalp EEG and direct LC
    recordings in mouse.

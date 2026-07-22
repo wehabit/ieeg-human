@@ -27,7 +27,7 @@ hypothesis, dataset, tests, subject flow, results, limitations, references.
 |---|---|---|---|
 | **3A** | Do spindle power and heart rate rise and fall together every ~50 s? | **negative** — retracted after a frequency-specificity control | [Lecci 2017, *Sci Adv*](https://doi.org/10.1126/sciadv.1602026) · [Osorio-Forero 2021, *Curr Biol*](https://doi.org/10.1016/j.cub.2021.09.041) |
 | **3B** | Does heart rate shift around the slow-oscillation trough? | ⚠️ **present but ~25× weaker than published** — HR peak +0.5% above stage mean vs Naji's +12.1% (Stage 2); SO→HR lag 2.2 s | [Naji & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432) — *the actual methods paper; the 2022 PNAS reference is a review with no such analysis* |
-| **3D** | Does the slow oscillation organise spindles? | ✅ **PRESENT** — 20/22 subjects, median **82%** of channels significant, R = 0.073. *(Corrected: an earlier continuous-MI version reported this as null; that was a method artifact.)* No N2/N3 difference (p = 0.40). | [Staresina 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) · [Helfrich 2018, *Neuron*](https://doi.org/10.1016/j.neuron.2017.11.020) |
+| **3D** | Does the slow oscillation organise spindles? | ✅ **PRESENT** — 21/23 subjects, median **83%** of channels significant, R = 0.073. *(Corrected: an earlier continuous-MI version reported this as null; that was a method artifact.)* No N2/N3 difference (p = 0.29). | [Staresina 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) · [Helfrich 2018, *Neuron*](https://doi.org/10.1016/j.neuron.2017.11.020) |
 
 Why it mattered clinically: [Winer 2019, *J Neurosci*](https://doi.org/10.1523/JNEUROSCI.0503-19.2019)
 (impaired SO–spindle coupling predicts medial-temporal tau) and
@@ -51,8 +51,8 @@ SO and spindle events, Rayleigh test on the SO phase at each spindle peak
 
 | | event-based (correct) | old continuous MI |
 |---|---|---|
-| subjects with ≥1 significant channel | **20 / 22** | — |
-| median fraction of channels significant | **82%** | — |
+| subjects with ≥1 significant channel | **21 / 23** | — |
+| median fraction of channels significant | **83%** | — |
 | median resultant vector length R | **0.073** | raw MI 6×10⁻⁵ ("negligible") |
 | verdict | **coupling present** | "null" |
 
@@ -60,8 +60,8 @@ R ≈ 0.07 lands on `master`'s independent estimate (R ≈ 0.03–0.05, 27/28 ch
 separate analysis path — so the two studies **agree**, and the apparent conflict was entirely an
 artifact of the discarded method.
 
-**N2-like vs N3-like remains null**: median R 0.068 vs 0.063 (n = 19, Wilcoxon p = 0.40); fraction of
-channels significant 0.83 vs 0.50 (p = 0.16). Direction favours N2 but does not reach significance.
+**N2-like vs N3-like remains null**: median R 0.071 vs 0.069 (n = 20, Wilcoxon p = 0.29); fraction of
+channels significant 0.83 vs 0.58 (p = 0.16). Direction favours N2 but does not reach significance.
 
 **Subject flow:** 25 subjects with depth electrodes + EKG → 2 excluded (no usable cortical channels)
 → **23 analysed** → 17 passed the staging-quality filter. **No N2-like vs N3-like difference in any

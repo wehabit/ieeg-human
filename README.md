@@ -48,6 +48,24 @@ spindle→ripple detectable event-based but weak and method-dependent.**
 
 *Every figure explained in plain English: [docs/FIGURE_GUIDE.md](docs/FIGURE_GUIDE.md).*
 
+---
+
+## Related study on another branch — LC infraslow coupling (**negative**)
+
+Branch [`lc-infraslow-3ABD`](../../tree/lc-infraslow-3ABD) holds a separate, self-contained study
+asking whether the **locus coeruleus** leaves a shared ~0.02 Hz (~50 s) rhythm in sleep spindles and
+heart rate ([Lecci 2017](https://doi.org/10.1126/sciadv.1602026)). Across 23 subjects from the
+iEEG.org HUP cohort — the 25 subjects that carry **simultaneous depth electrodes and EKG** — the
+answer is **no**, with no N2/N3 difference in any test. It is not merged into `master`.
+
+**Note on an apparent conflict.** That branch reports its SO→spindle test (3D) as null, while this
+study reports SO→spindle coupling as robust. These are different measurements, not a contradiction:
+here the question is whether coupling is **state-dependent** (MI_z, N3 vs wake/REM, *mesiotemporal*
+contacts, curated IED-annotated clips); there it is how **large** the coupling is in absolute terms
+(raw MI, *lateral neocortical* contacts, continuous streams, narrower individual spindle band, slow
+oscillations detected on the channel average). A coupling can be reliably state-dependent and still
+small in magnitude. The full comparison is in that branch's README.
+
 ## Datasets used (all open; raw data gitignored)
 
 | # | Dataset | Rate | Coverage | Used by |

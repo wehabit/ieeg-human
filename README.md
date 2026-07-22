@@ -37,6 +37,7 @@ Both statements are true — they are different measurements, and they are **not
 
 | | `master` (nesting study) | **this branch (3D)** |
 |---|---|---|
+| **Coupling estimator** | **event-locked circular statistics** — SO phase at each detected spindle peak, Rayleigh/V-test (the method of Staresina 2015 / Helfrich 2018) | **continuous Tort modulation index** over all timepoints; **no SO or spindle events detected** |
 | **Region** | mesiotemporal depth — hippocampus, entorhinal, parahippocampal, amygdala (+ temporal neocortex) | **lateral neocortical** contacts (highest contact per shaft) |
 | **Data** | curated clips: atlas 204 Hz n=22 · Falach 1 kHz n=15 · Zurich 2 kHz n=9, **SOZ-excluded, IED-annotated**; plus HUP165 full night | 7 h continuous streams, HUP cohort n=23, automatic IED masking |
 | **Sigma band** | fixed **11–16 Hz** | **individual fast-spindle peak ± 1 Hz** (~2 Hz wide) |
@@ -49,9 +50,21 @@ A coupling can be reliably state-dependent and still be small in absolute terms 
 [evidence brief](docs/iEEG_EVIDENCE_BRIEF.md) already describes the atlas effect as "modest and
 between-patient-variable."
 
-Two differences here would independently depress 3D and should be fixed before treating its null as
-a statement about the brain rather than about the pipeline: **SO detection on the channel average**,
-and **lateral neocortex being the wrong region** if the coupling is mesiotemporal-dominant.
+**3D does not follow the source papers' methodology, and this is the most likely driver of its null.**
+Both [Staresina 2015](https://doi.org/10.1038/nn.4119) and
+[Helfrich 2018](https://doi.org/10.1016/j.neuron.2017.11.020) measure SO–spindle coupling
+**event-based**: detect discrete SO and spindle events, take the SO phase at each spindle peak, and
+test the circular distribution (Helfrich: *"we detected SO (0.16–1.25 Hz) and sleep spindle
+(12–16 Hz) **events** … phase during the **peak of the detected sleep spindle events** … Rayleigh z"*).
+3D instead bins **every timepoint** by SO phase into a Tort modulation index. Because most of a night
+is neither spindle nor slow oscillation, that dilutes the estimate toward zero regardless of the
+true coupling. `master`'s `staresina_style.py` implements the published event-based method correctly
+and finds spindle→SO phase locking in **27/28 channels** on this same subject.
+
+Three further differences would independently depress 3D, and should be fixed before its null is read
+as a statement about the brain rather than about the pipeline: **no event detection** (above),
+**SO detection on the channel average**, and **lateral neocortex** possibly being the wrong region if
+this coupling is mesiotemporal-dominant.
 
 **Subject flow:** 25 subjects with depth electrodes + EKG → 2 excluded (no usable cortical channels)
 → **23 analysed** → 17 passed the staging-quality filter. **No N2-like vs N3-like difference in any

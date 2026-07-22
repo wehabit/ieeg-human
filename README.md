@@ -11,7 +11,10 @@ rate during NREM ([Lecci 2017](https://doi.org/10.1126/sciadv.1602026); [Osorio-
 deeper NREM? The LC degenerates early in neurodegenerative disease, so weakened coupling was a
 candidate biomarker.
 
-**Answer: no.** No infraslow spindle–heart coupling, and no N2/N3 difference, in 23 subjects.
+**Answer: no** for the infraslow (~50 s) rhythm — and no N2/N3 difference in any test.
+But two of the three tests were **corrected after the fact**: 3D reverses from null to clearly
+**positive** once measured the way the source papers do, and 3B's cited source turned out to be a
+review rather than a methods paper. Both corrections are documented below rather than quietly folded in.
 
 **📄 Full write-up: [docs/LC_INFRASLOW_3ABD_SUMMARY.md](docs/LC_INFRASLOW_3ABD_SUMMARY.md)** —
 hypothesis, dataset, tests, subject flow, results, limitations, references.
@@ -23,48 +26,42 @@ hypothesis, dataset, tests, subject flow, results, limitations, references.
 | | Question | Result | Source paper |
 |---|---|---|---|
 | **3A** | Do spindle power and heart rate rise and fall together every ~50 s? | **negative** — retracted after a frequency-specificity control | [Lecci 2017, *Sci Adv*](https://doi.org/10.1126/sciadv.1602026) · [Osorio-Forero 2021, *Curr Biol*](https://doi.org/10.1016/j.cub.2021.09.041) |
-| **3B** | Does heart rate shift around the slow-oscillation trough? | **null** (p = 0.11) | [Chen & Mednick 2022, *PNAS*](https://doi.org/10.1073/pnas.2123417119) |
-| **3D** | Does the slow oscillation organise spindles? | **null** (p = 0.40), raw effect ~6×10⁻⁵ | [Staresina 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) · [Helfrich 2018, *Neuron*](https://doi.org/10.1016/j.neuron.2017.11.020) |
+| **3B** | Does heart rate shift around the slow-oscillation trough? | ⚠️ **present but ~25× weaker than published** — HR peak +0.5% above stage mean vs Naji's +12.1% (Stage 2); SO→HR lag 2.2 s | [Naji & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432) — *the actual methods paper; the 2022 PNAS reference is a review with no such analysis* |
+| **3D** | Does the slow oscillation organise spindles? | ✅ **PRESENT** — 20/22 subjects, median **82%** of channels significant, R = 0.073. *(Corrected: an earlier continuous-MI version reported this as null; that was a method artifact.)* No N2/N3 difference (p = 0.40). | [Staresina 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) · [Helfrich 2018, *Neuron*](https://doi.org/10.1016/j.neuron.2017.11.020) |
 
 Why it mattered clinically: [Winer 2019, *J Neurosci*](https://doi.org/10.1523/JNEUROSCI.0503-19.2019)
 (impaired SO–spindle coupling predicts medial-temporal tau) and
 [Jacobs 2021, *Sci Transl Med*](https://doi.org/10.1126/scitranslmed.abj2511)
 (LC integrity indexes Alzheimer's pathology and cognitive decline).
 
-### ⚠️ Why 3D here reads "null" while `master` reports SO→spindle coupling as robust
+### 3D, corrected: SO→spindle coupling **is** present — and agrees with `master`
 
-Both statements are true — they are different measurements, and they are **not in conflict**.
+An earlier version of 3D reported this as null (raw modulation index ~6×10⁻⁵). **That was wrong, and
+the cause was my implementation, not the data.** It binned *every* timepoint by slow-oscillation
+phase into a continuous Tort modulation index, with **no event detection at all**, on a
+**channel-averaged** signal. Most of a night is neither spindle nor slow oscillation, so that
+averages the real events together with hours of nothing and drives the estimate toward zero.
 
-| | `master` (nesting study) | **this branch (3D)** |
+Neither [Staresina 2015](https://doi.org/10.1038/nn.4119) nor
+[Helfrich 2018](https://doi.org/10.1016/j.neuron.2017.11.020) does it that way. Helfrich, verbatim:
+*"we detected SO (0.16–1.25 Hz) and sleep spindle (12–16 Hz) **events** … phase during the **peak of
+the detected sleep spindle events** … Rayleigh z"*. Re-implemented that way — per channel, discrete
+SO and spindle events, Rayleigh test on the SO phase at each spindle peak
+(`analysis/event_3D_by_stage.py`) — the result reverses:
+
+| | event-based (correct) | old continuous MI |
 |---|---|---|
-| **Coupling estimator** | **event-locked circular statistics** — SO phase at each detected spindle peak, Rayleigh/V-test (the method of Staresina 2015 / Helfrich 2018) | **continuous Tort modulation index** over all timepoints; **no SO or spindle events detected** |
-| **Region** | mesiotemporal depth — hippocampus, entorhinal, parahippocampal, amygdala (+ temporal neocortex) | **lateral neocortical** contacts (highest contact per shaft) |
-| **Data** | curated clips: atlas 204 Hz n=22 · Falach 1 kHz n=15 · Zurich 2 kHz n=9, **SOZ-excluded, IED-annotated**; plus HUP165 full night | 7 h continuous streams, HUP cohort n=23, automatic IED masking |
-| **Sigma band** | fixed **11–16 Hz** | **individual fast-spindle peak ± 1 Hz** (~2 Hz wide) |
-| **SO detection** | per channel | **channel average** — attenuates SOs where contacts are desynchronised |
-| **Reported quantity** | **MI_z**, compared *between states* (N3 vs wake/REM) | **raw MI**, i.e. absolute magnitude |
-| **Verdict** | coupling is **state-dependent**: stronger in N3 than wake/REM (p = 0.030 atlas; p = 6×10⁻⁵ Falach; replicates in 3 cohorts) | absolute coupling is **small** (raw MI ~6×10⁻⁵) and does not differ N2 vs N3 (p = 0.40) |
+| subjects with ≥1 significant channel | **20 / 22** | — |
+| median fraction of channels significant | **82%** | — |
+| median resultant vector length R | **0.073** | raw MI 6×10⁻⁵ ("negligible") |
+| verdict | **coupling present** | "null" |
 
-The reconciliation: **`master` asks whether coupling changes with state; 3D asks how large it is.**
-A coupling can be reliably state-dependent and still be small in absolute terms — and `master`'s own
-[evidence brief](docs/iEEG_EVIDENCE_BRIEF.md) already describes the atlas effect as "modest and
-between-patient-variable."
+R ≈ 0.07 lands on `master`'s independent estimate (R ≈ 0.03–0.05, 27/28 channels) from a completely
+separate analysis path — so the two studies **agree**, and the apparent conflict was entirely an
+artifact of the discarded method.
 
-**3D does not follow the source papers' methodology, and this is the most likely driver of its null.**
-Both [Staresina 2015](https://doi.org/10.1038/nn.4119) and
-[Helfrich 2018](https://doi.org/10.1016/j.neuron.2017.11.020) measure SO–spindle coupling
-**event-based**: detect discrete SO and spindle events, take the SO phase at each spindle peak, and
-test the circular distribution (Helfrich: *"we detected SO (0.16–1.25 Hz) and sleep spindle
-(12–16 Hz) **events** … phase during the **peak of the detected sleep spindle events** … Rayleigh z"*).
-3D instead bins **every timepoint** by SO phase into a Tort modulation index. Because most of a night
-is neither spindle nor slow oscillation, that dilutes the estimate toward zero regardless of the
-true coupling. `master`'s `staresina_style.py` implements the published event-based method correctly
-and finds spindle→SO phase locking in **27/28 channels** on this same subject.
-
-Three further differences would independently depress 3D, and should be fixed before its null is read
-as a statement about the brain rather than about the pipeline: **no event detection** (above),
-**SO detection on the channel average**, and **lateral neocortex** possibly being the wrong region if
-this coupling is mesiotemporal-dominant.
+**N2-like vs N3-like remains null**: median R 0.068 vs 0.063 (n = 19, Wilcoxon p = 0.40); fraction of
+channels significant 0.83 vs 0.50 (p = 0.16). Direction favours N2 but does not reach significance.
 
 **Subject flow:** 25 subjects with depth electrodes + EKG → 2 excluded (no usable cortical channels)
 → **23 analysed** → 17 passed the staging-quality filter. **No N2-like vs N3-like difference in any

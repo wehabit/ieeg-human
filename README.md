@@ -31,6 +31,28 @@ Why it mattered clinically: [Winer 2019, *J Neurosci*](https://doi.org/10.1523/J
 [Jacobs 2021, *Sci Transl Med*](https://doi.org/10.1126/scitranslmed.abj2511)
 (LC integrity indexes Alzheimer's pathology and cognitive decline).
 
+### ⚠️ Why 3D here reads "null" while `master` reports SO→spindle coupling as robust
+
+Both statements are true — they are different measurements, and they are **not in conflict**.
+
+| | `master` (nesting study) | **this branch (3D)** |
+|---|---|---|
+| **Region** | mesiotemporal depth — hippocampus, entorhinal, parahippocampal, amygdala (+ temporal neocortex) | **lateral neocortical** contacts (highest contact per shaft) |
+| **Data** | curated clips: atlas 204 Hz n=22 · Falach 1 kHz n=15 · Zurich 2 kHz n=9, **SOZ-excluded, IED-annotated**; plus HUP165 full night | 7 h continuous streams, HUP cohort n=23, automatic IED masking |
+| **Sigma band** | fixed **11–16 Hz** | **individual fast-spindle peak ± 1 Hz** (~2 Hz wide) |
+| **SO detection** | per channel | **channel average** — attenuates SOs where contacts are desynchronised |
+| **Reported quantity** | **MI_z**, compared *between states* (N3 vs wake/REM) | **raw MI**, i.e. absolute magnitude |
+| **Verdict** | coupling is **state-dependent**: stronger in N3 than wake/REM (p = 0.030 atlas; p = 6×10⁻⁵ Falach; replicates in 3 cohorts) | absolute coupling is **small** (raw MI ~6×10⁻⁵) and does not differ N2 vs N3 (p = 0.40) |
+
+The reconciliation: **`master` asks whether coupling changes with state; 3D asks how large it is.**
+A coupling can be reliably state-dependent and still be small in absolute terms — and `master`'s own
+[evidence brief](docs/iEEG_EVIDENCE_BRIEF.md) already describes the atlas effect as "modest and
+between-patient-variable."
+
+Two differences here would independently depress 3D and should be fixed before treating its null as
+a statement about the brain rather than about the pipeline: **SO detection on the channel average**,
+and **lateral neocortex being the wrong region** if the coupling is mesiotemporal-dominant.
+
 **Subject flow:** 25 subjects with depth electrodes + EKG → 2 excluded (no usable cortical channels)
 → **23 analysed** → 17 passed the staging-quality filter. **No N2-like vs N3-like difference in any
 test**, including when split by fast vs slow individual spindle peak.

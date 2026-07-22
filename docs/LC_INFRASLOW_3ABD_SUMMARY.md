@@ -1,10 +1,32 @@
 # Testing the locus-coeruleus infraslow hypothesis in human iEEG — summary
 
 **Bottom line: the ~0.02 Hz locus-coeruleus fingerprint is not present**, and there is no N2/N3
-difference in any test. Two corrections were made after the fact and are documented rather than
-folded in: **3A** looked positive and was **retracted** after a frequency-specificity control, while
-**3D** was reported null and is now **positive** — that null was an artifact of not following the
-source papers' method. 3B's cited reference turned out to be a review, not a methods paper.
+difference in any test.
+
+> **Method correction (2026-07).** An audit found real bugs in the first version of this analysis.
+> The code was rebuilt, every fix ships with a test that fails on the old code and passes on the new
+> (`analysis/test_*.py`), and the corrected cohort numbers live in
+> `outputs/corrected_3AB/COHORT_SUMMARY.txt`. The negative conclusion is unchanged in direction but is
+> now **stronger and correctly specified**:
+>
+> 1. **3A NaN handling** deleted missing seconds and spliced the survivors, compressing the time axis
+>    so a true 0.02 Hz rhythm could read up to 0.029 Hz (median 8.7%, max 30.8% of seconds dropped).
+>    Replaced with a gap-aware coherence estimator (`analysis/spectral_gapped.py`), calibrated to a
+>    5% false-positive rate at the real analysis geometry (K≈107, 34 bouts).
+> 2. **3A now follows Lecci** instead of testing one hard-coded 0.0195 Hz coherence bin. It fits each
+>    subject's own infraslow spectral peak over all NREM bouts (Lecci Fig 1G) and runs the
+>    **cross-correlation** with heart rate (Lecci Fig 6) — the paper's actual coupling statistic,
+>    which had never been computed here (`analysis/lecci_faithful_3A.py`).
+> 3. **3B's surrogate null was stage-blind** — it drew surrogate triggers from the whole night while
+>    scoring "% above *this stage's* mean HR", so the null measured the stage-vs-night HR offset, not
+>    SO-locking. On zero-effect synthetic data that alone produced z = −21.8 / +24.0. Fixed to a
+>    stage-matched null and run on the **whole cohort (n=23)** rather than one subject
+>    (`analysis/event_3B_cached.py`). The old single-subject "z = 4.9" was an artifact of this bug.
+>
+> The Results sections below have been updated to the corrected numbers. Two further corrections were
+> made earlier and remain: **3D** was reported null and is now **positive** (an artifact of not using
+> the source papers' event-based method), and 3B's cited reference turned out to be a review, not a
+> methods paper.
 
 ---
 
@@ -52,8 +74,8 @@ Per subject: ~7 h streamed from the highest-delta night, 3 signals derived (1 Hz
 
 | Test | What it asks | Measure | Source |
 |---|---|---|---|
-| **3A** *(primary)* | Do spindle power and heart rate rise and fall **together every ~50 s**? | Magnitude-squared coherence between the 1 Hz spindle-power series and instantaneous heart rate, read at the pre-specified **0.02 Hz**. Significance via the analytic threshold `1 − α^(1/(K−1))` for K Welch segments. | Lecci 2017; Osorio-Forero 2021 |
-| **3B** | Does heart rate shift systematically **around the slow-oscillation trough**? | SO down-state-triggered average HR (SO 0.15–4 Hz, RR at 4 Hz cubic spline, ±5 s), reported as **% above stage-mean HR** and **SO→HR peak latency**. *(Superseded method: modulation depth vs a random-trigger null.)* | **Naji 2019** — *not* the 2022 review |
+| **3A** *(primary)* | Do spindle power and heart rate rise and fall **together every ~50 s**? | **Step 1:** per-subject infraslow Morlet spectrum of the sigma-power time course over all NREM bouts ≥120 s, Gaussian peak fit — do peaks cluster at ~0.019 Hz (Lecci Fig 1G)? **Step 2:** gap-aware coherence (read at 0.02 Hz and each subject's own peak) **and** cross-correlation with heart rate (Lecci Fig 6). *(Superseded: a single hard-coded 0.0195 Hz coherence bin on a delete-and-spliced 55-min block.)* | Lecci 2017; Osorio-Forero 2021 |
+| **3B** | Does heart rate shift systematically **around the slow-oscillation trough**? | SO down-state-triggered average HR (SO 0.15–4 Hz, RR at 4 Hz cubic spline, ±5 s), % above stage-mean HR + SO→HR latency, against a **stage-matched** random-trigger null. *(Superseded nulls: whole-night triggers; modulation-depth vs random.)* | **Naji 2019** — *not* the 2022 review |
 | **3D** | Does the slow oscillation **organise spindles**? | **Event-locked**: detect SO and spindle events per channel, Rayleigh test on the SO phase at each spindle peak. *(Superseded method: continuous Tort modulation index over all timepoints — this produced a false null.)* | Staresina 2015; Helfrich 2018 |
 
 **Staging caveat.** iEEG has no EOG/EMG, so **true AASM N2/N3 scoring is impossible**. NREM epochs
@@ -63,83 +85,94 @@ scored staging, hence "-like" throughout.
 
 ## 4. Results
 
-### 3A — infraslow spindle↔heart coupling: **negative**
+### 3A — infraslow spindle↔heart coupling: **negative** (Lecci's own two-step method)
 
-Pooled NREM (block length-capped to 55 min so the ~1/K coherence floor is comparable across
-subjects): **7 of 23** subjects exceeded their own α=0.05 threshold at 0.02 Hz, against ~1.4
-expected. That looked like a strong positive (binomial p = 3×10⁻⁴).
+Rebuilt to follow Lecci rather than test one hard-coded coherence bin (`lecci_faithful_3A.py`, n=23),
+pooling **all** NREM bouts ≥120 s (coherence K median **59**, versus 7–23 on the original single
+55-min block) with the gap-aware estimator.
 
-It does not survive the control. Counting exceedances at **every** frequency bin:
+**Step 1 — is there a ~50 s sigma rhythm at all? (Lecci Fig 1G)** Per subject, a duration-weighted
+Morlet spectrum of the sigma-power time course over every NREM bout ≥120 s, with a Gaussian peak fit.
+Individual subjects *do* show infraslow bumps (some very strong — HUP212 prominence 173, HUP157 22.9),
+but at **scattered** frequencies. The decisive cohort question is whether the 23 fitted peaks cluster
+at ~0.019 Hz like Lecci's (a real shared rhythm → simulated peak SD ≈ 0.0008 Hz) or scatter like 1/f
+noise (SD ≈ 0.013 Hz):
 
-| | exceedance |
-|---|---|
-| 0.02 Hz (pre-specified) | 7/23 = 0.30 |
-| 0.05 Hz | **8/23 = 0.35** ← higher |
-| median across 0.005–0.25 Hz | 3/23 = **0.13** |
-| mean 0.005–0.05 Hz → 0.15–0.25 Hz | 0.21 → 0.07 (broad slope, no peak) |
-
-0.02 Hz ranks **2nd of 63 bins**, and the background exceedance (11.6%) is ~2× the 6% that a
-simulation on independent signals predicts. Retested against the *empirical* background rather than
-the simulated one, 0.02 Hz gives **p = 0.013** — and it is not the largest bin.
-
-#### Where the 6% and 11.6% come from
-
-These two numbers decide the retraction, so they are worth stating precisely.
-
-- **6% — what chance alone produces.** `validate_3A_false_positive_rate.py` generates **2000 pairs of
-  independent synthetic signals** (no coupling by construction) in four spectral shapes — white,
-  pink 1/f, brown 1/f², and AR1 ρ=0.99 (strongly autocorrelated, the condition that normally inflates
-  coherence) — each 55 min at 1 Hz, pushed through the **identical `msc_block()` code path**. The rate
-  at which coherence at 0.02 Hz crosses the analytic threshold is **0.055 / 0.063 / 0.065 / 0.059**.
-  So the test delivers ≈ its nominal α = 0.05 *when the two signals share nothing*.
-  (The same simulation shows the **band-maximum** test gives **34%** false positives — which is why
-  only a pre-specified frequency point is reported anywhere in this work.)
-
-- **11.6% — what the real data produces where no effect is predicted.** For each of the 23 subjects
-  the **full** coherence spectrum was computed, and at **every** frequency bin the number of subjects
-  exceeding their own threshold was counted. Averaged over the 63 bins spanning 0.005–0.25 Hz, that
-  is **11.6%** (≈2.7 of 23 per bin).
-
-The inference: if only chance were operating, the real data would also sit near 6%. It sits at ~2×
-that, so genuine shared low-frequency structure exists between sigma power and heart rate — but it is
-present at *arbitrary* frequencies. **11.6% is therefore the correct null against which 0.02 Hz must
-be judged, and against it the result is neither strong nor the largest bin.** The simulation
-established that the *statistic* was sound; it could not establish that the *data* were free of
-generic shared structure.
-
-**Interpretation:** real sigma-power and heart-rate series share genuine **broadband low-frequency
-structure** (arousals, state changes, drift), strongest at the lowest frequencies and decaying. There
-is no ~50 s peak. **The apparent 3A finding is retracted.**
-
-### 3B — SO→heartbeat coupling: **present, but ~25× weaker than published**
-
-**The cited source was wrong.** `10.1073/pnas.2123417119` (Chen, Zhang, Thayer & Mednick 2022) is a
-**review** — no heart-rate-burst analysis, no SO-trough method, and its availability statement reads
-*"There are no data underlying this work."* The method had been improvised from a one-line
-description of it.
-
-The actual methods paper is
-[Naji, Krishnan, McDevitt, Bazhenov & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432).
-Reimplemented to follow it (`analysis/event_3B_mednick.py`): SO band **0.15–4 Hz**, per-channel
-zero-crossing half-wave detection, RR resampled at **4 Hz by piecewise cubic spline**, HR averaged in
-a **±5 s** window on the SO down-state trough, reported as **% above that stage's mean HR** plus the
-**SO→HR peak latency** — the paper's headline statistic, which the previous version never computed.
-
-| | this work (HUP165) | Naji 2019 (frontal scalp, healthy) |
+| | value | expected if… |
 |---|---|---|
-| N2 HR peak | **+0.47%** | **+12.09 ± 1.48%** |
-| N3 / SWS HR peak | **+0.48%** | **+3.35 ± 1.01%** |
-| SO→HR peak lag | 2.2 s | peak follows the down-state ✓ |
-| significance | z = 4.9 (N3), z = −1.8 (N2) | — |
+| observed peak SD | **0.0137 Hz** | real rhythm ≈ 0.0008; noise ≈ 0.013 |
+| this cohort's own scale-free surrogates (peak SD) | 0.0139 Hz | — |
+| bootstrap: real peaks tighter than surrogates? | **p = 0.49** | — |
+| fraction of peaks in 0.015–0.025 Hz | 0.30 | true-in-band ≈ 0.94; noise ≈ 0.25 |
+| sigma more prominent than the SWA control (Lecci's own control) | Wilcoxon **p = 0.11** | — |
 
-So the coupling **exists** — 9,381 slow oscillations, z = 4.9, with a physiologically sensible ~2.2 s
-lag — but at roughly **1/25th** the published magnitude, and Naji's clear **N2 ≫ SWS** pattern does
-**not** reproduce (0.47% vs 0.48%).
+The peaks are indistinguishable from where 1/f noise happens to bump. **There is no shared ~50 s sigma
+rhythm at the cohort level.** (The per-subject scale-free significance control is deliberately reported
+but is weak — a single ~2 h night gives a noisy prominence estimate; on synthetic data even a planted
+rhythm scores p ≈ 0.21. Peak *clustering* across subjects, above, is the powered test.)
 
-The most likely explanation is not fixable in code: **Naji recorded frontal scalp EEG (F3/F4), this
-uses lateral neocortical iEEG.** Scalp electrodes see large, globally synchronous slow oscillations;
-a single lateral intracranial contact sees local ones, and it is the global SOs that plausibly drive
-autonomic coupling. Epilepsy patients on anti-seizure medication at ~92 bpm compound it.
+**Step 2 — does heart rate track it? (Lecci Fig 6)** Two independent controls agree it does not.
+
+- **Frequency-specificity** (the recomputed version of the control that retracted the original 3A):
+  0.02 Hz is significant in 6/23 subjects, but ranks only **10th of 63 bins** against a 16.5%
+  background (binomial p = 0.17). Higher K here lowers each subject's threshold, so more bins cross —
+  but 0.02 Hz is even less special than before.
+- **Cross-correlation** — *Lecci's actual coupling statistic, which had never been run in this work*:
+  z-scored 120 s intervals, HR as source wave, averaged within then across subjects. Group |r| =
+  **0.036** (lag −1 s); per-subject median |r| = 0.056, with lags scattered (IQR −10 to −1 s) and no
+  consistent sign (t on peak r vs 0: **p = 0.23**). A positive result would be a clear correlogram
+  peak at a consistent lag; this is flat.
+
+**Interpretation:** with Lecci's own method, better powered than the original, sigma power and heart
+rate do not share a ~50 s rhythm in these patients — neither signal reliably carries the oscillation,
+and they do not track each other. This *confirms and strengthens* the original negative, which had
+reached the right conclusion through a mis-specified single-bin test.
+
+<details><summary>Original single-bin analysis (superseded, retained for the record)</summary>
+
+The first version tested one hard-coded bin at 0.0195 Hz on a single 55-min block: 7/23 subjects
+exceeded threshold (binomial p = 3×10⁻⁴ against a calibrated 6% false-positive rate), but a
+frequency-specificity control put 0.02 Hz only **2nd of 63 bins** (0.05 Hz scored 8/23) against an
+**11.6%** empirical background — retested against which 0.02 Hz gave p = 0.013 and was not the largest
+bin. Right conclusion, but the test was not Lecci's and used the delete-and-splice coherence that the
+gap-aware estimator replaces. `frequency_specificity_3A.py` / `validate_3A_false_positive_rate.py`.
+</details>
+
+### 3B — SO→heartbeat coupling: **weak and heterogeneous** (n=23, stage-matched null)
+
+**Two things were fixed since the single-subject version.** (1) The cited source was wrong:
+`10.1073/pnas.2123417119` (Chen, Zhang, Thayer & Mednick 2022) is a **review** with no such analysis;
+the actual methods paper is
+[Naji, Krishnan, McDevitt, Bazhenov & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432)
+(SO band 0.15–4 Hz, per-channel zero-crossing half-waves, RR at 4 Hz cubic spline, HR averaged ±5 s on
+the down-state trough, reported as % above that stage's mean HR plus SO→HR latency). (2) The **surrogate
+null was stage-blind** — random triggers were drawn from the whole night while the statistic was scored
+against the *stage* mean HR, so the null measured the stage-vs-night HR offset rather than SO-locking.
+On zero-effect synthetic data this alone produced z = −21.8 (N2) / +24.0 (N3), and it fully explains
+the old single-subject "z = 4.9". Fixed to a stage-matched null and run on the whole cohort
+(`event_3B_cached.py`).
+
+| | corrected cohort (n=23) | Naji 2019 (frontal scalp, healthy) |
+|---|---|---|
+| N2 HR peak | **+1.8%** (SD 8.2) → ~7× weaker | **+12.09 ± 1.48%** |
+| N3 / SWS HR peak | **+3.5%** (SD 12.7) → **matches** | **+3.35 ± 1.01%** |
+| significant per subject (z > 1.96) | **7/23** (N2), **6/20** (N3) | — |
+| cohort z-test (t on z vs 0) | N2 **p = 0.014**, N3 **p = 0.020** | — |
+| N2 ≫ SWS? (Naji's headline pattern) | paired **p = 0.57 — not reproduced** | 3.6× |
+| SO→HR lag | ~1–2 s (follows the down-state ✓) | follows the down-state ✓ |
+
+So SO→heartbeat coupling is **real but weak and present in only a minority of subjects** — the cohort
+z-test is significantly nonzero, but the median subject shows almost nothing (median z ≈ 0.5–0.7) and
+a handful of subjects (HUP139 z=7.8, HUP150 z=10.0, HUP151 z=7.6, HUP143 z=6.7) carry the effect.
+Notably the **N3/SWS magnitude (+3.5%) lands right on Naji's SWS value (+3.35%)**, while N2 is far
+weaker and Naji's N2 ≫ SWS pattern is absent.
+
+The most likely reason the pattern does not fully match is not fixable in code: **Naji recorded frontal
+scalp EEG (F3/F4), this uses lateral neocortical iEEG.** Scalp electrodes see large, globally
+synchronous slow oscillations; a single lateral intracranial contact sees local ones, and it is the
+global SOs that plausibly drive autonomic coupling. Epilepsy patients on anti-seizure medication at
+~92 bpm compound it. *(The earlier claim "present but ~25× weaker" was HUP165 alone, before the null
+fix; it is superseded by these cohort numbers.)*
 
 ### 3D — SO→spindle coupling: **PRESENT** *(corrected)*
 
@@ -173,40 +206,52 @@ Also null when split by fast (>12 Hz) vs slow (<12 Hz) individual spindle peak (
 ## 5. Conclusions
 
 1. **No evidence for the LC infraslow fingerprint** (~0.02 Hz shared spindle/heart rhythm) in human
-   intracranial recordings from 23 epilepsy patients. The one apparently positive result did not
-   survive a frequency-specificity control.
+   intracranial recordings from 23 epilepsy patients, now on Lecci's own two-step method. The
+   sigma-power infraslow peaks **scatter like 1/f noise** rather than clustering at 0.019 Hz (peak SD
+   0.014 Hz ≈ this cohort's surrogates), and heart rate does not track them — the **cross-correlation
+   is null** (median |r| 0.06, p = 0.23) and 0.02 Hz ranks 10th of 63 bins.
 2. **SO→spindle coupling (3D) IS present** — 21/23 subjects, median 83% of channels significant,
    R ≈ 0.073 — agreeing with the independent estimate on `master`. This *reverses* an earlier null in
    this document, which was caused by not following the source papers' event-based method.
-3. **SO→heartbeat coupling (3B) is present but ~25× weaker** than Naji 2019's frontal-scalp values,
-   and their N2 ≫ SWS pattern does not reproduce. Region (lateral iEEG vs frontal scalp) is the most
-   likely cause.
-4. **No N2-like vs N3-like difference in any test** (3A n/a; 3B 0.47% vs 0.48%; 3D p = 0.29).
+3. **SO→heartbeat coupling (3B) is weak and heterogeneous** — significant in only 7/23 (N2) and 6/20
+   (N3) subjects, though the cohort z-test is nonzero (p ≈ 0.01–0.02). N3/SWS magnitude (+3.5%) matches
+   Naji 2019, but N2 (+1.8%) is ~7× weaker and Naji's N2 ≫ SWS pattern does not reproduce (p = 0.57).
+   Region (lateral iEEG vs frontal scalp) is the most likely cause. *(The prior "~25× weaker" figure
+   was one subject before the stage-matched-null fix.)*
+4. **No N2-like vs N3-like difference in any test** (3A: peaks scatter in both; 3B: N2 vs N3 paired
+   p = 0.57; 3D p = 0.29).
 5. This is a **negative result for the LC infraslow hypothesis in epilepsy patients**, not a
    refutation of Lecci/Osorio-Forero, who worked in healthy sleepers with scalp EEG and direct LC
    recordings in mouse.
 
 ### Method-verification audit
 
-Each test was checked against its source paper. This mattered — two of three deviated:
+Each test was checked against its source paper, and the analysis was rebuilt where it deviated (see
+the Method-correction note at the top). Every fix ships with a test in `analysis/test_*.py`.
 
 | Test | Follows source? | Consequence |
 |---|---|---|
-| **3A** | Partially — Lecci uses 4-s epochs, 10–15 Hz sigma, and **cross-correlation**; this used 1-s bins, individual spindle peak ±1 Hz, and **coherence**. But the decisive test (spectrum of the sigma-power time course, Lecci Fig 1C) was run their way. | negative stands |
-| **3B** | ❌ No — cited a **review**; method improvised. Now reimplemented per Naji 2019. | verdict changed |
-| **3D** | ❌ No — continuous MI over all timepoints instead of event-locked circular statistics. Now reimplemented per Staresina/Helfrich. | **verdict reversed** |
+| **3A** | ✅ Now yes — per-subject infraslow spectral peak fit over all NREM bouts (Lecci Fig 1G) **and** cross-correlation with heart rate (Lecci Fig 6), on a gap-aware coherence estimator. The original single-bin coherence test used delete-and-splice NaN handling, now replaced. | negative **strengthened** (better powered, Lecci's own statistic) |
+| **3B** | ✅ Now yes — Naji 2019 method with a **stage-matched surrogate null** (the earlier whole-night null was invalid), run on the full cohort rather than n=1. | verdict refined: weak/heterogeneous, not "25× weaker" |
+| **3D** | ✅ Now yes — event-locked circular statistics per Staresina/Helfrich, replacing a continuous MI over all timepoints. | **verdict reversed** (null → present) |
 
 ## 6. Limitations
 
 - **Epilepsy patients on anti-seizure medication**, many tachycardic during NREM (~92 bpm in HUP165),
   which may blunt autonomic modulation.
-- **Staging is not scored** — no EOG/EMG (see §3).
-- **Slow oscillations were detected on the channel average**, which attenuates them when contacts are
-  not synchronous. This plausibly suppressed both 3B and 3D and should be redone per channel.
-- **No respiration/SpO₂ channel** exists, so apnoea-driven heart-rate swings cannot be excluded.
+- **Staging is not scored** — no EOG/EMG in HUP iEEG, so NREM is the GMM-on-slow-wave-power proxy and
+  cannot exclude REM or quiet wake. That residual wake/REM contamination is exactly the broadband
+  low-frequency structure that could smear a real infraslow rhythm, so it is the single biggest threat
+  to the 3A negative. **OpenNeuro ds003848 (EMG + EOG) is the planned test of this** — see §8.
+- **The corrected 3B uses per-channel SO detection** (the cached series stores per-channel trough
+  times); the older channel-average version, which attenuated non-synchronous SOs, is superseded. 3D
+  on `master` should still be redone per channel.
+- **No respiration/SpO₂ channel** in HUP, so apnoea-driven heart-rate swings cannot be excluded here
+  (ds003848 *does* carry thoracic/abdominal belts, though marked bad).
 - **Electrode locations are inferred from contact numbering**, not localisation files.
-- **Stage-resolved 3A rests on only 4 subjects** — N2 and N3 alternate faster than a 0.02 Hz
-  coherence estimate needs.
+- **Stage-resolved 3A is not the primary analysis** — the corrected 3A pools all NREM (N2 and N3
+  alternate faster than an infraslow spectral estimate needs); the N2/N3 contrast rests on the 3B/3D
+  event-based tests.
 
 ## 7. What is nonetheless established
 

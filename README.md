@@ -12,9 +12,25 @@ deeper NREM? The LC degenerates early in neurodegenerative disease, so weakened 
 candidate biomarker.
 
 **Answer: no** for the infraslow (~50 s) rhythm — and no N2/N3 difference in any test.
-But two of the three tests were **corrected after the fact**: 3D reverses from null to clearly
+
+> **Method correction (2026-07).** The analysis was rebuilt after an audit found real bugs, and the
+> negative for 3A now rests on **Lecci's own method** rather than a fixed-frequency proxy for it. The
+> conclusions are unchanged in direction but stronger and better specified. What changed:
+> - **3A NaN handling** deleted-and-spliced missing seconds, compressing the time axis; replaced with
+>   a gap-aware coherence estimator (`analysis/spectral_gapped.py`, calibrated to 5% false positives).
+> - **3A now follows Lecci** — a per-subject infraslow spectral **peak fit** over all NREM bouts plus
+>   the **cross-correlation** with heart rate (Lecci's actual coupling statistic, never previously
+>   run), not one hard-coded 0.02 Hz coherence bin (`analysis/lecci_faithful_3A.py`).
+> - **3B's surrogate null was stage-blind** (drew triggers from the whole night while scoring against
+>   the stage mean), which alone produced z = ±22 on zero-effect data; fixed to a stage-matched null,
+>   and run on the **whole cohort (n=23)** instead of one subject (`analysis/event_3B_cached.py`).
+>
+> Every fix ships with a test that fails on the old code and passes on the new
+> (`analysis/test_*.py`). Corrected numbers: `outputs/corrected_3AB/COHORT_SUMMARY.txt`.
+
+Two of the three tests were also **corrected after the fact**: 3D reverses from null to clearly
 **positive** once measured the way the source papers do, and 3B's cited source turned out to be a
-review rather than a methods paper. Both corrections are documented below rather than quietly folded in.
+review rather than a methods paper. All corrections are documented rather than quietly folded in.
 
 **📄 Full write-up: [docs/LC_INFRASLOW_3ABD_SUMMARY.md](docs/LC_INFRASLOW_3ABD_SUMMARY.md)** —
 hypothesis, dataset, tests, subject flow, results, limitations, references.
@@ -25,8 +41,8 @@ hypothesis, dataset, tests, subject flow, results, limitations, references.
 
 | | Question | Result | Source paper |
 |---|---|---|---|
-| **3A** | Do spindle power and heart rate rise and fall together every ~50 s? | **negative** — retracted after a frequency-specificity control | [Lecci 2017, *Sci Adv*](https://doi.org/10.1126/sciadv.1602026) · [Osorio-Forero 2021, *Curr Biol*](https://doi.org/10.1016/j.cub.2021.09.041) |
-| **3B** | Does heart rate shift around the slow-oscillation trough? | ⚠️ **present but ~25× weaker than published** — HR peak +0.5% above stage mean vs Naji's +12.1% (Stage 2); SO→HR lag 2.2 s | [Naji & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432) — *the actual methods paper; the 2022 PNAS reference is a review with no such analysis* |
+| **3A** | Do spindle power and heart rate rise and fall together every ~50 s? | **negative**, via Lecci's own method (n=23, K median 59). Step 1: sigma-power peaks **scatter like 1/f noise** (SD 0.014 Hz ≈ this cohort's own surrogates 0.014; a true shared rhythm would give ~0.001) and are not more prominent than the SWA control (p=0.11). Step 2: HR does **not** track them — cross-correlation null (median \|r\|=0.06, p=0.23), and 0.02 Hz ranks only **10th of 63** bins in the frequency-specificity control. | [Lecci 2017, *Sci Adv*](https://doi.org/10.1126/sciadv.1602026) · [Osorio-Forero 2021, *Curr Biol*](https://doi.org/10.1016/j.cub.2021.09.041) |
+| **3B** | Does heart rate shift around the slow-oscillation trough? | ⚠️ **weak and heterogeneous** (n=23, stage-matched null). Significant in only 7/23 (N2) and 6/20 (N3), but the cohort z-test is nonzero (t p=0.014 / 0.020). N3/SWS HR peak **+3.5% matches Naji's +3.35%**; N2 **+1.8% is ~7× weaker** than Naji's +12.1%, and Naji's **N2 ≫ SWS pattern does not reproduce** (paired p=0.57). SO→HR lag ~1–2 s. | [Naji & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432) — *the actual methods paper; the 2022 PNAS reference is a review with no such analysis* |
 | **3D** | Does the slow oscillation organise spindles? | ✅ **PRESENT** — 21/23 subjects, median **83%** of channels significant, R = 0.073. *(Corrected: an earlier continuous-MI version reported this as null; that was a method artifact.)* No N2/N3 difference (p = 0.29). | [Staresina 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) · [Helfrich 2018, *Neuron*](https://doi.org/10.1016/j.neuron.2017.11.020) |
 
 Why it mattered clinically: [Winer 2019, *J Neurosci*](https://doi.org/10.1523/JNEUROSCI.0503-19.2019)
@@ -67,11 +83,26 @@ channels significant 0.83 vs 0.58 (p = 0.16). Direction favours N2 but does not 
 → **23 analysed** → 17 passed the staging-quality filter. **No N2-like vs N3-like difference in any
 test**, including when split by fast vs slow individual spindle peak.
 
-**Why 3A was retracted.** 7/23 subjects cleared threshold at 0.02 Hz, which looked like a strong
-positive. But counting exceedances at *every* frequency gave a background of **11.6%** — against the
-**6%** that a simulation on independent signals predicts — with 0.02 Hz only **2nd of 63 bins**
-(0.05 Hz scored higher). Spindle power and heart rate do share genuine broadband low-frequency
-structure, but there is no ~50 s peak.
+### 3A, corrected: negative on Lecci's own two-step method
+
+The original 3A tested a single hard-coded coherence bin at 0.0195 Hz and found 7/23 subjects over
+threshold — retracted because a frequency-specificity control put 0.02 Hz only 2nd of 63 bins against
+an 11.6% background. That conclusion was right but the test was not Lecci's. Rebuilt to follow the
+paper (`analysis/lecci_faithful_3A.py`), pooling all NREM (K median **59**, vs 7–23 on one 55-min
+block) with the gap-aware estimator:
+
+- **Step 1 — is there a ~50 s sigma rhythm?** Per subject, a duration-weighted Morlet spectrum of the
+  sigma-power time course over all NREM bouts ≥120 s, with a Gaussian peak fit (Lecci Fig 1G). The
+  decisive cohort question is whether the 23 peaks **cluster** at ~0.019 Hz (real shared rhythm →
+  simulated SD ≈ 0.001 Hz) or **scatter** like 1/f noise. Observed peak SD = **0.0137 Hz**, essentially
+  identical to this cohort's own scale-free surrogates (0.0139 Hz); a bootstrap finds the real peaks
+  are **not** tighter (p = 0.49). Sigma is **not** reliably more prominent than the SWA control
+  (Lecci's own control; Wilcoxon p = 0.11). Individual subjects have infraslow bumps, but at scattered
+  frequencies — no shared ~50 s rhythm.
+- **Step 2 — does heart rate track it?** Two controls agree it does not. The frequency-specificity
+  test now puts 0.02 Hz **10th of 63** bins (background 16.5%, p = 0.17), and the **cross-correlation**
+  — Lecci's actual coupling statistic, never previously run — is null: group \|r\| = 0.036, per-subject
+  median \|r\| = 0.056, lags scattered (IQR −10 to −1 s), t vs 0 p = 0.23.
 
 ## Dataset
 
@@ -97,11 +128,16 @@ verified ECG channel, plus **EOG/EMG** so real sleep staging is possible.
 | `results_3A_tutorial_style.py` | single-subject 3A result drawn in the teaching-figure style |
 | `build_3A_results_page.py` | builds the self-contained HTML results page |
 | `cohort_3A_cortical.py` | cortical-channel selection, night finding, first cohort pass |
-| **`cohort_stages_3ABD.py`** | **main analysis** — 3A/3B/3D per sleep stage, one streaming pass per subject |
+| **`cohort_stages_3ABD.py`** | 3A/3B/3D per sleep stage, one streaming pass per subject (original + 3B null fix) |
 | `summarize_cohort_stages.py` | cohort aggregation with staging-quality filters + paired tests |
 | `validate_3A_false_positive_rate.py` | calibrates the coherence test on independent signals |
-| **`frequency_specificity_3A.py`** | **the control that retracted 3A** |
+| **`frequency_specificity_3A.py`** | **the control that retracted the original single-bin 3A** |
 | `tutorial_signal_walkthrough.py` | synthetic teaching figures explaining 3A/3B/3D |
+| **`spectral_gapped.py`** | **gap-aware coherence/PSD** (replaces delete-and-splice); `test_spectral_gapped.py`, `test_coherence_calibration.py` |
+| **`cache_lc_series.py`** | streams each night once → cached derived series (`data/derived/lc_infraslow/`), so re-analysis needs no re-stream |
+| **`lecci_faithful_3A.py`** | **corrected 3A** — Lecci per-subject peak fit + cross-correlation; `test_lecci_faithful.py` |
+| **`event_3B_cached.py`** | **corrected 3B** — Naji method, stage-matched null, whole cohort; `test_3B_null.py` |
+| `summarize_corrected_3AB.py` | corrected cohort summary → `outputs/corrected_3AB/COHORT_SUMMARY.txt` |
 
 *(Other scripts in `analysis/` — `slow_power_by_state`, `slow_ripple_coupling`, `hfo_slow_phase`,
 `atlas.py`, … — belong to the separate study on `master`.)*
@@ -109,8 +145,11 @@ verified ECG channel, plus **EOG/EMG** so real sleep staging is possible.
 ## Outputs
 
 ```
+outputs/corrected_3AB/               CORRECTED cohort summary (Lecci-faithful 3A + stage-matched 3B)
+outputs/lecci_faithful_3A/           per-subject corrected 3A (peak fit, coherence, cross-correlation)
+outputs/event_3B_cached/             per-subject corrected 3B (stage-matched null)
 outputs/cohort_stages_3ABD/          per-subject 3A/3B/3D by stage (JSON) + cohort CSV
-outputs/freq_specificity_3A/         full coherence spectra — the retraction evidence
+outputs/freq_specificity_3A/         full coherence spectra — the original-3A retraction evidence
 outputs/results_3A_tutorial_style/   single-subject result figures (png/svg/json)
 outputs/ekg_quality_check/           EKG quality verification
 outputs/signal_tutorial/             synthetic method-explainer figures

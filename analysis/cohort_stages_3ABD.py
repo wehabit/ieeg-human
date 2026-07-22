@@ -298,7 +298,16 @@ def test_3B(F, sel, rng, half=10):
     seg = np.stack([hr[t - half:t + half] for t in tro])
     curve = seg.mean(0) - seg.mean()
     mod = float(curve.max() - curve.min())
-    ok_t = np.where(np.isfinite(hr))[0]; ok_t = ok_t[(ok_t >= half) & (ok_t < len(hr) - half)]
+    # Surrogate triggers must be drawn from the SAME STAGE as the real ones. Drawing them from the
+    # whole night (the previous behaviour) makes the null measure the stage-vs-night mean-HR offset
+    # instead of SO-locking -- see the docstring of event_3B_mednick.so_triggered for the proof.
+    in_stage = np.zeros(len(hr), bool)
+    for e in ep_ok:
+        in_stage[int(e * EPOCH):int((e + 1) * EPOCH)] = True
+    ok_t = np.where(np.isfinite(hr) & in_stage)[0]
+    ok_t = ok_t[(ok_t >= half) & (ok_t < len(hr) - half)]
+    if len(ok_t) < 100:
+        return dict(n_so=int(len(tro)), modulation=None, z=None)
     null = []
     for _ in range(200):
         r = rng.choice(ok_t, size=len(tro), replace=True)

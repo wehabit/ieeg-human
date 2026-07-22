@@ -92,12 +92,45 @@ def rr_to_hr_4hz(beats, total_s):
     return hr
 
 
-def so_triggered(hr, trough_times_s, stage_mean_hr, n_sur=200, rng=None):
-    """Average HR around SO troughs -> % above stage mean, peak latency, and a random-trigger null."""
+def so_triggered(hr, trough_times_s, stage_mean_hr, stage_pool_idx, n_sur=200, rng=None):
+    """Average HR around SO troughs -> % above stage mean, peak latency, and a random-trigger null.
+
+    `stage_pool_idx` are the HR-grid sample indices belonging to THIS stage; surrogate triggers are
+    drawn only from them.
+
+    BUG FIXED HERE. Surrogates used to be drawn from the whole night (`rng.randint(hw, len(hr)-hw)`)
+    while the statistic was expressed as "% above THIS STAGE's mean HR". The null therefore measured
+    the offset between the stage mean and the whole-night mean rather than SO-locking. Proof from
+    the HUP165 output: inverting each stage's null baseline recovered one common absolute heart rate
+    (N2 -> 93.284 bpm, N3 -> 93.251 bpm, agreeing to 0.03 bpm), and the observed effect was
+    near-identical in the two stages (+0.471% vs +0.478%) while z flipped from -1.75 to +4.90 purely
+    because N2's mean HR sits below and N3's above the whole-night mean.
+
+    Drawing observed and surrogate triggers from the same pool also cancels the upward bias of the
+    `max()` over the post-trough window, which otherwise inflates the observed value alone.
+
+    NaN-SAFE. The cached HR series carries NaN across gaps > 5 s (the old rr_to_hr_4hz interpolated
+    across every gap, so this never arose). A trigger whose +/-5 s window overlaps such a gap would
+    turn the averaged curve into NaN. Both observed and surrogate triggers are therefore restricted
+    to centres whose FULL window is finite; when HR has no gaps this changes nothing.
+    """
     hw = int(HALF_WIN * FS_RR)
+    finite = np.isfinite(hr)
+    # cumulative count of finite samples -> a window [i-hw, i+hw) is all-finite iff it contains 2*hw
+    csum = np.concatenate(([0], np.cumsum(finite)))
+    full_window = np.zeros(len(hr), bool)
+    c = np.arange(hw, len(hr) - hw)
+    full_window[c] = (csum[c + hw] - csum[c - hw]) == (2 * hw)
+
     idx = np.round(np.asarray(trough_times_s) * FS_RR).astype(int)
     idx = idx[(idx >= hw) & (idx < len(hr) - hw)]
+    idx = idx[full_window[idx]]
     if len(idx) < 30:
+        return None
+    pool = np.asarray(stage_pool_idx, int)
+    pool = pool[(pool >= hw) & (pool < len(hr) - hw)]
+    pool = pool[full_window[pool]]
+    if len(pool) < 100:
         return None
     seg = np.stack([hr[i - hw:i + hw] for i in idx])
     curve = seg.mean(axis=0)
@@ -109,13 +142,13 @@ def so_triggered(hr, trough_times_s, stage_mean_hr, n_sur=200, rng=None):
     rng = rng or np.random.RandomState(0)
     null = []
     for _ in range(n_sur):
-        r = rng.randint(hw, len(hr) - hw, size=len(idx))
+        r = rng.choice(pool, size=len(idx), replace=True)
         c2 = np.stack([hr[i - hw:i + hw] for i in r]).mean(axis=0)
         null.append(100.0 * (c2[post].max() - stage_mean_hr) / stage_mean_hr)
     null = np.array(null)
     return dict(n_so=int(len(idx)), pct_above_stage_mean=pct, peak_lag_s=pk_lag,
                 z=float((pct - null.mean()) / (null.std() + 1e-12)),
-                null_mean_pct=float(null.mean()),
+                null_mean_pct=float(null.mean()), n_surrogate_pool=int(len(pool)),
                 curve=[float(v) for v in curve], lag_s=[float(v) for v in lag])
 
 
@@ -195,10 +228,11 @@ def run(n, hours, rng):
         for s0 in sec:
             m[int(s0 * FS_RR):int((s0 + EPOCH) * FS_RR)] = True
         stage_mean = float(np.nanmean(hr[m])) if m.any() else float(np.nanmean(hr))
+        stage_pool = np.where(m)[0]          # surrogate triggers must come from THIS stage only
         per_ch = []
         for c in ctx:
             tt = [x for x in so_t[c] if int(x // EPOCH) in keep]
-            r = so_triggered(hr, tt, stage_mean, rng=rng)
+            r = so_triggered(hr, tt, stage_mean, stage_pool, rng=rng)
             if r:
                 r.pop("curve"); r.pop("lag_s")
                 r["ch"] = c; per_ch.append(r)

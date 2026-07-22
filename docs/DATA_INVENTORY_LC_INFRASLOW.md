@@ -58,11 +58,23 @@ Already pulled (MTL only, no EKG yet): HUP165, HUP157, HUP130 → re-pull with E
 
 ## Independent replication cohort — OpenNeuro ds003848
 
-The **single OpenNeuro iEEG sleep dataset with a verified ECG channel** (ECG type confirmed in all 6
-patients' sleep runs). n=6, ~55 min continuous @ 2048 Hz. No respiration belt (RR from ECG only).
-Short per subject but continuous — enough cycles for infraslow coherence — and, crucially,
+The **single OpenNeuro iEEG sleep dataset with a verified ECG channel**. Utrecht RESPect long-term
+iEEG; n=6 long-term patients (a **mix of ECoG grid and SEEG depth** — e.g. RESP0521 = 64 ECoG,
+RESP0749 = 67 SEEG, RESP0800 = 110 SEEG), 1 h continuous `task-Sleep` runs @ **2048 Hz**, **50 Hz**
+line. Short per subject but continuous — enough cycles for infraslow coherence — and, crucially,
 **an independent cohort/site**, mirroring how this repo already validated SO–spindle coupling across
-three cohorts. Value: cross-cohort replication of 3A/3B.
+three cohorts. Value: cross-cohort replication of 3A/3B, and — unlike HUP — **EMG + EOG enable real
+REM/wake exclusion and staging** rather than the GMM-on-slow-wave proxy.
+
+**Verified against the raw `channels.tsv` (2026-07), correcting two earlier claims here:**
+- **Respiration belts DO exist** — `thor+` (thoracic) and `abdo+` (abdominal) are present (marked
+  `status: bad`, units `Adim.`), so apnoea screening is possible in principle. The earlier "no
+  respiration belt" was wrong.
+- **Trust `channels.tsv`, not the `ieeg.json` sidecar counts.** For RESP0521 the JSON reads
+  `EOGChannelCount: 0`, but `channels.tsv` lists `orb+` as an EOG channel. EOG presence must be checked
+  per subject from `channels.tsv` — it looks present on the ECoG subject and absent on the SEEG
+  subjects' JSON, so read all six before relying on it. ECG (`ECG+`) and EMG (`emg1+`/`emg2+`) are
+  present across the subjects checked.
 
 ## The negatives (surveyed, not assumed)
 

@@ -1,0 +1,134 @@
+{
+  "subject": "HUP165_phaseII",
+  "status": "ok",
+  "sf": 1024.0,
+  "cortical_chans": [
+    "LA12",
+    "LB12",
+    "LC12",
+    "LE12",
+    "LN12",
+    "RA12"
+  ],
+  "night_h": 9.5,
+  "n_N2": 345,
+  "n_N3": 370,
+  "gmm_separation": 1.77620721413733,
+  "method": "Naji 2019 (SO 0.15-4 Hz, RR 4 Hz cubic spline, +/-5 s, % above stage mean HR)",
+  "N2": {
+    "stage_mean_hr": 92.5068001432427,
+    "n_channels": 6,
+    "n_so_total": 5794,
+    "pct_above_stage_mean": 0.4706863033442503,
+    "peak_lag_s": 2.1666666666666665,
+    "z": -1.752606912937927,
+    "per_channel": [
+      {
+        "n_so": 893,
+        "pct_above_stage_mean": 0.6378742606398392,
+        "peak_lag_s": 1.0,
+        "z": -0.9162924365444716,
+        "null_mean_pct": 0.8348325454464282,
+        "ch": "LA12"
+      },
+      {
+        "n_so": 953,
+        "pct_above_stage_mean": 0.4163944766795381,
+        "peak_lag_s": 2.5,
+        "z": -1.972376418769812,
+        "null_mean_pct": 0.8388197474088404,
+        "ch": "LB12"
+      },
+      {
+        "n_so": 964,
+        "pct_above_stage_mean": 0.43717026483812765,
+        "peak_lag_s": 2.75,
+        "z": -2.062644062743684,
+        "null_mean_pct": 0.8562027011061559,
+        "ch": "LC12"
+      },
+      {
+        "n_so": 1010,
+        "pct_above_stage_mean": 0.33468391360821365,
+        "peak_lag_s": 2.5,
+        "z": -2.447508219520195,
+        "null_mean_pct": 0.8305103452427196,
+        "ch": "LE12"
+      },
+      {
+        "n_so": 993,
+        "pct_above_stage_mean": 0.5089337967798415,
+        "peak_lag_s": 1.5,
+        "z": -1.540078935406602,
+        "null_mean_pct": 0.836300030522437,
+        "ch": "LN12"
+      },
+      {
+        "n_so": 981,
+        "pct_above_stage_mean": 0.489061107519942,
+        "peak_lag_s": 2.75,
+        "z": -1.5767414046427983,
+        "null_mean_pct": 0.841145577616849,
+        "ch": "RA12"
+      }
+    ]
+  },
+  "N3": {
+    "stage_mean_hr": 93.5319709574633,
+    "n_channels": 6,
+    "n_so_total": 9381,
+    "pct_above_stage_mean": 0.4784136483609525,
+    "peak_lag_s": 2.2083333333333335,
+    "z": 4.904058242668821,
+    "per_channel": [
+      {
+        "n_so": 1459,
+        "pct_above_stage_mean": 0.6158093704471663,
+        "peak_lag_s": 2.25,
+        "z": 5.80595940821771,
+        "null_mean_pct": -0.2935385949407496,
+        "ch": "LA12"
+      },
+      {
+        "n_so": 1482,
+        "pct_above_stage_mean": 0.42973967207010194,
+        "peak_lag_s": 1.5,
+        "z": 4.307433650397985,
+        "null_mean_pct": -0.30731380356585275,
+        "ch": "LB12"
+      },
+      {
+        "n_so": 1581,
+        "pct_above_stage_mean": 0.4933037094571199,
+        "peak_lag_s": 2.5,
+        "z": 5.087694254933288,
+        "null_mean_pct": -0.30398083227984624,
+        "ch": "LC12"
+      },
+      {
+        "n_so": 1601,
+        "pct_above_stage_mean": 0.5091642531259237,
+        "peak_lag_s": 2.25,
+        "z": 5.066506249822413,
+        "null_mean_pct": -0.29734476600922155,
+        "ch": "LE12"
+      },
+      {
+        "n_so": 1663,
+        "pct_above_stage_mean": 0.31476971145067856,
+        "peak_lag_s": 2.25,
+        "z": 3.811654849270134,
+        "null_mean_pct": -0.3080601223103439,
+        "ch": "LN12"
+      },
+      {
+        "n_so": 1595,
+        "pct_above_stage_mean": 0.5076951736147248,
+        "peak_lag_s": 2.5,
+        "z": 5.345101043371399,
+        "null_mean_pct": -0.2938961875652446,
+        "ch": "RA12"
+      }
+    ]
+  }
+}

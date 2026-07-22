@@ -1,9 +1,10 @@
 # Testing the locus-coeruleus infraslow hypothesis in human iEEG — summary
 
-**Bottom line: negative.** Across 23 analysed subjects we find no evidence that spindle activity and
-heart rate share the ~0.02 Hz (~50 s) locus-coeruleus fingerprint, and no N2/N3 difference in any of
-the three tests. One apparently positive result (3A) did not survive a frequency-specificity control
-and is retracted below.
+**Bottom line: the ~0.02 Hz locus-coeruleus fingerprint is not present**, and there is no N2/N3
+difference in any test. Two corrections were made after the fact and are documented rather than
+folded in: **3A** looked positive and was **retracted** after a frequency-specificity control, while
+**3D** was reported null and is now **positive** — that null was an artifact of not following the
+source papers' method. 3B's cited reference turned out to be a review, not a methods paper.
 
 ---
 
@@ -110,18 +111,60 @@ generic shared structure.
 structure** (arousals, state changes, drift), strongest at the lowest frequencies and decaying. There
 is no ~50 s peak. **The apparent 3A finding is retracted.**
 
-### 3B — SO→heartbeat coupling: **null**
+### 3B — SO→heartbeat coupling: **present, but ~25× weaker than published**
 
-N2-like z = 0.70 vs N3-like z = 1.89 (paired, n = 17, Wilcoxon **p = 0.11**). Direction favours
-N3-like but does not reach significance.
+**The cited source was wrong.** `10.1073/pnas.2123417119` (Chen, Zhang, Thayer & Mednick 2022) is a
+**review** — no heart-rate-burst analysis, no SO-trough method, and its availability statement reads
+*"There are no data underlying this work."* The method had been improvised from a one-line
+description of it.
 
-### 3D — SO→spindle coupling: **null, and effect size negligible**
+The actual methods paper is
+[Naji, Krishnan, McDevitt, Bazhenov & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432).
+Reimplemented to follow it (`analysis/event_3B_mednick.py`): SO band **0.15–4 Hz**, per-channel
+zero-crossing half-wave detection, RR resampled at **4 Hz by piecewise cubic spline**, HR averaged in
+a **±5 s** window on the SO down-state trough, reported as **% above that stage's mean HR** plus the
+**SO→HR peak latency** — the paper's headline statistic, which the previous version never computed.
 
-N2-like MI_z = 8.49 vs N3-like MI_z = 2.73 (paired, n = 17, **p = 0.40**).
+| | this work (HUP165) | Naji 2019 (frontal scalp, healthy) |
+|---|---|---|
+| N2 HR peak | **+0.47%** | **+12.09 ± 1.48%** |
+| N3 / SWS HR peak | **+0.48%** | **+3.35 ± 1.01%** |
+| SO→HR peak lag | 2.2 s | peak follows the down-state ✓ |
+| significance | z = 4.9 (N3), z = −1.8 (N2) | — |
 
-More importantly, **raw Tort MI is ~6×10⁻⁵** (median; MI is normalised 0–1) — negligible coupling.
-Large MI_z values (up to 212) are an artifact of huge sample counts shrinking the surrogate standard
-deviation. **Effect size, not z, is the number to quote.**
+So the coupling **exists** — 9,381 slow oscillations, z = 4.9, with a physiologically sensible ~2.2 s
+lag — but at roughly **1/25th** the published magnitude, and Naji's clear **N2 ≫ SWS** pattern does
+**not** reproduce (0.47% vs 0.48%).
+
+The most likely explanation is not fixable in code: **Naji recorded frontal scalp EEG (F3/F4), this
+uses lateral neocortical iEEG.** Scalp electrodes see large, globally synchronous slow oscillations;
+a single lateral intracranial contact sees local ones, and it is the global SOs that plausibly drive
+autonomic coupling. Epilepsy patients on anti-seizure medication at ~92 bpm compound it.
+
+### 3D — SO→spindle coupling: **PRESENT** *(corrected)*
+
+**Originally reported null** (N2 MI_z 8.49 vs N3 2.73, p = 0.40; raw Tort MI ~6×10⁻⁵, "negligible").
+**That was a method artifact.** The implementation binned *every* timepoint by SO phase into a
+continuous modulation index, with no event detection, on a channel-averaged signal — so real events
+were averaged together with hours of neither-spindle-nor-SO, driving the estimate toward zero.
+
+Neither source paper does it that way. Helfrich 2018, verbatim: *"we detected SO (0.16–1.25 Hz) and
+sleep spindle (12–16 Hz) **events** … phase during the **peak of the detected sleep spindle events**
+… Rayleigh z"*. Staresina 2015 uses an *"Event-locked analysis"*.
+
+Re-implemented faithfully (`analysis/event_3D_by_stage.py` — per channel, discrete SO and spindle
+events by amplitude threshold, Rayleigh test on the SO phase at each spindle peak):
+
+| | result |
+|---|---|
+| subjects with ≥1 significant channel | **20 / 22** |
+| median fraction of channels significant | **82%** |
+| median resultant vector length R | **0.073** |
+| **N2-like vs N3-like** (quality-filtered, paired) | median R 0.068 vs 0.063, n = 19, **p = 0.40** — null; fraction significant 0.83 vs 0.50, p = 0.16 |
+
+R ≈ 0.07 agrees with the independent estimate from `master` (R ≈ 0.03–0.05, significant in 27/28
+channels) obtained by a separate analysis path — so the two studies are consistent, and the apparent
+conflict was entirely the discarded method.
 
 ### N2-like vs N3-like: **null in all three tests**
 
@@ -130,13 +173,28 @@ Also null when split by fast (>12 Hz) vs slow (<12 Hz) individual spindle peak (
 ## 5. Conclusions
 
 1. **No evidence for the LC infraslow fingerprint** (~0.02 Hz shared spindle/heart rhythm) in human
-   intracranial recordings from 23 epilepsy patients.
-2. **No N2/N3 difference** in infraslow coupling, SO→heartbeat coupling, or SO→spindle coupling.
-3. **SO→spindle coupling is negligible** on lateral neocortical contacts in this pipeline
-   (raw MI ~6×10⁻⁵) — note this contrasts with the robust SO→spindle coupling this repo reports in
-   *mesial temporal* contacts, and is likely partly a methodological artifact (see limitations).
-4. This is a **negative result in epilepsy patients**, not a refutation of Lecci/Osorio-Forero, who
-   worked in healthy sleepers with scalp EEG and (in mouse) direct LC recordings.
+   intracranial recordings from 23 epilepsy patients. The one apparently positive result did not
+   survive a frequency-specificity control.
+2. **SO→spindle coupling (3D) IS present** — 20/22 subjects, median 82% of channels significant,
+   R ≈ 0.073 — agreeing with the independent estimate on `master`. This *reverses* an earlier null in
+   this document, which was caused by not following the source papers' event-based method.
+3. **SO→heartbeat coupling (3B) is present but ~25× weaker** than Naji 2019's frontal-scalp values,
+   and their N2 ≫ SWS pattern does not reproduce. Region (lateral iEEG vs frontal scalp) is the most
+   likely cause.
+4. **No N2-like vs N3-like difference in any test** (3A n/a; 3B 0.47% vs 0.48%; 3D p = 0.40).
+5. This is a **negative result for the LC infraslow hypothesis in epilepsy patients**, not a
+   refutation of Lecci/Osorio-Forero, who worked in healthy sleepers with scalp EEG and direct LC
+   recordings in mouse.
+
+### Method-verification audit
+
+Each test was checked against its source paper. This mattered — two of three deviated:
+
+| Test | Follows source? | Consequence |
+|---|---|---|
+| **3A** | Partially — Lecci uses 4-s epochs, 10–15 Hz sigma, and **cross-correlation**; this used 1-s bins, individual spindle peak ±1 Hz, and **coherence**. But the decisive test (spectrum of the sigma-power time course, Lecci Fig 1C) was run their way. | negative stands |
+| **3B** | ❌ No — cited a **review**; method improvised. Now reimplemented per Naji 2019. | verdict changed |
+| **3D** | ❌ No — continuous MI over all timepoints instead of event-locked circular statistics. Now reimplemented per Staresina/Helfrich. | **verdict reversed** |
 
 ## 6. Limitations
 

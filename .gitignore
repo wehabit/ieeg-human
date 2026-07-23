@@ -18,3 +18,6 @@ data/ieeg_portal/
 data/
 *.log
 outputs/*.log
+
+# ds003848 downloaded BrainVision (large, redistributable via OpenNeuro)
+data/ds003848_raw/

@@ -1,18 +1,26 @@
 """Cohort summary of the CORRECTED 3A (Lecci-faithful) and 3B (stage-matched null) results.
 
-Reads outputs/lecci_faithful_3A/*.json and outputs/event_3B_cached/*.json.
+Reads the 3A and 3B per-subject JSON dirs (default HUP; pass --a-dir/--b-dir for ds003848).
 
     .venv/bin/python analysis/summarize_corrected_3AB.py
+    .venv/bin/python analysis/summarize_corrected_3AB.py \
+        --a-dir outputs/ds003848_3A --b-dir outputs/ds003848_3B --label "ds003848 replication"
 """
-import glob, json, os
+import argparse, glob, json, os
 import numpy as np
 from scipy import stats
 
 rng_np = np.random.RandomState(0)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-A_DIR = os.path.join(ROOT, "outputs", "lecci_faithful_3A")
-B_DIR = os.path.join(ROOT, "outputs", "event_3B_cached")
+_ap = argparse.ArgumentParser()
+_ap.add_argument("--a-dir", default=os.path.join(ROOT, "outputs", "lecci_faithful_3A"))
+_ap.add_argument("--b-dir", default=os.path.join(ROOT, "outputs", "event_3B_cached"))
+_ap.add_argument("--label", default="HUP phaseII")
+_args, _ = _ap.parse_known_args()
+A_DIR = _args.a_dir if os.path.isabs(_args.a_dir) else os.path.join(ROOT, _args.a_dir)
+B_DIR = _args.b_dir if os.path.isabs(_args.b_dir) else os.path.join(ROOT, _args.b_dir)
+print(f"COHORT: {_args.label}   (3A: {A_DIR}, 3B: {B_DIR})")
 
 LECCI_PEAK, LECCI_SD = 0.019, 0.0052        # human, 0.019 +/- 0.001 SEM over n=27
 NAJI = {"N2": 12.09, "N3": 3.35}

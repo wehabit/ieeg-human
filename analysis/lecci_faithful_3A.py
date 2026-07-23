@@ -63,8 +63,30 @@ XCORR_MAX_LAG_S = 60.0
 
 
 # ------------------------------------------------------------------ cache access
+_CACHE_DIR = [CACHE]          # mutable so callers can point at an alternate cache (e.g. ds003848)
+
+
+def set_cache(path):
+    _CACHE_DIR[0] = path
+
+
+def stages_for(d):
+    """Return (lab, nrem, sep). Uses REAL scored stages when the cache carries a `stage_lab` array
+    (ds003848, staged from EMG/EOG); otherwise falls back to the GMM-on-slow-wave proxy (HUP, no
+    EOG/EMG). NREM = N2 or N3; Wake/REM/N1 are excluded from NREM by construction with real stages."""
+    if "stage_lab" in getattr(d, "files", []):
+        raw = np.asarray(d["stage_lab"]).astype(str)
+        lab = np.full(len(raw), "", dtype=object)
+        lab[raw == "N2"] = "N2"
+        lab[raw == "N3"] = "N3"
+        nrem = (lab == "N2") | (lab == "N3")
+        return lab, nrem, None
+    ep = dict(dr=d["ep_dr"], swa=d["ep_swa"], clean=d["ep_clean"])
+    return stage_epochs(ep)
+
+
 def load(subject):
-    fp = os.path.join(CACHE, f"{subject}.npz")
+    fp = os.path.join(_CACHE_DIR[0], f"{subject}.npz")
     if not os.path.exists(fp):
         return None
     d = np.load(fp, allow_pickle=True)
@@ -292,8 +314,7 @@ def analyse(subject, band="fsp", smooth_4s=False, n_sur=200):
         return None
     sig = d["sigma_fsp"] if band == "fsp" else d["sigma_fixed"]
     swa, hr = d["swa"], d["hr_1"]
-    ep = dict(dr=d["ep_dr"], swa=d["ep_swa"], clean=d["ep_clean"])
-    lab, nrem, sep = stage_epochs(ep)
+    lab, nrem, sep = stages_for(d)
     if nrem.sum() < 40:
         return dict(subject=subject, status="skip", reason="insufficient NREM")
 

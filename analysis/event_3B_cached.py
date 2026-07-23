@@ -21,7 +21,7 @@ import argparse, json, os
 import numpy as np
 
 from event_3B_mednick import so_triggered, FS_RR
-from lecci_faithful_3A import load, CACHE
+from lecci_faithful_3A import load, CACHE, stages_for, set_cache
 from cohort_stages_3ABD import stage_epochs, EPOCH
 from cohort_3A_cortical import COHORT
 from spectral_gapped import fill_short_gaps
@@ -39,8 +39,7 @@ def analyse(subject):
     hr, _, _ = fill_short_gaps(d["hr_4"], FS_RR, max_gap_s=5.0)
     if np.isfinite(hr).sum() < 1000:
         return dict(subject=subject, status="skip", reason="no usable RR")
-    ep = dict(dr=d["ep_dr"], swa=d["ep_swa"], clean=d["ep_clean"])
-    lab, nrem, sep = stage_epochs(ep)
+    lab, nrem, sep = stages_for(d)
     ctx = [str(c) for c in d["cortical_chans"]]
     rec = dict(subject=subject, status="ok", n_N2=int((lab == "N2").sum()),
                n_N3=int((lab == "N3").sum()), n_channels=len(ctx),

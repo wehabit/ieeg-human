@@ -264,12 +264,21 @@ the Method-correction note at the top). Every fix ships with a test in `analysis
   shift/phase surrogates are **invalid** for oscillatory coherence, and that band-passing before
   computing coherence destroys the estimate.
 
-## 8. Next step
+## 8. Independent replication — OpenNeuro ds003848 (done)
 
-**OpenNeuro ds003848** — the one public iEEG sleep dataset with a verified ECG channel (n≈6,
-1 h continuous, 2048 Hz), recorded with **EOG and EMG**, so real sleep staging is possible, on
-cortical grids at an independent site. If the effect is absent there too, this becomes a clean,
-well-controlled negative.
+**OpenNeuro ds003848** (Utrecht RESPect, n=6, 1 h continuous @ 2048 Hz, ECG + EMG + EOG) was run to
+test the biggest caveat above: that the 3A negative might be a staging artifact, since HUP NREM is a
+GMM proxy that cannot exclude REM/wake. With **real EMG/EOG staging** that removes 6–41% of epochs as
+wake/REM, both tests remain consistent with the HUP negative — no infraslow peak clustering at
+0.019 Hz (fitted peaks sit at ~0.04 Hz, 0/5 in band), no HR coupling, and a null 3B. **So the negative
+is not merely a staging artifact.**
+
+The caveat cuts the other way too: the 1 h recordings, fragmented by real staging, leave very few NREM
+bouts ≥120 s (coherence K median **7** vs 59 in HUP; only 2/6 subjects estimable), so ds003848 is a
+**directional** replication, not a powered one. A definitive test needs longer continuous iEEG sleep
+with cardiac + EOG/EMG, which no current public dataset provides. Full write-up:
+**[DS003848_REPLICATION.md](DS003848_REPLICATION.md)**; numbers in
+`outputs/corrected_3AB/DS003848_SUMMARY.txt`.
 
 ---
 ---

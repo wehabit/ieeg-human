@@ -115,8 +115,12 @@ channel** alongside the depth electrodes — public iEEG almost never includes c
 survey of iEEG.org, OpenNeuro, DANDI, DABI and EBrains, with a test-by-test feasibility verdict, in
 [docs/DATA_INVENTORY_LC_INFRASLOW.md](docs/DATA_INVENTORY_LC_INFRASLOW.md).
 
-**Replication target (not run):** OpenNeuro **ds003848** — the one public iEEG sleep dataset with a
-verified ECG channel, plus **EOG/EMG** so real sleep staging is possible.
+**Independent replication (done):** OpenNeuro **ds003848** (Utrecht RESPect, n=6, 1 h @ 2048 Hz, ECG +
+EMG + EOG). Staged with real REM/wake exclusion (`analysis/stage_ds003848.py`), then the same corrected
+3A/3B. Result: consistent with the HUP negative — excluding REM/wake does **not** rescue an infraslow
+rhythm, so the negative is not a staging artifact — but the 1 h recordings are underpowered for 3A
+(coherence K median 7 vs 59). A directional, not definitive, replication. See
+[docs/DS003848_REPLICATION.md](docs/DS003848_REPLICATION.md).
 
 ## Scripts
 

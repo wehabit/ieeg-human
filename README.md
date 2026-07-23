@@ -13,27 +13,9 @@ candidate biomarker.
 
 **Answer: no** for the infraslow (~50 s) rhythm — and no N2/N3 difference in any test.
 
-> **Method correction (2026-07).** The analysis was rebuilt after an audit found real bugs, and the
-> negative for 3A now rests on **Lecci's own method** rather than a fixed-frequency proxy for it. The
-> conclusions are unchanged in direction but stronger and better specified. What changed:
-> - **3A NaN handling** deleted-and-spliced missing seconds, compressing the time axis; replaced with
->   a gap-aware coherence estimator (`analysis/spectral_gapped.py`, calibrated to 5% false positives).
-> - **3A now follows Lecci** — a per-subject infraslow spectral **peak fit** over all NREM bouts plus
->   the **cross-correlation** with heart rate (Lecci's actual coupling statistic, never previously
->   run), not one hard-coded 0.02 Hz coherence bin (`analysis/lecci_faithful_3A.py`).
-> - **3B's surrogate null was stage-blind** (drew triggers from the whole night while scoring against
->   the stage mean), which alone produced z = ±22 on zero-effect data; fixed to a stage-matched null,
->   and run on the **whole cohort (n=23)** instead of one subject (`analysis/event_3B_cached.py`).
->
-> Every fix ships with a test that fails on the old code and passes on the new
-> (`analysis/test_*.py`). Corrected numbers: `outputs/corrected_3AB/COHORT_SUMMARY.txt`.
-
-Two of the three tests were also **corrected after the fact**: 3D reverses from null to clearly
-**positive** once measured the way the source papers do, and 3B's cited source turned out to be a
-review rather than a methods paper. All corrections are documented rather than quietly folded in.
-
-**📄 Full write-up: [docs/LC_INFRASLOW_3ABD_SUMMARY.md](docs/LC_INFRASLOW_3ABD_SUMMARY.md)** —
-hypothesis, dataset, tests, subject flow, results, limitations, references.
+**📄 Methods: [docs/METHODS.md](docs/METHODS.md)** · **Full write-up:
+[docs/LC_INFRASLOW_3ABD_SUMMARY.md](docs/LC_INFRASLOW_3ABD_SUMMARY.md)** — hypothesis, datasets, tests,
+subject flow, results, limitations, references.
 
 ---
 

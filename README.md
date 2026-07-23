@@ -6,12 +6,15 @@
 > [Staresina 2015](https://doi.org/10.1038/nn.4119) — with its own README; some shared
 > infrastructure in `analysis/` belongs to it.
 
-Does the **locus coeruleus** leave a shared **~0.02 Hz (~50 s) rhythm** in sleep spindles and heart
-rate during NREM ([Lecci 2017](https://doi.org/10.1126/sciadv.1602026); [Osorio-Forero 2021](https://doi.org/10.1016/j.cub.2021.09.041)), and does that coupling differ between lighter and
-deeper NREM? The LC degenerates early in neurodegenerative disease, so weakened coupling was a
-candidate biomarker.
+The **locus coeruleus (LC)** is proposed to coordinate the cardinal events of NREM sleep — **slow
+oscillations (SO), sleep spindles, and heart rate** — and it degenerates early in neurodegenerative
+disease, so a measurable coupling among these would be a candidate biomarker. This study asks whether
+that coordination is detectable in human intracranial EEG, through **three questions** linking the slow
+oscillation, spindles, and heart rate (RR), each split by lighter (**N2**) vs deeper (**N3**) NREM.
 
-**Answer: no** for the infraslow (~50 s) rhythm — and no N2/N3 difference in any test.
+**Answer:** the proposed LC infraslow spindle↔heart rhythm (**3A**) is **absent**, and SO→heart-rate
+coupling (**3B**) is **weak and non-replicating**; only the cortical SO→spindle coupling (**3D**) is
+**present**. No N2-vs-N3 difference in any test.
 
 **📄 Methods: [docs/METHODS.md](docs/METHODS.md)** · **Full write-up:
 [docs/LC_INFRASLOW_3ABD_SUMMARY.md](docs/LC_INFRASLOW_3ABD_SUMMARY.md)** — hypothesis, datasets, tests,
@@ -21,70 +24,50 @@ subject flow, results, limitations, references.
 
 ## The three tests
 
-| | Question | Result | Source paper |
+| | Question (each also tested N2 vs N3) | Result | Source paper |
 |---|---|---|---|
-| **3A** | Do spindle power and heart rate rise and fall together every ~50 s? | **negative**, via Lecci's own method (n=23, K median 59). Step 1: sigma-power peaks **scatter like 1/f noise** (SD 0.014 Hz ≈ this cohort's own surrogates 0.014; a true shared rhythm would give ~0.001) and are not more prominent than the SWA control (p=0.11). Step 2: HR does **not** track them — cross-correlation null (median \|r\|=0.06, p=0.23), and 0.02 Hz ranks only **10th of 63** bins in the frequency-specificity control. | [Lecci 2017, *Sci Adv*](https://doi.org/10.1126/sciadv.1602026) · [Osorio-Forero 2021, *Curr Biol*](https://doi.org/10.1016/j.cub.2021.09.041) |
-| **3B** | Does heart rate shift around the slow-oscillation trough? | ⚠️ **weak and heterogeneous** (n=23, stage-matched null). Significant in only 7/23 (N2) and 6/20 (N3), but the cohort z-test is nonzero (t p=0.014 / 0.020). N3/SWS HR peak **+3.5% matches Naji's +3.35%**; N2 **+1.8% is ~7× weaker** than Naji's +12.1%, and Naji's **N2 ≫ SWS pattern does not reproduce** (paired p=0.57). SO→HR lag ~1–2 s. | [Naji & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432) — *the actual methods paper; the 2022 PNAS reference is a review with no such analysis* |
-| **3D** | Does the slow oscillation organise spindles? | ✅ **PRESENT** — 21/23 subjects, median **83%** of channels significant, R = 0.073. *(Corrected: an earlier continuous-MI version reported this as null; that was a method artifact.)* No N2/N3 difference (p = 0.29). | [Staresina 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) · [Helfrich 2018, *Neuron*](https://doi.org/10.1016/j.neuron.2017.11.020) |
+| **3A** | Do **spindle (sigma) power and heart rate share a ~0.02 Hz (~50 s) infraslow rhythm** during NREM — the proposed LC signature? | **negative** (n=23, K median 59). Step 1: sigma-power peaks **scatter like 1/f noise** (SD 0.014 Hz ≈ this cohort's own surrogates 0.014; a true shared rhythm would give ~0.001) and are no more prominent than the SWA control (p=0.11). Step 2: HR does **not** track them — cross-correlation null (median \|r\|=0.06, p=0.23), and 0.02 Hz ranks only **10th of 63** bins in the frequency-specificity control. | [Lecci 2017, *Sci Adv*](https://doi.org/10.1126/sciadv.1602026) · [Osorio-Forero 2021, *Curr Biol*](https://doi.org/10.1016/j.cub.2021.09.041) |
+| **3B** | Does **heart rate rise at a fixed latency after the slow-oscillation down-state** (SO→HR coupling)? | **weak and heterogeneous** (n=23, stage-matched null). Significant in only 7/23 (N2) and 6/20 (N3); cohort z-test nonzero (t p=0.014 / 0.020). N3 HR peak **+3.5% ≈ Naji's +3.35%**; N2 **+1.8% is ~7× weaker** than Naji's +12.1%, and Naji's **N2 ≫ N3 pattern does not reproduce** (paired p=0.57). SO→HR lag ~1–2 s. **Null** in the RESPect replication. | [Naji & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432) |
+| **3D** | Are **sleep spindles phase-locked to the slow oscillation** (SO→spindle coupling)? | **present** — 21/23 subjects, median **83%** of channels significant, R = 0.073. No N2/N3 difference (p = 0.29). | [Staresina 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) · [Helfrich 2018, *Neuron*](https://doi.org/10.1016/j.neuron.2017.11.020) |
 
 Why it mattered clinically: [Winer 2019, *J Neurosci*](https://doi.org/10.1523/JNEUROSCI.0503-19.2019)
 (impaired SO–spindle coupling predicts medial-temporal tau) and
 [Jacobs 2021, *Sci Transl Med*](https://doi.org/10.1126/scitranslmed.abj2511)
 (LC integrity indexes Alzheimer's pathology and cognitive decline).
 
-### 3D, corrected: SO→spindle coupling **is** present — and agrees with `master`
+### 3A — no infraslow spindle↔heart rhythm
 
-An earlier version of 3D reported this as null (raw modulation index ~6×10⁻⁵). **That was wrong, and
-the cause was my implementation, not the data.** It binned *every* timepoint by slow-oscillation
-phase into a continuous Tort modulation index, with **no event detection at all**, on a
-**channel-averaged** signal. Most of a night is neither spindle nor slow oscillation, so that
-averages the real events together with hours of nothing and drives the estimate toward zero.
-
-Neither [Staresina 2015](https://doi.org/10.1038/nn.4119) nor
-[Helfrich 2018](https://doi.org/10.1016/j.neuron.2017.11.020) does it that way. Helfrich, verbatim:
-*"we detected SO (0.16–1.25 Hz) and sleep spindle (12–16 Hz) **events** … phase during the **peak of
-the detected sleep spindle events** … Rayleigh z"*. Re-implemented that way — per channel, discrete
-SO and spindle events, Rayleigh test on the SO phase at each spindle peak
-(`analysis/event_3D_by_stage.py`) — the result reverses:
-
-| | event-based (correct) | old continuous MI |
-|---|---|---|
-| subjects with ≥1 significant channel | **21 / 23** | — |
-| median fraction of channels significant | **83%** | — |
-| median resultant vector length R | **0.073** | raw MI 6×10⁻⁵ ("negligible") |
-| verdict | **coupling present** | "null" |
-
-R ≈ 0.07 lands on `master`'s independent estimate (R ≈ 0.03–0.05, 27/28 channels) from a completely
-separate analysis path — so the two studies **agree**, and the apparent conflict was entirely an
-artifact of the discarded method.
-
-**N2-like vs N3-like remains null**: median R 0.071 vs 0.069 (n = 20, Wilcoxon p = 0.29); fraction of
-channels significant 0.83 vs 0.58 (p = 0.16). Direction favours N2 but does not reach significance.
-
-**Subject flow:** 25 subjects with depth electrodes + EKG → 2 excluded (no usable cortical channels)
-→ **23 analysed** → 17 passed the staging-quality filter. **No N2-like vs N3-like difference in any
-test**, including when split by fast vs slow individual spindle peak.
-
-### 3A, corrected: negative on Lecci's own two-step method
-
-The original 3A tested a single hard-coded coherence bin at 0.0195 Hz and found 7/23 subjects over
-threshold — retracted because a frequency-specificity control put 0.02 Hz only 2nd of 63 bins against
-an 11.6% background. That conclusion was right but the test was not Lecci's. Rebuilt to follow the
-paper (`analysis/lecci_faithful_3A.py`), pooling all NREM (K median **59**, vs 7–23 on one 55-min
-block) with the gap-aware estimator:
+Two-step method after Lecci, pooling all NREM (coherence K median **59**) with a gap-aware estimator
+([`analysis/lecci_faithful_3A.py`](analysis/lecci_faithful_3A.py)):
 
 - **Step 1 — is there a ~50 s sigma rhythm?** Per subject, a duration-weighted Morlet spectrum of the
-  sigma-power time course over all NREM bouts ≥120 s, with a Gaussian peak fit (Lecci Fig 1G). The
-  decisive cohort question is whether the 23 peaks **cluster** at ~0.019 Hz (real shared rhythm →
-  simulated SD ≈ 0.001 Hz) or **scatter** like 1/f noise. Observed peak SD = **0.0137 Hz**, essentially
-  identical to this cohort's own scale-free surrogates (0.0139 Hz); a bootstrap finds the real peaks
-  are **not** tighter (p = 0.49). Sigma is **not** reliably more prominent than the SWA control
-  (Lecci's own control; Wilcoxon p = 0.11). Individual subjects have infraslow bumps, but at scattered
-  frequencies — no shared ~50 s rhythm.
-- **Step 2 — does heart rate track it?** Two controls agree it does not. The frequency-specificity
-  test now puts 0.02 Hz **10th of 63** bins (background 16.5%, p = 0.17), and the **cross-correlation**
-  — Lecci's actual coupling statistic, never previously run — is null: group \|r\| = 0.036, per-subject
-  median \|r\| = 0.056, lags scattered (IQR −10 to −1 s), t vs 0 p = 0.23.
+  sigma-power time course over all NREM bouts ≥120 s, with a Gaussian peak fit (Lecci Fig 1G). Cohort
+  question: do the 23 peaks **cluster** at ~0.019 Hz (a real shared rhythm → simulated SD ≈ 0.001 Hz)
+  or **scatter** like 1/f noise? Observed peak SD = **0.0137 Hz**, essentially identical to this
+  cohort's own scale-free surrogates (0.0139 Hz); bootstrap finds the real peaks **not** tighter
+  (p = 0.49). Sigma is **not** more prominent than the SWA control (Wilcoxon p = 0.11). Individual
+  subjects have infraslow bumps, but at scattered frequencies — no shared ~50 s rhythm.
+- **Step 2 — does heart rate track it?** Two controls agree it does not: 0.02 Hz ranks **10th of 63**
+  bins in the frequency-specificity test (background 16.5%, p = 0.17), and the **cross-correlation**
+  (Lecci's coupling statistic) is null — group \|r\| = 0.036, per-subject median 0.056, lags scattered
+  (IQR −10 to −1 s), t vs 0 p = 0.23.
+
+### 3D — SO→spindle coupling is present (agrees with `master`)
+
+Per channel: discrete SO and spindle events, Rayleigh test on the SO phase at each spindle peak
+([`analysis/event_3D_by_stage.py`](analysis/event_3D_by_stage.py)), after Staresina 2015 / Helfrich 2018:
+
+| | value |
+|---|---|
+| subjects with ≥1 significant channel | **21 / 23** |
+| median fraction of channels significant | **83%** |
+| median resultant vector length R | **0.073** |
+
+R ≈ 0.07 matches `master`'s independent estimate (R ≈ 0.03–0.05, 27/28 channels) from a separate
+analysis path. **N2 vs N3 null**: median R 0.071 vs 0.069 (n = 20, Wilcoxon p = 0.29).
+
+**Subject flow:** 25 subjects with depth + EKG → 2 excluded (no usable cortical channels) → **23
+analysed** → 17 passed the staging-quality filter. No N2-vs-N3 difference in any test.
 
 ## Datasets
 

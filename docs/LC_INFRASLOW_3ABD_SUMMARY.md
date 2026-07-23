@@ -152,20 +152,23 @@ On zero-effect synthetic data this alone produced z = −21.8 (N2) / +24.0 (N3),
 the old single-subject "z = 4.9". Fixed to a stage-matched null and run on the whole cohort
 (`event_3B_cached.py`).
 
+*(Naji scored with Rechtschaffen & Kales, whose deep-sleep stage is **SWS** = R&K stages 3+4; AASM
+merged these into **N3**, so **SWS = N3** — the same stage, different scoring vocabulary.)*
+
 | | corrected cohort (n=23) | Naji 2019 (frontal scalp, healthy) |
 |---|---|---|
-| N2 HR peak | **+1.8%** (SD 8.2) → ~7× weaker | **+12.09 ± 1.48%** |
-| N3 / SWS HR peak | **+3.5%** (SD 12.7) → **matches** | **+3.35 ± 1.01%** |
+| N2 (Stage 2) HR peak | **+1.8%** (SD 8.2) → ~7× weaker | **+12.09 ± 1.48%** |
+| N3 (= SWS) HR peak | **+3.5%** (SD 12.7) → **matches** | **+3.35 ± 1.01%** |
 | significant per subject (z > 1.96) | **7/23** (N2), **6/20** (N3) | — |
 | cohort z-test (t on z vs 0) | N2 **p = 0.014**, N3 **p = 0.020** | — |
-| N2 ≫ SWS? (Naji's headline pattern) | paired **p = 0.57 — not reproduced** | 3.6× |
+| N2 ≫ N3 (SWS)? (Naji's headline pattern) | paired **p = 0.57 — not reproduced** | 3.6× |
 | SO→HR lag | ~1–2 s (follows the down-state ✓) | follows the down-state ✓ |
 
 So SO→heartbeat coupling is **real but weak and present in only a minority of subjects** — the cohort
 z-test is significantly nonzero, but the median subject shows almost nothing (median z ≈ 0.5–0.7) and
 a handful of subjects (HUP139 z=7.8, HUP150 z=10.0, HUP151 z=7.6, HUP143 z=6.7) carry the effect.
-Notably the **N3/SWS magnitude (+3.5%) lands right on Naji's SWS value (+3.35%)**, while N2 is far
-weaker and Naji's N2 ≫ SWS pattern is absent.
+Notably the **N3 (= SWS) magnitude (+3.5%) lands right on Naji's SWS value (+3.35%)**, while N2 is far
+weaker and Naji's N2 ≫ N3 pattern is absent.
 
 The most likely reason the pattern does not fully match is not fixable in code: **Naji recorded frontal
 scalp EEG (F3/F4), this uses lateral neocortical iEEG.** Scalp electrodes see large, globally

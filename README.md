@@ -59,6 +59,40 @@ only 2/6 subjects and significant in none, and the cross-correlation is flat. Ex
 are underpowered for 3A (coherence K median 7 vs 59), so this is a directional, not definitive,
 replication. See [docs/DS003848_REPLICATION.md](docs/DS003848_REPLICATION.md).
 
+### 3B — SO→heartbeat coupling is weak and heterogeneous
+
+Method after Naji 2019 ([`analysis/event_3B_mednick.py`](analysis/event_3B_mednick.py) + `event_3B_cached.py`):
+
+- **SO detection** — per channel, band-pass 0.15–4 Hz, negative half-waves with duration 0.3–1.0 s and
+  amplitude & peak-to-peak ≥ 75th percentile within channel.
+- **Heart rate** — R-peaks → RR → resampled to 4 Hz by piecewise cubic spline.
+- **Statistic** — mean HR in a ±5 s window on the SO down-state trough; effect = peak of the post-trough
+  curve as **% above that stage's mean HR**, plus the SO→HR latency; significance against a
+  **stage-matched** random-trigger null (200 surrogates), z-scored.
+
+**HUP (n=23):**
+
+| | N2 | N3 | Naji 2019 (scalp) |
+|---|---|---|---|
+| HR peak (% above stage mean) | **+1.8%** | **+3.5%** | +12.09% (N2) / +3.35% (N3) |
+| significant (z > 1.96) | 7/23 | 6/20 | — |
+| cohort z-test (t vs 0) | p = 0.014 | p = 0.020 | — |
+| SO→HR lag | ~1–2 s | ~1–2 s | follows down-state ✓ |
+
+So the coupling is significant at the group level but carried by only ~30% of patients (median subject
+near zero). **N3 matches Naji's +3.35%; N2 is ~7× weaker** than Naji's +12.09%, and Naji's **N2 ≫ N3
+pattern does not reproduce** (paired p = 0.57).
+
+**Replication — RESPect (n=6):** **null** — N2 +0.6% (0/5 significant, t p = 0.88), N3 +1.0% (0/6,
+t p = 0.28), N2 ≫ N3 not reproduced.
+
+**Why lateral iEEG likely misses it (follow-ups on RESPect):** the coupling lives in large slow waves,
+and a lateral depth contact sees mostly local ones. Restricting to globally-synchronous SOs strengthened
+the effect in N3 (global > local in 5/5 subjects) but stayed ~+2%; cortical region (frontal/cingulate/
+insula vs posterior) did **not** matter; and isolating N2 K-complexes was too rare to test. Nothing
+approached scalp magnitudes. See [docs/3B_METHOD_COMPARISON.md](docs/3B_METHOD_COMPARISON.md) and
+[docs/3B_REGION_GLOBALITY.md](docs/3B_REGION_GLOBALITY.md).
+
 ### 3D — SO→spindle coupling is present (agrees with `master`)
 
 Per channel: discrete SO and spindle events, Rayleigh test on the SO phase at each spindle peak

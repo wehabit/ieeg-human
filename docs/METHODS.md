@@ -2,10 +2,15 @@
 
 ## Datasets
 
+**Two datasets, three scopes:** each test was first built on a single worked subject (**HUP165**,
+n=1), then run on the full **iEEG.org HUP phaseII** cohort (n=23), then replicated on the independent
+**Utrecht RESPect** cohort (n=6). HUP165 is one subject *within* HUP phaseII (`HUP165_phaseII`), not a
+separate dataset.
+
 | | HUP phaseII (primary) | Utrecht RESPect (replication) |
 |---|---|---|
 | Source | iEEG.org (Penn epilepsy monitoring unit) | OpenNeuro **ds003848** (UMC Utrecht) |
-| n analysed | 23 (of 25 with depth + EKG) | 6 |
+| n analysed | 23 (of 25 with depth + EKG); developed on 1 worked subject (HUP165) | 6 |
 | Recording | continuous multi-day; ~7 h/subject streamed from the highest-delta night | 1 h continuous `task-[Ss]leep` |
 | Sampling | 256–1024 Hz (per subject) | 2048 Hz, 50 Hz line |
 | iEEG electrodes | **SEEG depth**; lateral neocortical contacts (see below) | **3 ECoG grid + 3 SEEG depth** |

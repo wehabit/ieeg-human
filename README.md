@@ -104,22 +104,28 @@ block) with the gap-aware estimator:
   — Lecci's actual coupling statistic, never previously run — is null: group \|r\| = 0.036, per-subject
   median \|r\| = 0.056, lags scattered (IQR −10 to −1 s), t vs 0 p = 0.23.
 
-## Dataset
+## Datasets
 
-| Dataset | Rate | Coverage | n |
+**Two datasets, examined at three scopes** (n=1 worked subject → n=23 cohort → n=6 replication):
+
+| Dataset | Rate | Coverage | n (scope) |
 |---|---|---|---|
-| **iEEG.org HUP `phaseII`** — continuous multi-day recordings, Penn epilepsy monitoring unit | 256–1024 Hz | lateral neocortical contacts + **`EKG1`/`EKG2`** | **25** with depth + EKG |
+| **iEEG.org HUP `phaseII`** — continuous multi-day recordings, Penn epilepsy monitoring unit | 256–1024 Hz | lateral neocortical contacts (highest per shaft) + **`EKG1`/`EKG2`**; no electrode localisation | **1** — worked single subject (HUP165), method developed here |
+| — same dataset, full cohort | 256–1024 Hz | as above | **25** with depth + EKG → **23** analysed |
+| **OpenNeuro ds003848** — Utrecht **RESPect** long-term iEEG (independent replication) | 2048 Hz (50 Hz line) | 3 ECoG grid + 3 SEEG depth; ECG + **EMG + EOG** + respiration belts; **Destrieux atlas** labels + MNI coords | **6** |
+
+*HUP165 is one subject of iEEG.org HUP `phaseII` (dataset name `HUP165_phaseII`), not a separate
+dataset — each test was first built/visualised on it, then run on the full cohort.*
 
 The enabling find: of 52 candidate datasets, 39 were reachable and **every one carries an EKG
 channel** alongside the depth electrodes — public iEEG almost never includes cardiac signals. Full
 survey of iEEG.org, OpenNeuro, DANDI, DABI and EBrains, with a test-by-test feasibility verdict, in
 [docs/DATA_INVENTORY_LC_INFRASLOW.md](docs/DATA_INVENTORY_LC_INFRASLOW.md).
 
-**Independent replication (done):** OpenNeuro **ds003848** (Utrecht RESPect, n=6, 1 h @ 2048 Hz, ECG +
-EMG + EOG). Staged with real REM/wake exclusion (`analysis/stage_ds003848.py`), then the same corrected
-3A/3B. Result: consistent with the HUP negative — excluding REM/wake does **not** rescue an infraslow
-rhythm, so the negative is not a staging artifact — but the 1 h recordings are underpowered for 3A
-(coherence K median 7 vs 59). A directional, not definitive, replication. See
+**On the replication (ds003848 / RESPect):** staged with real REM/wake exclusion
+(`analysis/stage_ds003848.py`), then the same 3A/3B. Consistent with the HUP negative — excluding
+REM/wake does **not** rescue an infraslow rhythm — but the 1 h recordings are underpowered for 3A
+(coherence K median 7 vs 59). Directional, not definitive. See
 [docs/DS003848_REPLICATION.md](docs/DS003848_REPLICATION.md).
 
 ## Scripts

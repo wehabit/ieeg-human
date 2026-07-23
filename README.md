@@ -103,16 +103,16 @@ REM/wake does **not** rescue an infraslow rhythm — but the 1 h recordings are 
 | `results_3A_tutorial_style.py` | single-subject 3A result drawn in the teaching-figure style |
 | `build_3A_results_page.py` | builds the self-contained HTML results page |
 | `cohort_3A_cortical.py` | cortical-channel selection, night finding, first cohort pass |
-| **`cohort_stages_3ABD.py`** | 3A/3B/3D per sleep stage, one streaming pass per subject (original + 3B null fix) |
+| **`cohort_stages_3ABD.py`** | 3A/3B/3D per sleep stage, one streaming pass per subject |
 | `summarize_cohort_stages.py` | cohort aggregation with staging-quality filters + paired tests |
 | `validate_3A_false_positive_rate.py` | calibrates the coherence test on independent signals |
-| **`frequency_specificity_3A.py`** | **the control that retracted the original single-bin 3A** |
+| **`frequency_specificity_3A.py`** | the frequency-specificity control (exceedance at every bin) |
 | `tutorial_signal_walkthrough.py` | synthetic teaching figures explaining 3A/3B/3D |
-| **`spectral_gapped.py`** | **gap-aware coherence/PSD** (replaces delete-and-splice); `test_spectral_gapped.py`, `test_coherence_calibration.py` |
-| **`cache_lc_series.py`** | streams each night once → cached derived series (`data/derived/lc_infraslow/`), so re-analysis needs no re-stream |
-| **`lecci_faithful_3A.py`** | **corrected 3A** — Lecci per-subject peak fit + cross-correlation; `test_lecci_faithful.py` |
-| **`event_3B_cached.py`** | **corrected 3B** — Naji method, stage-matched null, whole cohort; `test_3B_null.py` |
-| `summarize_corrected_3AB.py` | corrected cohort summary → `outputs/corrected_3AB/COHORT_SUMMARY.txt` |
+| **`spectral_gapped.py`** | **gap-aware coherence/PSD**; `test_spectral_gapped.py`, `test_coherence_calibration.py` |
+| **`cache_lc_series.py`** | streams each night once → cached derived series (`data/derived/lc_infraslow/`) |
+| **`lecci_faithful_3A.py`** | **3A** — Lecci per-subject peak fit + cross-correlation; `test_lecci_faithful.py` |
+| **`event_3B_cached.py`** | **3B** — Naji method, stage-matched null, whole cohort; `test_3B_null.py` |
+| `summarize_corrected_3AB.py` | cohort summary → `outputs/corrected_3AB/COHORT_SUMMARY.txt` |
 
 *(Other scripts in `analysis/` — `slow_power_by_state`, `slow_ripple_coupling`, `hfo_slow_phase`,
 `atlas.py`, … — belong to the separate study on `master`.)*
@@ -120,11 +120,11 @@ REM/wake does **not** rescue an infraslow rhythm — but the 1 h recordings are 
 ## Outputs
 
 ```
-outputs/corrected_3AB/               CORRECTED cohort summary (Lecci-faithful 3A + stage-matched 3B)
-outputs/lecci_faithful_3A/           per-subject corrected 3A (peak fit, coherence, cross-correlation)
-outputs/event_3B_cached/             per-subject corrected 3B (stage-matched null)
+outputs/corrected_3AB/               cohort summary (3A peak fit + cross-correlation, 3B stage-matched)
+outputs/lecci_faithful_3A/           per-subject 3A (peak fit, coherence, cross-correlation)
+outputs/event_3B_cached/             per-subject 3B (stage-matched null)
 outputs/cohort_stages_3ABD/          per-subject 3A/3B/3D by stage (JSON) + cohort CSV
-outputs/freq_specificity_3A/         full coherence spectra — the original-3A retraction evidence
+outputs/freq_specificity_3A/         full coherence spectra (frequency-specificity control)
 outputs/results_3A_tutorial_style/   single-subject result figures (png/svg/json)
 outputs/ekg_quality_check/           EKG quality verification
 outputs/signal_tutorial/             synthetic method-explainer figures
@@ -137,18 +137,18 @@ docs/HUP165_N2_N3_RESULTS.md         full N2/N3 breakdown for the worked subject
 
 ## Method notes worth reading before reusing any of this
 
-[docs/DEC_3A_METHOD_NOTES.md](docs/DEC_3A_METHOD_NOTES.md) documents pitfalls that each
-independently invalidated an earlier version of these results:
+[docs/DEC_3A_METHOD_NOTES.md](docs/DEC_3A_METHOD_NOTES.md) documents methodological points that matter
+for these signals:
 
-- `ds.get_data()` returns channels in **ascending index order, not the order requested** — so the
-  heartbeat detector was briefly running on a brain channel
-- **band-passing before computing coherence** destroys the estimate: a known-coupled control pair
-  scored 0.09 instead of 0.98
+- `ds.get_data()` returns channels in **ascending index order, not the order requested** — remap before
+  assigning EKG vs brain channels
+- **do not band-pass before computing coherence** — it destroys the estimate (a known-coupled control
+  pair scores 0.09 instead of 0.98)
 - **shift and phase-randomisation surrogates are invalid** for oscillatory coupling — a shifted 50 s
   rhythm is still coherent with itself; use the analytic threshold `1 − α^(1/(K−1))`
 - the **band-maximum** coherence test has a **34%** false-positive rate; only a pre-specified
   frequency point is defensible
-- report **effect size, not z** — Tort MI_z reached 212 where the raw MI was ~6×10⁻⁵ (negligible)
+- report **effect size, not z** for phase-amplitude coupling (Tort MI_z is inflated by sample size)
 - coherence is biased by window length (floor ≈ 1/K), so any contrast between conditions must use
   **length-matched** windows
 

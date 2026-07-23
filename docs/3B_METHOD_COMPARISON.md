@@ -47,7 +47,7 @@ duration of down- and up-states (Dang-Vu et al. 2008)."*
 | Duration gate | duration of **down- and up-states** | **down-state only**, 0.3–1.0 s | ⚠️ up-state gate dropped |
 | Amplitude gate | **absolute µV** (peak-to-peak + up-state amplitude) | negative-peak amp **≥ 75th pct** AND peak-to-peak **≥ 75th pct**, within channel | ❌ relative, not absolute |
 | Up-state amplitude | explicit criterion | not gated separately; p2p uses max of next ≤1 s as a proxy up-state | ⚠️ approximated |
-| Staging | R&K visual scoring, 3-min stable Stage-2 / SWS bins | GMM-on-slow-wave proxy (HUP) or EMG/EOG rule-based (ds003848) | ❌ not R&K |
+| Staging | R&K visual scoring, 3-min stable N2 / N3 bins (Naji's paper labels N3 "SWS") | GMM-on-slow-wave proxy (HUP) or EMG/EOG rule-based (ds003848) | ❌ not R&K |
 
 **Why the deviations, and what they do:**
 
@@ -69,7 +69,7 @@ duration of down- and up-states (Dang-Vu et al. 2008)."*
 This is the biggest conceptual difference and the one most relevant to the "validated" claim.
 
 **What Naji actually tests.** Naji reports the HR peak as **% above the stage mean** — **12.09 ± 1.48%**
-(Stage 2), **3.35 ± 1.01%** (SWS) — as a **descriptive** measurement (mean ± SEM across subjects). They
+(N2), **3.35 ± 1.01%** (N3) — as a **descriptive** measurement (mean ± SEM across subjects). They
 **do not test the coupling against a null**; the coupling is taken as given (their Fig 1). Their actual
 *statistical* claim is a **Pearson correlation between the SO→HR timing (ΔT ≈ 2.1–2.2 s) and
 texture-discrimination speed** — i.e. the *timing* predicts behaviour, and even that was **negative for
@@ -107,14 +107,14 @@ memory consolidation** (hence the paper's title).
 
 ## What we found (for context)
 
-| Cohort | Stage 2 HR peak | SWS HR peak | Significant / n | Stage-2 ≫ SWS? |
+| Cohort | N2 HR peak | N3 HR peak | Significant / n | N2 ≫ N3? |
 |---|---|---|---|---|
 | **HUP iEEG (n=23)** | +1.8% (t p=0.014) | +3.5% (t p=0.020) | 7/23, 6/20 | no (p=0.57) |
 | **ds003848 (n=6, real staging)** | +0.6% (t p=0.88) | +1.0% (t p=0.28) | 0/5, 0/6 | no (p=0.63) |
 | **Naji 2019 (scalp, healthy)** | **+12.09%** | **+3.35%** | — | yes (3.6×) |
 
 The coupling is **weak and heterogeneous** in HUP (group-level significant but carried by ~30% of
-patients, no Stage-2 ≫ SWS pattern) and **null** in the independently sleep-staged replication. It is
+patients, no N2 ≫ N3 pattern) and **null** in the independently sleep-staged replication. It is
 therefore not a clean validation of the SO→HR relationship, and — separately — the infraslow
 RR–spindle coupling that is the actual proposed locus-coeruleus signature (Lecci 2017; our test 3A)
 was **absent**. See [BRANCH_SUMMARY.md](BRANCH_SUMMARY.md) and

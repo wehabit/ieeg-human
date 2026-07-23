@@ -152,22 +152,19 @@ On zero-effect synthetic data this alone produced z = −21.8 (N2) / +24.0 (N3),
 the old single-subject "z = 4.9". Fixed to a stage-matched null and run on the whole cohort
 (`event_3B_cached.py`).
 
-*(Naji scored with Rechtschaffen & Kales, whose deep-sleep stage is **SWS** = R&K stages 3+4; AASM
-merged these into **N3**, so **SWS = N3** — the same stage, different scoring vocabulary.)*
-
 | | corrected cohort (n=23) | Naji 2019 (frontal scalp, healthy) |
 |---|---|---|
-| N2 (Stage 2) HR peak | **+1.8%** (SD 8.2) → ~7× weaker | **+12.09 ± 1.48%** |
-| N3 (= SWS) HR peak | **+3.5%** (SD 12.7) → **matches** | **+3.35 ± 1.01%** |
+| N2 HR peak | **+1.8%** (SD 8.2) → ~7× weaker | **+12.09 ± 1.48%** |
+| N3 HR peak | **+3.5%** (SD 12.7) → **matches** | **+3.35 ± 1.01%** |
 | significant per subject (z > 1.96) | **7/23** (N2), **6/20** (N3) | — |
 | cohort z-test (t on z vs 0) | N2 **p = 0.014**, N3 **p = 0.020** | — |
-| N2 ≫ N3 (SWS)? (Naji's headline pattern) | paired **p = 0.57 — not reproduced** | 3.6× |
+| N2 ≫ N3? (Naji's headline pattern) | paired **p = 0.57 — not reproduced** | 3.6× |
 | SO→HR lag | ~1–2 s (follows the down-state ✓) | follows the down-state ✓ |
 
 So SO→heartbeat coupling is **real but weak and present in only a minority of subjects** — the cohort
 z-test is significantly nonzero, but the median subject shows almost nothing (median z ≈ 0.5–0.7) and
 a handful of subjects (HUP139 z=7.8, HUP150 z=10.0, HUP151 z=7.6, HUP143 z=6.7) carry the effect.
-Notably the **N3 (= SWS) magnitude (+3.5%) lands right on Naji's SWS value (+3.35%)**, while N2 is far
+Notably the **N3 magnitude (+3.5%) lands right on Naji's N3 value (+3.35%)**, while N2 is far
 weaker and Naji's N2 ≫ N3 pattern is absent.
 
 The most likely reason the pattern does not fully match is not fixable in code: **Naji recorded frontal
@@ -217,8 +214,8 @@ Also null when split by fast (>12 Hz) vs slow (<12 Hz) individual spindle peak (
    R ≈ 0.073 — agreeing with the independent estimate on `master`. This *reverses* an earlier null in
    this document, which was caused by not following the source papers' event-based method.
 3. **SO→heartbeat coupling (3B) is weak and heterogeneous** — significant in only 7/23 (N2) and 6/20
-   (N3) subjects, though the cohort z-test is nonzero (p ≈ 0.01–0.02). N3/SWS magnitude (+3.5%) matches
-   Naji 2019, but N2 (+1.8%) is ~7× weaker and Naji's N2 ≫ SWS pattern does not reproduce (p = 0.57).
+   (N3) subjects, though the cohort z-test is nonzero (p ≈ 0.01–0.02). N3 magnitude (+3.5%) matches
+   Naji 2019, but N2 (+1.8%) is ~7× weaker and Naji's N2 ≫ N3 pattern does not reproduce (p = 0.57).
    Region (lateral iEEG vs frontal scalp) is the most likely cause. *(The prior "~25× weaker" figure
    was one subject before the stage-matched-null fix.)*
 4. **No N2-like vs N3-like difference in any test** (3A: peaks scatter in both; 3B: N2 vs N3 paired
@@ -295,7 +292,7 @@ with cardiac + EOG/EMG, which no current public dataset provides. Full write-up:
   infraslow neural and cardiac oscillations mark fragility and offline periods in mammalian sleep.*
   **Science Advances** 3:e1602026. [10.1126/sciadv.1602026](https://doi.org/10.1126/sciadv.1602026)
   — defines the 0.02 Hz sigma-power oscillation and its cardiac counterpart; source of the ~50 s
-  periodicity, the S2 > SWS claim, and the fast-spindle-peak band.
+  periodicity, the N2 > N3 claim, and the fast-spindle-peak band.
 - Osorio-Forero A, Cardis R, Vantomme G, Guillaume-Gentil A, Katsioudi G, Devenoges C, Fernandez LMJ,
   Lüthi A (2021). *Noradrenergic circuit control of non-REM sleep substates.* **Current Biology**
   31:5009–5023. [10.1016/j.cub.2021.09.041](https://doi.org/10.1016/j.cub.2021.09.041)

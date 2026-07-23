@@ -1,7 +1,7 @@
 # 3B — is the null a locality artifact? globality, region, and K-complex tests (Utrecht RESPect)
 
 **Bottom line: partial, honestly mixed, and none of it reaches scalp magnitudes.** Three predictions,
-three answers: (1) coupling is stronger for **global** slow waves — directional support in N3/SWS (global
+three answers: (1) coupling is stronger for **global** slow waves — directional support in N3 (global
 > local in 5/5 subjects, marginal at n=5); (2) it is stronger on **autonomic-adjacent cortex** — **not**
 supported; (3) it is carried by **N2 K-complexes** — **underpowered and unrecovered** (isolated frontal
 N2 events are too rare in iEEG). Across all three, even the best iEEG condition stays far below Naji's
@@ -11,7 +11,7 @@ scalp values, so this neither rescues nor refutes the coupling — it explains *
 contacts share a wave) and "K-complex" (a stage/type: the large *isolated* slow wave that defines **N2**)
 are different things. K-complexes are an **N2** hallmark tied to micro-arousals and phasic autonomic
 bursts (de Zambotti 2016) — that is what Naji's **N2 > N3** effect points to. Dense, mutually-synchronous
-slow-wave *trains* are an **N3/SWS** property. Test 1 (globality) turns out to measure the N3 axis; Test 3
+slow-wave *trains* are an **N3** property. Test 1 (globality) turns out to measure the N3 axis; Test 3
 (K-complexes) targets the N2 axis directly.
 
 ## Why we ran this
@@ -30,7 +30,7 @@ Per-channel SO troughs are clustered into consensus events; each event's **globa
 channels participating within ±150 ms. Events are binned local (<15%) / regional (15–40%) /
 global (≥40%) and run through the same SO-triggered HR test.
 
-**SWS (N3) — the predicted rising gradient appears:**
+**N3 — the predicted rising gradient appears:**
 
 | globality | pooled HR peak (% above stage mean) | pooled z |
 |---|---|---|
@@ -48,7 +48,7 @@ events are rare in N2 (0–40 per subject vs 12–131 in N3). No gradient.
 **Important — this metric measures the N3 axis, not K-complexes.** A cross-channel "global" event needs
 many waves co-occurring, which happens in the **dense slow-wave trains of N3**, not among the **sparse,
 isolated K-complexes of N2** (hence 0–40 global events in N2 vs 12–131 in N3). So Test 1 confirms that
-*SWS-type synchrony* couples to HR — it does **not** test Naji's N2/K-complex effect. That needs a
+*N3 (slow-wave-sleep) synchrony* couples to HR — it does **not** test Naji's N2/K-complex effect. That needs a
 K-complex-specific detector (Test 3).
 
 ## Test 2 — region contrast (autonomic-adjacent vs posterior/lateral)

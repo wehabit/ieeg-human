@@ -71,7 +71,7 @@ cohort. It is **null**:
 |---|---|---|---|
 | N2 HR peak | +0.65% (0/5 sig; t p=0.88) | +1.8% (7/23 sig; t p=0.014) | +12.09% |
 | N3 HR peak | +0.99% (0/6 sig; t p=0.28) | +3.5% (6/20 sig; t p=0.020) | +3.35% |
-| N2 ≫ SWS? | no (p=0.63) | no (p=0.57) | 3.6× |
+| N2 ≫ N3? | no (p=0.63) | no (p=0.57) | 3.6× |
 
 No subject reaches z > 1.96 in either stage, and the cohort z-tests are null. Note the contrast with
 HUP, whose 3B cohort z-test *was* significant (driven by ~7/23 subjects): with only 6 subjects here

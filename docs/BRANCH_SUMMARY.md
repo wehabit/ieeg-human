@@ -54,7 +54,7 @@ mean HR**, with the SO→HR latency. Significance against a **stage-matched** ra
 across all 23 subjects.
 
 **Answer: weak and heterogeneous.** Significant in only 7/23 (N2) and 6/20 (N3); the N3 magnitude
-(+3.5%) matches Naji's SWS but N2 (+1.8%) is ~7× weaker, and Naji's N2 ≫ SWS pattern does not
+(+3.5%) matches Naji's N3 but N2 (+1.8%) is ~7× weaker, and Naji's N2 ≫ N3 pattern does not
 reproduce (paired p = 0.57).
 
 ---

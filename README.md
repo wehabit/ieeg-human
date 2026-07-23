@@ -26,7 +26,7 @@ subject flow, results, limitations, references.
 
 | | Question (each also tested N2 vs N3) | Result | Source paper |
 |---|---|---|---|
-| **3A** | Do **spindle (sigma) power and heart rate share a ~0.02 Hz (~50 s) infraslow rhythm** during NREM — the proposed LC signature? | **negative** (n=23, K median 59). Step 1: sigma-power peaks **scatter like 1/f noise** (SD 0.014 Hz ≈ this cohort's own surrogates 0.014; a true shared rhythm would give ~0.001) and are no more prominent than the SWA control (p=0.11). Step 2: HR does **not** track them — cross-correlation null (median \|r\|=0.06, p=0.23), and 0.02 Hz ranks only **10th of 63** bins in the frequency-specificity control. | [Lecci 2017, *Sci Adv*](https://doi.org/10.1126/sciadv.1602026) · [Osorio-Forero 2021, *Curr Biol*](https://doi.org/10.1016/j.cub.2021.09.041) |
+| **3A** | Do **spindle (sigma) power and heart rate share a ~0.02 Hz (~50 s) infraslow rhythm** during NREM — the proposed LC signature? | **negative** (HUP n=23, K median 59). Step 1: sigma-power peaks **scatter like 1/f noise** (SD 0.014 Hz ≈ this cohort's own surrogates 0.014; a true shared rhythm would give ~0.001) and are no more prominent than the SWA control (p=0.11). Step 2: HR does **not** track them — cross-correlation null (median \|r\|=0.06, p=0.23), and 0.02 Hz ranks only **10th of 63** bins in the frequency-specificity control. **RESPect (n=6):** consistent — fitted peaks at ~0.04 Hz (0/5 in the infraslow band), coherence estimable in only 2/6 and non-significant; but underpowered (1 h nights → K median 7). | [Lecci 2017, *Sci Adv*](https://doi.org/10.1126/sciadv.1602026) · [Osorio-Forero 2021, *Curr Biol*](https://doi.org/10.1016/j.cub.2021.09.041) |
 | **3B** | Does **heart rate rise at a fixed latency after the slow-oscillation down-state** (SO→HR coupling)? | **weak and heterogeneous** (n=23, stage-matched null). Significant in only 7/23 (N2) and 6/20 (N3); cohort z-test nonzero (t p=0.014 / 0.020). N3 HR peak **+3.5% ≈ Naji's +3.35%**; N2 **+1.8% is ~7× weaker** than Naji's +12.1%, and Naji's **N2 ≫ N3 pattern does not reproduce** (paired p=0.57). SO→HR lag ~1–2 s. **Null** in the RESPect replication. | [Naji & Mednick 2019, *J Cogn Neurosci*](https://doi.org/10.1162/jocn_a_01432) |
 | **3D** | Are **sleep spindles phase-locked to the slow oscillation** (SO→spindle coupling)? | **present** — 21/23 subjects, median **83%** of channels significant, R = 0.073. No N2/N3 difference (p = 0.29). | [Staresina 2015, *Nat Neurosci*](https://doi.org/10.1038/nn.4119) · [Helfrich 2018, *Neuron*](https://doi.org/10.1016/j.neuron.2017.11.020) |
 
@@ -51,6 +51,13 @@ Two-step method after Lecci, pooling all NREM (coherence K median **59**) with a
   bins in the frequency-specificity test (background 16.5%, p = 0.17), and the **cross-correlation**
   (Lecci's coupling statistic) is null — group \|r\| = 0.036, per-subject median 0.056, lags scattered
   (IQR −10 to −1 s), t vs 0 p = 0.23.
+
+**Replication — RESPect (n=6, real EMG/EOG staging):** consistent with the HUP negative. Fitted infraslow
+peaks sit at ~0.04 Hz (mean 0.040, **0/5 inside 0.015–0.025 Hz**), heart-rate coherence is estimable in
+only 2/6 subjects and significant in none, and the cross-correlation is flat. Excluding REM/wake did
+**not** rescue an infraslow rhythm — so the negative is not a staging artifact. But the 1 h recordings
+are underpowered for 3A (coherence K median 7 vs 59), so this is a directional, not definitive,
+replication. See [docs/DS003848_REPLICATION.md](docs/DS003848_REPLICATION.md).
 
 ### 3D — SO→spindle coupling is present (agrees with `master`)
 

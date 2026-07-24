@@ -18,7 +18,7 @@ Writes one JSON per subject as it goes (safe to interrupt / resume) plus a cohor
 
     .venv/bin/python analysis/cohort_3A_cortical.py [--subjects 116,130,...] [--win-min 120]
 """
-import argparse, json, os, re, time, traceback
+import argparse, concurrent.futures, json, os, re, threading, time, traceback
 import numpy as np
 from scipy import signal
 
@@ -31,6 +31,64 @@ COHORT = [116, 130, 133, 138, 139, 141, 143, 150, 151, 157, 160, 165, 171, 172, 
 OUT = os.path.join(ROOT, "outputs", "cohort_3A_cortical")
 EPOCH = 30.0
 NREM_DR = 0.90
+NIGHT_PROBE_WORKERS = 4
+HUP_SOURCE_PIN_PATH = os.path.join(
+    ROOT, "analysis", "hup_ieeg_source_pin.json")
+with open(HUP_SOURCE_PIN_PATH) as _pin_handle:
+    _HUP_SOURCE_PIN_PAYLOAD = json.load(_pin_handle)
+HUP_SOURCE_PIN_SCHEMA_VERSION = _HUP_SOURCE_PIN_PAYLOAD["schema_version"]
+HUP_SOURCE_PINS = _HUP_SOURCE_PIN_PAYLOAD["datasets"]
+
+
+class NightProbeSourceMismatch(RuntimeError):
+    """A worker reopened a different immutable portal snapshot."""
+
+
+def verify_hup_source_identity(ds, cortical, ekg, pins=HUP_SOURCE_PINS):
+    """Fail closed unless the opened HUP snapshot and used revisions match the checked-in pin."""
+    name = str(getattr(ds, "name", "") or "")
+    if name not in pins:
+        raise RuntimeError(f"no pinned iEEG.org source identity for {name!r}")
+    expected = pins[name]
+    labels = list(ds.get_channel_labels())
+    nodes = {node.findtext("channelLabel"): node for node in ds.ts_array}
+    used = list(cortical) + ([ekg] if ekg else [])
+    channels = {}
+    compact_channels = {}
+    for label in used:
+        if label not in labels or label not in nodes:
+            raise RuntimeError(f"pinned source channel {label!r} is absent from {name!r}")
+        detail = ds.get_time_series_details(label)
+        revision_id = str(detail.portal_id)
+        data_check = nodes[label].findtext("dataCheck")
+        compact_channels[label] = [revision_id, data_check]
+        channels[label] = dict(
+            revision_id=revision_id,
+            data_check=data_check,
+            start_time_us=int(detail.start_time),
+            end_time_us=int(detail.end_time),
+            duration_us=float(detail.duration),
+            number_of_samples=int(detail.number_of_samples),
+            sample_rate_hz=float(detail.sample_rate),
+        )
+    actual_compact = dict(
+        snapshot_id=str(getattr(ds, "snap_id", "") or ""),
+        cortical_channels=list(cortical),
+        ekg=ekg,
+        channels=compact_channels,
+    )
+    if actual_compact != expected:
+        raise RuntimeError(
+            f"iEEG.org source identity mismatch for {name!r}; "
+            "the pinned snapshot/channel revisions must be reviewed before analysis")
+    return dict(
+        pin_schema_version=HUP_SOURCE_PIN_SCHEMA_VERSION,
+        dataset_name=name,
+        snapshot_id=actual_compact["snapshot_id"],
+        cortical_channels=list(cortical),
+        ekg=ekg,
+        channels=channels,
+    )
 
 
 def delta_ratio(x, sf):
@@ -69,32 +127,117 @@ def cortical_channels(labels, n_want=6):
 
 
 def find_night(ds, lab_idx, ch, sf, total_h, scan_h=None, step_min=30.0,
-               required_h=0.0):
+               required_h=0.0, probe_workers=NIGHT_PROBE_WORKERS,
+               return_diagnostics=False):
     """Select the highest-delta contiguous 3 h candidate interval.
 
     Sampling failures remain missing at their original times; they are never removed and spliced
-    together.  By default the complete recording is searched, rather than only its first 30 h.
+    together. By default the complete recording is searched, rather than only its first 30 h.
+    Independent portal sessions score probes concurrently; ``executor.map`` preserves probe order,
+    so worker completion order cannot change the selected interval.
     """
     if required_h < 0:
         raise ValueError("required_h must be nonnegative")
+    if int(probe_workers) != probe_workers or probe_workers < 1:
+        raise ValueError("probe_workers must be a positive integer")
     if total_h < required_h:
-        return None
+        result = None
+        diagnostics = dict(
+            n_probes=0, n_finite_scores=0, n_probe_failures=0,
+            probe_failure_times_s=[],
+            reason="recording shorter than requested analysis interval")
+        return (result, diagnostics) if return_diagnostics else result
     step = step_min * 60
     search_h = total_h if scan_h is None else min(scan_h, total_h)
     n = int(search_h * 3600 / step)
     times = np.arange(n, dtype=float) * step
     scores = np.full(n, np.nan)
-    for k in range(n):
-        t = times[k]
+    probe_failed = np.zeros(n, bool)
+    worker_local = threading.local()
+    worker_sessions = []
+    worker_sessions_lock = threading.Lock()
+    use_independent_portal_sessions = bool(
+        getattr(ds, "name", None) and getattr(ds, "session", None))
+    expected_snapshot_id = str(getattr(ds, "snap_id", "") or "")
+
+    def worker_dataset():
+        if hasattr(worker_local, "dataset"):
+            return worker_local.dataset, worker_local.channel_index
+        if use_independent_portal_sessions:
+            session = sess()
+            try:
+                worker = session.open_dataset(ds.name)
+                worker_snapshot_id = str(getattr(worker, "snap_id", "") or "")
+                if expected_snapshot_id and worker_snapshot_id != expected_snapshot_id:
+                    raise NightProbeSourceMismatch(
+                        f"night-probe snapshot changed for {ds.name!r}: "
+                        f"expected {expected_snapshot_id!r}, got {worker_snapshot_id!r}")
+                worker_labels = worker.get_channel_labels()
+                if ch not in worker_labels:
+                    raise NightProbeSourceMismatch(
+                        f"night-probe channel {ch!r} is absent from worker dataset {ds.name!r}")
+            except Exception:
+                session.close()
+                raise
+            with worker_sessions_lock:
+                worker_sessions.append(session)
+            worker_local.dataset = worker
+            worker_local.channel_index = worker_labels.index(ch)
+        else:
+            # Synthetic/offline dataset objects have no portal session. They are intentionally
+            # reused so the selection logic remains testable without credentials or network.
+            worker_local.dataset = ds
+            worker_local.channel_index = lab_idx[ch]
+        return worker_local.dataset, worker_local.channel_index
+
+    def score_probe(k):
         try:
-            scores[k] = delta_ratio(get(ds, [lab_idx[ch]], t, 6.0)[:, 0], sf)
+            worker, channel_index = worker_dataset()
+            value = delta_ratio(
+                get(worker, [channel_index], times[k], 6.0)[:, 0], sf)
+        except NightProbeSourceMismatch:
+            raise
         except Exception:
-            pass
+            value = np.nan
+            failed = True
+        else:
+            failed = False
+        return k, value, failed
+
+    try:
+        if probe_workers == 1:
+            scored = map(score_probe, range(n))
+            for k, value, failed in scored:
+                scores[k] = value
+                probe_failed[k] = failed
+        else:
+            with concurrent.futures.ThreadPoolExecutor(
+                    max_workers=int(probe_workers),
+                    thread_name_prefix="ieeg-night-probe") as executor:
+                for k, value, failed in executor.map(score_probe, range(n)):
+                    scores[k] = value
+                    probe_failed[k] = failed
+    finally:
+        for session in worker_sessions:
+            session.close()
+    n_failures = int(probe_failed.sum())
+    diagnostics = dict(
+        n_probes=int(n),
+        n_finite_scores=int(np.isfinite(scores).sum()),
+        n_probe_failures=n_failures,
+        probe_failure_times_s=times[probe_failed].tolist(),
+        reason=None,
+    )
+    if n and n_failures > 0.20 * n:
+        raise RuntimeError(
+            f"night search failed closed: {n_failures}/{n} sparse probes failed")
     if np.isfinite(scores).sum() < 6:
-        return None
+        diagnostics["reason"] = "fewer than six finite delta-ratio probes"
+        return (None, diagnostics) if return_diagnostics else None
     win = max(1, int(3 * 3600 / step))            # 3 h window
     if len(scores) < win:
-        return None
+        diagnostics["reason"] = "recording shorter than the three-hour search window"
+        return (None, diagnostics) if return_diagnostics else None
     best_t, best_m = None, -np.inf
     for i in range(len(scores) - win + 1):
         # A high-delta window near the end of a record is unusable when the requested analysis
@@ -109,7 +252,9 @@ def find_night(ds, lab_idx, ch, sf, total_h, scan_h=None, step_min=30.0,
         m = float(np.nanmean(values))
         if m > best_m:
             best_m, best_t = m, times[i]
-    return best_t
+    if best_t is None:
+        diagnostics["reason"] = "no coverage-qualified candidate interval"
+    return (best_t, diagnostics) if return_diagnostics else best_t
 
 
 def swa_power(x, sf):

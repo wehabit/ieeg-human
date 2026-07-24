@@ -36,6 +36,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import neurokit2 as nk
 from ieeg.auth import Session
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CRED = os.path.join(ROOT, "data", "ieeg_secret", "credentials.json")
@@ -50,11 +52,45 @@ EDGE_TRIM_S = 200.0       # drop high-pass transient
 EPOCH = 30.0
 NREM_DR = 0.90            # absolute delta-ratio threshold for NREM (matches night-staging)
 ALPHA = 0.05
+IEEG_CONNECT_TIMEOUT_S = 10.0
+IEEG_READ_TIMEOUT_S = 90.0
+
+
+def configure_http_session(http, timeout=(IEEG_CONNECT_TIMEOUT_S, IEEG_READ_TIMEOUT_S)):
+    """Bound portal requests and retry transient metadata failures.
+
+    ``ieeg==1.6`` does not supply a Requests timeout, so one stalled response can otherwise block
+    an entire cohort regeneration indefinitely. Data POSTs are already retried explicitly by
+    :func:`get`; the adapter retry policy therefore remains limited to idempotent GET metadata
+    requests.
+    """
+    original_request = http.request
+
+    def request_with_timeout(method, url, **kwargs):
+        kwargs.setdefault("timeout", timeout)
+        return original_request(method, url, **kwargs)
+
+    http.request = request_with_timeout
+    retry = Retry(
+        total=2,
+        connect=2,
+        read=2,
+        status=2,
+        backoff_factor=0.5,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=frozenset(("GET",)),
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+    return http
 
 
 def sess():
     c = json.load(open(CRED))
-    return Session(c["username"], c["password"])
+    session = Session(c["username"], c["password"])
+    configure_http_session(session.api.http)
+    return session
 
 
 def get(ds, idx, start_s, dur_s, tries=3):

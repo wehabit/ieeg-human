@@ -144,6 +144,10 @@ for d in records:
     staging_qc = canonical["staging_qc"]
     staging_mask = d.get("staging_selected_contact_mask")
     staging_counts = d.get("staging_contact_count")
+    staging_feature_coverage = d.get("staging_per_contact_feature_coverage")
+    staging_observed_fraction = d.get("staging_candidate_observed_fraction")
+    staging_clean_fraction = d.get("staging_candidate_clean_fraction")
+    contact_candidates = d.get("lateral_contact_candidates")
     record_config_ok = (
         np.isclose(d.get("hours", np.nan), 7.0)
         and d.get("so_band_hz") == list(SO_BAND)
@@ -159,9 +163,18 @@ for d in records:
         and d.get("artifact_rejection")
         == f"IED/high-amplitude mask padded +/-{IED_PAD_S:.1f} s"
         and d.get("production_inference_enabled") is False
+        and d.get("anatomy_selection_method")
+        == canonical["anatomy_selection_method"]
+        and isinstance(contact_candidates, list)
         and isinstance(staging_mask, list)
         and isinstance(staging_counts, list)
-        and len(staging_mask) == len(d.get("cortical_chans") or [])
+        and isinstance(staging_feature_coverage, list)
+        and isinstance(staging_observed_fraction, list)
+        and isinstance(staging_clean_fraction, list)
+        and len(staging_mask) == len(contact_candidates)
+        and len(staging_feature_coverage) == len(contact_candidates)
+        and len(staging_observed_fraction) == len(contact_candidates)
+        and len(staging_clean_fraction) == len(contact_candidates)
         and len(staging_counts) == int(round(float(d.get("hours", 0)) * 3600 / 30.0))
         and d.get("staging_n_selected_contacts")
         == int(np.sum(np.asarray(staging_mask, bool)))
@@ -169,6 +182,19 @@ for d in records:
         >= staging_qc["minimum_contacts"]
         and d.get("staging_required_contact_count", 0)
         >= staging_qc["minimum_contacts"]
+        and d.get("staging_minimum_contact_feature_coverage")
+        == staging_qc["minimum_contact_feature_coverage"]
+        and all(
+            not keep or coverage >= staging_qc["minimum_contact_feature_coverage"]
+            for keep, coverage in zip(staging_mask, staging_feature_coverage))
+        and all(
+            not candidate
+            or (
+                observed >= staging_qc["minimum_candidate_observed_fraction"]
+                and clean >= staging_qc["minimum_candidate_clean_fraction"]
+            )
+            for candidate, observed, clean in zip(
+                staging_mask, staging_observed_fraction, staging_clean_fraction))
         and d.get("staging_swa_normalization") == staging_qc["swa_normalization"]
         and (d.get("ALL") or {}).get("inference_status", "").startswith("disabled:")
     )

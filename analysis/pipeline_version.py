@@ -16,8 +16,9 @@ import scipy
 
 
 # Increment both values whenever an estimator or a cached derived signal changes materially.
-ANALYSIS_VERSION = "2026-07-corrected-v5"
-CACHE_SCHEMA_VERSION = "2026-07-per-contact-power-pchip-night-threshold-v5"
+ANALYSIS_VERSION = "2026-07-corrected-v7"
+CACHE_SCHEMA_VERSION = (
+    "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7")
 
 # Only files that can change cache values or cache metadata belong here.  The broader
 # ``source_tree_sha256`` intentionally includes downstream analyses and tests, which would make a
@@ -25,6 +26,8 @@ CACHE_SCHEMA_VERSION = "2026-07-per-contact-power-pchip-night-threshold-v5"
 _CACHE_SOURCE_FILES = (
     "analysis/cache_lc_series.py",
     "analysis/stage_ds003848.py",
+    "analysis/ds003848_snapshot_1.0.3_files.json",
+    "analysis/hup_ieeg_source_pin.json",
     "analysis/cohort_3A_cortical.py",
     "analysis/cohort_stages_3ABD.py",
     "analysis/infraslow_rr_sigma_coherence.py",
@@ -79,7 +82,7 @@ def source_tree_sha256(root):
                 value for value in dirs
                 if value not in ("__pycache__", ".pytest_cache", ".mypy_cache"))
             for name in sorted(names):
-                if name.endswith((".py", ".txt", ".yml", ".yaml")) or name == "PYTHON_VERSION":
+                if name.endswith((".py", ".json", ".txt", ".yml", ".yaml")) or name == "PYTHON_VERSION":
                     files.append(os.path.join(current, name))
     digest = hashlib.sha256()
     for path in sorted(files):

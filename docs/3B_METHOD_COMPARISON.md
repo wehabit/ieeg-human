@@ -1,8 +1,10 @@
 # WITHDRAWN 3B comparison — superseded implementation vs Naji 2019
 
-> **LEGACY / WITHDRAWN NUMBERS.** This comparison predates the RR-domain corrected-v5 descriptive
+> **LEGACY / WITHDRAWN NUMBERS.** This comparison predates the RR-domain corrected-v7 descriptive
 > estimator. Whole-stage shifts are now diagnostic only and no 3B event-locking p/z claim is
-> available. The direct legacy entry point is hard-stopped.
+> available. The direct legacy entry point is hard-stopped. In the completed corrected runs, N2
+> and N3 are each 0/6 estimable for RESPect and 0/25 estimable for HUP; that is endpoint
+> unavailability, not evidence of no effect.
 
 **Purpose.** A step-by-step comparison of how we implemented the slow-oscillation → heart-rate
 coupling test against the method it follows. Written because the coupling was cited to the wrong
@@ -110,17 +112,16 @@ memory consolidation** (hence the paper's title).
 
 ---
 
-## What we found (for context)
+## What the legacy pipeline reported (withdrawn context)
 
 | Cohort | N2 HR peak | N3 HR peak | Significant / n | N2 ≫ N3? |
 |---|---|---|---|---|
 | **HUP iEEG (n=23)** | +1.8% (t p=0.014) | +3.5% (t p=0.020) | 7/23, 6/20 | no (p=0.57) |
-| **ds003848 (n=6, real staging)** | +0.6% (t p=0.88) | +1.0% (t p=0.28) | 0/5, 0/6 | no (p=0.63) |
+| **ds003848 legacy proxy (n=6; withdrawn)** | +0.6% (t p=0.88) | +1.0% (t p=0.28) | 0/5, 0/6 | no (p=0.63) |
 | **Naji 2019 (scalp, healthy)** | **+12.09%** | **+3.35%** | — | yes (3.6×) |
 
-The coupling is **weak and heterogeneous** in HUP (group-level significant but carried by ~30% of
-patients, no N2 ≫ N3 pattern) and **null** in the independently sleep-staged replication. It is
-therefore not a clean validation of the SO→HR relationship, and — separately — the infraslow
-RR–spindle coupling that is the actual proposed locus-coeruleus signature (Lecci 2017; our test 3A)
-was **absent**. See [BRANCH_SUMMARY.md](BRANCH_SUMMARY.md) and
+The legacy write-up called HUP coupling weak/heterogeneous, RESPect null, and 3A absent. Those
+biological verdicts are withdrawn. In the corrected runs, neither cohort has an estimable 3B
+endpoint and neither has an estimable 3A endpoint, which does not establish absence. See
+[BRANCH_SUMMARY.md](BRANCH_SUMMARY.md) and
 [LC_INFRASLOW_3ABD_SUMMARY.md](LC_INFRASLOW_3ABD_SUMMARY.md).

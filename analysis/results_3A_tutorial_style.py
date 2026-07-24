@@ -23,7 +23,7 @@ Usage:
 """
 import argparse, json, os
 import numpy as np
-from scipy import signal
+from scipy import ndimage, signal
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -44,6 +44,22 @@ def robust_z(v):
     return (v - med) / (1.4826 * mad)
 
 
+def dilate_boolean_mask(mask, half_width):
+    """Boolean equivalent of convolution with an odd all-ones window.
+
+    ``np.convolve`` is quadratic in the window width for this use and made a five-second dilation
+    at 2048 Hz dominate the multi-contact cache runtime.  A one-dimensional maximum filter
+    performs the same centred inclusive dilation in linear time.
+    """
+    mask = np.asarray(mask, bool)
+    half_width = int(half_width)
+    if half_width <= 0 or not mask.any():
+        return mask.copy()
+    return ndimage.maximum_filter1d(
+        mask.astype(np.uint8), size=2 * half_width + 1,
+        mode="constant", cval=0).astype(bool)
+
+
 def ied_clean_mask(y, sf, z_hf=5.0, z_amp=8.0, pad_s=0.5):
     """True where the channel is FREE of interictal epileptiform discharges / sharp artifact.
     Detected on 20-80 Hz (spikes are broadband-sharp) so the 11-16 Hz sigma band itself is not
@@ -52,7 +68,7 @@ def ied_clean_mask(y, sf, z_hf=5.0, z_amp=8.0, pad_s=0.5):
     hf = np.abs(signal.hilbert(signal.sosfiltfilt(sos, y)))
     bad = (robust_z(hf) > z_hf) | (np.abs(robust_z(y)) > z_amp)
     k = int(pad_s * sf)
-    bad = np.convolve(bad.astype(float), np.ones(2 * k + 1), mode="same") > 0
+    bad = dilate_boolean_mask(bad, k)
     return ~bad
 
 

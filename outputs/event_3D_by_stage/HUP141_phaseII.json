@@ -1,1 +1,52 @@
-{"subject": "HUP141_phaseII", "status": "skip"}
+{
+  "analysis_version": "2026-07-corrected-v7",
+  "anatomy_selection_method": "UNVALIDATED contact-number heuristic; lateral-contact candidates require coordinate/tissue/SOZ QC",
+  "lateral_contact_candidates": [
+    "RB12",
+    "RC12"
+  ],
+  "reason": "only 2 lateral-contact candidates",
+  "run_id": "032e7181-b3e6-4f3e-aa4d-c84a7a60669a",
+  "source_identity": {
+    "channels": {
+      "EKG1": {
+        "data_check": "bb447b4c316e0f5f9161d03fd0ebcd23-115",
+        "duration_us": 527012890625.0,
+        "end_time_us": 947277172890625,
+        "number_of_samples": 267118999,
+        "revision_id": "30432b9a-0790-4737-9836-4011e01d9d19",
+        "sample_rate_hz": 512.0,
+        "start_time_us": 946750160000000
+      },
+      "RB12": {
+        "data_check": "a52cd0fe6b3dacdbe31140b00bbb29b6-105",
+        "duration_us": 527012890625.0,
+        "end_time_us": 947277172890625,
+        "number_of_samples": 267118999,
+        "revision_id": "835a44b8-6b0b-441e-9426-79a6b63879d9",
+        "sample_rate_hz": 512.0,
+        "start_time_us": 946750160000000
+      },
+      "RC12": {
+        "data_check": "fbf29e99f97ac88b1141f47a095fdca7-110",
+        "duration_us": 527012890625.0,
+        "end_time_us": 947277172890625,
+        "number_of_samples": 267118999,
+        "revision_id": "5b92c4f6-24bd-412c-b944-45d73cccf300",
+        "sample_rate_hz": 512.0,
+        "start_time_us": 946750160000000
+      }
+    },
+    "cortical_channels": [
+      "RB12",
+      "RC12"
+    ],
+    "dataset_name": "HUP141_phaseII",
+    "ekg": "EKG1",
+    "pin_schema_version": "2026-07-hup-ieeg-source-pin-v1",
+    "snapshot_id": "dc45b074-eea5-4a44-98b6-7e2a79f6037b"
+  },
+  "source_tree_sha256": "e6909aff01c5f2126abe36f5cd930e023e682f53cbae36995edea7af8be521f2",
+  "status": "skip",
+  "subject": "HUP141_phaseII"
+}

@@ -1,6 +1,6 @@
 # SO-phase of expert-marked ripples & fast-ripples [Zurich ds003498, 2 kHz]
 
-> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v5
+> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v7
 > 3A/3B/3D pipelines and must not be used as corrected LC-tracking evidence. Their original
 > study-specific validation/inference claims require separate review.
 

@@ -1,0 +1,116 @@
+{
+  "analysis_version": "2026-07-corrected-v7",
+  "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+  "code_dirty": true,
+  "code_revision": "9ba41c727a09e4ef36aaf2547ef94bc7ef200700",
+  "completed": [],
+  "config": {
+    "analysis_version": "2026-07-corrected-v7",
+    "band": "fixed",
+    "cache_code_sha256": "95413211011165e96a0d0c2e7d10a288749a1b1dd78091aa0e690a7076f81bf3",
+    "cache_inputs": {
+      "sub-RESP0521": {
+        "cache_directory_relative": "data/derived/ds003848",
+        "cache_file_sha256": "a4f35c64f6d6df9d61b29c9fa62f17eb940503e1f184b5403d243c0b65c05eb9",
+        "cache_hours": 1.0,
+        "cache_manifest_run_id": "7e5a360a-804c-4a57-a138-3daf329647e7",
+        "cache_manifest_sha256": "28dfe16e9ffc10d70c6d6a3f02243d2eec93aa1cd3bf559475450af9105c5012"
+      },
+      "sub-RESP0699": {
+        "cache_directory_relative": "data/derived/ds003848",
+        "cache_file_sha256": "f910281f35f311c485edada8ad04fb41dceacdcda85eae5dbea6f54f21fa474f",
+        "cache_hours": 1.0666666666666667,
+        "cache_manifest_run_id": "7e5a360a-804c-4a57-a138-3daf329647e7",
+        "cache_manifest_sha256": "28dfe16e9ffc10d70c6d6a3f02243d2eec93aa1cd3bf559475450af9105c5012"
+      },
+      "sub-RESP0724": {
+        "cache_directory_relative": "data/derived/ds003848",
+        "cache_file_sha256": "fb80b6d40e470d2019a51c0aa6471a42d3b3492d98d05424cd2a6fe054e26ce6",
+        "cache_hours": 1.0,
+        "cache_manifest_run_id": "7e5a360a-804c-4a57-a138-3daf329647e7",
+        "cache_manifest_sha256": "28dfe16e9ffc10d70c6d6a3f02243d2eec93aa1cd3bf559475450af9105c5012"
+      },
+      "sub-RESP0749": {
+        "cache_directory_relative": "data/derived/ds003848",
+        "cache_file_sha256": "3ec45766e74fd8d89d9de166493834e58c29e277cdf79c517b58fdce4d2c6371",
+        "cache_hours": 1.0,
+        "cache_manifest_run_id": "7e5a360a-804c-4a57-a138-3daf329647e7",
+        "cache_manifest_sha256": "28dfe16e9ffc10d70c6d6a3f02243d2eec93aa1cd3bf559475450af9105c5012"
+      },
+      "sub-RESP0779": {
+        "cache_directory_relative": "data/derived/ds003848",
+        "cache_file_sha256": "dc6f92b57eb10cddfb7c352804b68ba10035bfb483a97976b7f87d48b43ef3c2",
+        "cache_hours": 1.0,
+        "cache_manifest_run_id": "7e5a360a-804c-4a57-a138-3daf329647e7",
+        "cache_manifest_sha256": "28dfe16e9ffc10d70c6d6a3f02243d2eec93aa1cd3bf559475450af9105c5012"
+      },
+      "sub-RESP0800": {
+        "cache_directory_relative": "data/derived/ds003848",
+        "cache_file_sha256": "ac42a8bd9c6f599316442608bb10c24d790b2a851f2ff77d75379017ff580adf",
+        "cache_hours": 1.0,
+        "cache_manifest_run_id": "7e5a360a-804c-4a57-a138-3daf329647e7",
+        "cache_manifest_sha256": "28dfe16e9ffc10d70c6d6a3f02243d2eec93aa1cd3bf559475450af9105c5012"
+      }
+    },
+    "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+    "n_sur": 200,
+    "smooth_4s": true
+  },
+  "failed": [],
+  "generated_at_utc": "2026-07-24T19:26:26.730542+00:00",
+  "pipeline": "ds003848_lecci_3A",
+  "requested": [
+    "sub-RESP0521",
+    "sub-RESP0699",
+    "sub-RESP0724",
+    "sub-RESP0749",
+    "sub-RESP0779",
+    "sub-RESP0800"
+  ],
+  "result_files_sha256": {
+    "sub-RESP0521": "f4f238b172d3084535ab84656f95b6466970dfc3a775e3de32d44f16908b3d1a",
+    "sub-RESP0699": "91f41a68ad4cc26a37e3912ad777ae859186dc49707c68eff2475d6263ee4a30",
+    "sub-RESP0724": "c4e31f37d342804d192147f1cd5efc3c1f3d24acb2bcdea18a8f742849241688",
+    "sub-RESP0749": "5e51be17a535fa38fb1d2004365c2c60a73dc3c8d8fb8a722d13565610f46eab",
+    "sub-RESP0779": "fb62e98c5f8e0997edc2f7b950a12063f12ba1b4bcb45c088a39c2e67d84f273",
+    "sub-RESP0800": "44dbe720d491cf5600671cbd69a8643dc50e0ca72b51d6ff80357084965c3333"
+  },
+  "run_id": "5aa1e606-847b-427d-8d02-8b2e7ea706da",
+  "run_state": "complete",
+  "runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "skipped": [
+    {
+      "reason": "Lecci-motivated parietal iEEG adaptation unavailable: 16 stable contacts, 79.2% aggregate coverage",
+      "subject": "sub-RESP0521"
+    },
+    {
+      "reason": "Lecci-motivated parietal iEEG adaptation unavailable: 3 stable contacts, 79.7% aggregate coverage",
+      "subject": "sub-RESP0699"
+    },
+    {
+      "reason": "Lecci-motivated parietal iEEG adaptation unavailable: 0 stable contacts, 0.0% aggregate coverage",
+      "subject": "sub-RESP0724"
+    },
+    {
+      "reason": "Lecci-motivated parietal iEEG adaptation unavailable: 0 stable contacts, 0.0% aggregate coverage",
+      "subject": "sub-RESP0749"
+    },
+    {
+      "reason": "Lecci-motivated parietal iEEG adaptation unavailable: 1 stable contacts, 0.0% aggregate coverage",
+      "subject": "sub-RESP0779"
+    },
+    {
+      "reason": "Lecci-motivated parietal iEEG adaptation unavailable: 3 stable contacts, 74.3% aggregate coverage",
+      "subject": "sub-RESP0800"
+    }
+  ],
+  "source_tree_sha256": "e6909aff01c5f2126abe36f5cd930e023e682f53cbae36995edea7af8be521f2"
+}

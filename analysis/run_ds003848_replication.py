@@ -1,9 +1,10 @@
 """Run the corrected 3A approximation and 3B stage-matched analysis on ds003848.
 
 ds003848 is the independent replication set: an OpenNeuro iEEG sleep dataset (Utrecht RESPect) with
-ECG + EMG + EOG, so NREM is REM/wake-excluded by an unvalidated multimodal rule-based proxy
-(`stage_ds003848.py`) rather than the GMM-on-slow-wave proxy used for HUP. These are not expert AASM
-labels. This reuses the corrected analysis code, pointed at the ds003848 cache.
+ECG + EMG + EOG. Author-provided sleep/NREM/REM/SWS and transition annotations define the primary
+coarse states; the unvalidated multimodal proxy is sensitivity-only within author-unknown sleep.
+These are not expert AASM N2/N3 labels. This reuses the corrected analysis code, pointed at the
+ds003848 cache.
 
     .venv/bin/python analysis/stage_ds003848.py           # build the cache first
     .venv/bin/python analysis/run_ds003848_replication.py [--force]
@@ -41,8 +42,9 @@ def main():
                     cache_schema_version=CACHE_SCHEMA_VERSION,
                     cache_code_sha256=cache_code_sha256(ROOT),
                     null_method="shared circular shift in eligible stage-time",
-                    contact_qc="cache stable >=80%-coverage sigma-contact intersection",
-                    minimum_event_channels=B.MIN_EVENT_CHANNELS)
+                    contact_qc=B.CONTACT_QC_METHOD,
+                    minimum_event_channels=B.MIN_EVENT_CHANNELS,
+                    stable_stage_minimum_s=int(B.MIN_STABLE_STAGE_EPOCHS * B.EPOCH))
     requested = list(SUBJECTS)
     existing_a = any(
         os.path.exists(os.path.join(OUT_A, f"{subject}.json"))

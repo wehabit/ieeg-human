@@ -1,7 +1,9 @@
 """OpenNeuro ds003848 (Utrecht RESPect long-term iEEG) -> staged derived-series cache.
 
-The independent replication cohort for 3A/3B. Unlike HUP, every subject carries EMG + EOG, allowing
-rule-based REM/wake exclusion instead of the GMM-on-slow-wave proxy. This is not expert AASM scoring.
+The independent replication cohort for 3A/3B. Author-provided sleep/NREM/REM/SWS, transition,
+artifact, and seizure annotations define the primary coarse states and exclusions. Every subject
+also carries EMG + EOG, but the rule-based multimodal labels are stored only as a sensitivity
+analysis within author-unknown sleep. Neither source provides expert AASM N2/N3 scoring.
 
 Six patients, ~1 h continuous `task-[Ss]leep` runs @ 2048 Hz, 50 Hz line. Verified against the raw
 channels.tsv (2026-07): all six have iEEG (3 ECoG grid + 3 SEEG depth), ECG, EMG, EOG, and (bad)
@@ -10,19 +12,20 @@ matches the data-column order, so naming variants (ECG+/ecg1+, emg+/EMG2, orb+/O
 
 Pipeline per subject: download the BrainVision triple if absent -> stream in chunks with MNE ->
 derive the SAME series the HUP cache stores (so lecci_faithful_3A / event_3B_cached consume it
-unchanged) PLUS EMG/EOG staging features and a scored `stage_lab` -> save data/derived/ds003848/.
+unchanged) PLUS author-constrained `stage_lab` and proxy sensitivity fields -> save
+data/derived/ds003848/.
 The raw .eeg (~3.9 GB) is optionally deleted after caching so disk stays bounded.
 
-STAGING (rule-based, honest about its limits). True AASM scoring needs scalp EEG, which this dataset
-lacks. What EMG + EOG buy is REM/Wake exclusion, and that is what this does:
+STAGING SENSITIVITY (not primary). True AASM scoring needs scalp EEG, which this dataset lacks.
+Within author-unknown sleep, the stored sensitivity proxy uses:
   * per 30 s epoch: submental EMG RMS (notch + 10-100 Hz), EOG movement variance (0.3-6 Hz),
     slow-wave power (0.5-4 Hz, aggregated after per-contact power extraction), all robust-z-scored
     within subject
   * Wake  = high muscle tone (EMG z > 1.0)
   * REM   = muscle atonia (EMG z < -0.3) + low SWA + phasic eye movement (EOG z > 0.5)
   * NREM  = everything else with adequate delta; split N2/N3 by a 2-component GMM on log SWA
-The N2/N3 split is still SWA-driven (as in Lecci's S2/SWS axis), but now on epochs from which Wake
-and REM have been removed -- which the HUP proxy could not do.
+The primary array does not use that proxy: author-unknown sleep, transitions, conflicts, and
+disturbed epochs remain unclassified.
 
     .venv/bin/python analysis/stage_ds003848.py [--subjects sub-RESP0521,...] [--delete-raw]
 """
@@ -50,6 +53,7 @@ from pipeline_version import (CACHE_SCHEMA_VERSION, atomic_savez, cache_code_sha
 
 mne.set_log_level("ERROR")
 MIN_NREM_DELTA_RATIO = 0.20
+ANNOTATION_SIGNAL_PAD_S = 5.0
 
 BASE = "https://openneuro.org/crn/datasets/ds003848/snapshots/1.0.3/files"
 RAW = os.path.join(ROOT, "data", "ds003848_raw")
@@ -65,12 +69,58 @@ SUBJECTS = {
     "sub-RESP0800": ("ses-1", "sub-RESP0800_ses-1_task-Sleep_run-030017"),
 }
 
+SNAPSHOT_IDENTITY_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "ds003848_snapshot_1.0.3_files.json")
+with open(SNAPSHOT_IDENTITY_PATH) as _snapshot_identity_handle:
+    SNAPSHOT_FILES = json.load(_snapshot_identity_handle)
+_expected_snapshot_files = set()
+for _subject, (_session, _base) in SUBJECTS.items():
+    _expected_snapshot_files.update(
+        f"{_base}{extension}"
+        for extension in (
+            "_channels.tsv", "_ieeg.json", "_ieeg.vhdr", "_ieeg.vmrk", "_ieeg.eeg",
+            "_events.tsv",
+        )
+    )
+    _expected_snapshot_files.add(f"{_subject}_{_session}_electrodes.tsv")
+if set(SNAPSHOT_FILES) != _expected_snapshot_files:
+    raise RuntimeError(
+        "pinned ds003848 snapshot identity manifest does not exactly cover production inputs")
+
 
 # ---------------------------------------------------------------- download
-def _dl(sub, ses, base, ext):
-    url = f"{BASE}/{sub}:{ses}:ieeg:{base}{ext}"
-    dst = os.path.join(RAW, f"{base}{ext}")
+def file_sha256(path, block_size=1 << 20):
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(block_size), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def verify_pinned_snapshot_file(filename, path):
+    """Fail closed unless a local/downloaded file is the pinned snapshot-1.0.3 object."""
+    identity = SNAPSHOT_FILES.get(filename)
+    if identity is None:
+        raise RuntimeError(f"no pinned OpenNeuro snapshot identity for {filename}")
+    actual_size = os.path.getsize(path)
+    if actual_size != int(identity["size"]):
+        raise RuntimeError(
+            f"OpenNeuro input size mismatch for {filename}: "
+            f"{actual_size} != pinned {identity['size']}")
+    actual_hash = file_sha256(path)
+    if actual_hash != identity["sha256"]:
+        raise RuntimeError(
+            f"OpenNeuro input SHA-256 mismatch for {filename}: "
+            f"{actual_hash} != pinned {identity['sha256']}")
+    return identity
+
+
+def _dl(sub, ses, filename):
+    url = f"{BASE}/{sub}:{ses}:ieeg:{filename}"
+    dst = os.path.join(RAW, filename)
     if os.path.exists(dst) and os.path.getsize(dst) > 0:
+        verify_pinned_snapshot_file(filename, dst)
         return dst
     os.makedirs(RAW, exist_ok=True)
     tmp = dst + ".part"
@@ -80,6 +130,7 @@ def _dl(sub, ses, base, ext):
             if not b:
                 break
             f.write(b)
+    verify_pinned_snapshot_file(filename, tmp)
     os.replace(tmp, dst)
     return dst
 
@@ -87,16 +138,10 @@ def _dl(sub, ses, base, ext):
 def ensure_files(sub, ses, base):
     paths = {}
     for ext in ("_channels.tsv", "_ieeg.json", "_ieeg.vhdr", "_ieeg.vmrk", "_ieeg.eeg"):
-        paths[ext] = _dl(sub, ses, base, ext)
+        paths[ext] = _dl(sub, ses, f"{base}{ext}")
+    paths["_events.tsv"] = _dl(sub, ses, f"{base}_events.tsv")
+    paths["_electrodes.tsv"] = _dl(sub, ses, f"{sub}_{ses}_electrodes.tsv")
     return paths
-
-
-def file_sha256(path, block_size=1 << 20):
-    digest = hashlib.sha256()
-    with open(path, "rb") as f:
-        for block in iter(lambda: f.read(block_size), b""):
-            digest.update(block)
-    return digest.hexdigest()
 
 
 # ---------------------------------------------------------------- channel roles
@@ -141,6 +186,296 @@ def selected_channel_name_mismatches(raw_names, tsv_names, selected_indices):
         if i in selected
         and raw_name.strip().casefold() != tsv_name.strip().casefold()
     ]
+
+
+def electrode_eligibility_from_rows(rows, channel_names):
+    """Return a conservative non-pathological cortical contact set and ROI masks.
+
+    The RESPect electrode sidecars identify seizure-onset, resected, edge, non-gray, lesion, and
+    other non-cortical contacts.  A good BIDS channel status alone does not make those contacts
+    suitable for normative sleep physiology.
+    """
+    requested = {str(value).strip().casefold() for value in channel_names}
+    by_name = {}
+    for row in rows:
+        name = (row.get("name") or "").strip()
+        key = name.casefold()
+        # RESP0699 contains duplicate unused "....." placeholders.  They are irrelevant to the
+        # exact-name join, but a duplicate requested contact would be ambiguous and must fail.
+        if key not in requested:
+            continue
+        if not name or key in by_name:
+            raise ValueError(f"missing or duplicate requested electrode name: {name!r}")
+        by_name[key] = row
+
+    selected, frontal, parietal, labels, reasons = [], [], [], [], {}
+    pathology_fields = (
+        "soz", "resected", "edge", "silicon", "screw", "csf",
+        "whitematter", "lesion", "gliosis",
+    )
+    for name in channel_names:
+        row = by_name.get(str(name).strip().casefold())
+        if row is None:
+            raise ValueError(f"iEEG channel {name!r} is missing from electrodes.tsv")
+        why = [
+            field for field in pathology_fields
+            if (row.get(field) or "").strip().casefold() == "yes"
+        ]
+        group = (row.get("group") or "").strip().casefold()
+        if group == "depth" and (row.get("graymatter") or "").strip().casefold() != "yes":
+            why.append("not_gray_matter")
+        label = (row.get("Destrieux_label_text") or "").strip()
+        if label.casefold() in ("", "n/a", "unknown"):
+            why.append("no_cortical_atlas_label")
+        keep = not why
+        lower = label.casefold()
+        selected.append(keep)
+        frontal.append(keep and "front" in lower)
+        parietal.append(
+            keep and any(value in lower for value in ("pariet", "postcentral", "precuneus")))
+        labels.append(label)
+        if why:
+            reasons[str(name)] = sorted(set(why))
+    return dict(
+        selected_mask=np.asarray(selected, bool),
+        frontal_mask=np.asarray(frontal, bool),
+        parietal_mask=np.asarray(parietal, bool),
+        destrieux_labels=np.asarray(labels, dtype="<U96"),
+        exclusion_reasons=reasons,
+    )
+
+
+def _event_category(trial_type, sub_type):
+    trial = str(trial_type).strip().casefold()
+    subtype = str(sub_type).strip().casefold()
+    if trial in ("artefact", "artifact"):
+        return "artifact"
+    if trial == "seizure":
+        return "seizure"
+    if "stimulation" in trial:
+        return "stimulation"
+    if trial == "sleep":
+        if subtype == "nrem":
+            return "sleep_nrem"
+        if subtype == "rem":
+            return "sleep_rem"
+        return "sleep_unknown"
+    if trial == "sleep-wake transition":
+        return "transition"
+    if trial == "sws selection":
+        return "sws_selection"
+    if trial == "rem selection":
+        return "rem_selection"
+    return "other"
+
+
+def event_annotations_from_rows(rows, total_s, sf):
+    """Validate and normalize RESPect event rows to clipped half-open time intervals."""
+    annotations = []
+    tolerance = 2.0 / float(sf)
+    for row_number, row in enumerate(rows, start=2):
+        try:
+            onset = float(row["onset"])
+            duration = float(row["duration"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"invalid event onset/duration at row {row_number}") from exc
+        if not np.isfinite(onset) or not np.isfinite(duration) or duration <= 0:
+            raise ValueError(f"non-positive or non-finite event at row {row_number}")
+        stop = onset + duration
+        if row.get("offset") not in (None, "", "n/a"):
+            if abs(float(row["offset"]) - stop) > tolerance:
+                raise ValueError(f"event offset disagrees with onset+duration at row {row_number}")
+        for key, expected in (("sample_start", onset), ("sample_end", stop)):
+            if row.get(key) not in (None, "", "n/a"):
+                if abs(float(row[key]) / float(sf) - expected) > tolerance:
+                    raise ValueError(f"{key} disagrees with event time at row {row_number}")
+        clipped_start = max(0.0, onset)
+        clipped_stop = min(float(total_s), stop)
+        if clipped_stop <= clipped_start:
+            continue
+        contact_text = ",".join([
+            str(row.get("electrodes_involved_onset") or ""),
+            str(row.get("electrodes_involved_offset") or ""),
+        ])
+        contacts = sorted({
+            value.strip() for value in contact_text.split(",")
+            if value.strip() and value.strip().casefold() not in ("n/a",)
+        })
+        annotations.append(dict(
+            onset_s=float(clipped_start), stop_s=float(clipped_stop),
+            trial_type=str(row.get("trial_type") or ""),
+            sub_type=str(row.get("sub_type") or ""),
+            category=_event_category(row.get("trial_type"), row.get("sub_type")),
+            contacts=contacts,
+        ))
+    return annotations
+
+
+def event_exclusion_mask(
+        annotations, start_s, n_samples, sf, channel=None,
+        pad_s=0.0):
+    """True for samples excluded by author artifact/seizure/stimulation annotations."""
+    bad = np.zeros(int(n_samples), bool)
+    channel_key = None if channel is None else str(channel).strip().casefold()
+    for event in annotations:
+        category = event["category"]
+        contacts = {value.casefold() for value in event["contacts"]}
+        applies = category in ("seizure", "stimulation")
+        if category == "artifact":
+            applies = "all" in contacts or (
+                channel_key is not None and channel_key in contacts)
+        if not applies:
+            continue
+        first = max(
+            0, int(np.floor((event["onset_s"] - float(pad_s) - start_s) * sf)))
+        last = min(
+            len(bad), int(np.ceil((event["stop_s"] + float(pad_s) - start_s) * sf)))
+        if last > first:
+            bad[first:last] = True
+    return bad
+
+
+def _covered_seconds(intervals, start, stop):
+    clipped = sorted(
+        (max(start, value[0]), min(stop, value[1]))
+        for value in intervals
+        if value[1] > start and value[0] < stop
+    )
+    if not clipped:
+        return 0.0
+    total = 0.0
+    left, right = clipped[0]
+    for next_left, next_right in clipped[1:]:
+        if next_left <= right:
+            right = max(right, next_right)
+        else:
+            total += right - left
+            left, right = next_left, next_right
+    return float(total + right - left)
+
+
+def annotation_epoch_context(annotations, n_epochs, epoch_s=EPOCH, boundary_tolerance_s=1.0):
+    """Author-derived coarse epoch context; boundary/transition conflicts remain unclassified."""
+    categories = {}
+    for event in annotations:
+        categories.setdefault(event["category"], []).append(
+            (event["onset_s"], event["stop_s"]))
+    sleep_intervals = sum(
+        (categories.get(value, []) for value in
+         ("sleep_nrem", "sleep_rem", "sleep_unknown",
+          "sws_selection", "rem_selection")), [])
+    transition_intervals = categories.get("transition", [])
+    labels = np.full(int(n_epochs), "", dtype="<U5")
+    sources = np.full(int(n_epochs), "boundary", dtype="<U32")
+    required = float(epoch_s) - float(boundary_tolerance_s)
+    for epoch in range(int(n_epochs)):
+        start, stop = epoch * float(epoch_s), (epoch + 1) * float(epoch_s)
+        coverage = {
+            key: _covered_seconds(values, start, stop)
+            for key, values in categories.items()
+        }
+        if any(
+            coverage.get(value, 0.0) > 0.0
+            for value in ("artifact", "seizure", "stimulation")
+        ):
+            sources[epoch] = "author_disturbance"
+        elif coverage.get("sws_selection", 0.0) >= required:
+            labels[epoch], sources[epoch] = "N3", "author_sws_selection"
+        elif (
+            coverage.get("rem_selection", 0.0) >= required
+            or coverage.get("sleep_rem", 0.0) >= required
+        ):
+            labels[epoch], sources[epoch] = "R", "author_rem"
+        elif coverage.get("sleep_nrem", 0.0) >= required:
+            labels[epoch], sources[epoch] = "NREM", "author_nrem"
+        elif coverage.get("sleep_unknown", 0.0) >= required:
+            labels[epoch], sources[epoch] = "SLEEP", "author_sleep_unknown"
+        elif (
+            _covered_seconds(sleep_intervals, start, stop)
+            + _covered_seconds(transition_intervals, start, stop)
+            <= float(boundary_tolerance_s)
+        ):
+            labels[epoch], sources[epoch] = "W", "author_awake"
+        elif _covered_seconds(transition_intervals, start, stop) > 0:
+            sources[epoch] = "author_transition"
+    return labels, sources
+
+
+def annotation_second_masks(annotations, total_s):
+    """One-second reporting masks for exact source annotations (no processing padding)."""
+    keys = (
+        "artifact", "seizure", "stimulation", "sleep_nrem", "sleep_rem",
+        "sleep_unknown", "transition", "sws_selection", "rem_selection",
+    )
+    masks = {key: np.zeros(int(total_s), bool) for key in keys}
+    for event in annotations:
+        if event["category"] not in masks:
+            continue
+        start = max(0, int(np.floor(event["onset_s"])))
+        stop = min(int(total_s), int(np.ceil(event["stop_s"])))
+        masks[event["category"]][start:stop] = True
+    sleep = (
+        masks["sleep_nrem"] | masks["sleep_rem"] | masks["sleep_unknown"]
+        | masks["sws_selection"] | masks["rem_selection"]
+    )
+    masks["awake"] = ~(sleep | masks["transition"])
+    return masks
+
+
+def constrain_proxy_to_annotations(
+        proxy_labels, annotation_labels, annotation_sources,
+        allow_proxy_unknown_sleep=False):
+    """Use author states as primary; proxy-only unknown-sleep labels are sensitivity data."""
+    proxy = np.asarray(proxy_labels).astype(str)
+    annotation = np.asarray(annotation_labels).astype(str)
+    sources = np.asarray(annotation_sources).astype(str).copy()
+    if proxy.shape != annotation.shape or proxy.shape != sources.shape:
+        raise ValueError("proxy and annotation epoch arrays must align")
+    out = np.full(len(proxy), "", dtype="<U4")
+    for value in ("W", "R", "NREM", "N3"):
+        out[annotation == value] = value
+    unknown_sleep = annotation == "SLEEP"
+    usable_proxy = unknown_sleep & np.isin(proxy, ("R", "NREM", "N2", "N3"))
+    if allow_proxy_unknown_sleep:
+        out[usable_proxy] = proxy[usable_proxy]
+        sources[usable_proxy] = "proxy_within_author_sleep"
+    sources[unknown_sleep & ~usable_proxy] = "unclassified_author_sleep"
+    if not allow_proxy_unknown_sleep:
+        sources[unknown_sleep] = "unclassified_author_sleep"
+    return out, sources
+
+
+def aggregate_auxiliary_epoch_features(
+        values_by_channel, min_channel_coverage=MIN_CONTACT_COVERAGE,
+        min_channel_fraction_per_epoch=MIN_CONTACT_FRACTION_PER_BIN):
+    """Scale-normalize and combine every stable good EMG/EOG channel."""
+    values = np.asarray(values_by_channel, float)
+    if values.ndim != 2:
+        raise ValueError("auxiliary features must be channel-by-epoch")
+    valid = np.isfinite(values) & (values > 0)
+    coverage = valid.mean(axis=1)
+    selected = coverage >= float(min_channel_coverage)
+    out = np.full(values.shape[1], np.nan)
+    scales = np.full(values.shape[0], np.nan)
+    for channel in np.where(selected)[0]:
+        scales[channel] = float(np.median(values[channel, valid[channel]]))
+    n_selected = int(selected.sum())
+    required = int(np.ceil(float(min_channel_fraction_per_epoch) * n_selected))
+    support = np.zeros(values.shape[1], int)
+    if n_selected:
+        normalized = values[selected] / scales[selected, None]
+        finite = np.isfinite(normalized) & (normalized > 0)
+        support = finite.sum(axis=0)
+        for epoch in np.where(support >= max(1, required))[0]:
+            out[epoch] = float(np.exp(np.median(np.log(normalized[finite[:, epoch], epoch]))))
+    return out, dict(
+        selected_channel_mask=selected,
+        per_channel_coverage=coverage,
+        n_selected_channels=n_selected,
+        required_channel_count=max(1, required) if n_selected else 0,
+        support_count=support,
+        normalization="divide each channel by its full-record median then geometric median",
+    )
 
 
 # ---------------------------------------------------------------- staging
@@ -328,6 +663,10 @@ def run(subject, delete_raw=False, force=False):
     t0 = time.time()
     print(f"[{subject}] fetching {base} ...", flush=True)
     paths = ensure_files(subject, ses, base)
+    source_snapshot_identities = {
+        os.path.basename(path): SNAPSHOT_FILES[os.path.basename(path)]
+        for path in paths.values()
+    }
     roles = channel_roles(paths["_channels.tsv"])
     if not roles["ieeg"] or not roles["ecg"] or not roles["emg"] or not roles["eog"]:
         reason = (f"required modalities missing: iEEG={bool(roles['ieeg'])}, "
@@ -340,7 +679,13 @@ def run(subject, delete_raw=False, force=False):
         return "skip"
 
     raw = mne.io.read_raw_brainvision(paths["_ieeg.vhdr"], preload=False, verbose="ERROR")
-    sf = float(raw.info["sfreq"])
+    raw_sf = float(raw.info["sfreq"])
+    with open(paths["_ieeg.json"]) as handle:
+        sidecar = json.load(handle)
+    sf = float(sidecar.get("SamplingFrequency", raw_sf))
+    if not np.isfinite(sf) or sf <= 0 or abs(raw_sf - sf) / sf > 1e-5:
+        raise RuntimeError(
+            f"BrainVision/BIDS sampling-frequency mismatch: {raw_sf} vs {sf}")
     n_samp = raw.n_times
     if len(raw.ch_names) != roles["n_rows"]:
         raise RuntimeError(
@@ -352,20 +697,48 @@ def run(subject, delete_raw=False, force=False):
     if mismatched:
         raise RuntimeError(
             f"selected BrainVision/TSV channel-order mismatch; first mismatch={mismatched[0]}")
-    ie = roles["ieeg"]; ecg_i = roles["ecg"][0]
-    emg_i = roles["emg"][0] if roles["emg"] else None
-    eog_i = roles["eog"][0] if roles["eog"] else None
     names = roles["names"]
+    all_good_ie = roles["ieeg"]
+    with open(paths["_electrodes.tsv"]) as handle:
+        electrode_rows = list(csv.DictReader(handle, delimiter="\t"))
+    anatomy_qc = electrode_eligibility_from_rows(
+        electrode_rows, [names[index] for index in all_good_ie])
+    ie = [
+        index for index, keep in zip(all_good_ie, anatomy_qc["selected_mask"])
+        if keep
+    ]
+    if len(ie) < MIN_CONTACTS:
+        reason = (
+            f"only {len(ie)} non-SOZ, non-resected, non-edge cortical gray-matter "
+            f"contacts (<{MIN_CONTACTS})")
+        atomic_savez(
+            fp, subject=subject, status="skip",
+            cache_schema_version=CACHE_SCHEMA_VERSION,
+            cache_code_sha256=current_cache_digest, reason=reason)
+        print(f"[{subject}] SKIP {reason}", flush=True)
+        return "skip"
+    retained_positions = np.where(anatomy_qc["selected_mask"])[0]
+    frontal_contact_mask = anatomy_qc["frontal_mask"][retained_positions]
+    parietal_contact_mask = anatomy_qc["parietal_mask"][retained_positions]
+    destrieux_labels = anatomy_qc["destrieux_labels"][retained_positions]
+    ecg_i = roles["ecg"][0]
+    emg_indices = list(roles["emg"])
+    eog_indices = list(roles["eog"])
     ctx = [names[i] for i in ie]
 
     total_s = int(n_samp / sf)
     n_ep = int(total_s // EPOCH)
+    with open(paths["_events.tsv"]) as handle:
+        event_rows = list(csv.DictReader(handle, delimiter="\t"))
+    annotations = event_annotations_from_rows(event_rows, total_s, sf)
 
     # Individual FSP is disabled until it is estimated from all clean NREM and manually QC'd, as
     # in Lecci. The fixed 10-15 Hz analysis is primary.
     fsp, fsp_real = 13.0, False
-    print(f"[{subject}] {sf:.0f} Hz, {len(ie)} iEEG, ECG@{ecg_i}, EMG@{emg_i}, EOG@{eog_i}, "
-          f"FSP {fsp:.2f} Hz, {total_s} s", flush=True)
+    print(
+        f"[{subject}] {sf:.0f} Hz ({raw_sf:.6f} header), {len(ie)}/{len(all_good_ie)} "
+        f"anatomy-eligible iEEG, ECG@{ecg_i}, EMG@{emg_indices}, EOG@{eog_indices}, "
+        f"FSP {fsp:.2f} Hz, {total_s} s", flush=True)
 
     sig_fixed_ch = np.full((len(ie), total_s), np.nan)
     sig_fsp_ch = np.full((len(ie), total_s), np.nan)
@@ -373,7 +746,8 @@ def run(subject, delete_raw=False, force=False):
     ep_dr_ch = np.full((len(ie), n_ep), np.nan)
     ep_swa_ch = np.full((len(ie), n_ep), np.nan)
     ep_clean_ch = np.full((len(ie), n_ep), np.nan)
-    ep_emg = np.full(n_ep, np.nan); ep_eog = np.full(n_ep, np.nan)
+    ep_emg_ch = np.full((len(emg_indices), n_ep), np.nan)
+    ep_eog_ch = np.full((len(eog_indices), n_ep), np.nan)
     beats = []
     so_candidates = {c: [] for c in ctx}
     failed_chunks = []
@@ -394,8 +768,7 @@ def run(subject, delete_raw=False, force=False):
     def notch50(x):
         return signal.sosfiltfilt(notch_sos, x)
 
-    picks_all = list(ie) + [ecg_i] + ([emg_i] if emg_i is not None else []) + \
-                ([eog_i] if eog_i is not None else [])
+    picks_all = list(ie) + [ecg_i] + emg_indices + eog_indices
     t = 0.0
     while t < total_s:
         dur = min(CHUNK_S, total_s - t)
@@ -417,12 +790,20 @@ def run(subject, delete_raw=False, force=False):
         x_ie = d[:len(ie)]
         x_ecg = d[len(ie)]
         col = len(ie) + 1
-        x_emg = d[col] if emg_i is not None else None
-        x_eog = d[col + (1 if emg_i is not None else 0)] if eog_i is not None else None
+        x_emg = d[col:col + len(emg_indices)]
+        col += len(emg_indices)
+        x_eog = d[col:col + len(eog_indices)]
+        global_event_bad = event_exclusion_mask(
+            annotations, pull_start, d.shape[1], sf, channel=None)
 
         # Keep contacts separate through filtering, artifact masking, and power extraction.
         # Raw-voltage averaging can cancel equal power with opposite polarity/phase.
-        prepared = [prepare_continuous_signal(x_ie[ci], sf) for ci in range(len(ie))]
+        prepared = []
+        for ci, channel in enumerate(ctx):
+            annotated_bad = event_exclusion_mask(
+                annotations, pull_start, d.shape[1], sf, channel=channel)
+            prepared.append(prepare_continuous_signal(
+                np.where(annotated_bad, np.nan, x_ie[ci]), sf))
         x_channels = np.asarray([
             notch50(signal.detrend(filled)) for filled, _ in prepared
         ])
@@ -433,7 +814,8 @@ def run(subject, delete_raw=False, force=False):
         ])
         # ECG -> beats
         try:
-            ecg_filled, ecg_measured = prepare_continuous_signal(x_ecg, sf)
+            ecg_filled, ecg_measured = prepare_continuous_signal(
+                np.where(global_event_bad, np.nan, x_ecg), sf)
             cl = nk.ecg_clean(ecg_filled, sampling_rate=int(sf), method="neurokit")
             _, info = nk.ecg_peaks(cl, sampling_rate=int(sf), method="neurokit", correct_artifacts=True)
             peaks = np.asarray(info["ECG_R_Peaks"], int)
@@ -475,16 +857,23 @@ def run(subject, delete_raw=False, force=False):
                 dest[ci, sl] = vals_c[:sl.stop - sl.start]
 
         # EMG / EOG epoch features
-        if x_emg is not None:
-            emg_filled, emg_measured = prepare_continuous_signal(x_emg, sf)
-            emg_f = np.abs(signal.sosfiltfilt(sos_emg, notch50(emg_filled)))
-        else:
-            emg_f, emg_measured = None, None
-        if x_eog is not None:
-            eog_filled, eog_measured = prepare_continuous_signal(x_eog, sf)
-            eog_f = signal.sosfiltfilt(sos_eog, eog_filled)
-        else:
-            eog_f, eog_measured = None, None
+        emg_filtered, emg_measured = [], []
+        for channel_signal in x_emg:
+            filled, measured = prepare_continuous_signal(
+                np.where(global_event_bad, np.nan, channel_signal), sf)
+            emg_filtered.append(
+                np.abs(signal.sosfiltfilt(sos_emg, notch50(filled))))
+            emg_measured.append(measured)
+        eog_filtered, eog_measured = [], []
+        for channel_signal in x_eog:
+            filled, measured = prepare_continuous_signal(
+                np.where(global_event_bad, np.nan, channel_signal), sf)
+            eog_filtered.append(signal.sosfiltfilt(sos_eog, filled))
+            eog_measured.append(measured)
+        emg_filtered = np.asarray(emg_filtered)
+        emg_measured = np.asarray(emg_measured)
+        eog_filtered = np.asarray(eog_filtered)
+        eog_measured = np.asarray(eog_measured)
 
         ke = int(EPOCH * sf)
         for e in range(int(core_n // ke)):
@@ -501,10 +890,14 @@ def run(subject, delete_raw=False, force=False):
                 ep_dr_ch[ci, gi] = dr
                 ep_swa_ch[ci, gi] = swa_value
                 ep_clean_ch[ci, gi] = float(clean_c[epoch_a:epoch_b].mean())
-            if emg_f is not None and emg_measured[epoch_a:epoch_b].all():
-                ep_emg[gi] = float(np.sqrt(np.mean(emg_f[epoch_a:epoch_b] ** 2)))
-            if eog_f is not None and eog_measured[epoch_a:epoch_b].all():
-                ep_eog[gi] = float(np.var(eog_f[epoch_a:epoch_b]))
+            for channel in range(len(emg_indices)):
+                if emg_measured[channel, epoch_a:epoch_b].all():
+                    ep_emg_ch[channel, gi] = float(np.sqrt(np.mean(
+                        emg_filtered[channel, epoch_a:epoch_b] ** 2)))
+            for channel in range(len(eog_indices)):
+                if eog_measured[channel, epoch_a:epoch_b].all():
+                    ep_eog_ch[channel, gi] = float(np.var(
+                        eog_filtered[channel, epoch_a:epoch_b]))
         t += dur
 
     sig_fixed, sigma_contact_qc = _aggregate_full_night_power(
@@ -513,16 +906,32 @@ def run(subject, delete_raw=False, force=False):
         min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN,
         return_details=True)
     eligible_contacts = sigma_contact_qc["selected_mask"]
+    sig_fixed_parietal, parietal_contact_qc = _aggregate_full_night_power(
+        sig_fixed_ch, eligible_channels=parietal_contact_mask,
+        min_contact_coverage=MIN_CONTACT_COVERAGE,
+        min_contacts=MIN_CONTACTS,
+        min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN,
+        return_details=True)
     ep_dr, ep_swa, ep_clean, staging_contact_qc = aggregate_staging_features(
         ep_dr_ch, ep_swa_ch, ep_clean_ch, eligible_contacts)
     sig_fsp = _aggregate_full_night_power(
         sig_fsp_ch, eligible_channels=eligible_contacts,
         min_contact_coverage=MIN_CONTACT_COVERAGE, min_contacts=MIN_CONTACTS,
         min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN)
+    sig_fsp_parietal = _aggregate_full_night_power(
+        sig_fsp_ch, eligible_channels=parietal_contact_qc["selected_mask"],
+        min_contact_coverage=MIN_CONTACT_COVERAGE, min_contacts=MIN_CONTACTS,
+        min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN)
     swa_1 = _aggregate_full_night_power(
         swa_ch, eligible_channels=eligible_contacts,
         min_contact_coverage=MIN_CONTACT_COVERAGE, min_contacts=MIN_CONTACTS,
         min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN)
+    swa_parietal = _aggregate_full_night_power(
+        swa_ch, eligible_channels=parietal_contact_qc["selected_mask"],
+        min_contact_coverage=MIN_CONTACT_COVERAGE, min_contacts=MIN_CONTACTS,
+        min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN)
+    ep_emg, emg_contact_qc = aggregate_auxiliary_epoch_features(ep_emg_ch)
+    ep_eog, eog_contact_qc = aggregate_auxiliary_epoch_features(ep_eog_ch)
 
     # heart rate grids
     beats = sanitize_beats(beats)
@@ -535,12 +944,45 @@ def run(subject, delete_raw=False, force=False):
     if ecg_failures:
         raise RuntimeError(
             f"ECG detection failed in {len(ecg_failures)} chunks; publication cache fails closed")
-    if sigma_coverage < MIN_SIGNAL_COVERAGE or hr_coverage < MIN_SIGNAL_COVERAGE:
-        raise RuntimeError(
-            f"coverage QC failed: sigma={sigma_coverage:.1%}, HR={hr_coverage:.1%}; "
+    # Global sigma is not a cache-wide requirement: 3A uses the separately gated parietal
+    # aggregate, whereas 3B uses coverage-qualified frontal SO contacts.  Rejecting the whole cache
+    # would erase a potentially valid endpoint because an unrelated aggregate missed its gate.
+    if hr_coverage < MIN_SIGNAL_COVERAGE:
+        # Low usable cardiac coverage is an expected participant-level QC exclusion.  Treating it
+        # as a pipeline exception makes one noisy ECG invalidate the complete cohort manifest.
+        reason = (
+            f"cardiac coverage QC failed: HR={hr_coverage:.1%}; "
             f"minimum is {MIN_SIGNAL_COVERAGE:.0%}")
+        source_hashes = {
+            os.path.basename(path): file_sha256(path) for path in paths.values()
+        }
+        atomic_savez(
+            fp, subject=subject, status="skip",
+            cache_schema_version=CACHE_SCHEMA_VERSION,
+            cache_code_sha256=current_cache_digest,
+            reason=reason, sigma_coverage=sigma_coverage,
+            hr_coverage=hr_coverage,
+            source_dataset="OpenNeuro ds003848 snapshot 1.0.3",
+            source_files_sha256_json=json.dumps(source_hashes, sort_keys=True),
+            source_files_snapshot_identity_json=json.dumps(
+                source_snapshot_identities, sort_keys=True))
+        print(f"[{subject}] SKIP {reason}", flush=True)
+        return "skip"
 
-    stage_lab, stage_counts = score_stages(ep_swa, ep_emg, ep_eog, ep_dr, ep_clean)
+    proxy_lab, stage_counts = score_stages(ep_swa, ep_emg, ep_eog, ep_dr, ep_clean)
+    annotation_lab, annotation_sources = annotation_epoch_context(
+        annotations, n_ep, epoch_s=EPOCH)
+    stage_lab, stage_sources = constrain_proxy_to_annotations(
+        proxy_lab, annotation_lab, annotation_sources)
+    stage_lab_proxy_sensitivity, _ = constrain_proxy_to_annotations(
+        proxy_lab, annotation_lab, annotation_sources,
+        allow_proxy_unknown_sleep=True)
+    annotation_masks = annotation_second_masks(annotations, total_s)
+    final_stage_counts = {
+        value: int((stage_lab == value).sum())
+        for value in ("W", "R", "NREM", "N2", "N3")
+    }
+    stage_counts["final_annotation_constrained_counts"] = final_stage_counts
 
     os.makedirs(OUT, exist_ok=True)
     source_hashes = {os.path.basename(path): file_sha256(path) for path in paths.values()}
@@ -551,35 +993,93 @@ def run(subject, delete_raw=False, force=False):
                    runtime_versions_json=json.dumps(runtime_versions(), sort_keys=True),
                    source_dataset="OpenNeuro ds003848 snapshot 1.0.3",
                    source_files_sha256_json=json.dumps(source_hashes, sort_keys=True),
+                   source_files_snapshot_identity_json=json.dumps(
+                       source_snapshot_identities, sort_keys=True),
                    failed_chunks_json=json.dumps(failed_chunks, sort_keys=True),
                    ecg_failures_json=json.dumps(ecg_failures, sort_keys=True),
                    ecg_processing_method=(
                        "NeuroKit2 ecg_clean/ecg_peaks method=neurokit with artifact correction; "
                        "not Naji Pan-Tompkins 0.5-100 Hz; requires blinded R-peak validation"),
                    ecg_visual_validation=False,
+                   raw_header_sampling_frequency=raw_sf,
+                   bids_sampling_frequency=sf,
+                   sample_timing_policy=(
+                       "BIDS nominal SamplingFrequency after <=10-ppm agreement with BrainVision "
+                       "header; global rounded sample boundaries"),
                    sigma_coverage=sigma_coverage, hr_coverage=hr_coverage,
+                   sigma_meets_global_coverage_gate=bool(
+                       sigma_coverage >= MIN_SIGNAL_COVERAGE),
                    sigma_per_contact_coverage=sigma_contact_qc["per_contact_coverage"],
                    sigma_selected_contact_mask=sigma_contact_qc["selected_mask"],
                    sigma_contact_count=sigma_contact_qc["contact_count"],
                    sigma_n_selected_contacts=sigma_contact_qc["n_selected"],
                    sigma_required_contact_count=sigma_contact_qc["required_contact_count"],
+                   parietal_sigma_coverage=float(np.isfinite(sig_fixed_parietal).mean()),
+                   parietal_selected_contact_mask=parietal_contact_qc["selected_mask"],
+                   parietal_n_selected_contacts=parietal_contact_qc["n_selected"],
+                   frontal_selected_contact_mask=(
+                       frontal_contact_mask & sigma_contact_qc["selected_mask"]),
                    staging_selected_contact_mask=staging_contact_qc["selected_contact_mask"],
                    staging_contact_count=staging_contact_qc["contact_count"],
                    staging_n_selected_contacts=staging_contact_qc["n_selected_contacts"],
                    staging_required_contact_count=staging_contact_qc["required_contact_count"],
+                   staging_per_contact_feature_coverage=(
+                       staging_contact_qc["per_contact_feature_coverage"]),
+                   staging_minimum_contact_feature_coverage=(
+                       staging_contact_qc["minimum_contact_feature_coverage"]),
                    staging_swa_normalization=staging_contact_qc["swa_normalization"],
+                   emg_channel_names=np.asarray(
+                       [names[index] for index in emg_indices], dtype="<U96"),
+                   eog_channel_names=np.asarray(
+                       [names[index] for index in eog_indices], dtype="<U96"),
+                   emg_selected_channel_mask=emg_contact_qc["selected_channel_mask"],
+                   eog_selected_channel_mask=eog_contact_qc["selected_channel_mask"],
+                   emg_per_channel_coverage=emg_contact_qc["per_channel_coverage"],
+                   eog_per_channel_coverage=eog_contact_qc["per_channel_coverage"],
+                   auxiliary_channel_aggregation=emg_contact_qc["normalization"],
                    subject=subject, sf=sf, night_s=0.0, hours=total_s / 3600.0,
-                   cortical_chans=np.array(ctx),
+                   cortical_chans=np.asarray(ctx, dtype="<U96"),
+                   all_good_ieeg_channels=np.asarray(
+                       [names[index] for index in all_good_ie], dtype="<U96"),
+                   destrieux_labels=destrieux_labels,
+                   frontal_contact_mask=frontal_contact_mask,
+                   parietal_contact_mask=parietal_contact_mask,
+                   anatomy_exclusion_reasons_json=json.dumps(
+                       anatomy_qc["exclusion_reasons"], sort_keys=True),
                    anatomy_selection_method=(
-                       "BIDS good iEEG channel type only; no homologous-region/gray-matter QC"),
+                       "exact channels/electrodes.tsv name join; BIDS-good iEEG; exclude SOZ, "
+                       "resected, edge, silicon, screw, CSF, white matter, lesion, gliosis, "
+                       "non-gray depth, and unknown cortical-atlas contacts; endpoint ROI masks "
+                       "from Destrieux labels"),
                    ekg=names[ecg_i], fsp=fsp, fsp_is_real_peak=fsp_real,
                    sigma_fixed=sig_fixed, sigma_fsp=sig_fsp, swa=swa_1,
+                   sigma_fixed_parietal=sig_fixed_parietal,
+                   sigma_fsp_parietal=sig_fsp_parietal,
+                   swa_parietal=swa_parietal,
                    hr_1=hr_1, hr_4=hr_4, rr_1=rr_1, rr_4=rr_4, fs_rr=FS_RR,
                    ep_dr=ep_dr, ep_swa=ep_swa, ep_clean=ep_clean, ep_emg=ep_emg, ep_eog=ep_eog,
-                   epoch_s=EPOCH, beats=beats, stage_lab=np.array(stage_lab),
-                   has_eog=bool(eog_i is not None), has_emg=bool(emg_i is not None),
-                   stage_method="unvalidated EMG/EOG/iEEG rule-based proxy; not AASM scored",
+                   ep_emg_by_channel=ep_emg_ch, ep_eog_by_channel=ep_eog_ch,
+                   epoch_s=EPOCH, beats=beats, stage_lab=np.asarray(stage_lab, dtype="<U4"),
+                   stage_lab_proxy=np.asarray(proxy_lab, dtype="<U4"),
+                   stage_lab_proxy_sensitivity=np.asarray(
+                       stage_lab_proxy_sensitivity, dtype="<U4"),
+                   stage_lab_annotation=np.asarray(annotation_lab, dtype="<U5"),
+                   stage_source=np.asarray(stage_sources, dtype="<U32"),
+                   has_eog=bool(eog_indices), has_emg=bool(emg_indices),
+                   stage_method=(
+                       "author RESPect sleep/NREM/REM/SWS/transition/awake annotations are "
+                       "primary; author-unknown sleep remains unclassified; no AASM N2/N3 "
+                       "scoring; proxy-within-unknown labels stored for sensitivity only"),
+                   normalized_event_annotations_json=json.dumps(
+                       annotations, sort_keys=True),
+                   annotation_signal_exclusion_policy=(
+                       "author artifact intervals per named/all contact; seizure/stimulation "
+                       "intervals globally; exact intervals set missing before filtering; "
+                       "prepare_continuous_signal supplies the recorded +/-5 s missing-data pad"),
+                   annotation_signal_pad_s=ANNOTATION_SIGNAL_PAD_S,
                    stage_proxy_diagnostics_json=json.dumps(stage_counts, sort_keys=True))
+    for key, values in annotation_masks.items():
+        payload[f"annotation_{key}_mask_1s"] = values
     for c in ctx:
         values = np.asarray(sorted(so_candidates[c]), float).reshape(-1, 4)
         payload[f"so_candidate_t_{c}"] = values[:, 0]
@@ -589,8 +1089,10 @@ def run(subject, delete_raw=False, force=False):
     atomic_savez(fp, **payload)
     frac = float(np.isfinite(sig_fixed).mean())
     print(f"[{subject}] cached {time.time()-t0:.0f}s | sigma_cov {frac:.0%} | {len(beats)} beats | "
-          f"stages W/R/N2/N3 = {stage_counts['n_wake']}/{stage_counts['n_rem']}/"
-          f"{int((stage_lab=='N2').sum())}/{int((stage_lab=='N3').sum())} of {n_ep} ep", flush=True)
+          f"annotation-constrained W/R/NREM/N2/N3 = "
+          f"{final_stage_counts['W']}/{final_stage_counts['R']}/"
+          f"{final_stage_counts['NREM']}/{final_stage_counts['N2']}/"
+          f"{final_stage_counts['N3']} of {n_ep} ep", flush=True)
     if delete_raw:
         try:
             os.remove(paths["_ieeg.eeg"])
@@ -611,7 +1113,9 @@ def main():
     requested = [s.strip() for s in a.subjects.split(",") if s.strip()]
     config = dict(cache_schema_version=CACHE_SCHEMA_VERSION,
                   cache_code_sha256=cache_code_sha256(ROOT),
-                  source_snapshot="ds003848/1.0.3")
+                  source_snapshot="ds003848/1.0.3",
+                  source_identity_manifest_sha256=file_sha256(
+                      SNAPSHOT_IDENTITY_PATH))
     if not a.force and validated_complete_run_exists(
             OUT, pipeline="stage_ds003848", requested=requested, config=config,
             suffix=".npz", require_current_source_tree=False):

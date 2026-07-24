@@ -1,0 +1,14 @@
+{
+  "analysis_version": "2026-07-corrected-v7",
+  "cache_directory_relative": "data/derived/lc_infraslow",
+  "cache_file_sha256": "f15643a79c0b5e07dac22566043921a057b81f2692db43994a0765bd9a1198a6",
+  "cache_hours": 7.0,
+  "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+  "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6",
+  "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+  "reason": "cache exclusion: ekg=EKG1 n_cortical=0",
+  "run_id": "a8881236-163d-461c-bcd2-4eb6deaf5d36",
+  "source_tree_sha256": "e6909aff01c5f2126abe36f5cd930e023e682f53cbae36995edea7af8be521f2",
+  "status": "skip",
+  "subject": "HUP116_phaseII"
+}

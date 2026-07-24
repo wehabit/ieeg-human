@@ -1,7 +1,7 @@
 # Key Literature
 
 > **SCOPE NOTE.** Literature descriptions may remain useful, but every repository-output number
-> on this historical page predates the current LC-proxy v5 provenance/QC gates and is not a
+> on this historical page predates the current LC-proxy v7 provenance/QC gates and is not a
 > corrected 3A/3B/3D result or evidence of LC tracking. See
 > [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md).
 
@@ -98,14 +98,32 @@ median z = 7.92). Two caveats: the markings mix pathological with physiological 
 hippocampal ripples failed to phase-cluster while entorhinal ones did, MRL = 0.20), and we hold only
 9 of the 20 subjects locally.
 
+### 5. Demuru, van Blooijs, Zweiphenning, … Zijlmans & the RESPect group (2022) — *Neuroinformatics* 20:727–736
+*doi 10.1007/s12021-022-09567-6 · OpenNeuro ds003848 v1.0.3*
+
+[The primary article](https://pmc.ncbi.nlm.nih.gov/articles/PMC9440951/) presents a workflow for
+organizing clinical intraoperative and long-term iEEG in BIDS; it is a dataset/methods paper, not
+validation of an LC proxy or expert AASM/R&K N2/N3 scoring. In the pinned public RESPect snapshot,
+the sleep-run `events.tsv` sidecars contain coarse sleep/transition, artifact, seizure, and curated
+SWS/REM-selection intervals, while `electrodes.tsv` contains atlas and pathology fields.
+
+**Why it matters here.** Those sidecars are analysis inputs, not optional descriptions. The legacy
+RESPect cache ignored both and therefore could misclassify author REM, retain author-marked
+disturbances, and include pathological/non-cortical contacts. Corrected-v7 consumes them
+conservatively, while leaving author-unknown sleep unclassified and treating parietal/frontal iEEG
+ROIs as motivated scalp-source adaptations rather than direct LC measurements.
+
 ---
 
 ## Cross-cutting note
 
-None of these three cohorts is a continuous full night: Pattnaik is clips, Falach is ~3 min/patient,
-and Zurich is 5-min runs. The historical HUP analyses used longer continuous high-delta candidate
-intervals, but those intervals have not been verified as lights-off-to-wake nights and their
-coupling outputs are withdrawn pending the current provenance/QC/inference gates.
+None of the Pattnaik, Falach, or Zurich holdings is a continuous full night: Pattnaik is clips,
+Falach is ~3 min/patient, and Zurich is 5-min runs. The RESPect sleep runs used here are
+approximately one hour and may provide too little strictly annotated continuous data for a cohort
+endpoint. The historical HUP analyses used longer continuous high-delta candidate intervals, but
+those intervals have not been verified as lights-off-to-wake nights and their coupling outputs are
+withdrawn. The completed corrected-v7 HUP rerun found no estimable 3A, 3B, or pooled 3D endpoint
+under the current provenance/QC gates; that is endpoint unavailability, not a biological null.
 
 **License summary:** Falach = CC BY 4.0 (commercial OK) · Zurich ds003498 = CC0 (public domain) ·
 Pattnaik atlas = CC-BY-NC-SA-4.0 (non-commercial). Only one of the three is non-commercial.

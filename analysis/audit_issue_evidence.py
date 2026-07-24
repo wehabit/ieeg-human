@@ -86,13 +86,18 @@ for channels in (6, 54, 93):
     print(f"{channels:2d} independent null channels: P(at least one p<.05) = {chance_any:.1%}")
 
 
-heading(f"E6. Committed outputs are legacy, not {ANALYSIS_VERSION} results")
-for directory in ("lecci_faithful_3A", "event_3B_cached", "event_3D_by_stage"):
+heading(f"E6. Production outputs carry the current {ANALYSIS_VERSION} lineage")
+for directory in (
+        "lecci_faithful_3A", "event_3B_cached", "event_3D_by_stage",
+        "ds003848_3A", "ds003848_3B"):
     files = glob.glob(os.path.join(ROOT, "outputs", directory, "*.json"))
     records = [json.load(open(f)) for f in files]
     corrected = sum(r.get("analysis_version") == ANALYSIS_VERSION for r in records)
     print(f"{directory:24s}: {corrected}/{len(records)} {ANALYSIS_VERSION}")
-    assert corrected == 0
+    assert records and corrected == len(records)
+    manifest = json.load(open(os.path.join(
+        ROOT, "outputs", directory, "RUN_MANIFEST.json")))
+    assert manifest["run_state"] == "complete"
 
 
 heading("E7. Independently randomized channel nulls are anti-conservative")
@@ -293,6 +298,7 @@ print(f"analytic finite-window phase bias        : {analytic_window_bias:.4f}")
 print(f"simulated descriptive group R            : {selection_group['group_R']:.4f}")
 print(f"invalid participant-rotation p           : {selection_group['p']:.5f}")
 assert all(participant_qc)
+assert len(participant_vectors) == len(participant_qc) == 25
 assert selection_group["p"] < 0.001
 
 

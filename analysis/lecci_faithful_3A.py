@@ -20,15 +20,17 @@ explicit approximation of both steps and records the remaining deviations below.
 described as an exact replication of the FieldTrip pipeline.
 
 DEVIATIONS (unavoidable, stated rather than hidden)
-  * Staging: iEEG has no EOG/EMG, so S2 vs SWS cannot be scored. NREM is the GMM-on-delta-ratio
-    approximation and the N2/N3 split is GMM-on-slow-wave-power. Lecci's S2 > SWS claim is therefore
-    NOT directly testable here; pooled NREM is the primary analysis.
+  * Staging: HUP uses an unvalidated GMM delta/SWA proxy. RESPect uses author coarse
+    NREM/REM/SWS annotations as primary, but still lacks expert AASM N2/N3 scoring. Lecci's
+    S2-versus-SWS contrast is therefore not directly replicated; pooled author NREM is primary
+    where available.
   * Signal: sigma power comes from a Hilbert envelope of a Butterworth band, binned to 1 s, rather
     than a 4-cycle Morlet sampled at 0.1 s then smoothed with a 4 s moving average. The production
     path requires 4 s smoothing, but the 1 Hz Hilbert series still needs a direct benchmark against
     a reference implementation before equivalence can be claimed.
-  * Region: lateral neocortical depth contacts, not parietal scalp. Lecci's 0.02 Hz oscillation is
-    parietal-maximal and declines frontally.
+  * Region: HUP uses unvalidated lateral-contact candidates. RESPect uses non-pathological
+    parietal/postcentral/precuneus iEEG contacts. Neither is Lecci's scalp C3 source; both are
+    motivated adaptations.
   * Population: epilepsy patients on anti-seizure medication.
 
     .venv/bin/python analysis/lecci_faithful_3A.py [--band fixed] [--force]
@@ -60,8 +62,11 @@ NPERSEG = 256
 ALPHA = 0.05
 XCORR_WIN_S = 120.0           # Lecci: 120 s intervals, z-transformed
 XCORR_MAX_LAG_S = 60.0
+LECCI_XCORR_LAG_WINDOW_S = (0.0, 15.0)  # source Fig. 6: positive peak near +5 s
 MIN_SURROGATE_PEAK_LOCATIONS = 20
 MIN_SURROGATE_PEAK_FRACTION = 0.05
+MIN_POWER_CONTACTS = 3
+MIN_POWER_COVERAGE = 0.80
 
 
 # ------------------------------------------------------------------ cache access
@@ -199,10 +204,10 @@ def verify_cache_lineage(record):
 
 
 def stages_for(d):
-    """Return (labels, NREM mask, separation) from one of two unvalidated stage proxies.
+    """Return labels/NREM from author-constrained RESPect states or the HUP stage proxy.
 
-    ds003848 uses rule-based EMG/EOG/iEEG labels; HUP uses a GMM slow-wave proxy. Neither is expert
-    AASM/R&K scoring, so downstream text must call the labels N2-like/N3-like.
+    RESPect's coarse NREM/REM/SWS labels are author annotations, not expert AASM N2/N3 scoring.
+    HUP uses an unvalidated GMM slow-wave proxy, whose split labels remain N2-like/N3-like.
     """
     if "stage_lab" in getattr(d, "files", []):
         raw = np.asarray(d["stage_lab"]).astype(str)
@@ -555,8 +560,21 @@ def cross_correlation(sig, hr, nrem, fs=FS, win_s=XCORR_WIN_S,
         signal.correlation_lags(w, w, mode="full")) <= ml] / fs
     m = np.mean(acc, axis=0)
     i = int(np.argmax(np.abs(m)))
+    follows = (
+        (lags_s >= LECCI_XCORR_LAG_WINDOW_S[0])
+        & (lags_s <= LECCI_XCORR_LAG_WINDOW_S[1]))
+    i_positive = np.where(follows)[0][int(np.argmax(m[follows]))]
+    i_negative = np.where(follows)[0][int(np.argmin(m[follows]))]
     return dict(lag_s=lags_s.tolist(), xcorr=m.tolist(), n_intervals=n,
-                peak_r=float(m[i]), peak_lag_s=float(lags_s[i]))
+                peak_r=float(m[i]), peak_lag_s=float(lags_s[i]),
+                # Lecci's source-defined human direction is a positive peak at positive lag:
+                # heart rate is the source wave and sigma follows.  Preserve the opposite-sign
+                # extremum instead of allowing max-|r| to disguise a reversal as replication.
+                lecci_direction_peak_r=float(m[i_positive]),
+                lecci_direction_peak_lag_s=float(lags_s[i_positive]),
+                lecci_direction_lag_window_s=list(LECCI_XCORR_LAG_WINDOW_S),
+                opposite_direction_peak_r=float(m[i_negative]),
+                opposite_direction_peak_lag_s=float(lags_s[i_negative]))
 
 
 # ------------------------------------------------------------------ per subject
@@ -576,8 +594,37 @@ def analyse(subject, band="fixed", smooth_4s=True, n_sur=200):
                     cache_schema_version=CACHE_SCHEMA_VERSION,
                     **lineage,
                     reason="no independently reliable individual fast-spindle peak")
-    sig = d["sigma_fsp"] if band == "fsp" else d["sigma_fixed"]
-    swa, hr = d["swa"], d["hr_1"]
+    roi = "legacy lateral neocortical set"
+    if "sigma_fixed_parietal" in d.files:
+        n_roi = int(np.asarray(d["parietal_n_selected_contacts"]).item())
+        roi_coverage = float(np.asarray(d["parietal_sigma_coverage"]).item())
+        if n_roi < MIN_POWER_CONTACTS or roi_coverage < MIN_POWER_COVERAGE:
+            return dict(
+                subject=subject, status="skip", analysis_version=ANALYSIS_VERSION,
+                cache_schema_version=CACHE_SCHEMA_VERSION, **lineage,
+                reason=(
+                    f"Lecci-motivated parietal iEEG adaptation unavailable: "
+                    f"{n_roi} stable contacts, "
+                    f"{roi_coverage:.1%} aggregate coverage"))
+        sig = (
+            d["sigma_fsp_parietal"] if band == "fsp"
+            else d["sigma_fixed_parietal"])
+        swa = d["swa_parietal"]
+        roi = "non-pathological cortical Destrieux parietal/postcentral/precuneus contacts"
+    else:
+        n_roi = int(np.asarray(d["sigma_n_selected_contacts"]).item())
+        roi_coverage = float(np.asarray(d["sigma_coverage"]).item())
+        if n_roi < MIN_POWER_CONTACTS or roi_coverage < MIN_POWER_COVERAGE:
+            return dict(
+                subject=subject, status="skip", analysis_version=ANALYSIS_VERSION,
+                cache_schema_version=CACHE_SCHEMA_VERSION, **lineage,
+                reason=(
+                    f"Lecci-motivated global iEEG adaptation unavailable: "
+                    f"{n_roi} stable contacts, "
+                    f"{roi_coverage:.1%} aggregate coverage"))
+        sig = d["sigma_fsp"] if band == "fsp" else d["sigma_fixed"]
+        swa = d["swa"]
+    hr = d["hr_1"]
     lab, nrem, sep = stages_for(d)
     if nrem.sum() < 40:
         return dict(subject=subject, status="skip", analysis_version=ANALYSIS_VERSION,
@@ -654,6 +701,7 @@ def analyse(subject, band="fixed", smooth_4s=True, n_sur=200):
                 **lineage,
                 anatomy_selection_method=npz_scalar_text(
                     d, "anatomy_selection_method", "missing/unvalidated"),
+                endpoint_roi=roi,
                 band=band, smooth_4s=smooth_4s,
                 n_surrogates_requested=int(n_sur),
                 n_nrem_epochs=int(nrem.sum()), n_bouts=n_bouts, bout_seconds=tot_s,

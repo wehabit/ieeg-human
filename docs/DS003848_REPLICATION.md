@@ -1,18 +1,59 @@
-# WITHDRAWN ds003848 replication — superseded estimates from an unvalidated stage proxy
+# Corrected ds003848 replication — primary endpoints unavailable
 
-> **LEGACY / WITHDRAWN NUMBERS.** These outputs used superseded caches/estimators and an unvalidated
-> stage proxy. Corrected-v5 results are pending a complete rerun and QC.
+> **CURRENT CORRECTED-V7 RESULT (2026-07-24):** the complete six-subject cache and downstream
+> manifests passed exact cache-code, input-identity, result-file, and runtime checks. No subject
+> passed a complete 3A or 3B endpoint, so the prespecified cohort result is **unavailable**, not
+> positive or negative evidence for an LC proxy.
 
-The former “bottom line” is withdrawn. No conclusion from this file is valid until corrected-v5 is
-rerun and the rule-based labels are validated against expert staging.
+## Current corrected-v7 result
+
+- Cache: 6 completed, 0 skipped, 0 failed. Each subject uses seven files pinned to OpenNeuro
+  snapshot 1.0.3 by S3 version ID, byte size, and SHA-256.
+- 3A: spectrum 0/6, cross-correlation 0/6, fixed-0.02-Hz coherence 0/6, own-peak coherence 0/6
+  (prespecified cohort minimum: 5).
+- 3B: N2 0/6 and N3 0/6 (prespecified cohort minimum: 5).
+- Closest 3A cases: RESP0521 had 16 stable motivated-parietal contacts but 79.2% aggregate
+  coverage; RESP0699 had 3 contacts but 79.7%. Both miss the fixed 80% gate.
+- Closest 3B cases: RESP0699 and RESP0724 had curated N3, but neither retained two
+  coverage-qualified frontal contacts with at least 30 eligible SOs. The dataset provides no
+  expert N2 labels; pooled author NREM is not relabeled N2.
+
+This means the former numerical “null replication” is not supported by the corrected pipeline.
+The data are insufficient for the prespecified endpoints after author annotations, anatomy, signal
+coverage, stable-stage, and event-contact QC are enforced. Lowering those rules after seeing the
+data would not be a valid rescue analysis.
+
+The v7 audit found three additional reasons the old values cannot be interpreted:
+
+- the legacy cache ignored the author `events.tsv`, including NREM/REM/SWS selections,
+  transition, artifact, and seizure intervals; direct overlap showed that the proxy called many
+  author-REM epochs N2/N3;
+- it ignored `electrodes.tsv`, allowing documented SOZ/resected/edge and other non-normative
+  contacts into endpoints; and
+- 3B did not enforce Naji's uninterrupted 3-minute stable-stage rule.
+
+Corrected-v7 now makes author annotations primary, leaves author-unknown sleep unclassified,
+excludes annotated disturbances, filters documented pathological/non-cortical contacts, and
+intersects motivated parietal/frontal Destrieux ROIs. These corrections can sharply reduce the
+number of estimable participants. They do not provide expert AASM/R&K N2/N3 scoring, validate the
+iEEG ROIs as homologues of the cited scalp sensors, remove possible postictal effects, or measure
+LC directly.
+
+Everything from “Historical cohort and staging” through the old numerical sections is retained only
+to document what was withdrawn; it is not the corrected result.
+
+The separate corrected-v7 HUP regeneration is also complete. Its cache manifest accounted for 25
+requested participants as 17 completed, 8 structured skips, and 0 failures, but every corrected 3A
+and 3B endpoint and the direct-stream pooled 3D endpoint was estimable in 0/25. Consequently the
+historical HUP comparisons below are also withdrawn; endpoint unavailability is not a zero
+biological effect or evidence about human LC tracking.
 
 The HUP `phaseII` result rests on a staging *proxy* (a Gaussian mixture on slow-wave power, because
-iEEG has no EOG/EMG). The obvious objection: maybe the ~50 s rhythm is real but smeared by wake/REM
-epochs that the proxy could not exclude. OpenNeuro **ds003848** (Utrecht RESPect long-term iEEG) is
-the one public iEEG sleep dataset that carries **ECG + EMG + EOG**, so NREM can be scored with real
-REM/wake exclusion. This is the test of that objection.
+iEEG has no EOG/EMG). The historical RESPect analysis attempted to test whether wake/REM
+contamination explained that result. It did not establish real REM/wake exclusion because it failed
+to consume the dataset's author annotations.
 
-## Cohort and staging
+## Historical cohort and staging
 
 Six patients, ~1 h continuous `task-[Ss]leep` @ 2048 Hz, 50 Hz line; **3 ECoG grid + 3 SEEG depth**.
 Every subject verified (from raw `channels.tsv`) to carry iEEG, ECG, EMG, EOG and (bad) respiration
@@ -38,7 +79,7 @@ Per-subject stage counts (W / R / N2 / N3, of ~120–128 epochs):
 Wake+REM is **6–41%** of epochs — real contamination that the HUP proxy could not remove, and here is
 removed. Heart rates are also healthier than HUP (e.g. 70 bpm vs HUP's ~92 bpm tachycardia).
 
-## 3A — underpowered here, but what signal exists does not support Lecci
+## Historical 3A — withdrawn
 
 The catch is duration. HUP streams ~7 h/subject; ds003848 is **1 h**, and the stage proxy fragments NREM
 into short runs, leaving very few bouts ≥120 s and a low Welch segment count:
@@ -61,14 +102,14 @@ into short runs, leaving very few bouts ≥120 s and a low Welch segment count:
   at all (K median **7**, versus 59 in HUP) — 0/2 significant. The cross-correlation is flat (group
   |r| = 0.066; per-subject signed peak r vs 0: p = 0.09, and the trend is *negative* if anything).
 
-So 3A here is **too underpowered to stand alone**, but every direction it points agrees with HUP: no
-infraslow peak at 0.019 Hz, no heart-rate coupling. Crucially, **excluding REM and wake did not rescue
-a rhythm** — the HUP negative is not merely a staging artifact.
+The superseded analysis was previously interpreted as agreeing with a “negative” HUP result and as
+showing that REM/wake exclusion did not rescue a rhythm. That interpretation is withdrawn: neither
+corrected cohort has an estimable 3A endpoint.
 
-## 3B — null (better powered than 3A, event-based)
+## Historical 3B — withdrawn
 
-3B needs no contiguity, so it uses thousands of SOs per stage and is the more trustworthy test on this
-cohort. It is **null**:
+The superseded 3B analysis was previously described as a more trustworthy “null” because it used
+thousands of SOs. Its values are retained below only as withdrawn provenance:
 
 | | ds003848 (n=6) | HUP (n=23) | Naji 2019 |
 |---|---|---|---|
@@ -76,17 +117,16 @@ cohort. It is **null**:
 | N3 HR peak | +0.99% (0/6 sig; t p=0.28) | +3.5% (6/20 sig; t p=0.020) | +3.35% |
 | N2 ≫ N3? | no (p=0.63) | no (p=0.57) | 3.6× |
 
-No subject reaches z > 1.96 in either stage, and the cohort z-tests are null. Note the contrast with
-HUP, whose 3B cohort z-test *was* significant (driven by ~7/23 subjects): with only 6 subjects here
-this could be low power, or it could mean part of HUP's weak 3B signal came from wake/arousal
-contamination that the proxy attempts to remove. **n = 6 cannot distinguish these**, so this is flagged, not
-concluded.
+The legacy write-up contrasted these values with a nominally significant HUP result and speculated
+about power or wake/arousal contamination. Both corrected cohorts now have zero estimable 3B
+endpoints, so that numerical contrast and its interpretation are withdrawn.
 
 ## What this replication does and does not establish
 
 - **Does not establish:** that the HUP result survives genuine REM/wake exclusion. That claim
-  requires corrected-v5 outputs and validation of the EMG/EOG/iEEG rules against expert labels.
-- **Does not:** provide a *powered* independent 3A test. 1 h/subject, fragmented by real staging, gives
+  requires an estimable corrected cohort and validation against expert staging; this corrected
+  RESPect rerun has no estimable primary endpoint.
+- **Does not:** provide a *powered* independent 3A test. The legacy one-hour proxy analysis reported
   median K = 7 and only 2/6 usable coherence estimates. A definitive replication needs longer
   continuous sleep with cardiac + EOG/EMG, which no current public iEEG dataset provides.
 
@@ -95,15 +135,22 @@ concluded.
 - **1 h recordings** → few NREM bouts ≥120 s → 3A badly underpowered (RESP0749 unusable for 3A).
 - **Rule-based staging without scalp EEG** — not validated against expert labels and not AASM-scored;
   the N2/N3 split is still SWA-driven, so it inherits that axis.
+- **Strict current annotations** — explicit NREM/REM exists for only part of the cohort; unknown
+  sleep remains unclassified and can make current endpoints unavailable.
+- **Source transfer** — conservative Destrieux parietal/frontal iEEG intersections are not validated
+  equivalents of Lecci's C3/parietal or Naji's F3/F4 scalp sensors and do not measure LC.
+- **Seizure/postictal confounding** — exact author-marked seizures are excluded, but longer
+  postictal autonomic/sleep effects need a clinically justified sensitivity exclusion.
 - **n = 6**, mixed ECoG/SEEG montage.
 - Respiration belts exist but are marked `bad`, so apnoea screening was not attempted.
 
 ## Reproduce
 
 ```
-.venv/bin/python analysis/stage_ds003848.py --force              # download → proxy-stage → cache; keeps raw by default
-.venv/bin/python analysis/run_ds003848_replication.py --force    # corrected 3A + 3B on proxy-staged NREM
+.venv/bin/python analysis/stage_ds003848.py --force              # download → author-constrained cache; keeps raw by default
+.venv/bin/python analysis/run_ds003848_replication.py --force    # corrected 3A + 3B
 .venv/bin/python analysis/summarize_corrected_3AB.py \
     --a-dir outputs/ds003848_3A --b-dir outputs/ds003848_3B --label "ds003848 replication"
 ```
-Full numbers: `outputs/corrected_3AB/DS003848_SUMMARY.txt`. Cache: `data/derived/ds003848/` (gitignored).
+The summarizer prints only validated endpoint-specific results and exits nonzero if neither 3A nor
+3B reaches its minimum estimable cohort. Cache: `data/derived/ds003848/` (gitignored).

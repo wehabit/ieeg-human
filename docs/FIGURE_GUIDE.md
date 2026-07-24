@@ -2,7 +2,8 @@
 
 > **QUARANTINED / NOT AUDITED.** This guide presents withdrawn legacy figures and numerical claims
 > as completed findings. It predates the LC-proxy audit and must not be cited or used to select
-> current outputs. See `ISSUE_REGISTER_2026-07.md`; no corrected real-data cohort result exists.
+> current outputs. See `ISSUE_REGISTER_2026-07.md`; the corrected RESPect rerun has no estimable
+> 3A/3B endpoint, and the corrected HUP rerun has no estimable 3A/3B or pooled 3D endpoint.
 
 You are testing **one question**: *does the human brain show the Kipnis NREM slow-wave
 coordination that the mouse pilot couldn't produce?* Every figure is a piece of that.

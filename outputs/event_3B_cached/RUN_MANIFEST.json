@@ -1,0 +1,366 @@
+{
+  "analysis_version": "2026-07-corrected-v7",
+  "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+  "code_dirty": true,
+  "code_revision": "9ba41c727a09e4ef36aaf2547ef94bc7ef200700",
+  "completed": [],
+  "config": {
+    "analysis_version": "2026-07-corrected-v7",
+    "cache_code_sha256": "95413211011165e96a0d0c2e7d10a288749a1b1dd78091aa0e690a7076f81bf3",
+    "cache_inputs": {
+      "HUP116_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "f15643a79c0b5e07dac22566043921a057b81f2692db43994a0765bd9a1198a6",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP130_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "e027a8ad794e473219d8933ee184309eceb0eaeae30cedbb27e8170ddbc8bcd6",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP133_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "75d8c6af517b494910dd53d86c2733a5aa5d3394aa8e35a3cb0405d8c66fbebd",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP138_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "8e6feb66ca88ad85a5c2a3c184c9e84d95aac1b0d361776ec40572999aac40d6",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP139_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "130f658842eee8547e783634f10e72197a78940a711c7a6aca0b218ef9340b4a",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP141_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "aa20906a2943e83f660c63a818f87cc1acd73989102a603d6f8a155439cff489",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP143_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "5fceb24bab096129741485e71fd2134cb13c2fdc26f4f27addce84d7303d44d4",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP150_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "6322c97b9a166ad3adabc0dfbac92c6338ff19b15f969b5348cc925932a5a9db",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP151_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "d9bdef9d8f50e474289e3d6e06d11678ce7118c69fe471a3451922d2a246acf0",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP157_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "bb71e6849240eff2feda82889aec2e7f2616461009e04105b6419eefce0ceb7f",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP160_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "af908fa1f890ad1811f484755355c52f3b9692f503e459afccf728df47f1ce6f",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP165_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "c69fe69fd62f42333d2a68ce4205c31ce3036e8783415ba679ed5f594d44edaf",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP171_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "4478234b804a7e904384a125102d4b9b3b12faf07cac1b7052e26173138e2348",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP172_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "053807e62e5c930f1f2358435b3b14e6a9fdf06c0b0309a8d33266b878677c8f",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP173_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "843e0f644bfaba443a29789e0e8a8911ad45bf2b07ae2352791b2bde8265371c",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP177_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "b2edca570e8059c19a365a0e2bc81b0edd538cc2e2740ec987eb14f393776be9",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP178_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "dfb298fb66241f3db0b101ed579fe689238ccef8322e63dfe1f082f704e62602",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP182_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "0132b930dbacdecc8a7f68d63512e158495977b6127284adef3bba2d405f1cea",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP185_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "50b38aada3e9557f672ceb2d669ab03303c4594c7e4ae2edc0aa5058ae25e31e",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP187_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "f90574aa94b02fd136edfb67c81833beeec039166b09770da6f834512a124aa5",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP191_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "dcbbe588ad337a80d4e4b94f350e4f26cc5269510570378b74436540262da6b0",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP199_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "94400f5a17c45a4e953a3484520aa17848211b9ccb86983b8dc251f981e1806a",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP205_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "6952a02162073cbc3aa98c539939c37d0a436ceab95639271dcbe09ce6a8b487",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP211_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "6b0f3d2f3b4611e67c619ab910bea170ba122e38740d3fe49c1196c4549306a5",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP212_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "b1df7add0b6a64bcd828530b676592f5fbc840edc06c295052d47caf4cab2f55",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      }
+    },
+    "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+    "contact_qc": "cache stable >=80%-coverage plus optional Destrieux frontal ROI intersection",
+    "minimum_event_channels": 2,
+    "n_surrogates": 1000,
+    "null_method": "shared circular shift in eligible stage-time",
+    "stable_stage_minimum_s": 180,
+    "tachogram_domain": "rr"
+  },
+  "failed": [],
+  "generated_at_utc": "2026-07-24T19:26:19.905784+00:00",
+  "pipeline": "event_3B_cached",
+  "requested": [
+    "HUP116_phaseII",
+    "HUP130_phaseII",
+    "HUP133_phaseII",
+    "HUP138_phaseII",
+    "HUP139_phaseII",
+    "HUP141_phaseII",
+    "HUP143_phaseII",
+    "HUP150_phaseII",
+    "HUP151_phaseII",
+    "HUP157_phaseII",
+    "HUP160_phaseII",
+    "HUP165_phaseII",
+    "HUP171_phaseII",
+    "HUP172_phaseII",
+    "HUP173_phaseII",
+    "HUP177_phaseII",
+    "HUP178_phaseII",
+    "HUP182_phaseII",
+    "HUP185_phaseII",
+    "HUP187_phaseII",
+    "HUP191_phaseII",
+    "HUP199_phaseII",
+    "HUP205_phaseII",
+    "HUP211_phaseII",
+    "HUP212_phaseII"
+  ],
+  "result_files_sha256": {
+    "HUP116_phaseII": "8dbc6e3f4107f5566e0a9bb0af9436e2214017f2e380ed0aec339f59940562c9",
+    "HUP130_phaseII": "0aba6ea50f768e9e04043c4d558414277de669e85393087ada622c2116cff7ce",
+    "HUP133_phaseII": "71ae3935e891a36dd0cc88ecbb4d21f2a8b095436cb4afa25bbef7537cdcb93b",
+    "HUP138_phaseII": "eca0b01822f0d8980a9db2acbc43a697aceb8a078c948a853327581b9c751144",
+    "HUP139_phaseII": "8079910826d623015033a9cbf35d1231aa0812ddbde7a094a11f100f487b146e",
+    "HUP141_phaseII": "634a81dd41f0288d3415e37c1e9210a00ae85f4211e06f7701ba5909fc6e476a",
+    "HUP143_phaseII": "9ea9b57b111b0495cb580c51ca4ff0ddf1fd106fb545028dbbf638150c0ee61c",
+    "HUP150_phaseII": "3089c210c875255a038e65def778686b04ea58f005d462407a01414386bb2c56",
+    "HUP151_phaseII": "960b37bf7764662c34118b0b4c7ec87fdbd004c78fa97af21a603521eac2f338",
+    "HUP157_phaseII": "3dac65b0def46834a896f7596dc254fa7997a25ed0b959fbce8cd77b5a03bf52",
+    "HUP160_phaseII": "353bd14eba4fc8d49ffa110b01b02a9ad384592e747ffbd774e45c84ed2bdb66",
+    "HUP165_phaseII": "1f90592dda6172af218655ed7eccab2ae1bdefb590e8907ea38756e82fadef47",
+    "HUP171_phaseII": "afae6b86dc13b5bf29d5f555b1bb9ce48e8af9cb18bd04d2c2feb7d3e83c85e4",
+    "HUP172_phaseII": "c0c6f6feebf5ec3cad7a7fa5e781940919c5b1ca4c5d359fbd6ceb1b7d7ec635",
+    "HUP173_phaseII": "61cf986c87e02d4d57ba2a16d4468f67007021a109f311e9b23f9c8299006eef",
+    "HUP177_phaseII": "cae3b9fed506cee736bc75979f8da603335017b4566e9c247ef2657cc5b87256",
+    "HUP178_phaseII": "7c38e0b82daa4cc7fc46c1bd42faee9e239825f1f3a6520034499b7b00d9b20c",
+    "HUP182_phaseII": "16240646b8d3f9f299158e6a818228625a0399a83f95169bc42d66f11c08276a",
+    "HUP185_phaseII": "1418956df0c67111b32d0d35e8fd9db9ea473deeb746ca5d98e664555ed508e0",
+    "HUP187_phaseII": "ff10a6f524942264ac965c6f3e15f6bca41132d1de388c6eb3a0dcfba80cbdfd",
+    "HUP191_phaseII": "5c8c06811518cacb80f1c41e31abbe8c4a6f8ddfe7771e4fe9978b393935865a",
+    "HUP199_phaseII": "43c9ef72d7a21e3fc0d3c3b6aa9648a78d8c3a1e792cef0e4afab267007ef0e3",
+    "HUP205_phaseII": "a7c2dc21804dc830b5441a54dc260206dd4af13a2ab16db24abb819c67443d53",
+    "HUP211_phaseII": "79a2acf4418d10fab700a494ac8a850a9d81a01123ade63b62f67c34e13e0000",
+    "HUP212_phaseII": "82beba38758a13025c8e6b677b8680097550cd4d598b783c13c3f551f10a7d52"
+  },
+  "run_id": "dd747924-da3a-4f30-a661-3e9660289509",
+  "run_state": "complete",
+  "runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "skipped": [
+    {
+      "reason": "cache exclusion: ekg=EKG1 n_cortical=0",
+      "subject": "HUP116_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=1.0%; minimum is 80%",
+      "subject": "HUP130_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP133_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP138_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP139_phaseII"
+    },
+    {
+      "reason": "cache exclusion: ekg=EKG1 n_cortical=2",
+      "subject": "HUP141_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP143_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP150_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=0.2%; minimum is 80%",
+      "subject": "HUP151_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP157_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP160_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP165_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=38.8%; minimum is 80%",
+      "subject": "HUP171_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP172_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP173_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=67.9%; minimum is 80%",
+      "subject": "HUP177_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP178_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP182_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP185_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP187_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP191_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP199_phaseII"
+    },
+    {
+      "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+      "subject": "HUP205_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=60.9%; minimum is 80%",
+      "subject": "HUP211_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=79.7%; minimum is 80%",
+      "subject": "HUP212_phaseII"
+    }
+  ],
+  "source_tree_sha256": "e6909aff01c5f2126abe36f5cd930e023e682f53cbae36995edea7af8be521f2"
+}

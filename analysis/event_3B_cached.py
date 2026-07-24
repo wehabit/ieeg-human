@@ -27,6 +27,7 @@ from lecci_faithful_3A import (load, CACHE, stages_for, set_cache, cache_lineage
                                cache_lineage_entry, CacheSubjectSkipped, ANALYSIS_VERSION)
 from cohort_stages_3ABD import stage_epochs, EPOCH
 from cohort_3A_cortical import COHORT
+from spectral_gapped import contiguous_runs
 from pipeline_version import (CACHE_SCHEMA_VERSION, atomic_json_dump, cache_code_sha256,
                               file_sha256, finite_float_or_none, npz_scalar_text,
                               source_tree_sha256, start_run_manifest,
@@ -37,6 +38,18 @@ OUT = os.path.join(ROOT, "outputs", "event_3B_cached")
 
 NAJI = {"N2": 12.09, "N3": 3.35}          # % above stage mean HR, frontal scalp, healthy sleepers
 MIN_EVENT_CHANNELS = 2
+MIN_STABLE_STAGE_EPOCHS = 6                # Naji: uninterrupted 3-min bins at 30 s/epoch
+CONTACT_QC_METHOD = "cache stable >=80%-coverage plus optional Destrieux frontal ROI intersection"
+
+
+def stable_stage_epoch_indices(labels, stage, minimum_epochs=MIN_STABLE_STAGE_EPOCHS):
+    """Return epochs inside uninterrupted stage runs that satisfy Naji's stable-bin rule."""
+    labels = np.asarray(labels).astype(str)
+    keep = np.zeros(len(labels), bool)
+    for start, stop in contiguous_runs(labels == str(stage)):
+        if stop - start >= int(minimum_epochs):
+            keep[start:stop] = True
+    return np.where(keep)[0]
 
 
 def stage_so_times(d, channel, keep_epochs, percentile=75):
@@ -66,6 +79,11 @@ def coverage_eligible_contacts(d, contacts):
     if len(selected) != len(contacts):
         raise RuntimeError(
             "cache contact coverage mask does not align with cortical_chans")
+    if "frontal_selected_contact_mask" in getattr(d, "files", []):
+        frontal = np.asarray(d["frontal_selected_contact_mask"], bool).ravel()
+        if len(frontal) != len(contacts):
+            raise RuntimeError("cache frontal ROI mask does not align with cortical_chans")
+        selected &= frontal
     return [contact for contact, keep in zip(contacts, selected) if keep], [
         contact for contact, keep in zip(contacts, selected) if not keep
     ]
@@ -94,20 +112,32 @@ def analyse(subject):
     lab, nrem, sep = stages_for(d)
     ctx = [str(c) for c in d["cortical_chans"]]
     eligible_ctx, coverage_excluded_ctx = coverage_eligible_contacts(d, ctx)
+    stable_epochs = {
+        stage: stable_stage_epoch_indices(lab, stage)
+        for stage in ("N2", "N3")
+    }
     rec = dict(subject=subject, status="ok", analysis_version=ANALYSIS_VERSION,
                cache_schema_version=CACHE_SCHEMA_VERSION,
                **lineage,
                anatomy_selection_method=npz_scalar_text(
                    d, "anatomy_selection_method", "missing/unvalidated"),
-               n_N2=int((lab == "N2").sum()),
-               n_N3=int((lab == "N3").sum()),
+               endpoint_roi=(
+                   "non-pathological cortical Destrieux frontal contacts"
+                   if "frontal_selected_contact_mask" in d.files
+                   else "legacy coverage-qualified cortical contact set"),
+               n_N2_raw=int((lab == "N2").sum()),
+               n_N3_raw=int((lab == "N3").sum()),
+               n_N2=int(len(stable_epochs["N2"])),
+               n_N3=int(len(stable_epochs["N3"])),
+               stable_stage_minimum_s=int(MIN_STABLE_STAGE_EPOCHS * EPOCH),
                n_cortical_contacts_total=len(ctx),
                n_coverage_eligible_contacts=len(eligible_ctx),
                coverage_eligible_contact_ids=eligible_ctx,
                coverage_excluded_contact_ids=coverage_excluded_ctx,
                contact_qc=(
                    "conservative intersection with the cache's stable >=80%-coverage sigma "
-                   "contact set; at least two contacts with >=30 eligible SOs per stage"),
+                   "contact set and, when available, Destrieux frontal ROI; at least two contacts "
+                   "with >=30 eligible SOs per stage"),
                tachogram_domain="rr",
                n_surrogates=1000,
                null_method="shared circular shift in eligible stage-time",
@@ -118,10 +148,13 @@ def analyse(subject):
     rng = np.random.RandomState(0)
     endpoint_reasons = {}
     for stage in ("N2", "N3"):
-        eps = np.where(lab == stage)[0]
-        if len(eps) < 20:
+        eps = stable_epochs[stage]
+        if len(eps) < MIN_STABLE_STAGE_EPOCHS:
             rec[stage] = None
-            endpoint_reasons[stage] = f"only {len(eps)} staged epochs (<20)"
+            endpoint_reasons[stage] = (
+                f"only {len(eps)} epochs inside uninterrupted >="
+                f"{int(MIN_STABLE_STAGE_EPOCHS * EPOCH)}-s {stage} runs "
+                f"(<{MIN_STABLE_STAGE_EPOCHS})")
             continue
         m = np.zeros(len(hr), bool)
         for e in eps:
@@ -198,8 +231,9 @@ def main():
                   tachogram_domain="rr",
                   n_surrogates=1000,
                   null_method="shared circular shift in eligible stage-time",
-                  contact_qc="cache stable >=80%-coverage sigma-contact intersection",
-                  minimum_event_channels=MIN_EVENT_CHANNELS)
+                  contact_qc=CONTACT_QC_METHOD,
+                  minimum_event_channels=MIN_EVENT_CHANNELS,
+                  stable_stage_minimum_s=int(MIN_STABLE_STAGE_EPOCHS * EPOCH))
     if not a.force and any(
             os.path.exists(os.path.join(OUT, f"{subject}.json"))
             for subject in requested):

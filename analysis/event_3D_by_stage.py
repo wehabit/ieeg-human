@@ -23,6 +23,7 @@ EEG. Consequently the pooled-NREM result is primary and stage contrasts are expl
     .venv/bin/python analysis/event_3D_by_stage.py [--subjects 165,...] [--hours 7] --force
 """
 import argparse
+import concurrent.futures
 import json
 import os
 import traceback
@@ -31,10 +32,15 @@ import numpy as np
 from scipy import signal
 
 from infraslow_rr_sigma_coherence import sess, pull_continuous, notch, ROOT
-from cohort_3A_cortical import COHORT, cortical_channels, find_night
+from cohort_3A_cortical import (
+    COHORT, HUP_SOURCE_PIN_SCHEMA_VERSION, cortical_channels, find_night,
+    verify_hup_source_identity,
+)
 from cohort_stages_3ABD import band_sos, stage_epochs, EPOCH, CHUNK_S, SWA_BAND
 from cache_lc_series import (
     FILTER_EDGE_S,
+    HUP_ANATOMY_SELECTION_METHOD,
+    MIN_CONTACT_COVERAGE,
     MIN_CONTACT_FRACTION_PER_BIN,
     MIN_CONTACTS,
     aggregate_staging_features,
@@ -69,6 +75,7 @@ def production_config(hours=7.0):
     """Canonical production configuration, shared with the fail-closed summary."""
     return dict(
         hours=float(hours), analysis_version=ANALYSIS_VERSION,
+        source_pin_schema_version=HUP_SOURCE_PIN_SCHEMA_VERSION,
         so_band_hz=list(SO_BAND), spindle_band_hz=list(SPINDLE_BAND),
         so_duration_s=list(SO_DUR), spindle_duration_s=list(SP_DUR),
         event_percentile=EVENT_PERCENTILE, event_sampling_hz=EVENT_FS,
@@ -77,9 +84,13 @@ def production_config(hours=7.0):
         pairing=f"duration-qualified hybrid; one spindle per SO within +/-{PAIR_WINDOW_S:g} s",
         staging_qc=dict(
             minimum_contacts=MIN_CONTACTS,
+            minimum_contact_feature_coverage=MIN_CONTACT_COVERAGE,
             minimum_contact_fraction_per_epoch=MIN_CONTACT_FRACTION_PER_BIN,
+            minimum_candidate_observed_fraction=0.80,
+            minimum_candidate_clean_fraction=0.80,
             swa_normalization=(
                 "divide each fixed contact by its full-night median clean-epoch SWA")),
+        anatomy_selection_method=HUP_ANATOMY_SELECTION_METHOD,
         pooled_qc=dict(
             minimum_contacts=MIN_POOLED_CONTACTS,
             minimum_paired_events=MIN_POOLED_EVENTS,
@@ -326,14 +337,13 @@ def channel_night_events(rms, so_phase, candidates, lab):
                 pooled_nrem_qc_pass=pooled_nrem_qc_pass)
 
 
-def run(n, hours, force=False, run_id=None, tree_digest=None):
+def _run_with_session(n, hours, force, run_id, tree_digest, s):
     name = f"HUP{n}_phaseII"
     fp = os.path.join(OUT, f"{name}.json")
     if os.path.exists(fp) and not force:
         raise RuntimeError(
             f"{fp} cannot be reused outside a validated complete run; rerun with --force")
 
-    s = sess()
     ds = s.open_dataset(name)
     labels = ds.get_channel_labels()
     lab_idx = {label: i for i, label in enumerate(labels)}
@@ -341,18 +351,31 @@ def run(n, hours, force=False, run_id=None, tree_digest=None):
     sf = float(details.sample_rate)
     total_h = (getattr(details, "duration", 0) or 0) / 3.6e9
     ctx = cortical_channels(labels)
+    pinned_ekg = next(
+        (label for label in labels if label.upper().startswith(("EKG", "ECG"))),
+        None)
+    source_identity = verify_hup_source_identity(ds, ctx, pinned_ekg)
     if len(ctx) < 3:
         atomic_json_dump(
             dict(subject=name, status="skip", analysis_version=ANALYSIS_VERSION,
                  run_id=run_id, source_tree_sha256=tree_digest,
-                 reason=f"only {len(ctx)} cortical channels"), fp)
+                 source_identity=source_identity,
+                 anatomy_selection_method=HUP_ANATOMY_SELECTION_METHOD,
+                 lateral_contact_candidates=ctx,
+                 reason=f"only {len(ctx)} lateral-contact candidates"), fp)
         print(f"[{name}] SKIP", flush=True)
         return "skip"
-    night = find_night(ds, lab_idx, ctx[0], sf, total_h, required_h=hours)
+    night, night_search_qc = find_night(
+        ds, lab_idx, ctx[0], sf, total_h, required_h=hours,
+        return_diagnostics=True)
     if night is None:
         atomic_json_dump(
             dict(subject=name, status="skip", analysis_version=ANALYSIS_VERSION,
                  run_id=run_id, source_tree_sha256=tree_digest,
+                 source_identity=source_identity,
+                 night_search_qc=night_search_qc,
+                 anatomy_selection_method=HUP_ANATOMY_SELECTION_METHOD,
+                 lateral_contact_candidates=ctx,
                  reason="no candidate night"), fp)
         print(f"[{name}] SKIP no night", flush=True)
         return "skip"
@@ -360,7 +383,7 @@ def run(n, hours, force=False, run_id=None, tree_digest=None):
     idx = [lab_idx[c] for c in ctx]
     sos_so = band_sos(SO_BAND, sf, 3)
     sos_sp = band_sos(SPINDLE_BAND, sf)
-    print(f"[{name}] {sf:.0f} Hz | {len(ctx)} cortical ch | SO {SO_BAND[0]}-"
+    print(f"[{name}] {sf:.0f} Hz | {len(ctx)} lateral-contact candidates | SO {SO_BAND[0]}-"
           f"{SO_BAND[1]} Hz | spindle {SPINDLE_BAND[0]}-{SPINDLE_BAND[1]} Hz | "
           f"streaming {hours} h", flush=True)
 
@@ -472,7 +495,11 @@ def run(n, hours, force=False, run_id=None, tree_digest=None):
     rec = dict(
         subject=name, status="ok", analysis_version=ANALYSIS_VERSION,
         run_id=run_id, source_tree_sha256=tree_digest,
-        sf=sf, hours=float(hours), cortical_chans=ctx, night_h=float(night / 3600),
+        source_identity=source_identity,
+        sf=sf, hours=float(hours), lateral_contact_candidates=ctx,
+        anatomy_selection_method=HUP_ANATOMY_SELECTION_METHOD,
+        night_h=float(night / 3600),
+        night_search_qc=night_search_qc,
         so_band_hz=list(SO_BAND), spindle_band_hz=list(SPINDLE_BAND),
         so_duration_s=list(SO_DUR), spindle_duration_s=list(SP_DUR),
         event_percentile=EVENT_PERCENTILE, event_sampling_hz=EVENT_FS,
@@ -490,6 +517,12 @@ def run(n, hours, force=False, run_id=None, tree_digest=None):
         staging_contact_count=staging_contact_qc["contact_count"].tolist(),
         staging_n_selected_contacts=staging_contact_qc["n_selected_contacts"],
         staging_required_contact_count=staging_contact_qc["required_contact_count"],
+        staging_per_contact_feature_coverage=(
+            staging_contact_qc["per_contact_feature_coverage"].tolist()),
+        staging_minimum_contact_feature_coverage=(
+            staging_contact_qc["minimum_contact_feature_coverage"]),
+        staging_candidate_observed_fraction=staging_observed_fraction.tolist(),
+        staging_candidate_clean_fraction=staging_clean_fraction.tolist(),
         staging_swa_normalization=staging_contact_qc["swa_normalization"],
         n_nrem=int(nrem.sum()), n_N2=int((lab == "N2").sum()),
         n_N3=int((lab == "N3").sum()),
@@ -594,13 +627,28 @@ def run(n, hours, force=False, run_id=None, tree_digest=None):
     return rec["status"]
 
 
+def run(n, hours, force=False, run_id=None, tree_digest=None):
+    """Regenerate one direct-stream endpoint and always close its portal session."""
+    session = sess()
+    try:
+        return _run_with_session(
+            n, hours, force, run_id, tree_digest, session)
+    finally:
+        session.close()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--subjects", default=",".join(map(str, COHORT)))
     parser.add_argument("--hours", type=float, default=7.0)
+    parser.add_argument(
+        "--jobs", type=int, default=1,
+        help="number of subjects to regenerate concurrently (does not alter estimators)")
     parser.add_argument("--force", action="store_true",
                         help="overwrite legacy outputs generated by an older estimator")
     args = parser.parse_args()
+    if args.jobs < 1:
+        raise ValueError("--jobs must be a positive integer")
     os.makedirs(OUT, exist_ok=True)
     requested_n = [int(value) for value in args.subjects.split(",") if value.strip()]
     requested = [f"HUP{n}_phaseII" for n in requested_n]
@@ -614,20 +662,40 @@ def main():
         OUT, pipeline="event_3D_by_stage", requested=requested, config=config)
     tree_digest = source_tree_sha256(ROOT)
     completed, skipped, failed = [], [], []
-    for n in requested_n:
+
+    def run_one(n):
         name = f"HUP{n}_phaseII"
         try:
             status = run(
                 n, args.hours, force=args.force, run_id=run_id, tree_digest=tree_digest)
             if status not in ("ok", "cached"):
                 record = json.load(open(os.path.join(OUT, f"{name}.json")))
-                skipped.append(dict(subject=name, reason=record.get("reason", "unspecified")))
-            else:
-                completed.append(name)
+                return "skip", dict(
+                    subject=name, reason=record.get("reason", "unspecified"))
+            return "ok", name
         except Exception as exc:
             print(f"[{name}] ERROR {type(exc).__name__}: {exc}", flush=True)
             traceback.print_exc()
-            failed.append(dict(subject=name, error=f"{type(exc).__name__}: {exc}"))
+            return "failed", dict(
+                subject=name, error=f"{type(exc).__name__}: {exc}")
+
+    if args.jobs == 1:
+        records = map(run_one, requested_n)
+    else:
+        executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=args.jobs, thread_name_prefix="ieeg-3d-subject")
+        records = executor.map(run_one, requested_n)
+    try:
+        for status, record in records:
+            if status == "ok":
+                completed.append(record)
+            elif status == "skip":
+                skipped.append(record)
+            else:
+                failed.append(record)
+    finally:
+        if args.jobs != 1:
+            executor.shutdown(wait=True, cancel_futures=True)
     write_run_manifest(
         OUT, pipeline="event_3D_by_stage",
         requested=requested, completed=completed,

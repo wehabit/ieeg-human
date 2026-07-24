@@ -106,8 +106,10 @@ def config_3b(cache_inputs):
         cache_schema_version=CACHE_SCHEMA_VERSION,
         cache_code_sha256=cache_code_sha256(ROOT),
         null_method="shared circular shift in eligible stage-time",
-        contact_qc="cache stable >=80%-coverage sigma-contact intersection",
+        contact_qc=(
+            "cache stable >=80%-coverage plus optional Destrieux frontal ROI intersection"),
         minimum_event_channels=2,
+        stable_stage_minimum_s=180,
         cache_inputs=cache_inputs,
     )
 
@@ -678,6 +680,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
             n_surrogates=1000,
             null_method="shared circular shift in eligible stage-time",
             minimum_event_channels=2,
+            stable_stage_minimum_s=180,
             N2={
                 "tachogram_domain": "rr",
                 "n_surrogates": 1000,

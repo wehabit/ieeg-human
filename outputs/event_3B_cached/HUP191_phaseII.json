@@ -1,1 +1,50 @@
-{"subject": "HUP191_phaseII", "status": "ok", "n_N2": 429, "n_N3": 12, "n_channels": 6, "gmm_separation": 5.768422454031118, "whole_night_mean_hr": 89.68808116536732, "N2": {"stage_mean_hr": 89.48046904733198, "n_channels": 6, "n_so_total": 8326, "pct_above_stage_mean": 0.4451398016804888, "peak_lag_s": 4.666666666666667, "z": 2.555121232246288, "null_mean_pct": 0.10642106190077562, "per_channel": [{"n_so": 1556, "pct_above_stage_mean": 0.6171651879375385, "peak_lag_s": 4.25, "z": 3.9754013524920677, "null_mean_pct": 0.10943882134283901, "n_surrogate_pool": 51480, "ch": "LA12"}, {"n_so": 1396, "pct_above_stage_mean": 0.559777975634856, "peak_lag_s": 4.75, "z": 3.204457770464753, "null_mean_pct": 0.12170115746600892, "n_surrogate_pool": 51480, "ch": "LB12"}, {"n_so": 1339, "pct_above_stage_mean": 0.42070294799351143, "peak_lag_s": 4.75, "z": 2.227682626696385, "null_mean_pct": 0.10003632399837346, "n_surrogate_pool": 51480, "ch": "LC12"}, {"n_so": 1369, "pct_above_stage_mean": 0.2981512543654102, "peak_lag_s": 4.75, "z": 1.3636308025765402, "null_mean_pct": 0.10861835802869897, "n_surrogate_pool": 51480, "ch": "LD12"}, {"n_so": 1351, "pct_above_stage_mean": 0.3421114868702266, "peak_lag_s": 4.75, "z": 2.0420455227658185, "null_mean_pct": 0.08883905065122999, "n_surrogate_pool": 51480, "ch": "LE12"}, {"n_so": 1315, "pct_above_stage_mean": 0.4329299572813903, "peak_lag_s": 4.75, "z": 2.517509318482164, "null_mean_pct": 0.10989265991750338, "n_surrogate_pool": 51480, "ch": "LG12"}]}, "N3": null}
+{
+  "N2": null,
+  "N3": null,
+  "analysis_version": "2026-07-corrected-v7",
+  "anatomy_selection_method": "UNVALIDATED contact-number heuristic; lateral-contact candidates require coordinate/tissue/SOZ QC",
+  "cache_directory_relative": "data/derived/lc_infraslow",
+  "cache_file_sha256": "dcbbe588ad337a80d4e4b94f350e4f26cc5269510570378b74436540262da6b0",
+  "cache_hours": 7.0,
+  "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+  "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6",
+  "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+  "contact_qc": "conservative intersection with the cache's stable >=80%-coverage sigma contact set and, when available, Destrieux frontal ROI; at least two contacts with >=30 eligible SOs per stage",
+  "coverage_eligible_contact_ids": [
+    "LA12",
+    "LB12",
+    "LC12",
+    "LD12",
+    "LE12",
+    "LG12"
+  ],
+  "coverage_excluded_contact_ids": [],
+  "endpoint_availability": {
+    "N2": false,
+    "N3": false
+  },
+  "endpoint_roi": "legacy coverage-qualified cortical contact set",
+  "endpoint_unavailable_reasons": {
+    "N2": "only 0 epochs inside uninterrupted >=180-s N2 runs (<6)",
+    "N3": "only 0 epochs inside uninterrupted >=180-s N3 runs (<6)"
+  },
+  "gmm_separation": null,
+  "minimum_event_channels": 2,
+  "n_N2": 0,
+  "n_N2_raw": 0,
+  "n_N3": 0,
+  "n_N3_raw": 0,
+  "n_cortical_contacts_total": 6,
+  "n_coverage_eligible_contacts": 6,
+  "n_surrogates": 1000,
+  "null_method": "shared circular shift in eligible stage-time",
+  "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+  "run_id": "dd747924-da3a-4f30-a661-3e9660289509",
+  "source_tree_sha256": "e6909aff01c5f2126abe36f5cd930e023e682f53cbae36995edea7af8be521f2",
+  "stable_stage_minimum_s": 180,
+  "status": "partial",
+  "subject": "HUP191_phaseII",
+  "tachogram_domain": "rr",
+  "whole_night_arithmetic_mean_hr": 98.88658741908857,
+  "whole_night_hr_from_mean_rr": 97.49641915664893
+}

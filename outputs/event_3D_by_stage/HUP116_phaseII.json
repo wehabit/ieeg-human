@@ -1,1 +1,28 @@
-{"subject": "HUP116_phaseII", "status": "skip"}
+{
+  "analysis_version": "2026-07-corrected-v7",
+  "anatomy_selection_method": "UNVALIDATED contact-number heuristic; lateral-contact candidates require coordinate/tissue/SOZ QC",
+  "lateral_contact_candidates": [],
+  "reason": "only 0 lateral-contact candidates",
+  "run_id": "032e7181-b3e6-4f3e-aa4d-c84a7a60669a",
+  "source_identity": {
+    "channels": {
+      "EKG1": {
+        "data_check": "d276c5a4fa98f7e3f223fbe8bd51dc0f-79",
+        "duration_us": 345566952000.0,
+        "end_time_us": 947245504952000,
+        "number_of_samples": 172153970,
+        "revision_id": "15933b3a-de29-460b-b31e-b02e024395e8",
+        "sample_rate_hz": 500.0,
+        "start_time_us": 946899938000000
+      }
+    },
+    "cortical_channels": [],
+    "dataset_name": "HUP116_phaseII",
+    "ekg": "EKG1",
+    "pin_schema_version": "2026-07-hup-ieeg-source-pin-v1",
+    "snapshot_id": "20584239-16d3-4324-a9fc-c592b4eadf85"
+  },
+  "source_tree_sha256": "e6909aff01c5f2126abe36f5cd930e023e682f53cbae36995edea7af8be521f2",
+  "status": "skip",
+  "subject": "HUP116_phaseII"
+}

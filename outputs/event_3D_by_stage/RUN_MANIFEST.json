@@ -1,0 +1,222 @@
+{
+  "analysis_version": "2026-07-corrected-v7",
+  "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+  "code_dirty": true,
+  "code_revision": "9ba41c727a09e4ef36aaf2547ef94bc7ef200700",
+  "completed": [],
+  "config": {
+    "analysis_version": "2026-07-corrected-v7",
+    "anatomy_selection_method": "UNVALIDATED contact-number heuristic; lateral-contact candidates require coordinate/tissue/SOZ QC",
+    "event_percentile": 75,
+    "event_sampling_hz": 20.0,
+    "group_inference": "disabled; participant vectors descriptive pending a time-shift/block null that repeats event pairing and contact aggregation",
+    "hours": 7.0,
+    "ied_mask_padding_s": 2.5,
+    "minimum_events_per_contact": 20,
+    "pairing": "duration-qualified hybrid; one spindle per SO within +/-2 s",
+    "pooled_qc": {
+      "minimum_contacts": 3,
+      "minimum_paired_events": 200,
+      "minimum_valid_nrem_fraction_per_contact": 0.8,
+      "minimum_valid_nrem_seconds_per_contact": 1200
+    },
+    "production_inference_enabled": false,
+    "so_band_hz": [
+      0.16,
+      1.25
+    ],
+    "so_duration_s": [
+      0.8,
+      2.0
+    ],
+    "source_pin_schema_version": "2026-07-hup-ieeg-source-pin-v1",
+    "spindle_band_hz": [
+      12.0,
+      16.0
+    ],
+    "spindle_duration_s": [
+      0.5,
+      3.0
+    ],
+    "staging_qc": {
+      "minimum_candidate_clean_fraction": 0.8,
+      "minimum_candidate_observed_fraction": 0.8,
+      "minimum_contact_feature_coverage": 0.8,
+      "minimum_contact_fraction_per_epoch": 0.8,
+      "minimum_contacts": 3,
+      "swa_normalization": "divide each fixed contact by its full-night median clean-epoch SWA"
+    },
+    "threshold_scope": "channel-night pooled NREM"
+  },
+  "failed": [],
+  "generated_at_utc": "2026-07-24T20:48:27.687235+00:00",
+  "pipeline": "event_3D_by_stage",
+  "requested": [
+    "HUP116_phaseII",
+    "HUP130_phaseII",
+    "HUP133_phaseII",
+    "HUP138_phaseII",
+    "HUP139_phaseII",
+    "HUP141_phaseII",
+    "HUP143_phaseII",
+    "HUP150_phaseII",
+    "HUP151_phaseII",
+    "HUP157_phaseII",
+    "HUP160_phaseII",
+    "HUP165_phaseII",
+    "HUP171_phaseII",
+    "HUP172_phaseII",
+    "HUP173_phaseII",
+    "HUP177_phaseII",
+    "HUP178_phaseII",
+    "HUP182_phaseII",
+    "HUP185_phaseII",
+    "HUP187_phaseII",
+    "HUP191_phaseII",
+    "HUP199_phaseII",
+    "HUP205_phaseII",
+    "HUP211_phaseII",
+    "HUP212_phaseII"
+  ],
+  "result_files_sha256": {
+    "HUP116_phaseII": "12a28e3c081e7e510c168b99a6abd6955a4c7e39070a42af87fc8b5c9770ec42",
+    "HUP130_phaseII": "dcd55be74e6414297324d25152c056aa85c20abf0b281ad3e22c51c34773aba7",
+    "HUP133_phaseII": "fddac327fd2034676f4776d012830dff48c83c2c6cc112ee4048c5eed761d15d",
+    "HUP138_phaseII": "24389dc0ef965aeefe2d192fd6579c929ead6725eabef10af6b9d45d4bb77809",
+    "HUP139_phaseII": "5ff75665dda4ff68bd12b096a5b3eb15e57a766961817a7bdd37474d6124fdea",
+    "HUP141_phaseII": "f34e8f182baa2c052f9801302d5bd21cfae146285bee85a2578ec95bd367ff8b",
+    "HUP143_phaseII": "d4c2f83d4ade3ffaaf353213dd7b815a2e46b1c518880b4baaf7dd04dee7689b",
+    "HUP150_phaseII": "e7f410ab4ffda852ead28aac3ffa7e506a1a38a0e39ac4c7df87753034bf15eb",
+    "HUP151_phaseII": "aa618cb8e870569aab41fb14181847ae1bd0ecad6efc4157b85b869e84865ef4",
+    "HUP157_phaseII": "3ee897f764d2a128842c0e65e007a7f7e4088b86dd369954e45201f9a9f94c2a",
+    "HUP160_phaseII": "79930625d0bd3402c5e4ec8b866d8ad663f87aa8296d9eb6422d6869749ed554",
+    "HUP165_phaseII": "f33d939d0f325dc5bcd89b3ccb80bc6f0aad909957d3a3d032955718ee0c3a89",
+    "HUP171_phaseII": "013b6b7893680fa696f9e4d64033edee8c78c3f60ed830ca00c40245b7746ba4",
+    "HUP172_phaseII": "305d14b435bd52179d8587559068aaa526f74a2d70649002cb9171557add0cfa",
+    "HUP173_phaseII": "46cf920752543fdde2d979c9ebe5ea30595f052fa3003ca38a237b57f1f8ed8e",
+    "HUP177_phaseII": "8e3d6121fa8652000a0c1c7feca5718b82ccb65e8985957224712654c9a3acc3",
+    "HUP178_phaseII": "7eae38bdcfcafaac19c12bd71680dda7554f172e7c84082f52e634320cf4f934",
+    "HUP182_phaseII": "28c895abd5e0b1664bb561e07ad7fdaec5ddf199a2aed37e660637c0aff8e4d7",
+    "HUP185_phaseII": "91bee70c546d853d0411faf02239a758838a2a9c2724d849e3ea8c38367718be",
+    "HUP187_phaseII": "ab819272af3fb209a3c2ff5d787337ea333bb575054c978f9d1dd992ce584c69",
+    "HUP191_phaseII": "a7922462fad015fbafd5f88cc41dcc1b4aef5457259f2c20a652dc465648f478",
+    "HUP199_phaseII": "64737e506d5d45841d95f45da9dc7840c66fd9aac34be707272a8502850e53ab",
+    "HUP205_phaseII": "e4c92041209c1a65c72eaf5292adec2a9336a4a09aefcbb23f1a1c36386e4297",
+    "HUP211_phaseII": "b6e3f792c853bdaf2d77a192356d29cfcc53079b5421e3608e9f3e93e454362c",
+    "HUP212_phaseII": "e81f9906693c673e73d7547cd549cb5c37a3b4f39437a99b49c5c12550c9e9c1"
+  },
+  "run_id": "032e7181-b3e6-4f3e-aa4d-c84a7a60669a",
+  "run_state": "complete",
+  "runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "skipped": [
+    {
+      "reason": "only 0 lateral-contact candidates",
+      "subject": "HUP116_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP130_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP133_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP138_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP139_phaseII"
+    },
+    {
+      "reason": "only 2 lateral-contact candidates",
+      "subject": "HUP141_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP143_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP150_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP151_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP157_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP160_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP165_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP171_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP172_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP173_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP177_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP178_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP182_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP185_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP187_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP191_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP199_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP205_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP211_phaseII"
+    },
+    {
+      "reason": "pooled-NREM QC failed: 0/3 contacts with >=1200 s and >=80% NREM coverage; 0/200 paired events",
+      "subject": "HUP212_phaseII"
+    }
+  ],
+  "source_tree_sha256": "e6909aff01c5f2126abe36f5cd930e023e682f53cbae36995edea7af8be521f2"
+}

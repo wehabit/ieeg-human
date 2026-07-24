@@ -1,1 +1,50 @@
-{"subject": "HUP133_phaseII", "status": "ok", "n_N2": 218, "n_N3": 76, "n_channels": 6, "gmm_separation": 1.550039841918873, "whole_night_mean_hr": 65.99811716161295, "N2": {"stage_mean_hr": 66.5040277803734, "n_channels": 6, "n_so_total": 3328, "pct_above_stage_mean": 0.0812126629740999, "peak_lag_s": 1.6666666666666667, "z": -0.5003312305039898, "null_mean_pct": 0.2932599419755059, "per_channel": [{"n_so": 654, "pct_above_stage_mean": -0.8900276489583369, "peak_lag_s": 0.5, "z": -2.3494642169499302, "null_mean_pct": 0.2531555744490504, "n_surrogate_pool": 26160, "ch": "LA8"}, {"n_so": 707, "pct_above_stage_mean": -1.1014109950455815, "peak_lag_s": 0.0, "z": -2.9343937143475833, "null_mean_pct": 0.25227675032873864, "n_surrogate_pool": 26160, "ch": "LB8"}, {"n_so": 443, "pct_above_stage_mean": 0.40659089279056343, "peak_lag_s": 2.75, "z": 0.17208957353240903, "null_mean_pct": 0.30238442671687843, "n_surrogate_pool": 26160, "ch": "LC8"}, {"n_so": 451, "pct_above_stage_mean": 0.4845610982023191, "peak_lag_s": 1.5, "z": 0.16711473381200853, "null_mean_pct": 0.3772477335681155, "n_surrogate_pool": 26160, "ch": "LD8"}, {"n_so": 519, "pct_above_stage_mean": 0.3215671357997827, "peak_lag_s": 0.5, "z": 0.045980178473195736, "null_mean_pct": 0.29819500618229156, "n_surrogate_pool": 26160, "ch": "LE8"}, {"n_so": 554, "pct_above_stage_mean": 1.2659954950558523, "peak_lag_s": 4.75, "z": 1.896686062455962, "null_mean_pct": 0.2763001606079609, "n_surrogate_pool": 26160, "ch": "LF8"}]}, "N3": {"stage_mean_hr": 70.67760638900862, "n_channels": 6, "n_so_total": 1759, "pct_above_stage_mean": 0.5286002465636305, "peak_lag_s": 1.5416666666666667, "z": 0.04848434464768329, "null_mean_pct": 0.5993793956788934, "per_channel": [{"n_so": 324, "pct_above_stage_mean": 3.1619911281378124, "peak_lag_s": 1.5, "z": 3.766059809725628, "null_mean_pct": 0.5368478205729492, "n_surrogate_pool": 9120, "ch": "LA8"}, {"n_so": 304, "pct_above_stage_mean": -0.29657136924035127, "peak_lag_s": 2.0, "z": -1.1092978391010737, "null_mean_pct": 0.6112763871936261, "n_surrogate_pool": 9120, "ch": "LB8"}, {"n_so": 230, "pct_above_stage_mean": -1.2484378681975163, "peak_lag_s": 2.0, "z": -2.2325858014412994, "null_mean_pct": 0.667157669854607, "n_surrogate_pool": 9120, "ch": "LC8"}, {"n_so": 256, "pct_above_stage_mean": -0.6172532364046759, "peak_lag_s": 1.75, "z": -1.6422188050899582, "null_mean_pct": 0.6816525283109146, "n_surrogate_pool": 9120, "ch": "LD8"}, {"n_so": 295, "pct_above_stage_mean": 0.8587993254457884, "peak_lag_s": 1.5, "z": 0.33983955592551823, "null_mean_pct": 0.6100529080107457, "n_surrogate_pool": 9120, "ch": "LE8"}, {"n_so": 350, "pct_above_stage_mean": 1.3130734996407256, "peak_lag_s": 0.5, "z": 1.1691091478672846, "null_mean_pct": 0.48928906013051787, "n_surrogate_pool": 9120, "ch": "LF8"}]}}
+{
+  "N2": null,
+  "N3": null,
+  "analysis_version": "2026-07-corrected-v7",
+  "anatomy_selection_method": "UNVALIDATED contact-number heuristic; lateral-contact candidates require coordinate/tissue/SOZ QC",
+  "cache_directory_relative": "data/derived/lc_infraslow",
+  "cache_file_sha256": "75d8c6af517b494910dd53d86c2733a5aa5d3394aa8e35a3cb0405d8c66fbebd",
+  "cache_hours": 7.0,
+  "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+  "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6",
+  "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+  "contact_qc": "conservative intersection with the cache's stable >=80%-coverage sigma contact set and, when available, Destrieux frontal ROI; at least two contacts with >=30 eligible SOs per stage",
+  "coverage_eligible_contact_ids": [
+    "LA8",
+    "LB8",
+    "LC8",
+    "LD8",
+    "LE8",
+    "LF8"
+  ],
+  "coverage_excluded_contact_ids": [],
+  "endpoint_availability": {
+    "N2": false,
+    "N3": false
+  },
+  "endpoint_roi": "legacy coverage-qualified cortical contact set",
+  "endpoint_unavailable_reasons": {
+    "N2": "only 0 epochs inside uninterrupted >=180-s N2 runs (<6)",
+    "N3": "only 0 epochs inside uninterrupted >=180-s N3 runs (<6)"
+  },
+  "gmm_separation": null,
+  "minimum_event_channels": 2,
+  "n_N2": 0,
+  "n_N2_raw": 0,
+  "n_N3": 0,
+  "n_N3_raw": 0,
+  "n_cortical_contacts_total": 6,
+  "n_coverage_eligible_contacts": 6,
+  "n_surrogates": 1000,
+  "null_method": "shared circular shift in eligible stage-time",
+  "reason": "unavailable 3B endpoint(s): N2 (only 0 epochs inside uninterrupted >=180-s N2 runs (<6)), N3 (only 0 epochs inside uninterrupted >=180-s N3 runs (<6))",
+  "run_id": "dd747924-da3a-4f30-a661-3e9660289509",
+  "source_tree_sha256": "e6909aff01c5f2126abe36f5cd930e023e682f53cbae36995edea7af8be521f2",
+  "stable_stage_minimum_s": 180,
+  "status": "partial",
+  "subject": "HUP133_phaseII",
+  "tachogram_domain": "rr",
+  "whole_night_arithmetic_mean_hr": 77.76781528833904,
+  "whole_night_hr_from_mean_rr": 76.93458635086024
+}

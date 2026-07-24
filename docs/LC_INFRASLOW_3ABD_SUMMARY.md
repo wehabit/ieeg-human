@@ -1,9 +1,11 @@
-# Archived LC-infraslow 3A/3B/3D summary — all results withdrawn
+# Archived LC-infraslow 3A/3B/3D summary — legacy results withdrawn
 
 > **QUARANTINED DOCUMENT.** Earlier versions of this page contained current-looking numerical
 > results and statements that 3A was negative, 3B was weak or present, 3D was positive, staging was
 > “real,” and the analyses were validated or faithfully corrected. Those statements are withdrawn.
-> They came from superseded caches and estimators. No corrected real-data cohort result exists yet.
+> They came from superseded caches and estimators. The corrected RESPect rerun is documented
+> separately and has no estimable 3A/3B endpoint. The corrected HUP rerun likewise has no estimable
+> 3A, 3B, or pooled 3D endpoint.
 
 Do not cite an earlier revision of this file for a biological finding. The authoritative record of
 what failed, why it is a real concern, what has been fixed in code, and what remains open is the
@@ -31,13 +33,13 @@ snippets and partial quotations could otherwise present them as current.
 
 | Former claim category | Current status |
 |---|---|
-| Numerical 3A cohort verdicts, spectral peaks, coherence, cross-correlation, and p-values | **WITHDRAWN.** Must be regenerated from current versioned caches after raw QC. |
-| Numerical 3B effect sizes, stage contrasts, significant-subject counts, and p-values | **WITHDRAWN.** Earlier cardiac interpolation, denominator, staging, and endpoint-accounting paths were superseded. |
+| Numerical 3A cohort verdicts, spectral peaks, coherence, cross-correlation, and p-values | **LEGACY VALUES WITHDRAWN.** Each current RESPect 3A endpoint is 0/6 estimable and each HUP 3A endpoint is 0/25 estimable. |
+| Numerical 3B effect sizes, stage contrasts, significant-subject counts, and p-values | **LEGACY VALUES WITHDRAWN.** Current N2 and N3 are each 0/6 estimable in RESPect and 0/25 in HUP. |
 | Numerical 3D Rayleigh fractions, vector lengths, participant counts, and p-values | **WITHDRAWN.** Per-contact/event results are diagnostic, not cohort inference. |
-| “Positive,” “negative,” “weak,” “present,” “confirmed,” or “reproduced” biological verdicts | **WITHDRAWN.** There is no current real-data cohort result. |
+| “Positive,” “negative,” “weak,” “present,” “confirmed,” or “reproduced” biological verdicts | **WITHDRAWN.** RESPect endpoint unavailability is not a detected null effect or evidence about LC. |
 | “Validated implementation,” “faithful method,” or proof based only on synthetic helper tests | **WITHDRAWN.** Tests establish bounded code behavior, not end-to-end biological validity. |
 | HUP N2/N3 labels | **PROXY ONLY.** Use N2-like/N3-like and disclose that they are not expert-scored stages. |
-| RESPect “real staging” or validated wake/REM exclusion | **WITHDRAWN.** The current rules are conservative proxies, not expert-scored validation. |
+| RESPect “real staging” or validated wake/REM exclusion | **WITHDRAWN.** Author annotations are now primary but are coarse/incomplete and do not provide expert AASM/R&K N2/N3 validation. |
 | N2-like versus N3-like 3D inference | **DISABLED / OPEN.** Contact sets and event counts are unmatched and residual finite-sample bias remains. |
 | Heart rate, sigma, SWA, SOs, or spindle nesting as human LC-specific measures | **NOT VALIDATED.** Construct validity remains open. |
 
@@ -46,14 +48,18 @@ snippets and partial quotations could otherwise present them as current.
 The working tree contains code-level corrections for the defects marked **FIXED** in the issue
 register, including per-contact power computation, full-night normalization, chunk overlap,
 same-window SWA control, missing-mask preservation, cache-specific lineage, conservative proxy
-staging, long-RR-gap preservation, a consistent RR/HR denominator, bad-ECG exclusion, endpoint
-availability, fail-closed byte-hashed manifests, runner return accounting, sparse-probe night
-selection, and descriptive participant-level 3D vectors. The former rotation inference is disabled.
+staging, RESPect author-annotation and anatomy-sidecar integration, all-good-channel EMG/EOG
+aggregation, stable 3-minute 3B stage runs, direction-preserving 3A cross-correlation,
+long-RR-gap preservation, a consistent RR/HR denominator, bad-ECG exclusion, endpoint availability,
+fail-closed byte-hashed manifests, coverage skips distinct from execution failures, runner return
+accounting, sparse-probe night selection, and descriptive participant-level 3D vectors. The former
+rotation inference is disabled.
 
 Those corrections establish only that specified implementation defects were addressed. They do not
-resolve the **OPEN** limitations: LC construct validity, contact anatomy, expert staging, blinded
-raw detector and acquisition-gap QC, seizure/IED and respiratory confounding, cohort
-generalizability, and the absence of a complete corrected real-data rerun.
+resolve the **OPEN** limitations: LC construct validity, HUP contact anatomy, expert N2/N3 staging,
+scalp-to-iEEG source homology, blinded raw detector and acquisition-gap QC, postictal/IED and
+respiratory confounding, cohort generalizability, and the need for data that can support an
+estimable endpoint under the prespecified gates.
 
 ## Conditions for a future results summary
 
@@ -70,5 +76,6 @@ A replacement results document must:
    time-shift/block null, with an additional matched-contact gate for stage contrasts; and
 8. distinguish a null or positive sleep-physiology result from evidence about LC specificity.
 
-Until all applicable gates pass, the only defensible conclusion is procedural: corrected cohort
-results remain pending.
+The corrected reruns materially withdraw the old numerical conclusions: RESPect has no estimable
+3A/3B endpoint, and HUP has no estimable 3A/3B or pooled 3D endpoint. That does not demonstrate
+absence of a biological effect, and neither cohort proves human LC tracking.

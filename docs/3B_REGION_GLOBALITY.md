@@ -1,11 +1,12 @@
 # WITHDRAWN 3B locality/globality follow-up — superseded estimators
 
-> **LEGACY / WITHDRAWN NUMBERS.** This follow-up predates the RR-domain corrected-v5 descriptive
+> **LEGACY / WITHDRAWN NUMBERS.** This follow-up predates the RR-domain corrected-v7 descriptive
 > path and unvalidated-anatomy audit. Its whole-stage-shift inference is invalid under local
 > nonstationarity, its command-line entry points are hard-stopped, and its numerical results are
-> historical only.
+> historical only. Corrected 3B N2/N3 endpoints are each 0/6 estimable for RESPect and 0/25 for
+> HUP, so none of the old locality/globality conclusions survives as a current estimate.
 
-**Bottom line: partial, honestly mixed, and none of it reaches scalp magnitudes.** Three predictions,
+**Withdrawn historical bottom line: partial, mixed, and none reached scalp magnitudes.** Three predictions,
 three answers: (1) coupling is stronger for **global** slow waves — directional support in N3 (global
 > local in 5/5 subjects, marginal at n=5); (2) it is stronger on **autonomic-adjacent cortex** — **not**
 supported; (3) it is carried by **N2 K-complexes** — **underpowered and unrecovered** (isolated frontal
@@ -21,7 +22,8 @@ slow-wave *trains* are an **N3** property. Test 1 (globality) turns out to measu
 
 ## Why we ran this
 
-Our lateral-iEEG 3B was weak/null ([3B_METHOD_COMPARISON.md](3B_METHOD_COMPARISON.md)). The SO→HR coupling
+The legacy lateral-iEEG 3B was described as weak/null
+([3B_METHOD_COMPARISON.md](3B_METHOD_COMPARISON.md)). The SO→HR coupling
 Naji measured is a property of large slow waves, and a lateral neocortical contact sees mostly *local*
 slow waves. Three falsifiable predictions follow, all testable on the Utrecht RESPect cohort (OpenNeuro
 ds003848) from the cache (all-channel SO troughs) plus its Destrieux atlas labels — no re-streaming. Code:

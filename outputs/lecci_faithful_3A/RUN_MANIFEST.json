@@ -1,0 +1,363 @@
+{
+  "analysis_version": "2026-07-corrected-v7",
+  "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+  "code_dirty": true,
+  "code_revision": "9ba41c727a09e4ef36aaf2547ef94bc7ef200700",
+  "completed": [],
+  "config": {
+    "analysis_version": "2026-07-corrected-v7",
+    "band": "fixed",
+    "cache_code_sha256": "95413211011165e96a0d0c2e7d10a288749a1b1dd78091aa0e690a7076f81bf3",
+    "cache_inputs": {
+      "HUP116_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "f15643a79c0b5e07dac22566043921a057b81f2692db43994a0765bd9a1198a6",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP130_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "e027a8ad794e473219d8933ee184309eceb0eaeae30cedbb27e8170ddbc8bcd6",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP133_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "75d8c6af517b494910dd53d86c2733a5aa5d3394aa8e35a3cb0405d8c66fbebd",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP138_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "8e6feb66ca88ad85a5c2a3c184c9e84d95aac1b0d361776ec40572999aac40d6",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP139_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "130f658842eee8547e783634f10e72197a78940a711c7a6aca0b218ef9340b4a",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP141_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "aa20906a2943e83f660c63a818f87cc1acd73989102a603d6f8a155439cff489",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP143_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "5fceb24bab096129741485e71fd2134cb13c2fdc26f4f27addce84d7303d44d4",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP150_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "6322c97b9a166ad3adabc0dfbac92c6338ff19b15f969b5348cc925932a5a9db",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP151_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "d9bdef9d8f50e474289e3d6e06d11678ce7118c69fe471a3451922d2a246acf0",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP157_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "bb71e6849240eff2feda82889aec2e7f2616461009e04105b6419eefce0ceb7f",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP160_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "af908fa1f890ad1811f484755355c52f3b9692f503e459afccf728df47f1ce6f",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP165_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "c69fe69fd62f42333d2a68ce4205c31ce3036e8783415ba679ed5f594d44edaf",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP171_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "4478234b804a7e904384a125102d4b9b3b12faf07cac1b7052e26173138e2348",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP172_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "053807e62e5c930f1f2358435b3b14e6a9fdf06c0b0309a8d33266b878677c8f",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP173_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "843e0f644bfaba443a29789e0e8a8911ad45bf2b07ae2352791b2bde8265371c",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP177_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "b2edca570e8059c19a365a0e2bc81b0edd538cc2e2740ec987eb14f393776be9",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP178_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "dfb298fb66241f3db0b101ed579fe689238ccef8322e63dfe1f082f704e62602",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP182_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "0132b930dbacdecc8a7f68d63512e158495977b6127284adef3bba2d405f1cea",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP185_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "50b38aada3e9557f672ceb2d669ab03303c4594c7e4ae2edc0aa5058ae25e31e",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP187_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "f90574aa94b02fd136edfb67c81833beeec039166b09770da6f834512a124aa5",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP191_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "dcbbe588ad337a80d4e4b94f350e4f26cc5269510570378b74436540262da6b0",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP199_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "94400f5a17c45a4e953a3484520aa17848211b9ccb86983b8dc251f981e1806a",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP205_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "6952a02162073cbc3aa98c539939c37d0a436ceab95639271dcbe09ce6a8b487",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP211_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "6b0f3d2f3b4611e67c619ab910bea170ba122e38740d3fe49c1196c4549306a5",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      },
+      "HUP212_phaseII": {
+        "cache_directory_relative": "data/derived/lc_infraslow",
+        "cache_file_sha256": "b1df7add0b6a64bcd828530b676592f5fbc840edc06c295052d47caf4cab2f55",
+        "cache_hours": 7.0,
+        "cache_manifest_run_id": "c05d4b1a-d680-47c8-bee3-ba8bbdedffe3",
+        "cache_manifest_sha256": "823edab1ede63f981f381f4f24e3c5fc6cc826ed8fd07ab2e0fe9f54e2300fa6"
+      }
+    },
+    "cache_schema_version": "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7",
+    "n_sur": 200,
+    "smooth_4s": true
+  },
+  "failed": [],
+  "generated_at_utc": "2026-07-24T19:26:13.714020+00:00",
+  "pipeline": "lecci_faithful_3A",
+  "requested": [
+    "HUP116_phaseII",
+    "HUP130_phaseII",
+    "HUP133_phaseII",
+    "HUP138_phaseII",
+    "HUP139_phaseII",
+    "HUP141_phaseII",
+    "HUP143_phaseII",
+    "HUP150_phaseII",
+    "HUP151_phaseII",
+    "HUP157_phaseII",
+    "HUP160_phaseII",
+    "HUP165_phaseII",
+    "HUP171_phaseII",
+    "HUP172_phaseII",
+    "HUP173_phaseII",
+    "HUP177_phaseII",
+    "HUP178_phaseII",
+    "HUP182_phaseII",
+    "HUP185_phaseII",
+    "HUP187_phaseII",
+    "HUP191_phaseII",
+    "HUP199_phaseII",
+    "HUP205_phaseII",
+    "HUP211_phaseII",
+    "HUP212_phaseII"
+  ],
+  "result_files_sha256": {
+    "HUP116_phaseII": "1d07c8d2958918aa2abf8b42a235efda14672dd47c38a6bf67a665ffcf12090d",
+    "HUP130_phaseII": "a26e742252b4c182ea535ce5a44fd8e4e0f8b9ccbe18321881b7474e9d06761f",
+    "HUP133_phaseII": "cc0ac6d08bade57364c7382f8fe93c5959601f2d6676b8122fca1ae4f2242d42",
+    "HUP138_phaseII": "90a7ffb5f510b6d4dce03449cd2271dc62122dbaf282c0084664170c3b025480",
+    "HUP139_phaseII": "5051a42c31a3e66f268298bd3304bc16540516fe21d742829f5798e63d4e9c18",
+    "HUP141_phaseII": "c753d4573038a9162bd6a75e918d1151b6f3fb35367cde644ec83b6e1b82a8d2",
+    "HUP143_phaseII": "71740ec09acda7fc7df65a3b0eda597d0f070f6e4cbc1e55c2c745ec1a0185a2",
+    "HUP150_phaseII": "292274b245e38847331be70dbe5e7d1b8ecf782371f8329503e3bd80fddcc503",
+    "HUP151_phaseII": "a985e97074d8b795d806e8098dd929596e5468784468edeaa3a9636ce1248745",
+    "HUP157_phaseII": "b5dcb98880d821e536d90fc30599d473a7dcb710a0874d8fe9ea982565c69bd9",
+    "HUP160_phaseII": "f7def2a459fc479d04aa3096306afff0857501270ebaa5103f6183de9713375e",
+    "HUP165_phaseII": "71197d4ccf25dda8831feecdfbf5881814a912b3009bd1aeffcbd60101cbe1f8",
+    "HUP171_phaseII": "231272aafd670a75b3e22948012295df3aa109e0a1f7af37daf6f38dbb12cfc1",
+    "HUP172_phaseII": "d985c67923a4fa479c2eacdcdde889d546e91bd3447d0e347be9c9ce9b70119d",
+    "HUP173_phaseII": "ad03bb5598ca027f502ff6e7175d4deb40f846f1e268c3b333d20ea726b24942",
+    "HUP177_phaseII": "430ea8a9cb11b9c7cef7edc45954b39a40f20d6149cf6891f0df8d212616b25c",
+    "HUP178_phaseII": "28ea85b9920c773f5f33ea9c4ae0b31d4d0ea3386c7c579ed18f18ae7720703b",
+    "HUP182_phaseII": "f4cc08800db2260cf6b7c2e96af73469dab7b158b5eb81224708418308413cec",
+    "HUP185_phaseII": "308b93623ff6c2eb8e59049d9ef4454a523c4242ce0745d6cf17b58e42cceb29",
+    "HUP187_phaseII": "7955a265d6675a081b053aa8c1d07dd73fa92f3c83ebe63e77fb0eca6d040a8b",
+    "HUP191_phaseII": "0cd2b7e45cbef6ccdf7b83c4fab3639d8ee490506117b25f8075f14acc68eab5",
+    "HUP199_phaseII": "36ba3fb32a68f6a21d2d96522f56b1f07d16f81bc62af15ac6c954c174e176b1",
+    "HUP205_phaseII": "9861ed7c3951f866a767c8bb02267448cbd1eb16f6233a0a7ab9105f39633be9",
+    "HUP211_phaseII": "a743bbd4149060a5d74232551fbf47a0d3cbe3f90e1a5ab6f3400aa08f5ad4ee",
+    "HUP212_phaseII": "12ec52a43281cc23f23d0daffce4f0ed5524140785d4bb9ced71b46e7c14f57c"
+  },
+  "run_id": "a8881236-163d-461c-bcd2-4eb6deaf5d36",
+  "run_state": "complete",
+  "runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "skipped": [
+    {
+      "reason": "cache exclusion: ekg=EKG1 n_cortical=0",
+      "subject": "HUP116_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=1.0%; minimum is 80%",
+      "subject": "HUP130_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP133_phaseII"
+    },
+    {
+      "reason": "Lecci-motivated global iEEG adaptation unavailable: 2 stable contacts, 0.0% aggregate coverage",
+      "subject": "HUP138_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP139_phaseII"
+    },
+    {
+      "reason": "cache exclusion: ekg=EKG1 n_cortical=2",
+      "subject": "HUP141_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP143_phaseII"
+    },
+    {
+      "reason": "Lecci-motivated global iEEG adaptation unavailable: 4 stable contacts, 72.4% aggregate coverage",
+      "subject": "HUP150_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=0.2%; minimum is 80%",
+      "subject": "HUP151_phaseII"
+    },
+    {
+      "reason": "Lecci-motivated global iEEG adaptation unavailable: 1 stable contacts, 0.0% aggregate coverage",
+      "subject": "HUP157_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP160_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP165_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=38.8%; minimum is 80%",
+      "subject": "HUP171_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP172_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP173_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=67.9%; minimum is 80%",
+      "subject": "HUP177_phaseII"
+    },
+    {
+      "reason": "Lecci-motivated global iEEG adaptation unavailable: 2 stable contacts, 0.0% aggregate coverage",
+      "subject": "HUP178_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP182_phaseII"
+    },
+    {
+      "reason": "Lecci-motivated global iEEG adaptation unavailable: 0 stable contacts, 0.0% aggregate coverage",
+      "subject": "HUP185_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP187_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP191_phaseII"
+    },
+    {
+      "reason": "Lecci-motivated global iEEG adaptation unavailable: 1 stable contacts, 0.0% aggregate coverage",
+      "subject": "HUP199_phaseII"
+    },
+    {
+      "reason": "insufficient NREM",
+      "subject": "HUP205_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=60.9%; minimum is 80%",
+      "subject": "HUP211_phaseII"
+    },
+    {
+      "reason": "cache exclusion: cardiac coverage QC failed: HR=79.7%; minimum is 80%",
+      "subject": "HUP212_phaseII"
+    }
+  ],
+  "source_tree_sha256": "e6909aff01c5f2126abe36f5cd930e023e682f53cbae36995edea7af8be521f2"
+}

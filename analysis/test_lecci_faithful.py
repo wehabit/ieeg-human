@@ -99,6 +99,12 @@ for true_lag in (-8, 0, 12):
     check(f"recovers lag {true_lag:+d}s within 2 s", abs(xc["peak_lag_s"] - true_lag) <= 2.0,
           f"got {xc['peak_lag_s']:+.1f}")
 
+common = np.sin(2 * np.pi * 0.02 * np.arange(TOTAL_S))
+inverted = cross_correlation(-np.roll(common, 5), common, nrem)
+check("opposite-sign delayed coupling cannot count as Lecci-direction support",
+      inverted["lecci_direction_peak_r"] <= 0
+      and inverted["opposite_direction_peak_r"] < -0.9)
+
 print("\n[5] Every accepted bout must contribute at every frequency")
 short = brown(150) / 10
 sp = morlet_spectrum(short, FS, np.array([0.005, 0.02, 0.08]))

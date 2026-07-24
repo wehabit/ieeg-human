@@ -19,6 +19,7 @@ from pipeline_version import (
 )
 from lecci_faithful_3A import (
     cache_lineage_entry,
+    LECCI_XCORR_LAG_WINDOW_S,
     peak_location_null_is_adequate,
     verify_cache_lineage,
 )
@@ -129,8 +130,10 @@ def validate_run(directory, records, label):
             tachogram_domain="rr",
             n_surrogates=1000,
             null_method="shared circular shift in eligible stage-time",
-            contact_qc="cache stable >=80%-coverage sigma-contact intersection",
+            contact_qc=(
+                "cache stable >=80%-coverage plus optional Destrieux frontal ROI intersection"),
             minimum_event_channels=2,
+            stable_stage_minimum_s=180,
         )
     )
     wrong_config = {
@@ -232,6 +235,7 @@ def validate_run(directory, records, label):
                 or record.get("null_method")
                 != "shared circular shift in eligible stage-time"
                 or record.get("minimum_event_channels") != 2
+                or record.get("stable_stage_minimum_s") != 180
             )
         ]
         for record in configured_records:
@@ -283,15 +287,16 @@ A_coherence_own = [
     r for r in current_A
     if (r.get("endpoint_availability") or {}).get("coherence_own_peak")
 ]
-if max(len(A_spectrum), len(A_xcorr)) < _args.min_completed:
+A_has_cohort_endpoint = max(len(A_spectrum), len(A_xcorr)) >= _args.min_completed
+if not A_has_cohort_endpoint:
     reasons = [
         f"{r['subject']}: {r.get('reason', 'unspecified')}"
         for r in current_A if r.get("status") != "ok"
     ]
-    raise SystemExit(
+    print(
         f"3A: spectrum n={len(A_spectrum)}, cross-correlation n={len(A_xcorr)}; at least "
         f"{_args.min_completed} are required for one primary endpoint. "
-        f"Excluded/partial: {reasons}")
+        f"3A cohort result unavailable. Excluded/partial: {reasons}")
 hr("3A -- LECCI-ALIGNED APPROXIMATION")
 partial_A = [r for r in current_A if r.get("status") != "ok"]
 print(f"\nEndpoint denominators: spectrum {len(A_spectrum)}/{len(EXPECTED)}; "
@@ -332,11 +337,12 @@ if A_spectrum:
         if len(pk) >= 2:
             sem = float(np.std(pk, ddof=1) / np.sqrt(len(pk)))
             ci = stats.t.interval(0.95, len(pk) - 1, loc=float(np.mean(pk)), scale=sem)
-            print(f"  current-cohort mean difference from Lecci point estimate: "
-                  f"{np.mean(pk) - LECCI_PEAK:+.4f} Hz; own 95% CI "
+            print(f"  accepted-peak subset mean difference from Lecci point estimate: "
+                  f"{np.mean(pk) - LECCI_PEAK:+.4f} Hz; conditional 95% CI "
                   f"[{ci[0]:.4f}, {ci[1]:.4f}]")
             print("  no one-sample t test: Lecci's 0.019 Hz is an estimated mean (SEM 0.001), "
-                  "not a fixed population constant, and the cohorts/methods differ.")
+                  "not a fixed population constant, the subset was selected for accepted peaks, "
+                  "and the cohorts/methods differ.")
 
     accepted_records = [r for r in A_spectrum if r["peak"].get("peak_hz")]
     surrogate_by_subject = []
@@ -346,7 +352,7 @@ if A_spectrum:
             values = np.asarray(peak_null.get("surrogate_peaks", []), float)
             if peak_location_null_is_adequate(peak_null):
                 surrogate_by_subject.append((r["subject"], values))
-        print("\n  PEAK-LOCATION CLUSTERING AGAINST SUBJECT-MATCHED SCALE-FREE SURROGATES:")
+        print("\n  PEAK-TIGHTNESS-ONLY CONTROL AGAINST SUBJECT-MATCHED SCALE-FREE SURROGATES:")
         print(f"    observed accepted-peak SD = {np.std(pk, ddof=1):.4f} Hz")
         if len(surrogate_by_subject) == len(accepted_records):
             null_sd = np.array([
@@ -357,6 +363,9 @@ if A_spectrum:
             p_tight = float(
                 (1 + np.sum(null_sd <= np.std(pk, ddof=1))) / (1 + len(null_sd)))
             print(f"    matched Monte-Carlo p for tighter real clustering = {p_tight:.4f}")
+            print("    This tests clustering anywhere in the accepted search band; it cannot show")
+            print("    compatibility with Lecci's 0.019-Hz location. No equivalence margin was")
+            print("    prespecified, so this p value is not evidence of Lecci-location replication.")
         else:
             print("    unavailable: at least one accepted subject has fewer than 20 accepted "
                   "surrogate peak locations or <5% acceptance")
@@ -431,26 +440,63 @@ if xc:
     M = np.array([x["xcorr"] for x in xc])
     g = M.mean(0)
     i = int(np.argmax(np.abs(g)))
+    follows = (
+        (lag >= LECCI_XCORR_LAG_WINDOW_S[0])
+        & (lag <= LECCI_XCORR_LAG_WINDOW_S[1]))
+    i_directional = np.where(follows)[0][int(np.argmax(g[follows]))]
+    i_opposite = np.where(follows)[0][int(np.argmin(g[follows]))]
     r_pk = np.array([x["peak_r"] for x in xc])
     l_pk = np.array([x["peak_lag_s"] for x in xc])
     print(f"\n  CROSS-CORRELATION (Lecci's actual coupling statistic; n={len(xc)}):")
-    print(f"    group mean correlogram peak |r| = {abs(g[i]):.4f} at lag {lag[i]:+.0f} s")
-    print(f"    per-subject |peak r|: median {np.median(np.abs(r_pk)):.4f}, "
-          f"max {np.abs(r_pk).max():.4f}")
+    print(f"    signed max-|r| sensitivity peak = {g[i]:+.4f} at lag {lag[i]:+.0f} s")
+    print(f"    Lecci-direction/timing-window peak (positive r, sigma follows HR; "
+          f"{LECCI_XCORR_LAG_WINDOW_S[0]:.0f} to "
+          f"{LECCI_XCORR_LAG_WINDOW_S[1]:.0f} s) = "
+          f"{g[i_directional]:+.4f} at lag {lag[i_directional]:+.0f} s")
+    print(f"    opposite-direction extremum at nonnegative lag = "
+          f"{g[i_opposite]:+.4f} at lag {lag[i_opposite]:+.0f} s")
+    print(f"    per-subject signed max-|r|: median {np.median(r_pk):+.4f}; "
+          f"median |r| {np.median(np.abs(r_pk)):.4f}")
     print(f"    per-subject peak lag: median {np.median(l_pk):+.1f} s, "
           f"IQR [{np.percentile(l_pk,25):+.0f}, {np.percentile(l_pk,75):+.0f}]")
     if len(xc) >= _args.min_completed:
         # A t-test on each subject's independently selected lag does not test Lecci's common group
         # correlogram peak. A sign-flip max-statistic asks whether one group-level lag survives
         # selection over all lags.
-        obs = float(np.max(np.abs(g)))
-        null = np.empty(20000)
-        for j in range(len(null)):
-            signs = rng_np.choice((-1.0, 1.0), size=len(M))
-            null[j] = np.max(np.abs((M * signs[:, None]).mean(0)))
-        p_global = float((1 + np.sum(null >= obs)) / (1 + len(null)))
-        print(f"    sign-flip max-|group r| test across all lags: p = {p_global:.4f}")
-        print("    (This replaces a t-test whose subjects were allowed different selected lags.)")
+        obs_directional = float(np.max(g[follows]))
+        obs_omnibus = float(np.max(np.abs(g)))
+        if len(M) <= 15:
+            assignments = np.arange(1 << len(M), dtype=np.uint64)
+            bit_positions = np.arange(len(M), dtype=np.uint64)
+            sign_matrix = (
+                2.0 * ((assignments[:, None] >> bit_positions) & 1).astype(float) - 1.0)
+            null_curves = sign_matrix @ M / len(M)
+            null_directional = np.max(null_curves[:, follows], axis=1)
+            null_omnibus = np.max(np.abs(null_curves), axis=1)
+            p_directional = float(np.mean(null_directional >= obs_directional))
+            p_omnibus = float(np.mean(null_omnibus >= obs_omnibus))
+            inference_method = f"exact enumeration of {len(null_directional)} sign assignments"
+        else:
+            null_directional = np.empty(20000)
+            null_omnibus = np.empty(20000)
+            for j in range(len(null_directional)):
+                signs = rng_np.choice((-1.0, 1.0), size=len(M))
+                null_curve = (M * signs[:, None]).mean(0)
+                null_directional[j] = np.max(null_curve[follows])
+                null_omnibus[j] = np.max(np.abs(null_curve))
+            p_directional = float(
+                (1 + np.sum(null_directional >= obs_directional))
+                / (1 + len(null_directional)))
+            p_omnibus = float(
+                (1 + np.sum(null_omnibus >= obs_omnibus))
+                / (1 + len(null_omnibus)))
+            inference_method = "20,000 Monte Carlo sign assignments"
+        print(f"    prespecified Lecci-direction max-positive-r sign-flip test "
+              f"({LECCI_XCORR_LAG_WINDOW_S[0]:.0f} to "
+              f"{LECCI_XCORR_LAG_WINDOW_S[1]:.0f} s): p = {p_directional:.4f}")
+        print(f"    two-sided max-|group r| sensitivity across all lags: p = {p_omnibus:.4f}")
+        print(f"    sign-flip calculation: {inference_method}")
+        print("    Opposite-sign coupling is not counted as support for Lecci's human direction.")
     else:
         print(f"    group inference unavailable: n={len(xc)}; "
               f"at least {_args.min_completed} participants are required.")
@@ -471,15 +517,17 @@ B = [
     r for r in current_B
     if any(r in B_by_stage[stage] for stage in ("N2", "N3"))
 ]
-if max(len(B_by_stage["N2"]), len(B_by_stage["N3"])) < _args.min_completed:
+B_has_cohort_endpoint = (
+    max(len(B_by_stage["N2"]), len(B_by_stage["N3"])) >= _args.min_completed)
+if not B_has_cohort_endpoint:
     reasons = [
         f"{r['subject']}: {r.get('reason', 'unspecified')}"
         for r in current_B if r.get("status") != "ok"
     ]
-    raise SystemExit(
+    print(
         f"3B: N2 n={len(B_by_stage['N2'])}, N3 n={len(B_by_stage['N3'])}; at least "
         f"{_args.min_completed} estimable participants are required for one stage. "
-        f"Excluded/partial: {reasons}")
+        f"3B cohort result unavailable. Excluded/partial: {reasons}")
 domains = {
     value.get("tachogram_domain")
     for stage in ("N2", "N3") for r in B_by_stage[stage] if (value := r.get(stage))
@@ -559,3 +607,7 @@ if B:
               "local-trend/dependence-preserving null.")
 
 print()
+if not A_has_cohort_endpoint and not B_has_cohort_endpoint:
+    raise SystemExit(
+        "No 3A or 3B endpoint reached the prespecified cohort minimum; "
+        "the unavailable-endpoint report above is the result.")

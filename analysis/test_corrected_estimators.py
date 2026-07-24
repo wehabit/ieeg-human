@@ -1,11 +1,17 @@
 """Synthetic regression tests for participant-level 3B and event-locked 3D helpers."""
+import hashlib
 import io
+import os
+import tempfile
+import threading
+import time
 
 import numpy as np
 from scipy import signal
 
+import cohort_3A_cortical as cortical_module
 from event_3B_mednick import subject_so_triggered, rr_baseline_hr, FS_RR
-from event_3B_cached import coverage_eligible_contacts
+from event_3B_cached import coverage_eligible_contacts, stable_stage_epoch_indices
 from event_3D_by_stage import (detect_so_events, detect_spindle_events, bh_fdr, rayleigh,
                                pair_one_spindle_per_so, so_event_candidates, select_so_events,
                                spindle_rms, spindle_events_from_rms,
@@ -20,9 +26,15 @@ from cohort_stages_3ABD import (
     band_sos, fsp_from, nrem_mask_adaptive,
     reliable_two_state_split as mixture_high_tail_split, stage_epochs,
 )
-from results_3A_tutorial_style import ied_clean_mask
+from cohort_3A_cortical import HUP_SOURCE_PINS, find_night, verify_hup_source_identity
+from infraslow_rr_sigma_coherence import configure_http_session
+from results_3A_tutorial_style import dilate_boolean_mask, ied_clean_mask
 from stage_ds003848 import (
     score_stages, channel_roles_from_rows, selected_channel_name_mismatches,
+    electrode_eligibility_from_rows, event_annotations_from_rows,
+    event_exclusion_mask, annotation_epoch_context, annotation_second_masks,
+    constrain_proxy_to_annotations, aggregate_auxiliary_epoch_features,
+    SNAPSHOT_FILES, verify_pinned_snapshot_file,
 )
 from spectral_gapped import fill_short_gaps
 
@@ -34,6 +46,187 @@ def check(name, condition):
 
 
 rng = np.random.RandomState(7)
+
+
+class _FakeHttp:
+    def __init__(self):
+        self.calls = []
+        self.mounts = {}
+
+    def request(self, method, url, **kwargs):
+        self.calls.append((method, url, kwargs))
+        return "response"
+
+    def mount(self, prefix, adapter):
+        self.mounts[prefix] = adapter
+
+
+fake_http = _FakeHttp()
+configure_http_session(fake_http)
+check("iEEG requests receive a bounded connect/read timeout by default",
+      fake_http.request("GET", "https://example.invalid") == "response"
+      and fake_http.calls[-1][2]["timeout"] == (10.0, 90.0))
+fake_http.request("GET", "https://example.invalid", timeout=(1.0, 2.0))
+check("an explicit iEEG request timeout is preserved",
+      fake_http.calls[-1][2]["timeout"] == (1.0, 2.0))
+
+
+class _FakePortalNode:
+    def __init__(self, label, data_check):
+        self.values = {"channelLabel": label, "dataCheck": data_check}
+
+    def findtext(self, key):
+        return self.values[key]
+
+
+class _FakePortalDetail:
+    def __init__(self, revision_id):
+        self.portal_id = revision_id
+        self.start_time = 1
+        self.end_time = 2
+        self.duration = 1.0
+        self.number_of_samples = 100
+        self.sample_rate = 100.0
+
+
+class _FakePinnedPortalDataset:
+    name = "HUP116_phaseII"
+
+    def __init__(self, snapshot_id):
+        expected_revision, expected_check = HUP_SOURCE_PINS[self.name]["channels"]["EKG1"]
+        self.snap_id = snapshot_id
+        self.ts_array = [_FakePortalNode("EKG1", expected_check)]
+        self._detail = _FakePortalDetail(expected_revision)
+
+    def get_channel_labels(self):
+        return ["EKG1"]
+
+    def get_time_series_details(self, label):
+        if label != "EKG1":
+            raise KeyError(label)
+        return self._detail
+
+
+pinned_hup = HUP_SOURCE_PINS["HUP116_phaseII"]
+verified_hup = verify_hup_source_identity(
+    _FakePinnedPortalDataset(pinned_hup["snapshot_id"]), [], "EKG1")
+check("HUP portal input matching the pinned snapshot/revision identity is accepted",
+      verified_hup["snapshot_id"] == pinned_hup["snapshot_id"])
+try:
+    verify_hup_source_identity(
+        _FakePinnedPortalDataset("retargeted-snapshot"), [], "EKG1")
+    retargeted_hup_rejected = False
+except RuntimeError:
+    retargeted_hup_rejected = True
+check("a HUP dataset name retargeted to another snapshot is rejected",
+      retargeted_hup_rejected)
+
+
+class _SyntheticNightDataset:
+    """Thread-safe deterministic probe source used to verify parallel night selection."""
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self.active = 0
+        self.max_active = 0
+
+    def get_data(self, start_us, duration_us, channels):
+        del duration_us, channels
+        with self._lock:
+            self.active += 1
+            self.max_active = max(self.max_active, self.active)
+        try:
+            time.sleep(0.005)
+            start_h = start_us / 3.6e9
+            local_rng = np.random.RandomState(int(round(start_h * 2)) + 100)
+            t_probe = np.arange(600) / 100.0
+            delta_amp = 4.0 if 2.0 <= start_h < 5.0 else 0.5
+            x = (
+                delta_amp * np.sin(2 * np.pi * 1.0 * t_probe)
+                + np.sin(2 * np.pi * 10.0 * t_probe)
+                + 0.01 * local_rng.randn(len(t_probe))
+            )
+            return x[:, None]
+        finally:
+            with self._lock:
+                self.active -= 1
+
+
+night_ds = _SyntheticNightDataset()
+night_sequential = find_night(
+    night_ds, {"CTX": 0}, "CTX", 100.0, total_h=8.0,
+    required_h=3.0, probe_workers=1)
+night_parallel, night_diagnostics = find_night(
+    night_ds, {"CTX": 0}, "CTX", 100.0, total_h=8.0,
+    required_h=3.0, probe_workers=4, return_diagnostics=True)
+check("parallel sparse-probe night selection is identical to sequential selection",
+      night_parallel == night_sequential)
+check("night probes execute concurrently instead of serially",
+      night_ds.max_active > 1)
+check("night-selection provenance records complete successful probe coverage",
+      night_diagnostics["n_probes"] == 16
+      and night_diagnostics["n_finite_scores"] == 16
+      and night_diagnostics["n_probe_failures"] == 0)
+
+original_probe_get = cortical_module.get
+
+
+def _too_many_failed_probes(ds, idx, start_s, dur_s):
+    if int(round(start_s / (30 * 60))) < 4:
+        raise ConnectionError("synthetic portal failure")
+    return ds.get_data(int(start_s * 1e6), int(dur_s * 1e6), idx)
+
+
+try:
+    cortical_module.get = _too_many_failed_probes
+    try:
+        find_night(
+            _SyntheticNightDataset(), {"CTX": 0}, "CTX", 100.0, total_h=8.0,
+            required_h=3.0, probe_workers=1)
+        excessive_probe_failures_rejected = False
+    except RuntimeError:
+        excessive_probe_failures_rejected = True
+finally:
+    cortical_module.get = original_probe_get
+check("night selection fails closed when more than 20% of probes fail",
+      excessive_probe_failures_rejected)
+
+pinned_bytes = b"pinned snapshot bytes"
+with tempfile.NamedTemporaryFile(delete=False) as pinned_test_file:
+    pinned_test_file.write(pinned_bytes)
+    pinned_test_path = pinned_test_file.name
+try:
+    pinned_test_name = "_synthetic_snapshot_identity_test"
+    SNAPSHOT_FILES[pinned_test_name] = {
+        "size": len(pinned_bytes),
+        "sha256": hashlib.sha256(pinned_bytes).hexdigest(),
+        "s3_version_id": "synthetic-version",
+    }
+    check("a local OpenNeuro input matching the pinned size and SHA-256 is accepted",
+          verify_pinned_snapshot_file(pinned_test_name, pinned_test_path)
+          == SNAPSHOT_FILES[pinned_test_name])
+    SNAPSHOT_FILES[pinned_test_name]["sha256"] = "0" * 64
+    try:
+        verify_pinned_snapshot_file(pinned_test_name, pinned_test_path)
+        corrupted_snapshot_rejected = False
+    except RuntimeError:
+        corrupted_snapshot_rejected = True
+    check("a nonempty but wrong local OpenNeuro input is rejected",
+          corrupted_snapshot_rejected)
+finally:
+    SNAPSHOT_FILES.pop("_synthetic_snapshot_identity_test", None)
+    os.remove(pinned_test_path)
+
+for mask_length, half_width in ((1, 0), (8, 1), (31, 4), (100, 17)):
+    raw_mask = rng.rand(mask_length) < 0.2
+    expected_dilation = (
+        np.convolve(
+            raw_mask.astype(float), np.ones(2 * half_width + 1), mode="same") > 0
+        if half_width else raw_mask
+    )
+    check(
+        f"linear-time artifact dilation matches centred convolution ({mask_length}, {half_width})",
+        np.array_equal(dilate_boolean_mask(raw_mask, half_width), expected_dilation))
 
 # 3B: two channels have true peaks at different lags. The participant estimator must report the
 # peak of the averaged curves, not the average of independently maximised channel values.
@@ -296,8 +489,23 @@ changing_swa[3:, :150] = np.nan
 fixed_dr, fixed_swa, _, fixed_qc = aggregate_staging_features(
     changing_dr, changing_swa, changing_clean, np.ones(6, bool))
 check("changing contact gain/availability cannot manufacture stage-proxy modes",
-      fixed_qc["required_contact_count"] == 5
+      fixed_qc["n_selected_contacts"] == 0
       and np.isnan(fixed_dr).all() and np.isnan(fixed_swa).all())
+
+# A contact with only one valid 30-s feature must not enter the fixed staging denominator merely
+# because its independent 1-s sigma coverage happened to pass.
+sparse_dr = np.ones((6, 100))
+sparse_swa = np.ones((6, 100))
+sparse_dr[3:, 1:] = np.nan
+sparse_swa[3:, 1:] = np.nan
+qualified_dr, qualified_swa, _, qualified_qc = aggregate_staging_features(
+    sparse_dr, sparse_swa, np.ones_like(sparse_dr), np.ones(6, bool))
+check("staging-sparse contacts cannot invalidate a stable full-night contact set",
+      qualified_qc["n_selected_contacts"] == 3
+      and qualified_qc["required_contact_count"] == 3
+      and np.isfinite(qualified_dr).all() and np.isfinite(qualified_swa).all()
+      and np.allclose(qualified_qc["per_contact_feature_coverage"][:3], 1.0)
+      and np.allclose(qualified_qc["per_contact_feature_coverage"][3:], 0.01))
 
 # Values and missingness on a contact excluded by full-night QC must have no effect.
 base_dr = np.tile(np.r_[np.full(50, 0.1), np.full(50, 0.6)], (4, 1))
@@ -414,6 +622,91 @@ check("RESPect order QC still rejects a mismatch in a selected modality",
       selected_channel_name_mismatches(
           ["ecg", "wrong", ".....-1"], ["ecg", "seeg", "....."], [0, 1])
       == [(1, "wrong", "seeg")])
+
+electrode_qc = electrode_eligibility_from_rows([
+    {"name": ".....", "group": "grid"},
+    {"name": ".....", "group": "grid"},
+    {"name": "A1", "group": "grid", "soz": "no", "resected": "no", "edge": "no",
+     "Destrieux_label_text": "G_front_middle"},
+    {"name": "A2", "group": "depth", "soz": "yes", "graymatter": "yes",
+     "Destrieux_label_text": "G_parietal_sup"},
+], ["A1", "A2"])
+check("unused duplicate electrode placeholders do not invalidate the exact requested join",
+      np.array_equal(electrode_qc["selected_mask"], [True, False]))
+check("RESPect ROI masks are derived only after pathology exclusions",
+      np.array_equal(electrode_qc["frontal_mask"], [True, False])
+      and not electrode_qc["parietal_mask"].any()
+      and electrode_qc["exclusion_reasons"]["A2"] == ["soz"])
+
+synthetic_events = event_annotations_from_rows([
+    {"onset": "0", "duration": "60", "offset": "60", "sample_start": "0",
+     "sample_end": "600", "trial_type": "sleep", "sub_type": "NREM",
+     "electrodes_involved_onset": "all", "electrodes_involved_offset": "all"},
+    {"onset": "60", "duration": "60", "offset": "120", "sample_start": "600",
+     "sample_end": "1200", "trial_type": "sleep", "sub_type": "REM",
+     "electrodes_involved_onset": "all", "electrodes_involved_offset": "all"},
+    {"onset": "120", "duration": "30", "offset": "150", "sample_start": "1200",
+     "sample_end": "1500", "trial_type": "sleep-wake transition", "sub_type": "unknown",
+     "electrodes_involved_onset": "all", "electrodes_involved_offset": "all"},
+    {"onset": "150", "duration": "30", "offset": "180", "sample_start": "1500",
+     "sample_end": "1800", "trial_type": "sleep", "sub_type": "unknown",
+     "electrodes_involved_onset": "all", "electrodes_involved_offset": "all"},
+    {"onset": "10", "duration": "2", "offset": "12", "sample_start": "100",
+     "sample_end": "120", "trial_type": "artefact", "sub_type": "n/a",
+     "electrodes_involved_onset": "A1", "electrodes_involved_offset": "A1"},
+], total_s=180, sf=10)
+annotation_labels, annotation_sources = annotation_epoch_context(
+    synthetic_events, 6, epoch_s=30)
+primary_labels, _ = constrain_proxy_to_annotations(
+    np.array(["N2", "N3", "N2", "N3", "N2", "N3"]),
+    annotation_labels, annotation_sources)
+sensitivity_labels, _ = constrain_proxy_to_annotations(
+    np.array(["N2", "N3", "N2", "N3", "N2", "N3"]),
+    annotation_labels, annotation_sources, allow_proxy_unknown_sleep=True)
+check("author disturbances break otherwise author-defined stable sleep epochs",
+      np.array_equal(primary_labels[:5], ["", "NREM", "R", "R", ""]))
+check("author-unknown sleep stays unclassified in the primary stage array",
+      primary_labels[5] == "" and sensitivity_labels[5] == "N3")
+
+selection_annotations = [
+    dict(onset_s=0.25, stop_s=30.25, category="sws_selection", contacts=["all"]),
+]
+selection_labels, selection_sources = annotation_epoch_context(
+    selection_annotations, 2, epoch_s=30)
+selection_masks = annotation_second_masks(selection_annotations, total_s=60)
+check("a curated SWS selection is N3 and cannot simultaneously be reported as awake",
+      selection_labels[0] == "N3"
+      and selection_sources[0] == "author_sws_selection"
+      and not selection_masks["awake"][:31].any())
+
+check("contact-specific artifact annotations mask only that requested contact",
+      event_exclusion_mask(
+          synthetic_events, 0, 1800, 10, channel="A1", pad_s=0).sum() == 20
+      and not event_exclusion_mask(
+          synthetic_events, 0, 1800, 10, channel="A2", pad_s=0).any())
+
+auxiliary, auxiliary_qc = aggregate_auxiliary_epoch_features(np.array([
+    [1.0, 2.0, 4.0, 8.0],
+    [10.0, 20.0, 40.0, 80.0],
+    [1.0, np.nan, np.nan, np.nan],
+]), min_channel_coverage=0.75)
+check("all stable EMG/EOG channels contribute after within-channel scale normalization",
+      auxiliary_qc["n_selected_channels"] == 2
+      and np.allclose(auxiliary / auxiliary[0], [1.0, 2.0, 4.0, 8.0]))
+
+isolated_stage_labels = np.array(["N2", "W"] * 20)
+stable_stage_labels = np.array(["W", "N2", "N2", "N2", "N2", "N2", "N2", "W"])
+check("isolated 30-s stage labels cannot satisfy Naji's stable 3-min-bin rule",
+      len(stable_stage_epoch_indices(isolated_stage_labels, "N2")) == 0)
+check("an uninterrupted 3-min stage run satisfies Naji's stable-bin rule",
+      np.array_equal(
+          stable_stage_epoch_indices(stable_stage_labels, "N2"),
+          np.arange(1, 7)))
+interrupted_stage_labels = np.array(["N2"] * 6 + [""] + ["N2"] * 5)
+check("an author-disturbed epoch breaks rather than bridges a Naji stable-stage run",
+      np.array_equal(
+          stable_stage_epoch_indices(interrupted_stage_labels, "N2"),
+          np.arange(6)))
 
 # Excluded epochs cannot set the robust centres/MADs used to classify retained epochs.
 clean_rng = np.random.RandomState(77)

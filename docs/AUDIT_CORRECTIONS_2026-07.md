@@ -2,11 +2,16 @@
 
 ## Status
 
-All committed numerical cohort results are legacy artifacts. Current readers require
-`analysis_version = 2026-07-corrected-v5` and
-`cache_schema_version = 2026-07-per-contact-power-pchip-night-threshold-v5`.
-No committed cohort result currently passes those gates, so biological conclusions are pending a
-raw-data rerun and QC.
+Legacy numerical cohort results are historical artifacts. Current readers require
+`analysis_version = 2026-07-corrected-v7` and
+`cache_schema_version = 2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7`.
+The complete six-subject RESPect cache and downstream manifests pass those gates, but 3A spectrum,
+cross-correlation, fixed-0.02-Hz coherence, and own-peak coherence are each estimable in 0/6, and
+3B N2/N3 are each estimable in 0/6. The prespecified RESPect endpoint is therefore unavailable,
+not positive or negative evidence for an LC proxy. The HUP cache also completed with 25 requested,
+17 completed, 8 structured skips, and 0 failures; all four 3A endpoints, both 3B stages, and the
+direct-stream 3D pooled endpoint were each estimable in 0/25. Terminal artifact hashes validated,
+and all 3D inference remains disabled.
 
 In this document, **FIXED** means that the corresponding implementation change is present in the
 working tree; the issue register gives its executable regression where available and otherwise a
@@ -41,13 +46,24 @@ and is not an LC measurement.
   relevant staged NREM data.
 - Rejects IED/artifact-contaminated SO windows.
 - Excludes RESPect BIDS channels marked `bad` and requires good iEEG/ECG/EMG/EOG modalities.
-- Makes both HUP and RESPect staging proxies fail closed when high-delta or N2-like/N3-like
-  mixture partitions are unstable; this is a high-tail algorithm, not evidence for two latent
-  physiological states.
+- Loads, validates, and hashes RESPect `events.tsv`. Author NREM/REM/SWS and outside-sleep context
+  are primary; author-unknown sleep remains unclassified, while proxy labels within it are stored
+  only for sensitivity. Author artifact/seizure/stimulation intervals are excluded before
+  filtering and break stable-stage runs.
+- Joins RESPect iEEG channels exactly to `electrodes.tsv`; excludes documented
+  pathological/non-cortical contacts; stores Destrieux labels; and constructs conservative
+  parietal/postcentral/precuneus and frontal endpoint intersections.
+- Uses all coverage-qualified good EMG/EOG channels after within-channel normalization and robust
+  aggregation rather than selecting the first channel.
+- Makes the HUP staging proxy fail closed when high-delta or N2-like/N3-like mixture partitions are
+  unstable; this is a high-tail algorithm, not evidence for two latent physiological states.
 - Computes staging spectra only from fully artifact-free contact-epochs, fits every staging model
   on its exact downstream-eligible reference set, and aggregates a fixed full-night contact set
-  after within-contact SWA normalization with an 80% per-epoch support requirement.
-- Requires at least 80% sigma and RR/HR coverage.
+  selected by joint delta/SWA coverage after within-contact SWA normalization with an 80%
+  per-epoch support requirement.
+- Validates the RESPect BrainVision header rate against the BIDS nominal rate within 10 ppm, stores
+  both, and uses the nominal BIDS rate for exact sample/event boundaries.
+- Requires endpoint-specific signal coverage and cache-wide RR/HR coverage.
 - Adds cache schema, cache-producer source digest, code revision, runtime versions, timestamps,
   source selection/checksums where available, error logs, and atomic writes. Cache acceptance is
   tied to the exact cache-producing code, not a schema label or broad repository hash alone.
@@ -71,9 +87,13 @@ and is not an LC measurement.
 - Evaluates the paired SWA negative control in the accepted sigma peak window rather than selecting
   a different SWA peak/window, but keeps the sigma-selected comparison descriptive because an
   ordinary paired p value would condition on the selection.
-- Uses subject-matched scale-free surrogates and a group max-lag sign-flip test.
+- Uses subject-matched scale-free surrogates. Reports cohort peak clustering as a tightness-only
+  statistic, not evidence that peaks are near Lecci's 0.019 Hz.
+- Separates the prespecified positive 0–15 s Lecci-direction cross-correlation test (sigma follows
+  HR) from signed max-absolute and opposite-sign sensitivity summaries.
 - Removes invalid independent-frequency-bin and independently selected-lag inference.
-- Calls the method a Lecci-aligned approximation, pending validation against FieldTrip/raw data.
+- Uses the conservative RESPect parietal/postcentral/precuneus intersection while calling the
+  method a motivated iEEG adaptation, pending scalp-source and FieldTrip/raw validation.
 
 ### 3B
 
@@ -84,8 +104,10 @@ and is not an LC measurement.
   and avoiding `60/mean(RR)` versus `mean(60/RR)` denominator mixing.
 - Preserves multichannel event dependence with one shared circular shift in eligible stage-time.
 - Uses stage-specific clean SO amplitude thresholds and 1,000 diagnostic shifts.
-- Restricts events to the cache's fixed coverage-qualified contact set and requires at least two
-  contacts to retain ≥30 complete finite in-stage RR windows after final window eligibility.
+- Requires an uninterrupted 180 s run of the same stage, matching Naji's stable-bin rule.
+- Restricts events to the cache's fixed coverage-qualified contact set, plus the RESPect frontal
+  intersection when available, and requires at least two contacts to retain ≥30 complete finite
+  in-stage RR windows after final window eligibility.
 - Disables 3B inferential p/z reporting because whole-stage shifts do not preserve local
   nonstationary HR trends or event-density clustering; raw/local magnitudes remain descriptive.
 
@@ -115,14 +137,25 @@ and is not an LC measurement.
 - Creates an `in_progress` manifest before work. Caught subject failures are finalized and every
   requested subject is completed, skipped with a reason, or failed; runner `None` values cannot
   disappear. An unexpected process interruption intentionally remains `in_progress` and is rejected.
+- Classifies a participant below a prespecified signal-coverage gate as an atomic, reasoned
+  `status=skip` record; acquisition-chunk, ECG-detector, and runtime failures remain fatal.
 - Records endpoint availability and a partial-status reason for unavailable required 3A/3B
   endpoints. Available endpoints from a partial record still enter their own endpoint-specific
   denominator; each inferential endpoint has its own minimum sample-size gate. Summaries reject
   non-production pipelines/configurations, byte-hash mismatches, mixed, stale, unclassified,
   lineage-mismatched, failed, or manifest-free runs.
+- Validates and reports 3A and 3B independently; failing one analysis's sample-size gate cannot
+  suppress a valid endpoint from the other.
 - Describes the HUP selector accurately as a sparse-probe high-delta candidate. It searches the
   complete record, preserves failed probes in physical time, includes the last legal window, and
   requires enough remaining recording for the requested duration.
+- Pins every HUP dataset snapshot and used-channel revision/`dataCheck` identity and fails closed
+  if the portal snapshot or channel set differs.
+- Bounds portal requests with 10 s connect and 90 s read timeouts, limits automatic HTTP retries to
+  transient idempotent metadata GETs, and closes each subject/worker session.
+- Scores HUP sparse night probes concurrently with four independent sessions while preserving
+  deterministic probe-time result order. Records probe failures and fails closed when more than
+  20% of probes fail.
 - Pins the direct scientific dependencies and iEEG client revision; adds CI synthetic tests.
 - Redacts the portal account identifier/history from setup documentation.
 
@@ -146,14 +179,21 @@ Then run all synthetic checks and
 
 ## Human/raw-data blockers
 
-- Expert AASM/R&K scoring or validation against expert hypnograms.
-- Coordinate/tissue/region/SOZ/bad-contact localization and prespecified homologous regions.
+- Expert AASM/R&K N2/N3 scoring or validation against expert hypnograms. RESPect author annotations
+  are coarse/incomplete, and strict primary use may leave too few estimable participants.
+- HUP coordinate/tissue/region/SOZ/bad-contact localization. RESPect's filtered Destrieux
+  parietal/frontal iEEG intersections remain adaptations, not validated homologues of the cited
+  scalp sources and not direct LC measurements.
 - Blinded ECG, SO, spindle, artifact, missing-data-boundary, and staging validation.
+- A clinically justified RESPect postictal sensitivity exclusion; exact seizure intervals are
+  masked, but possible longer cardiac/sleep effects are not thereby removed.
 - Benchmarking the 1 Hz Hilbert/Butterworth 3A power series against Lecci’s FieldTrip Morlet
   implementation.
 - A pairing-aware null that shifts/block-resamples complete spindle trains relative to SOs and
   repeats event pairing/contact aggregation; no 3D p value is currently valid. A stage contrast
   additionally requires matched contacts and event-count control.
 - Verified HUP lights-off/sleep-onset timing; sparse high-delta probes do not establish either.
-- A complete current-version real-data rerun with endpoint and manifest QC.
+- New or longer appropriately staged, anatomically validated data if an estimable cohort endpoint
+  is required. Both current-version regenerations are complete but their prespecified endpoints
+  are unavailable; do not lower gates after seeing that result.
 - An independent LC/NE-sensitive measurement or intervention for any LC-specific claim.

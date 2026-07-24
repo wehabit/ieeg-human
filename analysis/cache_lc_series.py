@@ -23,14 +23,19 @@ rather than delete-and-splice (see spectral_gapped.py for why).
 
     .venv/bin/python analysis/cache_lc_series.py [--subjects 165,157] [--hours 7]
 """
-import argparse, json, os, time, traceback
+import argparse, concurrent.futures, json, os, time, traceback
 import numpy as np
 from scipy import signal, interpolate, ndimage
 import neurokit2 as nk
 
-from infraslow_rr_sigma_coherence import sess, pull_continuous, notch, ROOT
+from infraslow_rr_sigma_coherence import (
+    IEEG_CONNECT_TIMEOUT_S, IEEG_READ_TIMEOUT_S, sess, pull_continuous, notch, ROOT,
+)
 from results_3A_tutorial_style import ied_clean_mask
-from cohort_3A_cortical import COHORT, cortical_channels, delta_ratio, find_night
+from cohort_3A_cortical import (
+    COHORT, HUP_SOURCE_PIN_SCHEMA_VERSION, NIGHT_PROBE_WORKERS, cortical_channels,
+    delta_ratio, find_night, verify_hup_source_identity,
+)
 from cohort_stages_3ABD import band_sos, EPOCH, CHUNK_S, SWA_BAND
 from pipeline_version import (CACHE_SCHEMA_VERSION, atomic_savez, cache_code_sha256, file_sha256,
                               git_is_dirty, git_revision, npz_scalar_text, runtime_versions,
@@ -50,6 +55,9 @@ MIN_CONTACTS = 3
 MIN_CONTACT_FRACTION_PER_BIN = 0.80
 FILTER_EDGE_S = 30.0
 MISSING_PAD_S = 5.0
+HUP_ANATOMY_SELECTION_METHOD = (
+    "UNVALIDATED contact-number heuristic; lateral-contact candidates require "
+    "coordinate/tissue/SOZ QC")
 
 
 def sanitize_beats(beats, min_interval_s=0.25):
@@ -124,6 +132,7 @@ def staging_epoch_features(segment, clean_mask, measured_mask, sf):
 def aggregate_staging_features(
         dr_by_contact, swa_by_contact, clean_by_contact, candidate_contact_mask,
         min_contacts=MIN_CONTACTS,
+        min_contact_feature_coverage=MIN_CONTACT_COVERAGE,
         min_contact_fraction_per_epoch=MIN_CONTACT_FRACTION_PER_BIN):
     """Aggregate staging features from one fixed, normalized full-night contact set.
 
@@ -140,6 +149,13 @@ def aggregate_staging_features(
     selected = np.asarray(candidate_contact_mask, bool).ravel().copy()
     if len(selected) != dr.shape[0]:
         raise ValueError("candidate_contact_mask must align with staging contacts")
+    feature_valid = np.isfinite(dr) & np.isfinite(swa)
+    feature_coverage = feature_valid.mean(axis=1)
+    # A contact that is stable for the 1-s sigma series can still be nearly absent from the
+    # stricter, fully-clean 30-s staging features.  Letting one finite epoch qualify such a contact
+    # raises the fixed-set denominator and can make every epoch unavailable.  Prequalify once over
+    # the whole recording; do not change the set epoch by epoch.
+    selected &= feature_coverage >= float(min_contact_feature_coverage)
     swa_scales = np.full(dr.shape[0], np.nan)
     for contact in range(dr.shape[0]):
         positive = swa[contact][np.isfinite(swa[contact]) & (swa[contact] > 0)]
@@ -170,6 +186,8 @@ def aggregate_staging_features(
         n_selected_contacts=n_selected,
         required_contact_count=required,
         contact_count=support,
+        per_contact_feature_coverage=feature_coverage,
+        minimum_contact_feature_coverage=float(min_contact_feature_coverage),
         swa_normalization="divide each fixed contact by its full-night median clean-epoch SWA",
     )
 
@@ -335,7 +353,7 @@ def detect_so_halfwaves(x, sf):
     return threshold_so_candidates(candidates).astype(int)
 
 
-def run(n, hours, force=False):
+def _run_with_session(n, hours, force, s):
     name = f"HUP{n}_phaseII"
     fp = os.path.join(OUT, f"{name}.npz")
     current_cache_digest = cache_code_sha256(ROOT)
@@ -343,25 +361,49 @@ def run(n, hours, force=False):
         raise RuntimeError(
             f"{fp} cannot be reused outside a validated complete run; rerun with --force")
     t_start = time.time()
-    s = sess(); ds = s.open_dataset(name)
+    ds = s.open_dataset(name)
     labels = ds.get_channel_labels(); lab_idx = {l: i for i, l in enumerate(labels)}
     d0 = ds.get_time_series_details(labels[0]); sf = d0.sample_rate
     total_h = (getattr(d0, "duration", 0) or 0) / 3.6e9
     ekg = next((l for l in labels if l.upper().startswith(("EKG", "ECG"))), None)
     ctx = cortical_channels(labels)
+    source_identity = verify_hup_source_identity(ds, ctx, ekg)
+    source_identity_json = json.dumps(source_identity, sort_keys=True)
     if ekg is None or len(ctx) < 3:
         atomic_savez(fp, subject=name, status="skip",
                      cache_schema_version=CACHE_SCHEMA_VERSION,
                      cache_code_sha256=current_cache_digest,
+                     source_dataset=name, source_kind="iEEG.org API",
+                     source_identity_json=source_identity_json,
                      hours=float(hours),
                      reason=f"ekg={ekg} n_cortical={len(ctx)}")
         print(f"[{name}] SKIP ekg={ekg} n_cortical={len(ctx)}", flush=True)
         return "skip"
-    night = find_night(ds, lab_idx, ctx[0], sf, total_h, required_h=hours)
+    night, night_search_qc = find_night(
+        ds, lab_idx, ctx[0], sf, total_h, required_h=hours,
+        return_diagnostics=True)
+    source_selection_json = json.dumps(
+        dict(
+            night_s=None if night is None else float(night),
+            requested_hours=float(hours),
+            night_probe_workers=NIGHT_PROBE_WORKERS,
+            portal_timeout_s=dict(
+                connect=IEEG_CONNECT_TIMEOUT_S,
+                read=IEEG_READ_TIMEOUT_S),
+            night_search_qc=night_search_qc,
+            night_search=(
+                "highest sparse-probe delta candidate (6 s sampled every 30 min "
+                "within each contiguous 3 h window across the complete recording; "
+                "not validated sleep onset or a dense whole-window mean)"),
+        ),
+        sort_keys=True)
     if night is None:
         atomic_savez(fp, subject=name, status="skip",
                      cache_schema_version=CACHE_SCHEMA_VERSION,
                      cache_code_sha256=current_cache_digest,
+                     source_dataset=name, source_kind="iEEG.org API",
+                     source_identity_json=source_identity_json,
+                     source_selection_json=source_selection_json,
                      hours=float(hours),
                      reason="no night")
         print(f"[{name}] SKIP no night", flush=True)
@@ -500,10 +542,24 @@ def run(n, hours, force=False):
     if ecg_failures:
         raise RuntimeError(
             f"ECG detection failed in {len(ecg_failures)} chunks; publication cache fails closed")
-    if sigma_coverage < MIN_SIGNAL_COVERAGE or hr_coverage < MIN_SIGNAL_COVERAGE:
-        raise RuntimeError(
-            f"coverage QC failed: sigma={sigma_coverage:.1%}, HR={hr_coverage:.1%}; "
+    if hr_coverage < MIN_SIGNAL_COVERAGE:
+        # Insufficient participant data are an expected cohort exclusion, not an execution
+        # failure.  Raising here used to put the participant in ``manifest.failed`` and thereby
+        # invalidate every otherwise usable participant in the same production run.
+        reason = (
+            f"cardiac coverage QC failed: HR={hr_coverage:.1%}; "
             f"minimum is {MIN_SIGNAL_COVERAGE:.0%}")
+        atomic_savez(
+            fp, subject=name, status="skip",
+            cache_schema_version=CACHE_SCHEMA_VERSION,
+            cache_code_sha256=current_cache_digest,
+            source_dataset=name, source_kind="iEEG.org API",
+            source_identity_json=source_identity_json,
+            source_selection_json=source_selection_json,
+            hours=float(hours), reason=reason,
+            sigma_coverage=sigma_coverage, hr_coverage=hr_coverage)
+        print(f"[{name}] SKIP {reason}", flush=True)
+        return "skip"
 
     os.makedirs(OUT, exist_ok=True)
     payload = dict(status="ok", cache_schema_version=CACHE_SCHEMA_VERSION,
@@ -512,13 +568,8 @@ def run(n, hours, force=False):
                    code_dirty=git_is_dirty(ROOT), source_tree_sha256=source_tree_sha256(ROOT),
                    runtime_versions_json=json.dumps(runtime_versions(), sort_keys=True),
                    source_dataset=name, source_kind="iEEG.org API",
-                   source_selection_json=json.dumps(
-                       dict(night_s=float(night), requested_hours=float(hours),
-                            night_search=(
-                                "highest sparse-probe delta candidate (6 s sampled every 30 min "
-                                "within each contiguous 3 h window across the complete recording; "
-                                "not validated sleep onset or a dense whole-window mean)")),
-                       sort_keys=True),
+                   source_identity_json=source_identity_json,
+                   source_selection_json=source_selection_json,
                    failed_chunks_json=json.dumps(failed_chunks, sort_keys=True),
                    ecg_failures_json=json.dumps(ecg_failures, sort_keys=True),
                    ecg_processing_method=(
@@ -526,6 +577,8 @@ def run(n, hours, force=False):
                        "not Naji Pan-Tompkins 0.5-100 Hz; requires blinded R-peak validation"),
                    ecg_visual_validation=False,
                    sigma_coverage=sigma_coverage, hr_coverage=hr_coverage,
+                   sigma_meets_global_coverage_gate=bool(
+                       sigma_coverage >= MIN_SIGNAL_COVERAGE),
                    sigma_per_contact_coverage=sigma_contact_qc["per_contact_coverage"],
                    sigma_selected_contact_mask=sigma_contact_qc["selected_mask"],
                    sigma_contact_count=sigma_contact_qc["contact_count"],
@@ -535,11 +588,14 @@ def run(n, hours, force=False):
                    staging_contact_count=staging_contact_qc["contact_count"],
                    staging_n_selected_contacts=staging_contact_qc["n_selected_contacts"],
                    staging_required_contact_count=staging_contact_qc["required_contact_count"],
+                   staging_per_contact_feature_coverage=(
+                       staging_contact_qc["per_contact_feature_coverage"]),
+                   staging_minimum_contact_feature_coverage=(
+                       staging_contact_qc["minimum_contact_feature_coverage"]),
                    staging_swa_normalization=staging_contact_qc["swa_normalization"],
                    subject=name, sf=sf, night_s=night, hours=hours,
                    cortical_chans=np.array(ctx),
-                   anatomy_selection_method=(
-                       "UNVALIDATED contact-number heuristic; requires coordinate/tissue/SOZ QC"),
+                   anatomy_selection_method=HUP_ANATOMY_SELECTION_METHOD,
                    ekg=ekg, fsp=fsp, fsp_is_real_peak=fsp_real,
                    sigma_fixed=sig_fixed, sigma_fsp=sig_fsp, swa=swa_1,
                    hr_1=hr_1, hr_4=hr_4, rr_1=rr_1, rr_4=rr_4, fs_rr=FS_RR,
@@ -559,17 +615,36 @@ def run(n, hours, force=False):
     return "ok"
 
 
+def run(n, hours, force=False):
+    """Regenerate one participant and always release its portal connection pool."""
+    session = sess()
+    try:
+        return _run_with_session(n, hours, force, session)
+    finally:
+        session.close()
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--subjects", default=",".join(map(str, COHORT)))
     ap.add_argument("--hours", type=float, default=7.0)
     ap.add_argument("--force", action="store_true")
+    ap.add_argument(
+        "--jobs", type=int, default=1,
+        help="number of subjects to regenerate concurrently (does not alter estimators)")
     a = ap.parse_args()
+    if a.jobs < 1:
+        raise ValueError("--jobs must be a positive integer")
     os.makedirs(OUT, exist_ok=True)
     requested = [int(x) for x in a.subjects.split(",") if x.strip()]
     requested_names = [f"HUP{n}_phaseII" for n in requested]
     config = dict(hours=a.hours, cache_schema_version=CACHE_SCHEMA_VERSION,
-                  cache_code_sha256=cache_code_sha256(ROOT))
+                  cache_code_sha256=cache_code_sha256(ROOT),
+                  source_pin_schema_version=HUP_SOURCE_PIN_SCHEMA_VERSION,
+                  night_probe_workers=NIGHT_PROBE_WORKERS,
+                  portal_timeout_s=dict(
+                      connect=IEEG_CONNECT_TIMEOUT_S,
+                      read=IEEG_READ_TIMEOUT_S))
     if not a.force and validated_complete_run_exists(
             OUT, pipeline="cache_lc_series", requested=requested_names, config=config,
             suffix=".npz", require_current_source_tree=False):
@@ -578,20 +653,38 @@ def main():
     run_id = start_run_manifest(
         OUT, pipeline="cache_lc_series", requested=requested_names, config=config)
     completed, skipped, failed = [], [], []
-    for n in requested:
+
+    def run_one(n):
         name = f"HUP{n}_phaseII"
         try:
             status = run(n, a.hours, a.force)
             if status == "skip":
                 with np.load(os.path.join(OUT, f"{name}.npz"), allow_pickle=False) as record:
                     reason = npz_scalar_text(record, "reason", "unspecified")
-                skipped.append(dict(subject=name, reason=reason))
-            else:
-                completed.append(name)
+                return "skip", dict(subject=name, reason=reason)
+            return "ok", name
         except Exception as e:
             print(f"[HUP{n}] ERROR {type(e).__name__}: {e}", flush=True)
             traceback.print_exc()
-            failed.append(dict(subject=name, error=f"{type(e).__name__}: {e}"))
+            return "failed", dict(subject=name, error=f"{type(e).__name__}: {e}")
+
+    if a.jobs == 1:
+        records = map(run_one, requested)
+    else:
+        executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=a.jobs, thread_name_prefix="ieeg-cache-subject")
+        records = executor.map(run_one, requested)
+    try:
+        for status, record in records:
+            if status == "ok":
+                completed.append(record)
+            elif status == "skip":
+                skipped.append(record)
+            else:
+                failed.append(record)
+    finally:
+        if a.jobs != 1:
+            executor.shutdown(wait=True, cancel_futures=True)
     write_run_manifest(
         OUT, pipeline="cache_lc_series", requested=requested_names,
         completed=completed, skipped=skipped, failed=failed,

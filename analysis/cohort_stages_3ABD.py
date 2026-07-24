@@ -6,8 +6,8 @@ derivations, so true AASM N2/N3 scoring is IMPOSSIBLE here. What this does inste
 data-driven substitute: score 30 s epochs as NREM by relative delta, then split NREM into two
 classes by fitting a 2-component Gaussian mixture to log slow-wave (0.5-4 Hz) power within subject.
 The high-SWA class is reported as N3-like, the low-SWA class as N2-like. That is the physiological
-axis the AASM N2/N3 boundary tracks, but it is NOT scored staging. ds003848 (which has EOG+EMG) is
-where this can be validated properly.
+axis the AASM N2/N3 boundary tracks, but it is NOT scored staging. ds003848 has author coarse
+sleep-state annotations plus EOG/EMG, but still cannot validate expert AASM N2/N3 staging.
 
 ARCHITECTURE -- one streaming pass over the night per subject. The data pull dominates runtime, so
 the night is streamed once in 10-min chunks and only DERIVED features are kept:

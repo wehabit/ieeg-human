@@ -124,6 +124,25 @@ def channel_roles_from_rows(rows):
     return roles
 
 
+def selected_channel_name_mismatches(raw_names, tsv_names, selected_indices):
+    """Return order/name mismatches only for channels used by the analysis.
+
+    MNE appends suffixes such as ``-1`` when a BrainVision header contains duplicate names.
+    RESP0699 has this exact condition for an unused bad placeholder channel.  Requiring every
+    unused placeholder to retain an identical display name makes a valid selected-channel mapping
+    fail even though BIDS TSV row order and every requested modality agree.
+    """
+    if len(raw_names) != len(tsv_names):
+        raise ValueError("raw and TSV channel lists must have the same length")
+    selected = {int(value) for value in selected_indices}
+    return [
+        (i, raw_name, tsv_name)
+        for i, (raw_name, tsv_name) in enumerate(zip(raw_names, tsv_names))
+        if i in selected
+        and raw_name.strip().casefold() != tsv_name.strip().casefold()
+    ]
+
+
 # ---------------------------------------------------------------- staging
 def robust_z(x, reference=None):
     """Robust z score using only prespecified eligible reference epochs."""
@@ -326,14 +345,13 @@ def run(subject, delete_raw=False, force=False):
     if len(raw.ch_names) != roles["n_rows"]:
         raise RuntimeError(
             f"channel count mismatch: raw {len(raw.ch_names)} vs TSV {roles['n_rows']}")
-    mismatched = [
-        (i, raw_name, tsv_name)
-        for i, (raw_name, tsv_name) in enumerate(zip(raw.ch_names, roles["names"]))
-        if raw_name.strip().casefold() != tsv_name.strip().casefold()
-    ]
+    selected_role_indices = (
+        roles["ieeg"] + roles["ecg"] + roles["emg"] + roles["eog"])
+    mismatched = selected_channel_name_mismatches(
+        raw.ch_names, roles["names"], selected_role_indices)
     if mismatched:
         raise RuntimeError(
-            f"BrainVision/TSV channel-order mismatch; first mismatch={mismatched[0]}")
+            f"selected BrainVision/TSV channel-order mismatch; first mismatch={mismatched[0]}")
     ie = roles["ieeg"]; ecg_i = roles["ecg"][0]
     emg_i = roles["emg"][0] if roles["emg"] else None
     eog_i = roles["eog"][0] if roles["eog"] else None

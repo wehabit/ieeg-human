@@ -21,7 +21,9 @@ from cohort_stages_3ABD import (
     reliable_two_state_split as mixture_high_tail_split, stage_epochs,
 )
 from results_3A_tutorial_style import ied_clean_mask
-from stage_ds003848 import score_stages, channel_roles_from_rows
+from stage_ds003848 import (
+    score_stages, channel_roles_from_rows, selected_channel_name_mismatches,
+)
 from spectral_gapped import fill_short_gaps
 
 
@@ -405,6 +407,13 @@ roles = channel_roles_from_rows([
 ])
 check("RESPect channel parser excludes a bad ECG before selecting the usable ECG",
       roles["ecg"] == [1])
+check("RESPect order QC ignores an MNE-renamed unused duplicate placeholder",
+      selected_channel_name_mismatches(
+          ["ecg", "seeg", ".....-1"], ["ecg", "seeg", "....."], [0, 1]) == [])
+check("RESPect order QC still rejects a mismatch in a selected modality",
+      selected_channel_name_mismatches(
+          ["ecg", "wrong", ".....-1"], ["ecg", "seeg", "....."], [0, 1])
+      == [(1, "wrong", "seeg")])
 
 # Excluded epochs cannot set the robust centres/MADs used to classify retained epochs.
 clean_rng = np.random.RandomState(77)

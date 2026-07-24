@@ -1,5 +1,9 @@
 # Hierarchical coupling test (SO→spindle→ripple) — the missing spindle→ripple leg
 
+> **WITHDRAWN / UNAUDITED.** This path and its reconciliation with `staresina_style.py` predate the
+> current artifact, staging, participant-unit, and provenance controls. Do not cite the numerical
+> results or the claim that nesting was reproduced.
+
 The Staresina 2015 hierarchy is SO ⊃ spindle ⊃ ripple. Earlier analyses here tested only the two
 SO→ legs; this adds the **spindle→ripple** leg (polarity-robust, cross-validated) on the
 ripple-capable cohorts (the 204 Hz atlas cannot reach ripples).

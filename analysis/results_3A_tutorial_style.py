@@ -1,4 +1,9 @@
 """
+LEGACY one-participant 3A visualization, retained for shared artifact/power helpers.
+
+The executable analysis and its figures are quarantined because they use superseded FSP,
+single-window, and coherence logic. Existing figures are historical outputs, not evidence.
+
 TEST 3A on REAL patient data, drawn in the same visual language as the synthetic teaching
 figure (analysis/tutorial_signal_walkthrough.py) so the result is legible at a glance.
 
@@ -116,6 +121,12 @@ def msc(a, b):
 
 
 def main():
+    raise SystemExit(
+        "LEGACY/WITHDRAWN one-participant 3A entry point: use cache_lc_series.py followed "
+        "by lecci_faithful_3A.py. Shared helper functions remain importable.")
+    raise SystemExit(
+        "LEGACY 3A FIGURE QUARANTINED: existing figures use superseded estimators. "
+        "Use the versioned corrected pipeline; ied_clean_mask remains a shared helper.")
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", default="HUP165_phaseII")
     ap.add_argument("--night", default="HUP165_night1")
@@ -127,9 +138,11 @@ def main():
     a = ap.parse_args()
     win_s = a.win_min * 60.0
 
-    cache = os.path.join("/private/tmp/claude-501/-Users-paris-Documents-Buzsakli-Lab-Github/"
-                         "6c568d4c-5b04-4605-bece-490c8d0e3e2b/scratchpad",
-                         f"{a.dataset}_{int(a.win_start_s)}_{int(a.win_min)}_{a.mtl_chans.replace(',','-')}.npz")
+    cache_dir = os.path.join(ROOT, "data", "cache", "results_3A_tutorial_style")
+    os.makedirs(cache_dir, exist_ok=True)
+    cache = os.path.join(
+        cache_dir,
+        f"{a.dataset}_{int(a.win_start_s)}_{int(a.win_min)}_{a.mtl_chans.replace(',','-')}.npz")
     if os.path.exists(cache):
         z = np.load(cache); x_mtl, x_ekg, sf = z["x_mtl"], z["x_ekg"], float(z["sf"])
         print(f"[3A-fig] cache {x_mtl.shape}", flush=True)
@@ -250,4 +263,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(
+        "LEGACY/WITHDRAWN one-participant 3A entry point: use cache_lc_series.py followed "
+        "by lecci_faithful_3A.py. Shared helper functions remain importable.")

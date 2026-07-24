@@ -1,121 +1,234 @@
-# Methods — 3A, 3B, 3D
+# Audited methods — 3A, 3B, and 3D
 
-## Datasets
+## Status and construct
 
-**Two datasets, three scopes:** each test was first built on a single worked subject (**HUP165**,
-n=1), then run on the full **iEEG.org HUP phaseII** cohort (n=23), then replicated on the independent
-**Utrecht RESPect** cohort (n=6). HUP165 is one subject *within* HUP phaseII (`HUP165_phaseII`), not a
-separate dataset.
+These are methods for a pending corrected rerun. No committed cohort output currently satisfies the
+required analysis/cache versions.
 
-| | HUP phaseII (primary) | Utrecht RESPect (replication) |
-|---|---|---|
-| Source | iEEG.org (Penn epilepsy monitoring unit) | OpenNeuro **ds003848** (UMC Utrecht) |
-| n analysed | 23 (of 25 with depth + EKG); developed on 1 worked subject (HUP165) | 6 |
-| Recording | continuous multi-day; ~7 h/subject streamed from the highest-delta night | 1 h continuous `task-[Ss]leep` |
-| Sampling | 256–1024 Hz (per subject) | 2048 Hz, 50 Hz line |
-| iEEG electrodes | **SEEG depth**; lateral neocortical contacts (see below) | **3 ECoG grid + 3 SEEG depth** |
-| Cardiac | `EKG1`/`EKG2` | `ECG` |
-| EMG / EOG | none | **EMG + EOG** (+ thoracic/abdominal respiration belts) |
-| Localisation | none — depth ordering only (contact 1 = deepest/mesial, high = lateral) | **MNI coordinates + Destrieux atlas labels** |
+3A is an LC-motivated candidate signature. 3B is a cortical–autonomic timing measure. 3D is generic
+SO–spindle nesting. None is a validated human LC measurement. Direct LC/NE validation would require
+an independent LC/NE-sensitive signal or intervention.
 
-## Electrode selection
+The current production contract is `analysis_version = 2026-07-corrected-v5` and
+`cache_schema_version = 2026-07-per-contact-power-pchip-night-threshold-v5`.
 
-- **HUP:** the highest-numbered contact on each depth shaft (shafts with ≥6 contacts), up to 6 channels
-  — the most **lateral neocortical** end of each SEEG trajectory (contact 1 is deepest/mesial). Chosen
-  because spindles are thalamo*cortical* and Lecci's rhythm is parietal-maximal. No anatomical labels
-  exist, so region beyond mesial-vs-lateral depth is not recoverable.
-- **RESPect:** all good iEEG channels (54–93/subject), classified by role from `channels.tsv` and by
-  Destrieux atlas region from `electrodes.tsv`.
+## Data
 
-## Common preprocessing
+- HUP phaseII: multi-day clinical iEEG and ECG, no scalp PSG/EOG/EMG.
+- OpenNeuro ds003848 RESPect: iEEG, ECG, EMG, and EOG; approximately one-hour sleep runs.
 
-- Line notch (60 Hz HUP / 50 Hz RESPect + harmonics).
-- **Fast-spindle peak (FSP):** per subject, whiten the PSD (remove the log-log 1/f trend), take the
-  local peak in 10.5–16 Hz (fallback 13 Hz).
-- **Sigma power:** Hilbert envelope of the band-passed signal (FSP ± 1 Hz, or fixed 10–15 Hz), squared,
-  IED-masked, averaged across contacts, binned to **1 Hz**.
-- **Heart rate:** R-peaks (NeuroKit2) → RR intervals, gated to physiological 0.33–1.5 s → instantaneous
-  HR resampled to a 1 Hz grid (3A) or **4 Hz piecewise cubic spline** (3B).
-- **Staging (30 s epochs):**
-  - *HUP* (no EOG/EMG): NREM by a 2-component Gaussian mixture on delta ratio; N2/N3 split by a
-    2-component GMM on log slow-wave (0.5–4 Hz) power. A proxy — labelled "N2-like/N3-like".
-  - *RESPect* (has EOG/EMG): rule-based. Per epoch, robust-z of submental **EMG** RMS (10–100 Hz),
-    **EOG** movement variance (0.3–6 Hz), and slow-wave power. **Wake** = EMG z > 1.0; **REM** = EMG
-    z < −0.3 & SWA z < 0 & EOG z > 0.5; remaining = **NREM**, split N2/N3 by GMM on log SWA. Real
-    REM/wake exclusion.
+HUP contacts are currently lateral-contact candidates selected from contact numbering. That is not
+anatomic validation. Coordinates, gray-matter/region labels, bad-contact/SOZ exclusions, and
+clinical review are required before publication interpretation.
 
----
+The HUP interval is selected from 6 s delta-ratio probes sampled every 30 min. Candidate 3 h windows
+are evaluated in their true physical positions across the complete record: failed probes stay
+missing, the final legal window is included, and the selected start must leave enough recording for
+the requested analysis duration. This is a **sparse-probe high-delta candidate interval**, not a
+dense whole-window delta estimate, verified night, lights-off time, or sleep onset.
 
-## 3A — Do spindle power and heart rate oscillate together every ~50 s?
+## Staging
 
-**Source:** Lecci 2017 (*Sci Adv*); Osorio-Forero 2021 (*Curr Biol*). **Datasets:** HUP (n=23) + RESPect (n=6).
+- HUP uses an unvalidated delta-ratio/SWA Gaussian-mixture proxy. A split is accepted only with
+  BIC and held-out improvement, stable component means, adequate separation, and nondegenerate
+  component sizes. Temporal smoothing cannot re-admit explicitly dirty epochs. If an N2-like/N3-like
+  split is unsupported, epochs remain pooled `NREM` rather than being forced into two stages.
+- RESPect uses an unvalidated EMG/EOG/iEEG rule-based proxy. Production caching requires good
+  iEEG, ECG, EMG, and EOG channels and excludes BIDS channels marked `bad`. Wake/REM rules only
+  exclude candidates; NREM additionally requires a reproducible high-delta component. An unstable
+  NREM or N2-like/N3-like split fails closed.
 
-**Method (per subject, on pooled NREM):**
-1. Two 1 Hz series — sigma power (FSP ± 1 Hz, IED-masked) and instantaneous heart rate.
-2. **Step 1 — is there a ~50 s rhythm?** Morlet spectrum (3-cycle) of the sigma-power time course over
-   **every NREM bout ≥ 120 s**, 0.004–0.12 Hz at 0.001 Hz resolution, duration-weighted across bouts,
-   normalised, **Gaussian-fit** to locate that subject's own infraslow peak. Cohort test: do the peaks
-   **cluster** near 0.019 Hz, versus each subject's scale-free (1/f) surrogates?
-3. **Step 2 — does HR track it?** Magnitude-squared coherence (Welch, nperseg 256, 0.005 Hz drift
-   high-pass, gap-aware) read at 0.02 Hz **and** at the subject's own fitted peak; significance via the
-   analytic threshold `1 − α^(1/(K−1))`. Plus **cross-correlation** of z-scored 120 s intervals (HR as
-   source wave, ±60 s lag).
+RESPect robust SWA/EMG/EOG centers and scales are estimated only from jointly finite clean epochs;
+dirty epochs cannot move the thresholds applied to retained data.
 
-| Step | Lecci 2017 | Our implementation |
-|---|---|---|
-| Signal | **parietal scalp** EEG, 4-s epochs, sigma 10–15 Hz | **lateral neocortical iEEG**, 1-s bins, FSP ± 1 Hz |
-| Rhythm | Morlet spectrum + Gaussian peak fit per bout | same (Morlet + Gaussian fit) |
-| Coupling | cross-correlation | cross-correlation **+ gap-aware coherence** |
-| Staging | R&K scored | GMM proxy (HUP) / EMG-EOG (RESPect) |
+Labels must be called N2-like/N3-like. Neither cohort has expert AASM/R&K labels in this pipeline.
+Pooled proxy-NREM is primary; stage contrasts are exploratory.
 
----
+SWA means broadband 0.5–4 Hz slow-wave activity. It is not an individual SO event.
 
-## 3B — Does heart rate shift around the slow-oscillation trough?
+## Versioned cache and preprocessing
 
-**Source:** Naji 2019 (*J Cogn Neurosci*). **Datasets:** HUP (n=23) + RESPect (n=6).
+Each current cache carries a schema version, timestamp, code revision, runtime versions, source
+identifier/checksum where possible, selected interval, error logs, and coverage. It also carries a
+SHA-256 digest of the exact cache-producing source and environment-specification files. Loaders
+compare that cache-specific digest and recorded runtime versions with the current environment; a
+broad Git revision or downstream source-tree digest alone is insufficient. Atomic replacement
+prevents truncated caches. At least 80% sigma and cardiac coverage is required; acquisition-chunk
+failures or any ECG detector exception invalidate a production cache.
 
-**Method (per channel, per stage):**
-- **SO detection:** zero-phase band-pass **0.15–4 Hz**; negative half-waves with **duration 0.3–1.0 s**
-  and negative-peak amplitude **and** peak-to-peak ≥ **75th percentile** within channel.
-- **HR:** R-peaks → RR → **4 Hz cubic spline**.
-- **Statistic:** mean HR in a ±5 s window on the SO down-state trough; effect = **peak of the
-  post-trough curve as % above that stage's mean HR**; plus SO→HR peak latency. Significance = a
-  **stage-matched random-trigger null** (200 surrogates drawn from the same stage), z-scored.
+Every cache also embeds its participant ID, which must match the requested filename. A downstream
+subject result pins the exact cache-manifest run ID/hash and NPZ SHA-256; publication summaries
+re-hash those inputs. A documented cache exclusion is a subject-identified skip artifact whose
+reason/status/schema/producer digest must agree with its manifest, then propagates as a structured
+downstream skip rather than a missing record.
 
-| Step | Naji 2019 | Our implementation |
-|---|---|---|
-| EEG band | zero-phase 0.15–4 Hz | 0.15–4 Hz ✓ |
-| SO detection | Dang-Vu 2008 criteria (p2p amp, up-state amp, down/up-state duration) on **F3/F4 scalp** | negative half-waves, dur 0.3–1.0 s, amp & p2p ≥ **75th pct**, on **lateral iEEG** (percentile substitutes for µV) |
-| RR → HR | 4 Hz cubic spline | identical ✓ |
-| Statistic | peak of mean HR curve, % above stage mean; SO→HR interval | identical ✓ |
-| Significance | **none** (descriptive, mean ± SEM); real endpoint = ΔT ↔ behaviour (Pearson) | **stage-matched null + z**; no behaviour available |
-| Region | frontal scalp (global SOs) | lateral neocortical iEEG (local SOs) |
+Every terminal manifest also stores the SHA-256 of every output NPZ/JSON. Existing artifacts are
+reused only when their prior complete manifest, exact requested set, configuration, runtime, and
+byte hashes all match before any new manifest is written. Publication summaries re-hash result
+JSON as well as cache inputs and reject non-production configurations. JSON output is strict:
+non-standard NaN/Infinity tokens fail atomically.
 
-**3B follow-ups (RESPect only, from Destrieux labels):** SO-globality gradient (consensus across
-channels), region contrast (autonomic-adjacent vs posterior), and an N2 K-complex proxy (isolated
-frontal N2 events). See [3B_REGION_GLOBALITY.md](3B_REGION_GLOBALITY.md).
+For each contact:
 
----
+1. Pull each 600 s core with 30 s of filter/Hilbert context on either side; write only the core.
+2. Preserve the original finite-sample mask. Filling is permitted only as numerical filter
+   scaffolding; missing samples and a 5 s dilation around them remain ineligible.
+3. Detrend and line-notch the raw signal.
+4. Detect/pad broadband IED and extreme-amplitude artifacts.
+5. Compute band power per contact; never average raw voltages before power.
+6. Bin clean, measured envelope-squared power to 1 Hz.
+7. Normalize each contact once over the full night, then average contact powers.
 
-## 3D — Does the slow oscillation organise spindles?
+The aggregate uses a fixed coverage-qualified contact set: each selected contact must cover at
+least 80% of the interval, at least three contacts must qualify, and a reported second requires at
+least 80% of that selected set. Per-contact coverage, the selected mask, and the time-resolved
+contact count are stored; mutually disjoint low-coverage contacts cannot manufacture a
+fully-covered aggregate.
 
-**Source:** Staresina 2015 (*Nat Neurosci*); Helfrich 2018 (*Neuron*). **Dataset:** HUP (n=23).
+The same measured-data mask excludes contaminated staging epochs, SO/spindle candidates, and ECG
+peaks. A contact-epoch contributes delta ratio/SWA only when every sample is measured and
+artifact-clean. Staging fixes one full-night contact set, divides SWA by each contact's full-night
+clean-epoch median, and requires at least 80% of that exact set (and at least three contacts) in an
+epoch. Staging models are fit only on epochs eligible for their downstream labels. This closes
+zero-fill, brief-artifact, changing-contact, and excluded-reference leaks; blinded validation
+against real data remains required.
 
-**Method (per channel, per stage — event-based):**
-- **SO phase:** band-pass **0.5–1.25 Hz**, Hilbert phase.
-- **SO events:** troughs by `find_peaks(−SO, height = SD, min spacing 0.8 s)`.
-- **Spindle events:** Hilbert envelope of FSP ± 1 Hz, z-scored; peaks at **z ≥ 1.5, min spacing 0.3 s**.
-- **Coupling:** take the SO phase at each spindle peak → **Rayleigh test** on that phase distribution →
-  resultant vector length R (≥20 events per channel per stage).
+ECG R peaks are deduplicated with a sequential refractory rule. Physiological RR intervals
+0.33–1.5 s are interpolated with PCHIP inside continuous runs only. For a gap longer than 5 s, both
+endpoint grid samples and everything between them are explicitly missing; this prevents a 5.1 s
+beat gap from later appearing as a fillable 5.0 s internal NaN run. Both RR and derived HR are
+stored at 1 and 4 Hz.
 
-| Step | Staresina/Helfrich | Our implementation |
-|---|---|---|
-| Approach | **event-locked** — detect SO and spindle events, SO phase at spindle peak, Rayleigh | same |
-| SO band | 0.16–1.25 Hz (Helfrich) | 0.5–1.25 Hz |
-| Spindle band | 12–16 Hz | FSP ± 1 Hz (individual) |
+The current cache uses NeuroKit2 `ecg_clean`/`ecg_peaks` with `method="neurokit"` and artifact
+correction. This is a documented deviation from Naji's 0.5–100 Hz preprocessing, Pan–Tompkins
+detector, and visual confirmation. Cache metadata records the algorithm and `visual_validation =
+false`; blinded manual validation and detector sensitivity analysis remain required.
 
----
+## 3A: infraslow sigma and cardiac dynamics
 
-*Code: `analysis/lecci_faithful_3A.py` (3A), `analysis/event_3B_mednick.py` + `event_3B_cached.py`
-(3B), `analysis/event_3D_by_stage.py` (3D); derived-series cache built by `cache_lc_series.py` (HUP)
-and `stage_ds003848.py` (RESPect). Results in `outputs/`.*
+Primary sigma is fixed 10–15 Hz; SWA 0.5–4 Hz is the negative-control band. Individual FSP analysis
+is disabled until FSP can be estimated from all artifact-free NREM and manually quality-controlled.
+
+For every proxy-NREM run at least 120 s:
+
+1. Apply the mandatory symmetric 4 s smoothing.
+2. Compute a four-cycle Morlet spectrum from 0.001–0.12 Hz at 0.001 Hz spacing.
+3. Let every accepted bout contribute at every frequency using explicit support correction.
+4. Average bout spectra weighted by duration and normalize the participant spectrum to its mean.
+   Constant/zero-variance bouts and nonpositive or nonfinite normalization scales are unavailable,
+   not measured zero spectra.
+5. Fit three Gaussian terms. Accept a peak only when a local aperiodic-background excess, fit
+   quality, location agreement, and spectral-width criteria pass. Otherwise report no peak.
+6. Record fitted location, within-spectrum SD, and normalized power averaged over
+   peak ±0.5 spectral SD.
+7. Evaluate the SWA negative control in that **same sigma-defined window**. An independently
+   selected SWA peak/window is not the paired control. The same-window values are descriptive:
+   because the window was selected for high/accepted sigma, an ordinary sigma>SWA p value is
+   circular unless peak selection is repeated inside a joint null.
+
+Scale-free surrogates preserve each participant’s bout/gap pattern. Cohort peak clustering uses one
+matched surrogate peak per participant per iteration.
+
+For cardiac coupling, 120 s intervals are z-scored and cross-correlated with HR as the source wave.
+The group correlogram is tested with a sign-flip maximum statistic across lags. Gap-aware coherence
+at 0.02 Hz and at an accepted personal peak is a secondary analysis. Coherence is unavailable when
+either autospectrum lacks positive non-DC support or the target-bin value is nonfinite.
+
+This remains an approximation: the cached 1 Hz Hilbert/Butterworth series is not Lecci’s 0.1 s
+FieldTrip Morlet series and must be benchmarked on identical raw input.
+
+## 3B: SO–RR/HR timing
+
+Clean per-contact signals are zero-phase filtered at 0.15–4 Hz. Complete negative/down and
+positive/up half-waves must each last 0.3–1.0 s. After staging, up-state and peak-to-peak amplitude
+thresholds are computed separately within each channel and stage at the 75th percentile.
+
+For each channel, the 4 Hz RR tachogram is averaged in a ±5 s window around SO down-state troughs.
+The post-trough RR minimum defines the HR-burst time. Channel-specific times are averaged, matching
+Naji’s electrode timing endpoint. A participant magnitude is obtained from the average channel RR
+curve. Its stage baseline is calculated in the same RR domain and converted once to HR, so the
+percentage does not mix `60 / mean(RR)` with `mean(60 / RR)`. Observed and surrogate effects use
+that identical denominator. This is a prespecified consistency choice because the paper does not
+fully disambiguate the order of averaging and HR conversion for its stage baseline.
+
+The former null applies one common circular shift in eligible stage-time to the complete
+multichannel event ensemble, preserving cross-channel SO synchrony and fixing the older
+stage-offset/independent-channel defects. It remains a **diagnostic only**: a whole-stage shift can
+destroy local slow HR trends and SO-density clustering. The output therefore exposes no
+event-locking p/z claim. It reports the raw Naji magnitude, local post-peak versus pre-event mean,
+and shift-null diagnostic while a local-trend/dependence-preserving null is developed and
+validated.
+
+This is still an iEEG adaptation: Naji used visually scored stable sleep, F3/F4 scalp, absolute
+Dang-Vu criteria, visually checked R peaks, and a behavioral timing endpoint that is absent here.
+The production adaptation uses only the cache's fixed coverage-qualified contacts and requires at
+least two contacts to retain 30 complete finite in-stage RR windows after final window eligibility.
+Intracranial voltage polarity is not yet oriented to Naji's negative scalp downstate, so downstate
+timing remains a source-transfer limitation rather than a validated homologous marker.
+
+## 3D: independent-SO spindle phase
+
+Per contact:
+
+- SO detection: 0.16–1.25 Hz, complete 0.8–2.0 s cycles, top-quartile amplitude.
+- Spindle detection: fixed 12–16 Hz, 200 ms RMS, 75th-percentile threshold, 0.5–3.0 s duration.
+- Thresholds use one artifact-free pooled-NREM channel-night distribution.
+- IED/artifact samples are expanded by ±2.5 s; SO troughs and spindle RMS/event samples inside
+  that expanded mask are ineligible.
+- Each spindle is assigned to its nearest SO; at most the maximum-amplitude spindle is retained for
+  one SO epoch.
+
+Per-contact phase nonuniformity and its finite-sample Rayleigh probability are retained only as
+diagnostics under an independence assumption. They are not used to declare significant contacts or
+to count participant evidence.
+
+For the pooled-NREM descriptive endpoint, each contact contributes its raw complex phase mean and
+contacts are averaged with equal weight within participant. The usual algebraic event-count
+correction assumes independent event phases and is retained only as a diagnostic. Participant
+rotations are also diagnostic only: selecting a spindle inside a finite SO-centered window induces
+a common SO-phase direction even when spindle and SO trains are independent. Production inference
+is disabled. A valid null must shift or block-resample complete spindle trains relative to SOs and
+repeat event selection, pairing, contact aggregation, and the cohort statistic.
+
+Before that pooled endpoint is admitted, at least three included contacts must each provide at least
+1,200 s and 80% valid pooled NREM, and those exact included contacts must contribute at least 200
+paired SO–spindle events. Events from contacts excluded by the per-contact ≥20-event rule do not
+inflate that total. The cohort summary reconstructs this gate from the per-contact records.
+
+All 3D inference is **disabled/open**. The N2-like versus N3-like contrast has additional problems:
+separate stage estimates can contain different contact sets and very different event counts. Raw
+vector magnitudes remain count- and dependence-sensitive, while the algebraic correction is invalid
+under serial dependence. A valid contrast must use matched contacts and a dependence-preserving
+within-participant stage/block null before it can be reported.
+
+## Reproducibility rules
+
+- Current outputs require the shared versions in `analysis/pipeline_version.py`.
+- A run creates `RUN_MANIFEST.json` as `in_progress` before subject work. Caught subject-level
+  failures are recorded in the terminal manifest; an unexpected process interruption intentionally
+  leaves `run_state = in_progress`, which is visible and rejected by summaries.
+- Required-subject failures cause a nonzero exit.
+- Every requested subject is classified as completed, explicitly skipped with a reason, or failed.
+  A runner returning `None` is a classified failure/skip, never an omitted participant.
+- Subject outputs carry explicit endpoint-availability fields; when any prespecified endpoint is
+  unavailable, the subject is marked `partial` with endpoint-specific reasons. Its other valid
+  endpoints remain eligible only for their own denominators.
+- Summaries reject missing manifests, failures, unexpected subjects, non-production pipelines or
+  configurations, result-byte hash mismatches, mixed schema/code-lineage versions, unclassified
+  endpoints, and legacy files.
+- Publication summaries apply a minimum of five estimable participants separately to each
+  inferential endpoint/stage by default; a correctly accounted all-unavailable run cannot exit
+  successfully as an `n=0` cohort result.
+- Withdrawn 3A/3B/3D command-line generators, figures, follow-ups, and combined scripts are
+  hard-stopped; corrected modules may still import explicitly retained helper functions.
+
+## Open scientific and validation limitations
+
+The implementation defects above are fixed in the working tree. Expert/validated staging,
+electrode anatomy and pathology review, blinded ECG/SO/spindle/artifact and missing-boundary QC,
+the Lecci reference-implementation benchmark, verified HUP sleep timing, and a corrected real-data
+rerun remain open. None of those limitations is resolved by a passing synthetic test. All 3D
+inference remains disabled pending a pairing-aware null; stage contrasts have the additional
+matched-contact/count-control requirement above.
+
+See [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md) for evidence and acceptance criteria.

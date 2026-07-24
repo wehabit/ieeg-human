@@ -22,6 +22,7 @@ false positive. Anything above ~8% at 0.02 Hz means the corrected pipeline canno
 
     .venv/bin/python analysis/test_coherence_calibration.py
 """
+import argparse
 import os
 import numpy as np
 
@@ -34,6 +35,11 @@ N_SIM = 400
 F0 = 0.02
 
 fails = []
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--require-real-cache", action="store_true",
+    help="publication/QC mode: fail unless at least one current real cache is calibrated")
+args = parser.parse_args()
 
 
 def check(name, cond, detail=""):
@@ -132,7 +138,15 @@ for s in subjects:
         check(f"{s} {gname} FPR calibrated", 0.02 <= fpr <= 0.09, f"{fpr:.3f}")
     tested += 1
 if not tested:
-    print("    (no cache yet -- section skipped)")
+    print("    (no current cache -- real-data geometry was NOT validated)")
+    if args.require_real_cache:
+        fails.append("real-cache calibration required but no current cache was tested")
 
-print("\n" + ("ALL CHECKS PASSED" if not fails else f"{len(fails)} FAILURE(S): {fails}"))
+if not fails and tested:
+    conclusion = "ALL SYNTHETIC AND REAL-CACHE CHECKS PASSED"
+elif not fails:
+    conclusion = "SYNTHETIC CHECKS PASSED; REAL-CACHE VALIDATION PENDING"
+else:
+    conclusion = f"{len(fails)} FAILURE(S): {fails}"
+print("\n" + conclusion)
 raise SystemExit(1 if fails else 0)

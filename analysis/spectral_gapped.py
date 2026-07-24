@@ -147,9 +147,19 @@ def coherence_gapped(x, y, fs, nperseg, noverlap=None, window="hann", highpass=N
         Pyy = Pyy + (Y * np.conj(Y)).real * scale
         Pxy = Pxy + (X * np.conj(Y)) * scale
 
+    freqs = np.fft.rfftfreq(nperseg, 1.0 / fs)
+    non_dc = freqs > 0
+    x_support = float(np.sum(Pxx[non_dc]))
+    y_support = float(np.sum(Pyy[non_dc]))
+    if (not np.isfinite(x_support) or not np.isfinite(y_support)
+            or x_support <= np.finfo(float).tiny
+            or y_support <= np.finfo(float).tiny):
+        return None
     denom = Pxx * Pyy
-    return dict(f=np.fft.rfftfreq(nperseg, 1.0 / fs),
-                cxy=np.where(denom > 0, np.abs(Pxy) ** 2 / np.maximum(denom, 1e-300), 0.0),
+    cxy = np.full(denom.shape, np.nan, float)
+    supported = np.isfinite(denom) & (denom > 0)
+    cxy[supported] = np.abs(Pxy[supported]) ** 2 / denom[supported]
+    return dict(f=freqs, cxy=cxy,
                 K=len(starts), n_valid=int(valid.sum()), n_runs=len(contiguous_runs(valid)),
                 filled_frac=float(filled.sum() / max(valid.sum(), 1)))
 

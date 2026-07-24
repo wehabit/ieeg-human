@@ -1,5 +1,8 @@
 """
-Test 3A across the HUP phase-II cohort, on LATERAL NEOCORTICAL contacts.
+LEGACY cohort 3A, retained only for acquisition/staging helper functions.
+
+The executable path uses superseded single-bin/FSP estimators and is quarantined. Contact-number
+selection is an unvalidated lateral-contact heuristic, not an anatomical localization.
 
 For every subject with depth electrodes + EKG, this automates what was done by hand for HUP165:
   1. pick cortical channels  -- highest-numbered contact on each shaft (SEEG: contact 1 is deepest
@@ -43,7 +46,12 @@ def delta_ratio(x, sf):
 
 
 def cortical_channels(labels, n_want=6):
-    """Highest contact on each shaft = most lateral = neocortex (SEEG geometry)."""
+    """Return heuristic lateral-contact candidates, not anatomically validated cortex.
+
+    Contact numbers alone cannot establish gray matter, region, white-matter exclusion, or SOZ
+    status. Publication analyses must replace/verify these candidates using coordinates, imaging,
+    atlas/clinical labels, and bad/SOZ-contact metadata.
+    """
     sh = {}
     for l in labels:
         m = re.match(r"^([A-Z]{1,3})(\d+)$", l)
@@ -60,25 +68,47 @@ def cortical_channels(labels, n_want=6):
     return [f"{p}{n}" for p, n in picks if f"{p}{n}" in have][:n_want]
 
 
-def find_night(ds, lab_idx, ch, sf, total_h, scan_h=30.0, step_min=30.0):
+def find_night(ds, lab_idx, ch, sf, total_h, scan_h=None, step_min=30.0,
+               required_h=0.0):
+    """Select the highest-delta contiguous 3 h candidate interval.
+
+    Sampling failures remain missing at their original times; they are never removed and spliced
+    together.  By default the complete recording is searched, rather than only its first 30 h.
+    """
+    if required_h < 0:
+        raise ValueError("required_h must be nonnegative")
+    if total_h < required_h:
+        return None
     step = step_min * 60
-    n = int(min(scan_h, total_h) * 3600 / step)
-    tr = []
+    search_h = total_h if scan_h is None else min(scan_h, total_h)
+    n = int(search_h * 3600 / step)
+    times = np.arange(n, dtype=float) * step
+    scores = np.full(n, np.nan)
     for k in range(n):
-        t = k * step
+        t = times[k]
         try:
-            tr.append((t, delta_ratio(get(ds, [lab_idx[ch]], t, 6.0)[:, 0], sf)))
+            scores[k] = delta_ratio(get(ds, [lab_idx[ch]], t, 6.0)[:, 0], sf)
         except Exception:
-            tr.append((t, np.nan))
-    tr = [(t, d) for t, d in tr if np.isfinite(d)]
-    if len(tr) < 6:
+            pass
+    if np.isfinite(scores).sum() < 6:
         return None
     win = max(1, int(3 * 3600 / step))            # 3 h window
-    best_t, best_m = tr[0][0], -1
-    for i in range(max(1, len(tr) - win)):
-        m = np.mean([d for _, d in tr[i:i + win]])
+    if len(scores) < win:
+        return None
+    best_t, best_m = None, -np.inf
+    for i in range(len(scores) - win + 1):
+        # A high-delta window near the end of a record is unusable when the requested analysis
+        # interval would extend past the physical recording.
+        if times[i] + required_h * 3600 > total_h * 3600:
+            continue
+        values = scores[i:i + win]
+        # One failed six-second probe may be tolerated, but it must remain a missing observation
+        # inside this same physical window.
+        if np.isfinite(values).sum() < max(1, int(np.ceil(0.8 * win))):
+            continue
+        m = float(np.nanmean(values))
         if m > best_m:
-            best_m, best_t = m, tr[i][0]
+            best_m, best_t = m, times[i]
     return best_t
 
 
@@ -306,6 +336,12 @@ def run_subject(n, win_min):
 
 
 def main():
+    raise SystemExit(
+        "LEGACY/WITHDRAWN cohort 3A entry point: use cache_lc_series.py followed by "
+        "lecci_faithful_3A.py. Shared helper functions remain importable.")
+    raise SystemExit(
+        "LEGACY COHORT 3A QUARANTINED: build corrected caches with cache_lc_series.py and "
+        "run lecci_faithful_3A.py. cortical_channels/find_night remain helper functions only.")
     ap = argparse.ArgumentParser()
     ap.add_argument("--subjects", default=",".join(map(str, COHORT)))
     ap.add_argument("--win-min", type=float, default=120.0)
@@ -359,4 +395,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(
+        "LEGACY/WITHDRAWN cohort 3A entry point: use cache_lc_series.py followed by "
+        "lecci_faithful_3A.py. Shared helper functions remain importable.")

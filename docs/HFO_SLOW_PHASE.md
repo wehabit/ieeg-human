@@ -1,5 +1,9 @@
 # SO-phase of expert-marked ripples & fast-ripples [Zurich ds003498, 2 kHz]
 
+> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v5
+> 3A/3B/3D pipelines and must not be used as corrected LC-tracking evidence. Their original
+> study-specific validation/inference claims require separate review.
+
 **Question:** in an independent 3rd cohort, do *expert/detector-marked* ripple and fast-ripple
 events sit at a preferred slow-oscillation phase? This is an **event-based** test (vs Ripple-coupling's
 amplitude-envelope coupling) using gold-standard markings, and it opens the **fast-ripple band**

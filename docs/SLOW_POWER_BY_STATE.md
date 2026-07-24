@@ -1,5 +1,9 @@
 # Slow-power by state — anchor result (tests H1)
 
+> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v5
+> 3A/3B/3D pipelines and must not be used as corrected LC-tracking evidence. Their original
+> study-specific validation/inference claims require separate review.
+
 **Question:** In human mesiotemporal cortex, does slow-wave (0.5–4 Hz) power rise from wake into
 deep NREM (W → N2 → N3), as the Kipnis / Jiang-Xie sleep-coordination mechanism predicts? This is
 the natural-sleep contrast the Buzsáki mouse pilot could not run (it had only 50 Hz drive, no

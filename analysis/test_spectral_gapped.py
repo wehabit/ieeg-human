@@ -128,5 +128,11 @@ for label, correlated in (("independent gaps", False), ("identical gaps in both 
     fpr = hits / max(tot, 1)
     check(f"FPR near 5% ({label})", 0.02 <= fpr <= 0.10, f"FPR = {fpr:.3f} over {tot} trials")
 
+print("\n[5] Coherence is undefined when either input has no spectral power")
+undefined = coherence_gapped(
+    np.zeros(1000), rng.randn(1000), fs=FS, nperseg=NPER, highpass=0.005)
+check("constant input is rejected instead of reported as zero coherence",
+      undefined is None)
+
 print("\n" + ("ALL CHECKS PASSED" if not fails else f"{len(fails)} FAILURE(S): {fails}"))
 raise SystemExit(1 if fails else 0)

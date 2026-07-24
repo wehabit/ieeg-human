@@ -22,7 +22,7 @@ from matplotlib.gridspec import GridSpec
 import atlas
 
 OUT = os.path.join(atlas.ROOT, "outputs", "mouse_human_bridge")
-BUZ = "/Users/paris/Documents/Buzsakli Lab Github"
+BUZ = os.environ.get("BUZSAKLI_LAB_ROOT", os.path.dirname(atlas.ROOT))
 MOUSE_STA = os.path.join(BUZ, "analysis/outputs/dec4/all_dhpc_kipnis_coordination/all_dhpc_kipnis_waveforms_amp250.png")
 HUMAN_COMOD = os.path.join(atlas.ROOT, "outputs/result_visuals/comodulogram.png")
 HUMAN_STATE = os.path.join(atlas.ROOT, "outputs/slow_spindle_coupling/spindle_coupling_by_state.png")
@@ -38,6 +38,9 @@ def show(ax, path, title):
 
 
 def main():
+    raise SystemExit(
+        "LEGACY/WITHDRAWN bridge figure: it embeds superseded human outputs and must be "
+        "regenerated only after a corrected, quality-controlled cohort rerun.")
     os.makedirs(OUT, exist_ok=True)
     fig = plt.figure(figsize=(15, 9))
     gs = GridSpec(3, 2, height_ratios=[0.6, 1.25, 1.0], hspace=0.28, wspace=0.12)
@@ -97,4 +100,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(
+        "LEGACY/WITHDRAWN bridge figure: it embeds superseded human outputs and must be "
+        "regenerated only after a corrected, quality-controlled cohort rerun.")

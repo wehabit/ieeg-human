@@ -1,5 +1,9 @@
 # Slow-oscillation → spindle coupling (tests H2, H3)
 
+> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v5
+> 3A/3B/3D pipelines and must not be used as corrected LC-tracking evidence. Their original
+> study-specific validation/inference claims require separate review.
+
 **Question:** Is the *coordination* the Kipnis / Jiang-Xie mechanism cares about — the slow field
 wave organizing faster activity — present in human mesiotemporal cortex, and is it state-dependent?
 This is the human LFP analogue of the mouse **spike-field PLV**: the mouse locked *spikes* to the

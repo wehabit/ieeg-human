@@ -1,5 +1,9 @@
 # Staresina 2015-style nesting figure (reproduced on HUP165 full night)
 
+> **WITHDRAWN.** This single-subject contact-count analysis uses uncorrected per-contact Rayleigh
+> tests on serially dependent events and lacks the current artifact, staging, participant-unit, and
+> provenance gates. The “reproduced” claims and all numbers below are historical only.
+
 Event-based reproduction of the canonical Staresina et al. 2015 (Nat Neurosci) panels on our
 continuous full-night data (HUP165, 1024 Hz), for direct visual comparison to the established result.
 

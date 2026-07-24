@@ -1,16 +1,21 @@
+"""Quarantined builder for a legacy HUP165 HTML result page."""
+raise SystemExit(
+    "LEGACY 3A PAGE QUARANTINED: its embedded numbers and figures use superseded estimators.")
+
 import base64, os, json
 
-SCR = "/private/tmp/claude-501/-Users-paris-Documents-Buzsakli-Lab-Github/6c568d4c-5b04-4605-bece-490c8d0e3e2b/scratchpad"
-OUTD = "/Users/paris/Documents/iEEG/outputs/results_3A_tutorial_style"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUTD = os.path.join(ROOT, "outputs", "results_3A_tutorial_style")
+SCR = OUTD
 
 def b64(name):
     with open(os.path.join(SCR, name), "rb") as f:
         return base64.b64encode(f.read()).decode()
 
 IMGS = {
-    "mtl": b64("HUP165_phaseII_3A_results.jpg"),
-    "ied": b64("HUP165_phaseII_iedmasked_3A_results.jpg"),
-    "ctx": b64("HUP165_phaseII_cortical_3A_results.jpg"),
+    "mtl": b64("HUP165_phaseII_3A_results.png"),
+    "ied": b64("HUP165_phaseII_iedmasked_3A_results.png"),
+    "ctx": b64("HUP165_phaseII_cortical_3A_results.png"),
 }
 
 CSS = """

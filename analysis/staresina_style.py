@@ -41,6 +41,10 @@ def rayleigh(ph):
 
 
 def main():
+    raise SystemExit(
+        "WITHDRAWN: this single-subject Staresina-style path uses uncorrected event/contact "
+        "inference and lacks current artifact, staging, and provenance gates. Do not regenerate "
+        "or cite its figures; use the audited descriptive event_3D_by_stage path.")
     ap=argparse.ArgumentParser(); ap.add_argument('--sp-thr',type=float,default=1.5); ap.add_argument('--rp-thr',type=float,default=2.0); ap.add_argument('--tag',default=''); A_=ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
     idx = pd.read_csv(os.path.join(DIR, "index.csv"))

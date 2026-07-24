@@ -1,5 +1,9 @@
 # Per-patient N3 SO-triggered nesting — does the grand average hide per-patient mess?
 
+> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v5
+> 3A/3B/3D pipelines and must not be used as corrected LC-tracking evidence. Their original
+> study-specific validation/inference claims require separate review.
+
 **Why.** A grand average (like `nesting_timecourse`) can look convincing while a few patients carry
 it. This module breaks the N3 SO→spindle nesting down **per patient** and **per event**, so the
 heterogeneity is visible.

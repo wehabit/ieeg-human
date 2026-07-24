@@ -1,7 +1,10 @@
-numpy
-scipy
-pandas
-matplotlib
-mne
-tensorpac
-h5py
+numpy==2.5.1
+scipy==1.18.0
+pandas==2.3.3
+matplotlib==3.11.1
+mne==1.12.1
+tensorpac==0.6.5
+h5py==3.16.0
+neurokit2==0.2.13
+scikit-learn==1.9.0
+ieeg @ git+https://github.com/ieeg-portal/ieegpy.git@080bfa42a8503380ef164b5e7b116613f75073bb

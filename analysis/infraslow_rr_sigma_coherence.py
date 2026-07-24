@@ -1,5 +1,9 @@
 """
-3A — RR <-> spindle-envelope infraslow (~0.02 Hz) coherence, on one iEEG night.
+LEGACY 3A — retained only for shared acquisition/filter helpers.
+
+The executable analysis is quarantined because it averages raw contacts before power, uses a
+single-bin coherence endpoint, and lacks corrected cache/version controls. Use
+``cache_lc_series.py`` followed by ``lecci_faithful_3A.py`` for the current approximation.
 
 The primary LC-fingerprint measure (Lecci 2017 / Osorio-Forero 2021): during NREM, the ~0.02 Hz
 (~50 s) rhythm in sigma (spindle) power co-varies with the ~0.02 Hz rhythm in heart rate.
@@ -166,6 +170,12 @@ def nrem_fraction(x_stage, sf, dur):
 
 
 def main():
+    raise SystemExit(
+        "LEGACY/WITHDRAWN 3A entry point: use cache_lc_series.py followed by "
+        "lecci_faithful_3A.py. Shared helper functions remain importable.")
+    raise SystemExit(
+        "LEGACY 3A QUARANTINED: use cache_lc_series.py and lecci_faithful_3A.py. "
+        "Only helper functions from this module remain supported.")
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", default="HUP165_phaseII")
     ap.add_argument("--night", default="HUP165_night1")
@@ -258,4 +268,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(
+        "LEGACY/WITHDRAWN 3A entry point: use cache_lc_series.py followed by "
+        "lecci_faithful_3A.py. Shared helper functions remain importable.")

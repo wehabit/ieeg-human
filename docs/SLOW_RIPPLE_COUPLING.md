@@ -1,5 +1,9 @@
 # Slow-oscillation → ripple (and spindle) coupling  [1 kHz cohort]
 
+> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v5
+> 3A/3B/3D pipelines and must not be used as corrected LC-tracking evidence. Their original
+> study-specific validation/inference claims require separate review.
+
 **Question:** the mouse study showed CA1 sharp-wave **ripples**; the 204 Hz atlas (Slow-power–Bridge) could
 not touch ripples (Nyquist 102 Hz). Do human NREM slow oscillations organize **ripples** (80–120 Hz)
 in the medial temporal lobe — and does the spindle coupling from Spindle-coupling replicate on cleaner data?

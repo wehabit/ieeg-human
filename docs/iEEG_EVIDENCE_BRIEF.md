@@ -1,5 +1,9 @@
 # iEEG Evidence Brief — Human NREM slow-wave coordination in the medial temporal lobe
 
+> **QUARANTINED / NOT AUDITED.** The findings, p-values, bridge figure, and “show/reproduced”
+> language below come from legacy pipelines outside the current provenance and inferential gates.
+> Do not cite this brief as LC evidence or as a current analysis result.
+
 **One line.** Using only open, public human intracranial EEG — **no new patient access or committee
 approval required** — we show that the NREM slow oscillation organizes faster activity (spindles
 and ripples) in human medial temporal lobe. This is the human counterpart of the Buzsáki mouse

@@ -1,5 +1,10 @@
 # Full-night SO coupling across HUP subjects (iEEG.org)
 
+> **WITHDRAWN LEGACY RESULT — DO NOT CITE AS CURRENT LC-PROXY EVIDENCE.** These intervals were
+> not verified nights, contacts were not independent participants, SOZ/pathology was not excluded,
+> and the estimates did not pass the current v5 provenance, raw-QC, or inference gates. See
+> [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md).
+
 Extends the single-subject full-night result (HUP165) to additional continuous full nights pulled
 from iEEG.org, via `ieeg_pull_night.py` + `hup_night_cohort.py`. Same polarity-robust, cross-validated
 method; each subject's value = mean cross-val modulation over its bipolar MTL channels.
@@ -12,22 +17,23 @@ method; each subject's value = mean cross-val modulation over its bipolar MTL ch
 | HUP157 | 0.086 (26/28) | 0.088 (27/28) |
 | HUP130 | (downloading) | (downloading) |
 
-**Both full nights replicate:** SO→spindle **and** SO→ripple coupling are positive across ~all MTL
-channels (26–28 of 28) in each subject independently. This is the within-night, continuous
-counterpart to the cross-subject clip replication.
+**Withdrawn interpretation:** these legacy channel-level values were previously described as a
+replication, but that conclusion is not supported. The intervals were not verified nights, the
+channels are not independent biological replicates, and the analysis omitted the current
+participant-level, pathology, provenance, and raw-QC requirements.
 
-## How to read it (honest framing)
-- With only 2–3 subjects, a cohort-level CI over subjects is **not** meaningful; the evidence here is
-  the **per-subject, per-channel consistency** (each night shows the effect in nearly every channel).
-- Statistics within a subject are over its channels (not independent — shared reference/anatomy).
-- Blind NREM staging (delta-power), SOZ not excluded (see the per-channel positivity as the
-  pathology-robustness argument: coupling is in ~all channels, not a few).
+## How to read it
+
+- Do not use these values as LC-proxy evidence or as a replication result.
+- Statistics over channels are pseudoreplicated because contacts share a participant, reference,
+  anatomy, and pathology.
+- Blind delta-power staging and failure to exclude SOZ/pathological contacts are unresolved
+  confounds, not evidence of robustness.
 
 ## Where it fits
-- **Cross-subject replication** (population-level) → the three clip cohorts (`nesting_phase_aligned`:
-  SO→spindle in all 3, polarity-robust).
-- **Within-night continuous** → these full nights (coupling holds across a whole real night, and
-  resolves SO→ripple cleanly).
+
+It is retained only as a historical artifact. It does not enter the corrected 3A/3B/3D endpoint
+summaries.
 
 ## Outputs
 - `outputs/hup_night_cohort/hup_night_cohort.png` — per-subject (blue) + per-channel (grey) modulation.

@@ -1,5 +1,9 @@
 # Ripple-triggered slow-wave average in human MTL
 
+> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v5
+> 3A/3B/3D pipelines and must not be used as corrected LC-tracking evidence. Their original
+> study-specific validation/inference claims require separate review.
+
 The direct human parallel to the mouse **spike-triggered LFP** (Kipnis Fig 1c): trigger on each
 expert-marked ripple and average the surrounding **slow-wave (0.5–4 Hz) LFP**. If ripples ride a
 consistent slow-wave field, the average is a clear slow wave; if not, it is flat.

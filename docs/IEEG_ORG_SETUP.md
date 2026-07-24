@@ -7,9 +7,9 @@ sets couldn't give (they were clips).
 ## Credentials
 Stored in `data/ieeg_secret/credentials.json` (gitignored, never committed):
 ```json
-{"username": "paris007", "password": "..."}
+{"username": "<IEEG_USERNAME>", "password": "<IEEG_PASSWORD>"}
 ```
-The password passed through chat once — rotate it on ieeg.org when convenient, then update this file.
+Never place a real account identifier, password, access token, or credential history in this file.
 
 ## Client
 `ieegpy` (the real one) installed from GitHub `ieeg-portal/ieegpy` into `.venv`.

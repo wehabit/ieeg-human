@@ -1,4 +1,8 @@
-"""Is the pooled-3A excess SPECIFIC to ~0.02 Hz, or does it appear at any frequency?
+"""LEGACY frequency-specificity analysis, retained for audit history only.
+
+This executable path uses raw-contact averaging, a one-window FSP, and superseded caches. It is
+quarantined; the corrected summary exposes frequency-specificity only from current versioned 3A
+outputs.
 
 The cohort found 7/23 subjects exceeding their own alpha=0.05 coherence threshold at the
 pre-specified 0.02 Hz point (binomial p=4.7e-04 against a calibrated 6% false-positive rate).
@@ -141,6 +145,11 @@ def run(n, hours):
 
 
 def main():
+    raise SystemExit(
+        "LEGACY/WITHDRAWN frequency-specificity entry point: rebuild current caches and use "
+        "lecci_faithful_3A.py plus summarize_corrected_3AB.py.")
+    raise SystemExit(
+        "LEGACY FREQUENCY-SPECIFICITY PIPELINE QUARANTINED: use corrected versioned 3A outputs.")
     ap = argparse.ArgumentParser()
     ap.add_argument("--subjects", default=",".join(map(str, COHORT)))
     ap.add_argument("--hours", type=float, default=7.0)
@@ -155,4 +164,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(
+        "LEGACY/WITHDRAWN frequency-specificity entry point: rebuild current caches and use "
+        "lecci_faithful_3A.py plus summarize_corrected_3AB.py.")

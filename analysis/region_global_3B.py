@@ -163,6 +163,12 @@ def analyse(subject):
 
 
 def main():
+    raise SystemExit(
+        "LEGACY/WITHDRAWN 3B follow-up: its event-locking null is invalid under local "
+        "nonstationarity. Use event_3B_cached.py for descriptive endpoints.")
+    raise SystemExit(
+        "LEGACY FOLLOW-UP QUARANTINED: this script expects removed whole-night so_t_* arrays and "
+        "the superseded HR-domain null. Reimplement from stage-specific clean candidates before use.")
     os.makedirs(OUT, exist_ok=True)
     from stage_ds003848 import SUBJECTS
     rows = []
@@ -226,4 +232,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(
+        "LEGACY/WITHDRAWN 3B follow-up: its event-locking null is invalid under local "
+        "nonstationarity. Use event_3B_cached.py for descriptive endpoints.")

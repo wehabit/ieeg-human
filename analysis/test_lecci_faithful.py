@@ -5,7 +5,8 @@ quiet when there is none?
 """
 import numpy as np
 
-from lecci_faithful_3A import subject_spectrum, fit_peak, cross_correlation, morlet_spectrum
+from lecci_faithful_3A import (subject_spectrum, fit_peak, cross_correlation, morlet_spectrum,
+                              peak_location_null_is_adequate)
 from cohort_stages_3ABD import EPOCH
 
 rng = np.random.RandomState(0)
@@ -59,14 +60,19 @@ for f_true in (0.014, 0.020, 0.026, 0.033):
 
 print("\n[2] Scale-free noise with NO planted rhythm must not yield a prominent infraslow peak")
 proms = []
+accepted_noise = 0
 for _ in range(30):
     x = brown(TOTAL_S)
     freqs, spec, _, _ = subject_spectrum(x / x.std(), nrem)
     pk = fit_peak(freqs, spec)
+    accepted_noise += int(bool(pk.get("accepted")))
     if np.isfinite(pk.get("prominence_over_background", np.nan)):
         proms.append(pk["prominence_over_background"])
 proms = np.array(proms)
 print(f"    prominence on pure 1/f^2: median {np.median(proms):.2f}, 95th pct {np.percentile(proms,95):.2f}")
+print(f"    accepted Gaussian peaks on pure 1/f^2: {accepted_noise}/30")
+check("objective peak gate rarely accepts pure scale-free noise", accepted_noise <= 2,
+      f"accepted {accepted_noise}/30")
 
 x = brown(TOTAL_S); t = np.arange(TOTAL_S) / FS
 x = x / x.std() + 1.2 * np.sin(2 * np.pi * 0.02 * t)
@@ -93,11 +99,24 @@ for true_lag in (-8, 0, 12):
     check(f"recovers lag {true_lag:+d}s within 2 s", abs(xc["peak_lag_s"] - true_lag) <= 2.0,
           f"got {xc['peak_lag_s']:+.1f}")
 
-print("\n[5] Bouts shorter than the wavelet must return NaN, not an edge artifact")
+print("\n[5] Every accepted bout must contribute at every frequency")
 short = brown(150) / 10
 sp = morlet_spectrum(short, FS, np.array([0.005, 0.02, 0.08]))
-check("0.005 Hz unmeasurable in a 150 s bout", not np.isfinite(sp[0]))
-check("0.08 Hz measurable in a 150 s bout", np.isfinite(sp[2]))
+check("support-corrected CWT returns one finite value per frequency", np.isfinite(sp).all())
+
+print("\n[6] A peak-location clustering null must not resample one accepted null peak forever")
+check("one accepted surrogate peak is inadequate for a clustering null",
+      not peak_location_null_is_adequate(dict(
+          n_surrogates=200, surrogate_peaks=[0.02])))
+check("a prespecified nondegenerate accepted-location set is adequate",
+      peak_location_null_is_adequate(dict(
+          n_surrogates=200, surrogate_peaks=np.linspace(0.01, 0.05, 20).tolist())))
+
+print("\n[7] A zero-variance signal must not count as an available spectrum")
+_, constant_spectrum, _, _ = subject_spectrum(
+    np.ones(600), np.ones(int(600 / EPOCH), bool))
+check("constant power is rejected before zero-spectrum normalization",
+      constant_spectrum is None)
 
 print("\n" + ("ALL CHECKS PASSED" if not fails else f"{len(fails)} FAILURE(S): {fails}"))
 raise SystemExit(1 if fails else 0)

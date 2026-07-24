@@ -69,6 +69,9 @@ def cohort_leg(subs, pband, aband):
 
 
 def main():
+    raise SystemExit(
+        "WITHDRAWN: this legacy hierarchical-coupling path has not passed the current artifact, "
+        "staging, participant-unit, or provenance audit. Do not regenerate or cite its figures.")
     os.makedirs(OUT, exist_ok=True)
     cohorts = [("Falach 1 kHz", nvc.load_falach()), ("Zurich 2 kHz", nvc.load_zurich())]
     x = np.linspace(-np.pi, np.pi, NBINS)

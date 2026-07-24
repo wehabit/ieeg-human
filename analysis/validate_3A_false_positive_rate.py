@@ -1,4 +1,4 @@
-"""Calibrate the false-positive rate of the pooled-3A significance test.
+"""Quarantined calibration of the superseded pooled single-bin 3A test.
 
 The cohort found 7/23 subjects exceeding their own alpha=0.05 analytic coherence threshold, where
 1.2 would be expected by chance (binomial p=0.0001). That inference is only valid if the analytic
@@ -11,6 +11,10 @@ msc_block() code path and count how often they clear the threshold. Physiologica
 strongly autocorrelated, so several spectral shapes are tried -- autocorrelation is exactly what
 inflates coherence false positives.
 """
+raise SystemExit(
+    "LEGACY 3A CALIBRATION QUARANTINED: run test_coherence_calibration.py for the current "
+    "gap-aware estimator.")
+
 import numpy as np
 from scipy import signal
 

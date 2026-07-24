@@ -1,4 +1,8 @@
-# 3B — SO→heartbeat coupling: our iEEG implementation vs Naji 2019
+# WITHDRAWN 3B comparison — superseded implementation vs Naji 2019
+
+> **LEGACY / WITHDRAWN NUMBERS.** This comparison predates the RR-domain corrected-v5 descriptive
+> estimator. Whole-stage shifts are now diagnostic only and no 3B event-locking p/z claim is
+> available. The direct legacy entry point is hard-stopped.
 
 **Purpose.** A step-by-step comparison of how we implemented the slow-oscillation → heart-rate
 coupling test against the method it follows. Written because the coupling was cited to the wrong
@@ -24,7 +28,8 @@ actual code, contact the Mednick lab (UC Irvine Sleep & Cognition Lab).
 
 ## Our code
 
-- [`analysis/event_3B_mednick.py`](../analysis/event_3B_mednick.py) — `detect_so_halfwaves()`,
+- [`analysis/event_3B_mednick.py`](../analysis/event_3B_mednick.py) — retained helper functions only;
+  its direct command-line analysis is withdrawn,
   `rr_to_hr_4hz()`, `so_triggered()` (the SO-triggered HR average + stage-matched null).
 - [`analysis/event_3B_cached.py`](../analysis/event_3B_cached.py) — cohort runner (HUP + ds003848).
 - [`analysis/cohort_stages_3ABD.py`](../analysis/cohort_stages_3ABD.py) `test_3B` — the earlier,

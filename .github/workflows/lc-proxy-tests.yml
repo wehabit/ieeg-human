@@ -1,0 +1,33 @@
+name: LC proxy synthetic regression tests
+
+on:
+  push:
+    branches: [lc-infraslow-3ABD]
+  pull_request:
+
+jobs:
+  synthetic-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r env/requirements.txt
+      - run: python -m pip check
+      - run: python -m compileall -q analysis
+      - run: python analysis/test_corrected_estimators.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
+      - run: python analysis/test_lecci_faithful.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
+      - run: python analysis/test_spectral_gapped.py
+      - run: python analysis/test_3B_null.py
+      - run: python analysis/test_coherence_calibration.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
+      - run: python analysis/test_run_integrity.py
+      - run: python analysis/audit_issue_evidence.py

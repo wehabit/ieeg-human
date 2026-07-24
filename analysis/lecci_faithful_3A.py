@@ -1,4 +1,4 @@
-"""3A re-implemented to follow Lecci et al. 2017 Sci Adv, not a fixed-frequency proxy for it.
+"""Lecci-aligned 3A approximation for sigma-infraslow and cardiac coupling.
 
 WHAT THE PREVIOUS 3A ACTUALLY TESTED, AND WHY IT IS NOT LECCI'S TEST
 -------------------------------------------------------------------
@@ -15,27 +15,23 @@ in the single bin at 0.0195 Hz?" Lecci never ran that test. Their human analysis
       heart rate as source wave, averaged within subject then across subjects. The result is a lag,
       not a coherence value.
 
-Testing one hard-coded bin is a materially different and stricter hypothesis. Lecci report a
-between-subject SD of the peak frequency of ~0.0052 Hz (0.019 +/- 0.001 SEM, n=27) against a bin
-width here of 0.0039 Hz: if EVERY subject had a textbook Lecci rhythm, only ~29% would have their
-personal peak inside the single tested bin. The cohort observed 7/23 = 30.4%.
-
-This script implements both steps. Deviations from Lecci that remain are forced by the data and are
-listed in DEVIATIONS below.
+Testing one hard-coded bin is materially different from that method. This script implements an
+explicit approximation of both steps and records the remaining deviations below. It must not be
+described as an exact replication of the FieldTrip pipeline.
 
 DEVIATIONS (unavoidable, stated rather than hidden)
   * Staging: iEEG has no EOG/EMG, so S2 vs SWS cannot be scored. NREM is the GMM-on-delta-ratio
     approximation and the N2/N3 split is GMM-on-slow-wave-power. Lecci's S2 > SWS claim is therefore
     NOT directly testable here; pooled NREM is the primary analysis.
   * Signal: sigma power comes from a Hilbert envelope of a Butterworth band, binned to 1 s, rather
-    than a 4-cycle Morlet sampled at 0.1 s then smoothed with a 4 s moving average. After Lecci's
-    4 s smoothing both are band-limited well below the 0.5 Hz Nyquist of a 1 s grid, so the
-    infraslow content is preserved; the optional --smooth-4s flag applies their moving average.
+    than a 4-cycle Morlet sampled at 0.1 s then smoothed with a 4 s moving average. The production
+    path requires 4 s smoothing, but the 1 Hz Hilbert series still needs a direct benchmark against
+    a reference implementation before equivalence can be claimed.
   * Region: lateral neocortical depth contacts, not parietal scalp. Lecci's 0.02 Hz oscillation is
     parietal-maximal and declines frontally.
   * Population: epilepsy patients on anti-seizure medication.
 
-    .venv/bin/python analysis/lecci_faithful_3A.py [--band fsp|fixed] [--smooth-4s]
+    .venv/bin/python analysis/lecci_faithful_3A.py [--band fixed] [--force]
 """
 import argparse, json, os
 import numpy as np
@@ -45,6 +41,10 @@ from cohort_stages_3ABD import stage_epochs, EPOCH
 from cohort_3A_cortical import COHORT
 from spectral_gapped import (coherence_gapped, analytic_msc_threshold, fill_short_gaps,
                              contiguous_runs)
+from pipeline_version import (ANALYSIS_VERSION, CACHE_SCHEMA_VERSION, atomic_json_dump,
+                              cache_code_sha256, file_sha256, finite_float_or_none, npz_scalar_text,
+                              runtime_versions, source_tree_sha256, start_run_manifest,
+                              validated_complete_run_exists, write_run_manifest)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(ROOT, "data", "derived", "lc_infraslow")
@@ -52,34 +52,165 @@ OUT = os.path.join(ROOT, "outputs", "lecci_faithful_3A")
 
 FS = 1.0                      # cached derived-series rate
 MIN_BOUT_S = 120.0            # Lecci: bouts >= 120 s (>= 4 epochs)
-F_LO, F_HI, F_STEP = 0.004, 0.120, 0.001      # Lecci: 0.001-0.12 Hz at 0.001 Hz resolution
-N_CYCLES = 3.0                # cycles in the second-stage Morlet
+F_LO, F_HI, F_STEP = 0.001, 0.120, 0.001      # Lecci: 0.001-0.12 Hz at 0.001 Hz resolution
+N_CYCLES = 4.0                # Lecci baseline; seven cycles was a sensitivity analysis
 PEAK_SEARCH = (0.008, 0.060)  # where an LC-type infraslow peak is allowed to be
 F_LECCI = 0.02
 NPERSEG = 256
 ALPHA = 0.05
 XCORR_WIN_S = 120.0           # Lecci: 120 s intervals, z-transformed
 XCORR_MAX_LAG_S = 60.0
+MIN_SURROGATE_PEAK_LOCATIONS = 20
+MIN_SURROGATE_PEAK_FRACTION = 0.05
 
 
 # ------------------------------------------------------------------ cache access
 _CACHE_DIR = [CACHE]          # mutable so callers can point at an alternate cache (e.g. ds003848)
 
 
+class CacheSubjectSkipped(RuntimeError):
+    """Structured, expected cache exclusion rather than an analysis failure."""
+
+
 def set_cache(path):
     _CACHE_DIR[0] = path
 
 
+_CACHE_LINEAGE_FIELDS = (
+    "cache_directory_relative",
+    "cache_manifest_run_id",
+    "cache_manifest_sha256",
+    "cache_file_sha256",
+    "cache_hours",
+)
+_CACHE_PIPELINES = {"cache_lc_series", "stage_ds003848"}
+
+
+def _validated_cache_manifest(subject):
+    """Validate the terminal cache manifest and the exact NPZ bytes for one subject."""
+    cache_dir = os.path.abspath(_CACHE_DIR[0])
+    manifest_path = os.path.join(cache_dir, "RUN_MANIFEST.json")
+    cache_path = os.path.join(cache_dir, f"{subject}.npz")
+    if not os.path.exists(manifest_path) or not os.path.exists(cache_path):
+        raise RuntimeError(f"cache lineage input is missing for {subject}")
+    try:
+        with open(manifest_path) as handle:
+            manifest = json.load(handle)
+    except Exception as exc:
+        raise RuntimeError(f"{manifest_path} cannot be read") from exc
+
+    requested_values = manifest.get("requested", [])
+    requested = set(requested_values)
+    completed = set(manifest.get("completed", []))
+    skipped_entries = manifest.get("skipped", [])
+    if any(not isinstance(value, dict) or not value.get("subject") or not value.get("reason")
+           for value in skipped_entries):
+        raise RuntimeError(f"{manifest_path} has malformed skip entries")
+    skipped = {value["subject"] for value in skipped_entries}
+    if (
+        manifest.get("run_state") != "complete"
+        or manifest.get("pipeline") not in _CACHE_PIPELINES
+        or manifest.get("analysis_version") != ANALYSIS_VERSION
+        or manifest.get("cache_schema_version") != CACHE_SCHEMA_VERSION
+        or manifest.get("runtime_versions") != runtime_versions()
+        or manifest.get("failed")
+        or len(requested_values) != len(requested)
+        or completed | skipped != requested
+        or completed & skipped
+        or subject not in requested
+    ):
+        raise RuntimeError(
+            f"{manifest_path} is incomplete, internally inconsistent, or not a current "
+            "production cache run")
+    hashes = manifest.get("result_files_sha256")
+    if not isinstance(hashes, dict) or set(hashes) != requested:
+        raise RuntimeError(f"{manifest_path} lacks exact per-cache file hashes")
+    actual_hash = file_sha256(cache_path)
+    if hashes.get(subject) != actual_hash:
+        raise RuntimeError(
+            f"{cache_path} bytes do not match the terminal cache manifest")
+    return manifest
+
+
+def cache_lineage(subject, d=None):
+    """Immutable identity of the exact cache file and cache run consumed for one subject."""
+    cache_dir = os.path.abspath(_CACHE_DIR[0])
+    relative = os.path.relpath(cache_dir, ROOT)
+    if relative == os.pardir or relative.startswith(os.pardir + os.sep):
+        raise RuntimeError("production cache directory must live inside the repository root")
+    cache_path = os.path.join(cache_dir, f"{subject}.npz")
+    manifest_path = os.path.join(cache_dir, "RUN_MANIFEST.json")
+    manifest = _validated_cache_manifest(subject)
+    hours = None
+    if d is not None and "hours" in getattr(d, "files", []):
+        hours = float(np.asarray(d["hours"]).item())
+    elif d is None:
+        with np.load(cache_path, allow_pickle=False) as cached:
+            if "hours" in cached.files:
+                hours = float(np.asarray(cached["hours"]).item())
+    return dict(
+        cache_directory_relative=relative.replace(os.sep, "/"),
+        cache_manifest_run_id=manifest.get("run_id"),
+        cache_manifest_sha256=file_sha256(manifest_path),
+        cache_file_sha256=file_sha256(cache_path),
+        cache_hours=hours,
+    )
+
+
+def cache_lineage_entry(record):
+    """Canonical manifest entry extracted from a downstream subject record."""
+    return {key: record.get(key) for key in _CACHE_LINEAGE_FIELDS}
+
+
+def verify_cache_lineage(record):
+    """Fail if current cache artifacts differ from the immutable inputs recorded downstream."""
+    expected = cache_lineage_entry(record)
+    required = [key for key in _CACHE_LINEAGE_FIELDS if key != "cache_hours"]
+    if any(expected.get(key) in (None, "") for key in required):
+        raise RuntimeError(f"{record.get('subject')} has incomplete cache lineage")
+    cache_dir = os.path.realpath(os.path.join(ROOT, expected["cache_directory_relative"]))
+    if os.path.commonpath([os.path.realpath(ROOT), cache_dir]) != os.path.realpath(ROOT):
+        raise RuntimeError("cache lineage path escapes the repository root")
+    manifest_path = os.path.join(cache_dir, "RUN_MANIFEST.json")
+    cache_path = os.path.join(cache_dir, f"{record['subject']}.npz")
+    if not os.path.exists(manifest_path) or not os.path.exists(cache_path):
+        raise RuntimeError(f"current cache artifact is missing for {record['subject']}")
+    manifest = json.load(open(manifest_path))
+    if manifest.get("run_id") != expected["cache_manifest_run_id"]:
+        raise RuntimeError(f"cache manifest run changed for {record['subject']}")
+    if file_sha256(manifest_path) != expected["cache_manifest_sha256"]:
+        raise RuntimeError(f"cache manifest content changed for {record['subject']}")
+    if file_sha256(cache_path) != expected["cache_file_sha256"]:
+        raise RuntimeError(f"cache file content changed for {record['subject']}")
+    with np.load(cache_path, allow_pickle=False) as current:
+        cached_subject = npz_scalar_text(current, "subject")
+        if cached_subject != record["subject"]:
+            raise RuntimeError(
+                f"cache subject {cached_subject or '<missing>'} does not match "
+                f"requested {record['subject']}")
+        hours = (
+            float(np.asarray(current["hours"]).item())
+            if "hours" in current.files else None)
+    if ((hours is None) != (expected["cache_hours"] is None)
+            or (hours is not None
+                and not np.isclose(hours, float(expected["cache_hours"])))):
+        raise RuntimeError(f"cache duration changed for {record['subject']}")
+    return expected
+
+
 def stages_for(d):
-    """Return (lab, nrem, sep). Uses REAL scored stages when the cache carries a `stage_lab` array
-    (ds003848, staged from EMG/EOG); otherwise falls back to the GMM-on-slow-wave proxy (HUP, no
-    EOG/EMG). NREM = N2 or N3; Wake/REM/N1 are excluded from NREM by construction with real stages."""
+    """Return (labels, NREM mask, separation) from one of two unvalidated stage proxies.
+
+    ds003848 uses rule-based EMG/EOG/iEEG labels; HUP uses a GMM slow-wave proxy. Neither is expert
+    AASM/R&K scoring, so downstream text must call the labels N2-like/N3-like.
+    """
     if "stage_lab" in getattr(d, "files", []):
         raw = np.asarray(d["stage_lab"]).astype(str)
         lab = np.full(len(raw), "", dtype=object)
         lab[raw == "N2"] = "N2"
         lab[raw == "N3"] = "N3"
-        nrem = (lab == "N2") | (lab == "N3")
+        lab[raw == "NREM"] = "NREM"
+        nrem = (lab == "N2") | (lab == "N3") | (lab == "NREM")
         return lab, nrem, None
     ep = dict(dr=d["ep_dr"], swa=d["ep_swa"], clean=d["ep_clean"])
     return stage_epochs(ep)
@@ -89,8 +220,62 @@ def load(subject):
     fp = os.path.join(_CACHE_DIR[0], f"{subject}.npz")
     if not os.path.exists(fp):
         return None
-    d = np.load(fp, allow_pickle=True)
-    if str(d["status"]) != "ok":
+    manifest_path = os.path.join(_CACHE_DIR[0], "RUN_MANIFEST.json")
+    manifest = _validated_cache_manifest(subject)
+    current_cache_digest = cache_code_sha256(ROOT)
+    if manifest.get("config", {}).get("cache_code_sha256") != current_cache_digest:
+        raise RuntimeError(
+            f"{manifest_path} was produced by different cache-building source; rebuild with --force")
+    skipped_entries = manifest.get("skipped", [])
+    skipped = {
+        value.get("subject"): value.get("reason")
+        for value in skipped_entries if isinstance(value, dict)
+    }
+    if subject in skipped:
+        with np.load(fp, allow_pickle=False) as skipped_cache:
+            cached_subject = npz_scalar_text(skipped_cache, "subject")
+            status = npz_scalar_text(skipped_cache, "status")
+            schema = npz_scalar_text(skipped_cache, "cache_schema_version")
+            digest = npz_scalar_text(skipped_cache, "cache_code_sha256")
+            reason = npz_scalar_text(
+                skipped_cache, "reason", skipped[subject] or "unspecified")
+        if (cached_subject != subject or status != "skip"
+                or schema != CACHE_SCHEMA_VERSION
+                or digest != current_cache_digest or reason != skipped[subject]):
+            raise RuntimeError(f"{fp} does not match its manifest skip entry")
+        raise CacheSubjectSkipped(reason)
+    if subject not in set(manifest.get("completed", [])):
+        raise RuntimeError(
+            f"{subject} is neither completed nor explicitly skipped in {manifest_path}")
+    d = np.load(fp, allow_pickle=False)
+    cached_subject = npz_scalar_text(d, "subject")
+    if cached_subject != subject:
+        d.close()
+        raise RuntimeError(
+            f"{fp} embeds subject {cached_subject or '<missing>'}, not requested {subject}")
+    if npz_scalar_text(d, "status") != "ok":
+        d.close()
+        return None
+    schema = npz_scalar_text(d, "cache_schema_version")
+    if schema != CACHE_SCHEMA_VERSION:
+        d.close()
+        raise RuntimeError(
+            f"{fp} has cache schema {schema or '<missing>'}; expected {CACHE_SCHEMA_VERSION}. "
+            "Rebuild the cache with --force.")
+    cached_digest = npz_scalar_text(d, "cache_code_sha256")
+    if cached_digest != current_cache_digest:
+        d.close()
+        raise RuntimeError(
+            f"{fp} was produced by different cache-building source; rebuild with --force")
+    if "failed_chunks_json" in d.files:
+        failed = json.loads(npz_scalar_text(d, "failed_chunks_json", "[]"))
+        if failed:
+            d.close()
+            raise RuntimeError(
+                f"{fp} contains {len(failed)} failed acquisition chunks; publication analysis "
+                "requires a complete rerun or an explicit, prespecified coverage exemption")
+    if "sigma_fixed" not in d.files or "hr_1" not in d.files or "rr_4" not in d.files:
+        d.close()
         return None
     return d
 
@@ -116,8 +301,10 @@ def morlet_kernel(f, fs, n_cycles):
 def morlet_spectrum(x, fs, freqs, n_cycles=N_CYCLES):
     """Mean Morlet power across the time steps of one bout.
 
-    Frequencies whose wavelet is longer than the bout are returned as NaN rather than silently
-    estimated from an edge-dominated convolution.
+    Every accepted bout contributes at every frequency, matching the paper's duration-weighted
+    construction. A support-energy correction makes the zero-padded CWT edge explicit; the old
+    implementation silently dropped 120-168 s bouts at 0.02 Hz and changed the bout subset at
+    every frequency.
     """
     x = np.asarray(x, float)
     x = x - np.nanmean(x)
@@ -126,14 +313,14 @@ def morlet_spectrum(x, fs, freqs, n_cycles=N_CYCLES):
     out = np.full(len(freqs), np.nan)
     for i, f in enumerate(freqs):
         k = morlet_kernel(f, fs, n_cycles)
-        if len(k) > len(x):
-            continue
-        w = signal.fftconvolve(x, k, mode="valid")
-        out[i] = float(np.mean(np.abs(w) ** 2))
+        w = signal.fftconvolve(x, k, mode="same")
+        support = signal.fftconvolve(np.ones(len(x)), np.abs(k) ** 2, mode="same")
+        power = np.abs(w) ** 2 / np.maximum(support, 1e-12)
+        out[i] = float(np.mean(power))
     return out
 
 
-def subject_spectrum(sig, nrem, fs=FS, smooth_4s=False):
+def subject_spectrum(sig, nrem, fs=FS, smooth_4s=True):
     """Duration-weighted mean infraslow spectrum over all NREM bouts >= 120 s (Lecci Fig 1G)."""
     freqs = np.arange(F_LO, F_HI + 1e-12, F_STEP)
     x, _, _ = fill_short_gaps(sig, fs, max_gap_s=5.0)
@@ -146,15 +333,18 @@ def subject_spectrum(sig, nrem, fs=FS, smooth_4s=False):
             den = np.convolve(valid.astype(float), np.ones(k) / k, mode="same")
             x = np.where(den > 0.5, num / np.maximum(den, 1e-12), np.nan)
     # Split each NREM bout at any gap that survived interpolation and treat every artifact-free
-    # sub-run >= MIN_BOUT_S as its own bout. Rejecting a whole bout for one long gap would keep only
-    # the subset of bouts that happen to be gap-free -- on HUP165 that discarded 5490 s of 20191 s
-    # and biased the spectrum toward short, unusually clean stretches.
+    # sub-run >= MIN_BOUT_S as its own bout. Rejecting a whole bout for one long gap would select
+    # only the subset of bouts that happen to be completely gap-free.
     spectra, weights = [], []
     for s0, s1 in nrem_bouts(nrem):
         finite = np.isfinite(x[s0:s1])
         for a, b in contiguous_runs(finite):
             seg = x[s0 + a:s0 + b]
             if len(seg) < MIN_BOUT_S * fs:
+                continue
+            amplitude_scale = max(float(np.max(np.abs(seg))), 1.0)
+            if (not np.isfinite(np.std(seg))
+                    or np.std(seg) <= 100 * np.finfo(float).eps * amplitude_scale):
                 continue
             sp = morlet_spectrum(seg, fs, freqs)
             if np.isfinite(sp).sum() < 5:
@@ -170,7 +360,12 @@ def subject_spectrum(sig, nrem, fs=FS, smooth_4s=False):
     ok = np.isfinite(mean_spec)
     if ok.sum() < 10:
         return freqs, None, len(spectra), float(W.sum())
-    mean_spec = mean_spec / np.nanmean(mean_spec[ok])       # Lecci: normalise to its own mean
+    normalizer = float(np.nanmean(mean_spec[ok]))
+    if not np.isfinite(normalizer) or normalizer <= np.finfo(float).tiny:
+        return freqs, None, len(spectra), float(W.sum())
+    mean_spec = mean_spec / normalizer       # Lecci: normalise to its own mean
+    if np.isfinite(mean_spec).sum() < 10:
+        return freqs, None, len(spectra), float(W.sum())
     return freqs, mean_spec, len(spectra), float(W.sum())
 
 
@@ -185,18 +380,26 @@ def _scale_free(n, slope, rng):
     return y / (y.std() + 1e-12)
 
 
-def peak_significance(sig, nrem, slope, observed_prominence, n_sur=200, seed=0, smooth_4s=False):
+def peak_location_null_is_adequate(result):
+    """Whether accepted surrogate locations support a nondegenerate clustering null."""
+    if not result:
+        return False
+    peaks = result.get("surrogate_peaks", [])
+    n_valid = int(result.get("n_surrogates", 0))
+    fraction = len(peaks) / max(n_valid, 1)
+    return (len(peaks) >= MIN_SURROGATE_PEAK_LOCATIONS
+            and fraction >= MIN_SURROGATE_PEAK_FRACTION)
+
+
+def peak_significance(sig, nrem, slope, observed_prominence, n_sur=200, seed=0, smooth_4s=True):
     """Lecci fig S3 G-J, per subject: is the observed peak more prominent than one produced by a
     SCALE-FREE profile with the same 1/f slope and the SAME bout-length distribution?
 
-    HONEST LIMITATION: this per-subject control is WEAK. On synthetic data a planted 0.02 Hz rhythm
-    yields p ~ 0.21 (never < 0.05), because a single ~2-hour night gives a noisy prominence estimate
-    and matched 1/f surrogates occasionally produce comparable bumps. It is reported for
-    completeness and to bound each subject, but a per-subject null must NOT be read as "no rhythm".
-    The powerful test is at the COHORT level: real fitted peaks CLUSTER (simulated SD ~0.0008 Hz,
-    100% in 0.015-0.025 Hz) whereas 1/f noise scatters (SD ~0.013 Hz, ~48% in band). `surrogate_peaks`
-    is returned so summarize_corrected_3AB.py can compare real clustering against this cohort's own
-    scale-free scatter. Lecci's own evidence is exactly that clustering: 0.019 +/- 0.001 across n=27.
+    HONEST LIMITATION: this per-subject control can be weak when only a few hours are available and
+    must not be read as proof that a rhythm is absent. ``surrogate_peaks`` is returned so the
+    cohort summary can run a subject-matched clustering test without importing hard-coded
+    simulation benchmarks. This remains exploratory until the 1 Hz approximation is benchmarked
+    against the paper's reference construction.
 
     The surrogate inherits the real series' NaN pattern, so bout count, bout lengths and gap
     structure are identical by construction; only the spectral content is replaced.
@@ -220,17 +423,20 @@ def peak_significance(sig, nrem, slope, observed_prominence, n_sur=200, seed=0, 
         return None
     proms = np.array(proms)
     p_value = float((1 + np.sum(proms >= observed_prominence)) / (1 + len(proms)))
-    return dict(n_surrogates=len(proms), observed_prominence=float(observed_prominence),
+    result = dict(n_surrogates=len(proms), n_surrogates_requested=int(n_sur),
+                observed_prominence=float(observed_prominence),
                 null_median=float(np.median(proms)), null_p95=float(np.percentile(proms, 95)),
                 p_value=p_value,
-                # full surrogate peak-frequency list: the per-subject prominence test is weak, so
-                # the powerful cohort-level test is whether REAL peaks cluster more tightly than
-                # these do. Lecci's own evidence is exactly that clustering (0.019 +/- 0.001, n=27).
+                # Full surrogate peak-frequency list for the subject-matched cohort clustering test.
                 surrogate_peaks=[float(p) for p in peaks],
                 surrogate_peak_hz_median=(float(np.median(peaks)) if peaks else None),
                 surrogate_peak_in_infraslow_frac=(
                     float(np.mean((np.array(peaks) >= 0.015) & (np.array(peaks) <= 0.025)))
                     if peaks else None))
+    result["n_surrogate_peak_locations"] = int(len(peaks))
+    result["surrogate_peak_acceptance_fraction"] = float(len(peaks) / len(proms))
+    result["surrogate_peak_locations_adequate"] = peak_location_null_is_adequate(result)
+    return result
 
 
 def _gauss3(f, *p):
@@ -238,51 +444,97 @@ def _gauss3(f, *p):
 
 
 def fit_peak(freqs, spec, search=PEAK_SEARCH):
-    """Lecci's Gaussian fit, plus a 1/f-corrected peak as a robustness check.
+    """Three-Gaussian peak fit with an objective ``no peak`` outcome.
 
-    Returns dict with the fitted peak frequency, its prominence over the fitted 1/f background, and
-    which method produced it.
+    Lecci visually confirmed physiological power and reported a three-term Gaussian peak, width,
+    and mean normalized power in peak +/- 0.5 spectral SD. An unattended batch analysis also needs
+    a genuine-local-excess and fit-quality criterion; otherwise scale-free noise is forced to have
+    a Gaussian "peak" inside the allowed range.
     """
     ok = np.isfinite(spec) & (freqs >= F_LO) & (freqs <= F_HI)
     f, y = freqs[ok], spec[ok]
-    if len(f) < 15:
-        return dict(peak_hz=None, method="insufficient")
+    if len(f) < 30 or np.any(y <= 0):
+        return dict(peak_hz=None, accepted=False, method="insufficient")
 
-    # 1/f background in log-log, so a "peak" means a genuine local excess, not just low-frequency power
-    pos = y > 0
-    co = np.polyfit(np.log(f[pos]), np.log(y[pos]), 1)
+    # A local excess above a log-log aperiodic background is an automated counterpart to visual
+    # confirmation. It gates the Gaussian result but is not substituted for Lecci's endpoint.
+    co = np.polyfit(np.log(f), np.log(y), 1)
     resid = y - np.exp(np.polyval(co, np.log(f)))
     band = (f >= search[0]) & (f <= search[1])
-    pk_idx, _ = signal.find_peaks(resid[band])
-    detrended_peak = float(f[band][pk_idx[np.argmax(resid[band][pk_idx])]]) if len(pk_idx) else None
-    prominence = (float(np.max(resid[band]) / (np.std(resid[~band]) + 1e-12))
-                  if (~band).sum() > 5 else float("nan"))
+    noise_values = resid[~band]
+    noise = (1.4826 * np.median(np.abs(noise_values - np.median(noise_values))) + 1e-12
+             if len(noise_values) > 5 else np.std(resid) + 1e-12)
+    local, props = signal.find_peaks(resid[band], prominence=2.0 * noise)
+    if not len(local):
+        return dict(peak_hz=None, accepted=False, method="no_local_excess",
+                    prominence_over_background=float(np.max(resid[band]) / noise),
+                    slope_1_over_f=float(co[0]))
+    best_local = int(local[np.argmax(props["prominences"])])
+    detrended_peak = float(f[band][best_local])
+    residual_prominence = float(props["prominences"][np.argmax(props["prominences"])] / noise)
+    if resid[band][best_local] < 2.0 * noise:
+        return dict(peak_hz=None, accepted=False, method="weak_local_excess",
+                    detrended_peak_hz=detrended_peak,
+                    prominence_over_background=residual_prominence,
+                    slope_1_over_f=float(co[0]))
 
-    peak, method = None, "detrended"
     try:
         a0 = float(np.max(y[band])) if band.any() else float(np.max(y))
         p0 = [a0, detrended_peak or 0.02, 0.01, a0 / 2, 0.05, 0.02, a0 / 2, 0.01, 0.05]
         lo = [0, F_LO, 1e-4] * 3
         hi = [10 * a0 + 1e-9, F_HI, 1.0] * 3
         popt, _ = optimize.curve_fit(_gauss3, f, y, p0=p0, bounds=(lo, hi), maxfev=20000)
-        cands = [(popt[i], popt[i + 1]) for i in range(0, 9, 3)
-                 if search[0] <= popt[i + 1] <= search[1]]
-        if cands:
-            peak, method = float(max(cands)[1]), "gauss3"
-    except Exception:
-        pass
-    if peak is None:
-        peak = detrended_peak
-    return dict(peak_hz=peak, detrended_peak_hz=detrended_peak, method=method,
-                prominence_over_background=prominence, slope_1_over_f=float(co[0]))
+        fitted = _gauss3(f, *popt)
+        ss_tot = float(np.sum((y - y.mean()) ** 2))
+        fit_r2 = 1.0 - float(np.sum((y - fitted) ** 2)) / max(ss_tot, 1e-12)
+        if not np.isfinite(fit_r2):
+            raise ValueError("non-finite Gaussian fit quality")
+        components = [
+            (float(popt[i]), float(popt[i + 1]), float(popt[i + 2]))
+            for i in range(0, 9, 3)
+            if search[0] <= popt[i + 1] <= search[1]
+        ]
+        if not components:
+            raise ValueError("no Gaussian component in the target search range")
+        amplitude, peak, width = min(
+            components, key=lambda value: abs(value[1] - detrended_peak))
+        spectral_sd = width / np.sqrt(2.0)
+        accepted = (fit_r2 > 0.25 and abs(peak - detrended_peak) <= 0.005
+                    and 0.001 <= spectral_sd <= 0.03)
+        if not accepted:
+            return dict(peak_hz=None, accepted=False, method="gauss3_rejected",
+                        detrended_peak_hz=detrended_peak, fit_r2=float(fit_r2),
+                        spectral_sd_hz=float(spectral_sd),
+                        prominence_over_background=residual_prominence,
+                        slope_1_over_f=float(co[0]))
+        peak_window = np.abs(f - peak) <= 0.5 * spectral_sd
+        return dict(
+            peak_hz=float(peak), accepted=True, detrended_peak_hz=detrended_peak,
+            method="gauss3_validated", fit_r2=float(fit_r2),
+            gaussian_amplitude=amplitude, spectral_sd_hz=float(spectral_sd),
+            peak_window_mean=float(np.mean(y[peak_window])),
+            prominence_over_background=residual_prominence,
+            slope_1_over_f=float(co[0]))
+    except Exception as exc:
+        return dict(peak_hz=None, accepted=False, method="gauss3_failed",
+                    detrended_peak_hz=detrended_peak,
+                    prominence_over_background=residual_prominence,
+                    slope_1_over_f=float(co[0]), fit_error=type(exc).__name__)
 
 
 # ------------------------------------------------------------------ Lecci Step 2
-def cross_correlation(sig, hr, nrem, fs=FS, win_s=XCORR_WIN_S, max_lag_s=XCORR_MAX_LAG_S):
+def cross_correlation(sig, hr, nrem, fs=FS, win_s=XCORR_WIN_S,
+                      max_lag_s=XCORR_MAX_LAG_S, smooth_4s=True):
     """Lecci Fig 6: z-transform each 120 s interval, cross-correlate with HR as source wave,
     average the cross-correlograms within subject. Positive lag => sigma FOLLOWS heart rate."""
     s, _, _ = fill_short_gaps(sig, fs, 5.0)
     h, _, _ = fill_short_gaps(hr, fs, 5.0)
+    if smooth_4s:
+        k = max(1, int(round(4 * fs)))
+        valid = np.isfinite(s)
+        num = np.convolve(np.where(valid, s, 0.0), np.ones(k), mode="same")
+        den = np.convolve(valid.astype(float), np.ones(k), mode="same")
+        s = np.where(den >= k / 2, num / np.maximum(den, 1), np.nan)
     w = int(win_s * fs); ml = int(max_lag_s * fs)
     acc, n = [], 0
     for s0, s1 in nrem_bouts(nrem, min_s=win_s):
@@ -308,20 +560,48 @@ def cross_correlation(sig, hr, nrem, fs=FS, win_s=XCORR_WIN_S, max_lag_s=XCORR_M
 
 
 # ------------------------------------------------------------------ per subject
-def analyse(subject, band="fsp", smooth_4s=False, n_sur=200):
-    d = load(subject)
+def analyse(subject, band="fixed", smooth_4s=True, n_sur=200):
+    try:
+        d = load(subject)
+    except CacheSubjectSkipped as exc:
+        return dict(
+            subject=subject, status="skip", analysis_version=ANALYSIS_VERSION,
+            cache_schema_version=CACHE_SCHEMA_VERSION, **cache_lineage(subject),
+            reason=f"cache exclusion: {exc}")
     if d is None:
         return None
+    lineage = cache_lineage(subject, d)
+    if band == "fsp" and not bool(np.asarray(d["fsp_is_real_peak"]).item()):
+        return dict(subject=subject, status="skip", analysis_version=ANALYSIS_VERSION,
+                    cache_schema_version=CACHE_SCHEMA_VERSION,
+                    **lineage,
+                    reason="no independently reliable individual fast-spindle peak")
     sig = d["sigma_fsp"] if band == "fsp" else d["sigma_fixed"]
     swa, hr = d["swa"], d["hr_1"]
     lab, nrem, sep = stages_for(d)
     if nrem.sum() < 40:
-        return dict(subject=subject, status="skip", reason="insufficient NREM")
+        return dict(subject=subject, status="skip", analysis_version=ANALYSIS_VERSION,
+                    cache_schema_version=CACHE_SCHEMA_VERSION, **lineage,
+                    reason="insufficient NREM")
 
     freqs, spec, n_bouts, tot_s = subject_spectrum(sig, nrem, smooth_4s=smooth_4s)
     pk = fit_peak(freqs, spec) if spec is not None else dict(peak_hz=None, method="no spectrum")
     _, spec_swa, _, _ = subject_spectrum(swa, nrem, smooth_4s=smooth_4s)   # Lecci negative control
     pk_swa = fit_peak(freqs, spec_swa) if spec_swa is not None else dict(peak_hz=None)
+    negative_control = None
+    if (spec is not None and spec_swa is not None and pk.get("peak_hz")
+            and np.isfinite(pk.get("spectral_sd_hz", np.nan))):
+        half_width = 0.5 * float(pk["spectral_sd_hz"])
+        window = np.abs(freqs - float(pk["peak_hz"])) <= half_width
+        if window.any():
+            # Both bands must be evaluated in the same sigma-defined window. Requiring an accepted
+            # SWA peak preferentially drops the strongest negative controls, while comparing each
+            # band's own fitted window tests two different frequencies.
+            negative_control = dict(
+                window_source="accepted sigma peak +/- 0.5 sigma spectral SD",
+                centre_hz=float(pk["peak_hz"]), half_width_hz=half_width,
+                sigma_window_mean=float(np.mean(spec[window])),
+                swa_same_window_mean=float(np.mean(spec_swa[window])))
 
     # Lecci's scale-free control: is the peak more prominent than matched 1/f noise produces?
     sig_null = None
@@ -344,45 +624,117 @@ def analyse(subject, band="fsp", smooth_4s=False, n_sur=200):
         crit = analytic_msc_threshold(co["K"], ALPHA)
         f, c = co["f"], co["cxy"]
         own = pk["peak_hz"] if pk.get("peak_hz") else None
-        coh = dict(K=co["K"], crit=float(crit), n_valid=co["n_valid"], filled_frac=co["filled_frac"],
-                   at_lecci=float(c[np.argmin(np.abs(f - F_LECCI))]),
-                   sig_at_lecci=bool(c[np.argmin(np.abs(f - F_LECCI))] > crit),
-                   at_own_peak=(float(c[np.argmin(np.abs(f - own))]) if own else None),
-                   sig_at_own_peak=(bool(c[np.argmin(np.abs(f - own))] > crit) if own else None),
-                   f=f.tolist(), cxy=c.tolist())
+        lecci_value = float(c[np.argmin(np.abs(f - F_LECCI))])
+        own_value = float(c[np.argmin(np.abs(f - own))]) if own else None
+        if np.isfinite(lecci_value):
+            coh = dict(
+                K=co["K"], crit=float(crit), n_valid=co["n_valid"],
+                filled_frac=co["filled_frac"],
+                at_lecci=lecci_value,
+                sig_at_lecci=bool(lecci_value > crit),
+                at_own_peak=(
+                    own_value if own_value is not None and np.isfinite(own_value) else None),
+                sig_at_own_peak=(
+                    bool(own_value > crit)
+                    if own_value is not None and np.isfinite(own_value) else None),
+                f=f.tolist(),
+                cxy=[float(value) if np.isfinite(value) else None for value in c])
 
-    xc = cross_correlation(sig, hr, nrem)
-    return dict(subject=subject, status="ok", band=band, smooth_4s=smooth_4s,
+    xc = cross_correlation(sig, hr, nrem, smooth_4s=smooth_4s)
+    unavailable = []
+    if spec is None:
+        unavailable.append("sigma spectrum")
+    if xc is None:
+        unavailable.append("sigma-HR cross-correlation")
+    status = "ok" if not unavailable else "partial"
+    reason = None if not unavailable else "unavailable primary endpoint(s): " + ", ".join(unavailable)
+    return dict(subject=subject, status=status, reason=reason,
+                analysis_version=ANALYSIS_VERSION,
+                cache_schema_version=CACHE_SCHEMA_VERSION,
+                **lineage,
+                anatomy_selection_method=npz_scalar_text(
+                    d, "anatomy_selection_method", "missing/unvalidated"),
+                band=band, smooth_4s=smooth_4s,
+                n_surrogates_requested=int(n_sur),
                 n_nrem_epochs=int(nrem.sum()), n_bouts=n_bouts, bout_seconds=tot_s,
-                gmm_separation=(None if sep is None else float(sep)),
+                gmm_separation=finite_float_or_none(sep),
                 spectrum=dict(f=freqs.tolist(),
                               sigma=(None if spec is None else np.where(np.isfinite(spec), spec, None).tolist()),
                               swa=(None if spec_swa is None else np.where(np.isfinite(spec_swa), spec_swa, None).tolist())),
-                peak=pk, peak_swa=pk_swa, peak_null=sig_null, coherence=coh, xcorr=xc)
+                peak=pk, peak_swa=pk_swa, negative_control=negative_control,
+                peak_null=sig_null, coherence=coh, xcorr=xc,
+                endpoint_availability=dict(
+                    spectrum=spec is not None,
+                    cross_correlation=xc is not None,
+                    coherence=coh is not None,  # compatibility alias for fixed 0.02-Hz endpoint
+                    coherence_fixed_0p02=coh is not None,
+                    coherence_own_peak=bool(
+                        coh is not None
+                        and coh.get("at_own_peak") is not None
+                        and pk.get("peak_hz") is not None)))
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--subjects", default=",".join(map(str, COHORT)))
-    ap.add_argument("--band", choices=["fsp", "fixed"], default="fsp")
-    ap.add_argument("--smooth-4s", action="store_true")
+    ap.add_argument("--band", choices=["fsp", "fixed"], default="fixed")
+    ap.add_argument("--smooth-4s", action=argparse.BooleanOptionalAction, default=True)
     ap.add_argument("--n-sur", type=int, default=200,
                     help="scale-free surrogates for the Lecci fig S3 peak-significance control")
+    ap.add_argument(
+        "--force", action="store_true",
+        help="replace results that are not an exact reusable completed run")
     a = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
-    rows = []
-    for n in [int(x) for x in a.subjects.split(",") if x.strip()]:
+    requested_n = [int(x) for x in a.subjects.split(",") if x.strip()]
+    requested = [f"HUP{n}_phaseII" for n in requested_n]
+    config = dict(band=a.band, smooth_4s=a.smooth_4s, n_sur=a.n_sur,
+                  analysis_version=ANALYSIS_VERSION,
+                  cache_schema_version=CACHE_SCHEMA_VERSION,
+                  cache_code_sha256=cache_code_sha256(ROOT))
+    if not a.force and any(
+            os.path.exists(os.path.join(OUT, f"{subject}.json"))
+            for subject in requested):
+        expected_cache_inputs = {
+            subject: cache_lineage_entry(cache_lineage(subject))
+            for subject in requested
+        }
+        reusable_config = {**config, "cache_inputs": expected_cache_inputs}
+        if validated_complete_run_exists(
+                OUT, pipeline="lecci_faithful_3A", requested=requested,
+                config=reusable_config, suffix=".json",
+                require_current_source_tree=True):
+            print(
+                f"validated existing complete 3A run ({len(requested)} subjects)",
+                flush=True)
+            return
+    run_id = start_run_manifest(
+        OUT, pipeline="lecci_faithful_3A", requested=requested, config=config)
+    tree_digest = source_tree_sha256(ROOT)
+    completed, skipped, failed = [], [], []
+    cache_inputs = {}
+    for n in requested_n:
         name = f"HUP{n}_phaseII"
         try:
             r = analyse(name, a.band, a.smooth_4s, n_sur=a.n_sur)
         except Exception as e:
-            print(f"[{name}] ERROR {type(e).__name__}: {e}", flush=True); continue
+            print(f"[{name}] ERROR {type(e).__name__}: {e}", flush=True)
+            failed.append(dict(subject=name, error=f"{type(e).__name__}: {e}"))
+            continue
         if r is None:
-            print(f"[{name}] no cache", flush=True); continue
+            print(f"[{name}] no cache", flush=True)
+            failed.append(dict(subject=name, error="no cache"))
+            continue
+        r["run_id"] = run_id
+        r["source_tree_sha256"] = tree_digest
+        atomic_json_dump(r, os.path.join(OUT, f"{name}.json"))
+        cache_inputs[name] = cache_lineage_entry(r)
         if r.get("status") != "ok":
-            print(f"[{name}] {r.get('reason')}", flush=True); continue
-        rows.append(r)
-        json.dump(r, open(os.path.join(OUT, f"{name}.json"), "w"))
+            reason = r.get("reason") or f"status={r.get('status')}"
+            print(f"[{name}] {reason}", flush=True)
+            skipped.append(dict(subject=name, reason=reason))
+            continue
+        completed.append(name)
         pk = r["peak"]; co = r["coherence"]; xc = r["xcorr"]
         pv = pk.get("peak_p_value")
         print(f"[{name}] bouts={r['n_bouts']:3d} peak="
@@ -395,7 +747,18 @@ def main():
               f"{'*' if co and co.get('sig_at_own_peak') else ''} | "
               f"xcorr r={'n/a' if not xc else format(xc['peak_r'], '+.3f')} "
               f"lag={'n/a' if not xc else format(xc['peak_lag_s'], '+.0f')}s", flush=True)
-    print(f"\n{len(rows)} subjects -> {OUT}", flush=True)
+    write_run_manifest(
+        OUT, pipeline="lecci_faithful_3A",
+        requested=requested, completed=completed,
+        skipped=skipped, failed=failed,
+        config={**config, "cache_inputs": cache_inputs}, run_id=run_id,
+        result_files_sha256={
+            subject: file_sha256(os.path.join(OUT, f"{subject}.json"))
+            for subject in completed + [value["subject"] for value in skipped]
+        })
+    print(f"\n{len(completed)} subjects -> {OUT}", flush=True)
+    if failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

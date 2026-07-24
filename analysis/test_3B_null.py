@@ -11,7 +11,7 @@ a large positive z for one stage and a large negative z for the other.
 """
 import numpy as np
 
-from event_3B_mednick import so_triggered, FS_RR, HALF_WIN
+from event_3B_mednick import subject_so_triggered, FS_RR, HALF_WIN
 
 rng = np.random.RandomState(0)
 EPOCH = 30.0
@@ -71,10 +71,13 @@ print(f"{'stage':6s} {'':>4s} {'observed %':>11s} {'null mean %':>12s} {'z':>8s}
 res = {}
 for st in ("N2", "N3"):
     o = old_so_triggered(hr, troughs[st], means[st], rng=np.random.RandomState(1))
-    nw = so_triggered(hr, troughs[st], means[st], pools[st], rng=np.random.RandomState(1))
+    nw = subject_so_triggered(
+        hr, [troughs[st]], means[st], pools[st],
+        rng=np.random.RandomState(1), domain="hr")
     res[st] = (o, nw)
     print(f"{st:6s} {'OLD':>4s} {o['pct']:11.3f} {o['null_mean_pct']:12.3f} {o['z']:8.2f}")
-    print(f"{st:6s} {'NEW':>4s} {nw['pct_above_stage_mean']:11.3f} {nw['null_mean_pct']:12.3f} {nw['z']:8.2f}")
+    print(f"{st:6s} {'NEW':>4s} {nw['pct_above_stage_mean']:11.3f} "
+          f"{nw['null_mean_pct']:12.3f} {nw['stage_shift_z_diagnostic']:8.2f}")
 
 fails = []
 
@@ -92,8 +95,14 @@ check("OLD produces a spurious significant result despite zero true effect",
 check("OLD flips sign between stages (the HUP165 signature)",
       res['N2'][0]['z'] * res['N3'][0]['z'] < 0,
       f"N2 z={res['N2'][0]['z']:.2f}, N3 z={res['N3'][0]['z']:.2f}")
-check("NEW returns z ~ 0 for N2", abs(res['N2'][1]['z']) < 3, f"z = {res['N2'][1]['z']:.2f}")
-check("NEW returns z ~ 0 for N3", abs(res['N3'][1]['z']) < 3, f"z = {res['N3'][1]['z']:.2f}")
+check("NEW diagnostic returns z ~ 0 for N2",
+      abs(res['N2'][1]['stage_shift_z_diagnostic']) < 3,
+      f"z = {res['N2'][1]['stage_shift_z_diagnostic']:.2f}")
+check("NEW diagnostic returns z ~ 0 for N3",
+      abs(res['N3'][1]['stage_shift_z_diagnostic']) < 3,
+      f"z = {res['N3'][1]['stage_shift_z_diagnostic']:.2f}")
+check("NEW does not expose the nonstationarity-sensitive diagnostic as an inferential p",
+      res['N2'][1]['p_upper'] is None and res['N3'][1]['p_upper'] is None)
 check("NEW null baseline is ~0 in both stages (no stage/night offset leaking in)",
       max(abs(res['N2'][1]['null_mean_pct']), abs(res['N3'][1]['null_mean_pct'])) < 0.30,
       f"N2 {res['N2'][1]['null_mean_pct']:+.3f}%, N3 {res['N3'][1]['null_mean_pct']:+.3f}%")

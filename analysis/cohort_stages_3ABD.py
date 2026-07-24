@@ -52,24 +52,56 @@ POOLED_3A_CAP_MIN = 55.0  # common cap so K (and thus the ~1/K coherence floor) 
 
 
 # ---------------------------------------------------------------- streaming pass
-def fsp_from(x_mtl, sf):
-    """Individual fast-spindle peak. The raw PSD falls as 1/f, so a plain argmax over 11-16 Hz just
-    returns the low edge; whiten by removing the log-log 1/f trend first and take a genuine LOCAL
-    peak. Returns (freq, found_real_peak)."""
+def _fsp_candidate(x_mtl, sf):
+    """Objective candidate for a fast-spindle peak in one data split."""
     ps = []
     for j in range(x_mtl.shape[1]):
-        f, p = signal.welch(notch(np.nan_to_num(x_mtl[:, j].astype(float)), sf), sf, nperseg=int(8 * sf))
+        x = notch(np.nan_to_num(x_mtl[:, j].astype(float)), sf)
+        f, p = signal.welch(x, sf, nperseg=int(min(8 * sf, len(x))))
         ps.append(p)
-    p = np.mean(ps, axis=0)
-    fit = (f >= 2) & (f <= 30) & (p > 0)
-    co = np.polyfit(np.log(f[fit]), np.log(p[fit]), 1)          # 1/f background
-    resid = np.log(p[fit]) - np.polyval(co, np.log(f[fit]))
-    ff = f[fit]
-    band = (ff >= 10.5) & (ff <= 16.0)
-    pk, _ = signal.find_peaks(resid[band])
-    if len(pk):
-        return float(ff[band][pk[np.argmax(resid[band][pk])]]), True
-    return 13.0, False                                           # typical fast-spindle peak fallback
+    p = np.nanmean(ps, axis=0)
+    positive = (f >= 2) & (f <= 30) & (p > 0)
+    # Fit the aperiodic background outside the full spindle range, so a broad real spindle bump
+    # cannot pull its own baseline upward.
+    background = positive & ~((f >= 8) & (f <= 18))
+    if background.sum() < 20:
+        return None
+    co = np.polyfit(np.log(f[background]), np.log(p[background]), 1)
+    resid = np.log(np.maximum(p, np.finfo(float).tiny)) - np.polyval(co, np.log(
+        np.maximum(f, f[f > 0].min())))
+    noise_values = resid[positive & ~((f >= 8) & (f <= 18))]
+    noise = 1.4826 * np.median(np.abs(noise_values - np.median(noise_values))) + 1e-12
+    band_idx = np.where((f >= 12.0) & (f <= 15.0))[0]
+    peaks, props = signal.find_peaks(resid[band_idx], prominence=2.5 * noise)
+    if not len(peaks):
+        return None
+    local = int(peaks[np.argmax(props["prominences"])])
+    idx = int(band_idx[local])
+    if resid[idx] < 3.0 * noise:
+        return None
+    return float(f[idx])
+
+
+def fsp_from(x_mtl, sf):
+    """Reliability-gated individual fast-spindle peak.
+
+    Lecci visually validated FSPs from all artifact-free NREM. Automation needs an explicit
+    rejection state: a local maximum in 1/f noise is not automatically a spindle. We require a
+    prominent 12-15 Hz bump in the full sample and agreement within 0.75 Hz across temporal halves.
+    Failure returns the fixed 13-Hz fallback with ``found_real_peak=False``; production 3A uses the
+    fixed 10-15 Hz band unless a validated FSP sensitivity analysis is explicitly requested.
+    """
+    x_mtl = np.asarray(x_mtl)
+    if x_mtl.ndim != 2 or len(x_mtl) < int(120 * sf):
+        return 13.0, False
+    full = _fsp_candidate(x_mtl, sf)
+    mid = len(x_mtl) // 2
+    first = _fsp_candidate(x_mtl[:mid], sf)
+    second = _fsp_candidate(x_mtl[mid:], sf)
+    reliable = (full is not None and first is not None and second is not None
+                and abs(first - second) <= 0.75
+                and abs(full - first) <= 0.75 and abs(full - second) <= 0.75)
+    return (float(full), True) if reliable else (13.0, False)
 
 
 def band_sos(band, sf, order=4):
@@ -166,54 +198,94 @@ def stream_night(ds, idx, n_ctx, sf, start_s, hours, fsp, rng):
 
 
 # ---------------------------------------------------------------- staging
-def nrem_mask_adaptive(dr, clean):
+def reliable_two_state_split(values):
+    """Stable high-tail Gaussian-mixture partition; not evidence for two physiological states."""
+    values = np.asarray(values, float)
+    if len(values) < 40 or np.nanpercentile(values, 90) - np.nanpercentile(values, 10) < 1e-3:
+        return None, dict(reason="insufficient variation for two states")
+    try:
+        from sklearn.mixture import GaussianMixture
+        matrix = values.reshape(-1, 1)
+        one = GaussianMixture(n_components=1, random_state=0, n_init=5).fit(matrix)
+        two = GaussianMixture(n_components=2, random_state=0, n_init=10).fit(matrix)
+        labels = two.predict(matrix)
+        means = two.means_.ravel()
+        hi = int(np.argmax(means))
+        fraction = float(np.mean(labels == hi))
+        separation = float(
+            abs(np.diff(means)[0]) / np.sqrt(np.mean(two.covariances_.ravel())))
+        bic_gain = float(one.bic(matrix) - two.bic(matrix))
+        cv_gains, split_means = [], []
+        for train_idx, test_idx in (
+                (np.arange(0, len(values), 2), np.arange(1, len(values), 2)),
+                (np.arange(1, len(values), 2), np.arange(0, len(values), 2))):
+            one_split = GaussianMixture(
+                n_components=1, random_state=0, n_init=5).fit(matrix[train_idx])
+            two_split = GaussianMixture(
+                n_components=2, random_state=0, n_init=10).fit(matrix[train_idx])
+            cv_gains.append(float(
+                (two_split.score(matrix[test_idx]) - one_split.score(matrix[test_idx]))
+                * len(test_idx)))
+            split_means.append(np.sort(two_split.means_.ravel()))
+        full_means = np.sort(means)
+        gap = float(np.diff(full_means)[0])
+        stable = all(np.max(np.abs(value - full_means)) <= max(0.05, 0.35 * gap)
+                     for value in split_means)
+        diagnostic = dict(
+            bic_gain_2_vs_1=bic_gain, split_half_loglik_gains=cv_gains,
+            separation=separation, high_component_fraction=fraction,
+            stable_split_means=bool(stable),
+            component_means=[float(value) for value in full_means])
+        accepted = (bic_gain > 10.0 and min(cv_gains) > 0.0 and stable
+                    and separation >= 0.75 and 0.10 <= fraction <= 0.90)
+        diagnostic["reason"] = (
+            "accepted stable two-Gaussian high-tail partition" if accepted
+            else "no stable two-Gaussian high-tail partition")
+        return (labels == hi) if accepted else None, diagnostic
+    except Exception as exc:
+        return None, dict(reason=f"high-tail partition failed: {type(exc).__name__}")
+
+
+def nrem_mask_adaptive(dr, clean, eligibility=None):
     """NREM epochs, thresholded WITHIN subject.
 
     An absolute delta-ratio cutoff does not transfer: it was tuned on one subject and discarded
     most epochs in others (101 / 48 / 354 NREM epochs where ~800 were expected), collapsing the
     staging. Fit 2 classes to this subject's own delta-ratio distribution instead."""
-    ok = np.isfinite(dr)
-    if ok.sum() < 60:
+    valid = np.isfinite(dr) & (np.asarray(clean, float) >= 0.5)
+    if eligibility is not None:
+        valid &= np.asarray(eligibility, bool)
+    if valid.sum() < 60:
         return np.zeros(len(dr), bool)
-    v = dr[ok].reshape(-1, 1)
-    try:
-        from sklearn.mixture import GaussianMixture
-        g = GaussianMixture(n_components=2, random_state=0, n_init=3).fit(v)
-        hi = int(np.argmax(g.means_.ravel()))
-        m = np.zeros(len(dr), bool)
-        m[np.where(ok)[0]] = (g.predict(v) == hi)
-    except Exception:
-        m = ok & (dr >= np.nanmedian(dr))
-    if not (0.15 <= m.mean() <= 0.95):            # implausible split -> percentile fallback
-        m = ok & (dr >= np.nanpercentile(dr[ok], 40))
-    m = m & (clean >= 0.5)
+    high, _ = reliable_two_state_split(np.asarray(dr, float)[valid])
+    if high is None:
+        return np.zeros(len(dr), bool)
+    m = np.zeros(len(dr), bool)
+    m[np.where(valid)[0]] = high
     # CONSOLIDATE. Per-epoch classification flickers in and out of NREM every few epochs, which
     # leaves no contiguous block long enough for a 0.02 Hz coherence estimate (628 NREM epochs but
     # no 20-min run). Real sleep scoring smooths over time; a 5-epoch (2.5 min) majority filter
     # fills single-epoch dropouts and removes isolated epochs.
     k = 5
-    return np.convolve(m.astype(float), np.ones(k) / k, mode="same") >= 0.5
+    smoothed = np.convolve(m.astype(float), np.ones(k) / k, mode="same") >= 0.5
+    return smoothed & valid
 
 
 def stage_epochs(ep):
     """NREM epochs -> {N2-like, N3-like} by 2-component GMM on log slow-wave power."""
     dr, swa, clean = ep["dr"], ep["swa"], ep["clean"]
-    nrem = nrem_mask_adaptive(dr, clean) & np.isfinite(swa) & (swa > 0)
+    stage_eligible = np.isfinite(swa) & (swa > 0)
+    # Fit the delta partition on exactly the epochs eligible for downstream stage labels.  Allowing
+    # SWA-missing epochs into the model can move its components and relabel otherwise unchanged data.
+    nrem = nrem_mask_adaptive(dr, clean, eligibility=stage_eligible)
     lab = np.full(len(dr), "", dtype=object)
     if nrem.sum() < 40:
         return lab, nrem, None
-    v = np.log(swa[nrem]).reshape(-1, 1)
-    try:
-        from sklearn.mixture import GaussianMixture
-        g = GaussianMixture(n_components=2, random_state=0, n_init=3).fit(v)
-        cl = g.predict(v)
-        hi = int(np.argmax(g.means_.ravel()))
-        sep = float(abs(np.diff(g.means_.ravel())[0]) / np.sqrt(g.covariances_.ravel().mean()))
-    except Exception:
-        thr = np.median(v); cl = (v.ravel() >= thr).astype(int); hi = 1
-        sep = float("nan")
-    names = np.where(cl == hi, "N3", "N2")
-    lab[np.where(nrem)[0]] = names
+    lab[nrem] = "NREM"
+    high, diagnostic = reliable_two_state_split(np.log(swa[nrem]))
+    sep = diagnostic.get("separation")
+    if high is not None:
+        lab[np.where(nrem)[0]] = np.where(high, "N3", "N2")
     return lab, nrem, sep
 
 
@@ -420,6 +492,13 @@ def run_subject(n, hours):
 
 
 def main():
+    raise SystemExit(
+        "LEGACY/WITHDRAWN combined 3A/3B/3D entry point: run the corrected endpoint-specific "
+        "pipelines documented in README.md. Shared staging helpers remain importable.")
+    raise SystemExit(
+        "LEGACY PIPELINE QUARANTINED: this combined 3A/3B/3D estimator produced withdrawn "
+        "results. Build versioned caches with cache_lc_series.py, then run "
+        "lecci_faithful_3A.py, event_3B_cached.py, and event_3D_by_stage.py.")
     ap = argparse.ArgumentParser()
     ap.add_argument("--subjects", default=",".join(map(str, COHORT)))
     ap.add_argument("--hours", type=float, default=7.0)
@@ -467,4 +546,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(
+        "LEGACY/WITHDRAWN combined 3A/3B/3D entry point: run the corrected endpoint-specific "
+        "pipelines documented in README.md. Shared staging helpers remain importable.")

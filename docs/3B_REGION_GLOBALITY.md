@@ -1,4 +1,9 @@
-# 3B — is the null a locality artifact? globality, region, and K-complex tests (Utrecht RESPect)
+# WITHDRAWN 3B locality/globality follow-up — superseded estimators
+
+> **LEGACY / WITHDRAWN NUMBERS.** This follow-up predates the RR-domain corrected-v5 descriptive
+> path and unvalidated-anatomy audit. Its whole-stage-shift inference is invalid under local
+> nonstationarity, its command-line entry points are hard-stopped, and its numerical results are
+> historical only.
 
 **Bottom line: partial, honestly mixed, and none of it reaches scalp magnitudes.** Three predictions,
 three answers: (1) coupling is stronger for **global** slow waves — directional support in N3 (global
@@ -21,8 +26,8 @@ Naji measured is a property of large slow waves, and a lateral neocortical conta
 slow waves. Three falsifiable predictions follow, all testable on the Utrecht RESPect cohort (OpenNeuro
 ds003848) from the cache (all-channel SO troughs) plus its Destrieux atlas labels — no re-streaming. Code:
 [`analysis/region_global_3B.py`](../analysis/region_global_3B.py) (Tests 1–2) and
-[`analysis/kcomplex_n2_3B.py`](../analysis/kcomplex_n2_3B.py) (Test 3), both reusing the corrected
-`so_triggered` (stage-matched null) unchanged.
+[`analysis/kcomplex_n2_3B.py`](../analysis/kcomplex_n2_3B.py) (Test 3). Both are withdrawn because
+their stage-shift null does not preserve local HR trends or SO event-density clustering.
 
 ## Test 1 — globality gradient
 

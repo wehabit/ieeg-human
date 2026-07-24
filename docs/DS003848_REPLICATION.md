@@ -1,7 +1,10 @@
-# ds003848 replication — LC-infraslow tests in a properly-staged iEEG sleep cohort
+# WITHDRAWN ds003848 replication — superseded estimates from an unvalidated stage proxy
 
-**Bottom line: consistent with the HUP negative, and it removes the biggest caveat — but this cohort
-is underpowered for 3A, so it is a directional replication, not a definitive one.**
+> **LEGACY / WITHDRAWN NUMBERS.** These outputs used superseded caches/estimators and an unvalidated
+> stage proxy. Corrected-v5 results are pending a complete rerun and QC.
+
+The former “bottom line” is withdrawn. No conclusion from this file is valid until corrected-v5 is
+rerun and the rule-based labels are validated against expert staging.
 
 The HUP `phaseII` result rests on a staging *proxy* (a Gaussian mixture on slow-wave power, because
 iEEG has no EOG/EMG). The obvious objection: maybe the ~50 s rhythm is real but smeared by wake/REM
@@ -15,9 +18,9 @@ Six patients, ~1 h continuous `task-[Ss]leep` @ 2048 Hz, 50 Hz line; **3 ECoG gr
 Every subject verified (from raw `channels.tsv`) to carry iEEG, ECG, EMG, EOG and (bad) respiration
 belts. Pipeline: `analysis/stage_ds003848.py` (MNE BrainVision reader → derived series identical to
 the HUP cache → EMG/EOG staging) then the **same** corrected code
-(`lecci_faithful_3A.py`, `event_3B_cached.py`) via a real-stage adapter.
+(`lecci_faithful_3A.py`, `event_3B_cached.py`) via a rule-based stage adapter.
 
-**Staging is rule-based and physiologically validated.** True AASM scoring needs scalp EEG, which
+**Staging is rule-based and not validated against expert labels.** True AASM scoring needs scalp EEG, which
 this dataset lacks; what EMG + EOG buy is REM/Wake exclusion. Per 30 s epoch: submental EMG RMS,
 EOG movement variance, iEEG slow-wave power, robust-z within subject. Wake = high EMG; REM = atonia +
 phasic eye movement + low SWA; NREM split N2/N3 by GMM on SWA. On RESP0521 the labels separate exactly
@@ -37,7 +40,7 @@ removed. Heart rates are also healthier than HUP (e.g. 70 bpm vs HUP's ~92 bpm t
 
 ## 3A — underpowered here, but what signal exists does not support Lecci
 
-The catch is duration. HUP streams ~7 h/subject; ds003848 is **1 h**, and real staging fragments NREM
+The catch is duration. HUP streams ~7 h/subject; ds003848 is **1 h**, and the stage proxy fragments NREM
 into short runs, leaving very few bouts ≥120 s and a low Welch segment count:
 
 | subject | bouts ≥120 s | coherence K | own peak (Hz) |
@@ -76,14 +79,13 @@ cohort. It is **null**:
 No subject reaches z > 1.96 in either stage, and the cohort z-tests are null. Note the contrast with
 HUP, whose 3B cohort z-test *was* significant (driven by ~7/23 subjects): with only 6 subjects here
 this could be low power, or it could mean part of HUP's weak 3B signal came from wake/arousal
-contamination that real staging removes. **n = 6 cannot distinguish these**, so this is flagged, not
+contamination that the proxy attempts to remove. **n = 6 cannot distinguish these**, so this is flagged, not
 concluded.
 
 ## What this replication does and does not establish
 
-- **Does:** the HUP 3A negative survives genuine REM/wake exclusion — the strongest single objection to
-  it (staging contamination) does not rescue an infraslow LC rhythm. Direction of every test agrees
-  with HUP. Staging from EMG/EOG works and is validated.
+- **Does not establish:** that the HUP result survives genuine REM/wake exclusion. That claim
+  requires corrected-v5 outputs and validation of the EMG/EOG/iEEG rules against expert labels.
 - **Does not:** provide a *powered* independent 3A test. 1 h/subject, fragmented by real staging, gives
   median K = 7 and only 2/6 usable coherence estimates. A definitive replication needs longer
   continuous sleep with cardiac + EOG/EMG, which no current public iEEG dataset provides.
@@ -91,7 +93,7 @@ concluded.
 ## Honest limitations
 
 - **1 h recordings** → few NREM bouts ≥120 s → 3A badly underpowered (RESP0749 unusable for 3A).
-- **Rule-based staging without scalp EEG** — validated to separate the stages, but not AASM-scored;
+- **Rule-based staging without scalp EEG** — not validated against expert labels and not AASM-scored;
   the N2/N3 split is still SWA-driven, so it inherits that axis.
 - **n = 6**, mixed ECoG/SEEG montage.
 - Respiration belts exist but are marked `bad`, so apnoea screening was not attempted.
@@ -99,8 +101,8 @@ concluded.
 ## Reproduce
 
 ```
-.venv/bin/python analysis/stage_ds003848.py              # download → stage → cache (deletes raw .eeg)
-.venv/bin/python analysis/run_ds003848_replication.py    # corrected 3A + 3B on real-staged NREM
+.venv/bin/python analysis/stage_ds003848.py --force              # download → proxy-stage → cache; keeps raw by default
+.venv/bin/python analysis/run_ds003848_replication.py --force    # corrected 3A + 3B on proxy-staged NREM
 .venv/bin/python analysis/summarize_corrected_3AB.py \
     --a-dir outputs/ds003848_3A --b-dir outputs/ds003848_3B --label "ds003848 replication"
 ```

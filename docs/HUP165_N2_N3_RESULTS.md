@@ -1,4 +1,7 @@
-# HUP165 — full N2/N3 breakdown (single subject)
+# WITHDRAWN HUP165 N2/N3 breakdown — superseded single-subject output
+
+> **LEGACY / WITHDRAWN NUMBERS.** This worked example used the quarantined combined estimator.
+> Do not cite it as current evidence.
 
 Every result computed for this subject, split by sleep stage. HUP165 is the worked example
 throughout this branch: the longest reachable record (459 h), 1024 Hz, and the cleanest EKG.

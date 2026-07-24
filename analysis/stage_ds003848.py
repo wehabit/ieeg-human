@@ -261,7 +261,9 @@ def score_stages(ep_swa, ep_emg, ep_eog, ep_dr, ep_clean):
     These are not expert-scored AASM stages and must not be described as "real staging".
     """
     n = len(ep_swa)
-    lab = np.full(n, "", dtype=object)
+    # Persist labels as fixed-width Unicode.  Object arrays require pickle on load, but all
+    # production cache readers deliberately use ``allow_pickle=False`` for safety.
+    lab = np.full(n, "", dtype="<U4")
     log_swa = np.log(np.clip(ep_swa, 1e-12, None))
     log_emg = np.log(np.clip(ep_emg, 1e-12, None))
     log_eog = np.log(np.clip(ep_eog, 1e-12, None))

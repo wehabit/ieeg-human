@@ -1,4 +1,6 @@
 """Synthetic regression tests for participant-level 3B and event-locked 3D helpers."""
+import io
+
 import numpy as np
 from scipy import signal
 
@@ -385,6 +387,14 @@ separated_lab, separated_counts = score_stages(
 check("RESPect stage proxy uses a separable high-delta component",
       separated_counts["n_nrem"] >= 40
       and np.isin(separated_lab, ["NREM", "N2", "N3"]).any())
+stage_buffer = io.BytesIO()
+np.savez_compressed(stage_buffer, stage_lab=separated_lab)
+stage_buffer.seek(0)
+with np.load(stage_buffer, allow_pickle=False) as staged:
+    reloaded_stage_labels = staged["stage_lab"]
+check("RESPect stage labels remain readable with pickle disabled",
+      reloaded_stage_labels.dtype.kind == "U"
+      and np.array_equal(reloaded_stage_labels, separated_lab))
 
 roles = channel_roles_from_rows([
     {"name": "ecg_bad", "type": "ECG", "status": "bad"},

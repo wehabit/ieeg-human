@@ -2,29 +2,25 @@
 
 ## Status and construct
 
-These are the methods for the corrected production analyses. The v7 RESPect and HUP regenerations
-are complete, but neither has an estimable 3A or 3B endpoint; HUP's direct-stream 3D pooled endpoint
-is also unavailable.
+These are the methods for the neutral-cache v8 QC-sensitivity analyses. The prior fixed-80
+production rerun remains reproducible as a historical profile, but it is not treated as a
+paper-derived or preregistered qualification rule. The authoritative numerical report is
+[QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md).
 
 3A is an LC-motivated candidate signature. 3B is a cortical–autonomic timing measure. 3D is generic
 SO–spindle nesting. None is a validated human LC measurement. Direct LC/NE validation would require
 an independent LC/NE-sensitive signal or intervention.
 
-The current production contract is `analysis_version = 2026-07-corrected-v7` and
-`cache_schema_version = 2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7`.
+The current contract is `analysis_version = 2026-07-qc-sensitivity-v8` and
+`cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v8`.
 
-The complete six-subject RESPect cache and downstream manifests passed exact cache-code,
-input-identity, result-file, and runtime checks. Spectrum, cross-correlation, fixed-0.02-Hz
-coherence, and own-peak coherence were each estimable in 0/6 participants; 3B N2 and N3 were each
-estimable in 0/6. The prespecified cohort endpoints are therefore unavailable. This is not a
-detected null effect and does not prove or disprove LC tracking.
-
-The HUP cache manifest accounted for all 25 requested participants: 17 completed, 8 were
-prespecified structured skips, and 0 failed. Downstream terminal manifests and artifact hashes
-validated all requested subjects. Spectrum, cross-correlation, fixed-0.02-Hz coherence, and
-own-peak coherence were each estimable in 0/25; 3B N2 and N3 were each estimable in 0/25. The
-direct-stream 3D pooled endpoint was estimable in 0/25, with all records partial/skipped and 0
-failures. All 3D inference remains disabled.
+The complete six-subject RESPect cache and 25-request HUP cache pass exact cache-code,
+input-identity, result-file, and runtime checks. HUP has 24 completed neutral caches and one
+structured skip (HUP116, no cortical-contact candidates). Under the outcome-blind endpoint-local
+base sensitivity, RESPect has 3/3/3 available 3A spectrum/coherence/cross-correlation records and
+0/1/2 available 3B N2/N3/pooled records. HUP has 19/14/15 available 3A records, 6/5/15 available
+3B records, and 7 descriptive 3D records. These are availability counts, not effect support.
+RESPect remains below the default cohort minimum; 3B and 3D inference is disabled.
 
 ## Data
 
@@ -84,13 +80,14 @@ SWA means broadband 0.5–4 Hz slow-wave activity. It is not an individual SO ev
 
 ## Versioned cache and preprocessing
 
-Each current cache carries a schema version, timestamp, code revision, runtime versions, source
+Each current neutral cache carries a schema version, timestamp, code revision, runtime versions, source
 identifier/checksum where possible, selected interval, error logs, and coverage. It also carries a
 SHA-256 digest of the exact cache-producing source and environment-specification files. Loaders
 compare that cache-specific digest and recorded runtime versions with the current environment; a
 broad Git revision or downstream source-tree digest alone is insufficient. Atomic replacement
-prevents truncated caches. Each endpoint enforces its required coverage; cardiac coverage remains a
-cache-wide requirement. Acquisition-chunk failures or any ECG detector exception invalidate a
+prevents truncated caches. Power, staging, cardiac, contact, and event support is retained in
+reversible arrays and enforced at the endpoint rather than as one global participant
+disqualification. Acquisition-chunk failures or any ECG detector exception still invalidate a
 production cache.
 
 RESPect caches pin and hash the raw signal plus `channels.tsv`, `events.tsv`, and `electrodes.tsv`.
@@ -120,23 +117,24 @@ For each contact:
 3. Detrend and line-notch the raw signal.
 4. Detect/pad broadband IED and extreme-amplitude artifacts.
 5. Compute band power per contact; never average raw voltages before power.
-6. Bin clean, measured envelope-squared power to 1 Hz.
-7. Normalize each contact once over the full night, then average contact powers.
+6. Bin clean, measured envelope-squared power to 1 Hz while retaining the numerator and
+   clean-sample denominator.
+7. Normalize each contact once over the full night, then aggregate contact powers offline.
 
-The aggregate uses a fixed coverage-qualified contact set: each selected contact must cover at
-least 80% of the interval, at least three contacts must qualify, and a reported second requires at
-least 80% of that selected set. Per-contact coverage, the selected mask, and the time-resolved
-contact count are stored; mutually disjoint low-coverage contacts cannot manufacture a
-fully-covered aggregate.
+The historical `audit80` profile reconstructs its fixed coverage-qualified contact set exactly.
+The outcome-blind endpoint-local profile instead finds an overlap-connected observation component,
+requires the profile's minimum contacts, and uses median polish to remove stable contact gain.
+Disconnected contact/time islands cannot manufacture a full series, and a nonconverged fit fails
+closed. Sigma and SWA use the same joint support.
 
-The same measured-data mask excludes contaminated staging epochs, SO/spindle candidates, and ECG
-peaks. A contact-epoch contributes delta ratio/SWA only when every sample is measured and
-artifact-clean. Staging fixes one full-night contact set whose contacts each have at least 80%
-joint finite delta-ratio and SWA coverage, divides SWA by each contact's full-night clean-epoch
-median, and requires at least 80% of that exact set (and at least three contacts) in an epoch.
-Staging models are fit only on epochs eligible for their downstream labels. This closes zero-fill,
-brief-artifact, changing-contact, feature-coverage, and excluded-reference leaks; blinded
-validation against real data remains required.
+The same measured-data mask excludes contaminated staging windows, SO/spindle candidates, and ECG
+peaks. Staging retains fourteen possible complete 4-second Hann/Welch windows at 2-second overlap
+for every contact/epoch. The base endpoint-local sensitivity requires 11 iEEG windows, chosen by an
+outcome-blind RESPect reconstruction calibration; the 1–14 grid is reported. This is not a paper
+rule, stage validation, or calibrated HUP threshold. EMG/EOG retain separate complete-window
+support and require 14 in the base profile. Staging models are fit only on epochs eligible for
+their downstream labels. Profile outputs serialize auxiliary, proxy-label, final-label, and
+disagreement counts.
 
 ECG R peaks are deduplicated with a sequential refractory rule. Physiological RR intervals
 0.33–1.5 s are interpolated with PCHIP inside continuous runs only. For a gap longer than 5 s, both
@@ -193,17 +191,19 @@ FieldTrip Morlet series and must be benchmarked on identical raw input.
 ## 3B: SO–RR/HR timing
 
 Clean per-contact signals are zero-phase filtered at 0.15–4 Hz. Complete negative/down and
-positive/up half-waves must each last 0.3–1.0 s. Only epochs inside uninterrupted runs of the same
-stage lasting at least six 30 s epochs (180 s) are eligible; author disturbance intervals break a
-run. Up-state and peak-to-peak amplitude thresholds are then computed separately within each
-channel and eligible stable stage at the 75th percentile.
+positive/up half-waves follow the cited Dang-Vu timing: negative-to-positive 0.3–1.5 s, followed by
+a positive-to-negative crossing in less than 1.0 s. Only epochs inside uninterrupted runs of the
+same stage lasting at least six 30 s epochs (180 s) are eligible; author disturbance intervals
+break a run. Dang-Vu's absolute scalp-amplitude cutoffs cannot be transferred directly to iEEG, so
+up-state and peak-to-peak amplitude percentiles are explicit adaptations tested at 0/50/75/90,
+with 75 as the base sensitivity.
 
 For each channel, the 4 Hz RR tachogram is averaged in a ±5 s window around SO down-state troughs.
 The post-trough RR minimum defines the HR-burst time. Channel-specific times are averaged, matching
 Naji’s electrode timing endpoint. A participant magnitude is obtained from the average channel RR
 curve. Its stage baseline is calculated in the same RR domain and converted once to HR, so the
-percentage does not mix `60 / mean(RR)` with `mean(60 / RR)`. Observed and surrogate effects use
-that identical denominator. This is a prespecified consistency choice because the paper does not
+percentage does not mix `60 / mean(RR)` with `mean(60 / RR)`. Observed and diagnostic-shift effects
+use that identical denominator. This is a documented consistency choice because the paper does not
 fully disambiguate the order of averaging and HR conversion for its stage baseline.
 
 The former null applies one common circular shift in eligible stage-time to the complete
@@ -246,10 +246,11 @@ a common SO-phase direction even when spindle and SO trains are independent. Pro
 is disabled. A valid null must shift or block-resample complete spindle trains relative to SOs and
 repeat event selection, pairing, contact aggregation, and the cohort statistic.
 
-Before that pooled endpoint is admitted, at least three included contacts must each provide at least
-1,200 s and 80% valid pooled NREM, and those exact included contacts must contribute at least 200
-paired SO–spindle events. Events from contacts excluded by the per-contact ≥20-event rule do not
-inflate that total. The cohort summary reconstructs this gate from the per-contact records.
+The base descriptive sensitivity requires at least three included contacts, at least 1,200 valid
+pooled-NREM seconds per included contact, and at least 200 paired SO–spindle events from those exact
+contacts. Events from contacts excluded by the per-contact ≥20-event rule do not inflate that
+total. Acquisition, event-valid, contact, duration, and event-count choices are stored and varied
+offline. They are repository QC sensitivities, not thresholds supplied by Staresina or Helfrich.
 
 All 3D inference is **disabled/open**. The N2-like versus N3-like contrast has additional problems:
 separate stage estimates can contain different contact sets and very different event counts. Raw
@@ -266,10 +267,10 @@ within-participant stage/block null before it can be reported.
 - Required-subject failures cause a nonzero exit.
 - Every requested subject is classified as completed, explicitly skipped with a reason, or failed.
   A runner returning `None` is a classified failure/skip, never an omitted participant.
-- A participant below the prespecified signal-coverage gate is written atomically as a
-  subject-identified `status=skip` cache with measured coverage and reason. Acquisition-chunk,
-  ECG-detector, and runtime failures remain fatal.
-- Subject outputs carry explicit endpoint-availability fields; when any prespecified endpoint is
+- A cache-wide acquisition impossibility is written atomically as a subject-identified
+  `status=skip` cache with measured support and reason. Endpoint-local support failure remains an
+  endpoint-specific unavailable record rather than disqualifying unrelated analyses.
+- Subject outputs carry explicit endpoint-availability fields; when any locked endpoint is
   unavailable, the subject is marked `partial` with endpoint-specific reasons. Its other valid
   endpoints remain eligible only for their own denominators.
 - Summaries reject missing manifests, failures, unexpected subjects, non-production pipelines or
@@ -287,9 +288,10 @@ within-participant stage/block null before it can be reported.
 
 The implementation defects above are fixed in the working tree. Expert/validated N2/N3 staging,
 HUP anatomy/pathology review, blinded ECG/SO/spindle/artifact and missing-boundary QC, the Lecci
-reference-implementation benchmark, and verified HUP sleep timing remain open. The completed
-RESPect and HUP runs have zero estimable primary endpoints under the prespecified QC gates; that
-limitation must be reported rather than bypassed or described as a zero biological effect. The
+reference-implementation benchmark, and verified HUP sleep timing remain open. The v8 endpoint
+counts are highly profile-sensitive: endpoint-local materialization recovers many HUP estimates
+and three RESPect 3A estimates, whereas the historical fixed-80 stack does not. That sensitivity
+must be reported rather than bypassed or described as a biological finding. The
 author-marked seizure intervals are excluded, but a clinically justified postictal sensitivity
 exclusion remains necessary. The RESPect parietal/frontal iEEG ROIs remain scalp-source
 adaptations, not direct LC measurements. None of those limitations is resolved by a passing

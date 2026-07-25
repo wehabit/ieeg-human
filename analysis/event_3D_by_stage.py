@@ -393,6 +393,7 @@ def _run_with_session(n, hours, force, run_id, tree_digest, s):
     ep_dr_ch = np.full((len(ctx), n_ep), np.nan)
     ep_swa_ch = np.full((len(ctx), n_ep), np.nan)
     ep_clean_ch = np.full((len(ctx), n_ep), np.nan)
+    ep_measured_ch = np.full((len(ctx), n_ep), np.nan)
     rms_night = {c: np.full(n_event, np.nan) for c in ctx}
     phase_night = {c: np.full(n_event, np.nan) for c in ctx}
     candidates = {c: [] for c in ctx}
@@ -461,23 +462,24 @@ def _run_with_session(n, hours, force, run_id, tree_digest, s):
             for ci, (x, clean, measured) in enumerate(zip(
                     processed, clean_masks, measured_masks)):
                 seg = x[a:b]
-                dr, swa_value = staging_epoch_features(
-                    seg, clean[a:b], measured[a:b], sf)
+                dr, swa_value, staging_details = staging_epoch_features(
+                    seg, clean[a:b], measured[a:b], sf, return_details=True)
                 ep_dr_ch[ci, gi] = dr
                 ep_swa_ch[ci, gi] = swa_value
-                ep_clean_ch[ci, gi] = float(clean[a:b].mean())
+                ep_clean_ch[ci, gi] = staging_details["clean_fraction"]
+                ep_measured_ch[ci, gi] = staging_details["measured_fraction"]
         t += dur
 
     if failed_chunks:
         raise RuntimeError(f"{len(failed_chunks)} acquisition chunks failed")
 
-    staging_observed_fraction = np.isfinite(ep_clean_ch).mean(axis=1)
-    staging_clean_fraction = np.divide(
-        np.nansum(ep_clean_ch, axis=1),
-        np.isfinite(ep_clean_ch).sum(axis=1),
-        out=np.zeros(len(ctx), float),
-        where=np.isfinite(ep_clean_ch).sum(axis=1) > 0,
-    )
+    # A nearly empty epoch must not count as a fully observed epoch.  Equal
+    # 30-s epochs make the mean measured fraction equal total measured samples
+    # divided by total nominal samples.  Nonfinite/unprocessed epochs are zero.
+    staging_observed_fraction = np.where(
+        np.isfinite(ep_measured_ch), ep_measured_ch, 0.0).mean(axis=1)
+    staging_clean_fraction = np.where(
+        np.isfinite(ep_clean_ch), ep_clean_ch, 0.0).mean(axis=1)
     staging_candidates = (
         (staging_observed_fraction >= 0.80)
         & (staging_clean_fraction >= 0.80)

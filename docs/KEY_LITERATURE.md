@@ -1,9 +1,14 @@
 # Key Literature
 
-> **SCOPE NOTE.** Literature descriptions may remain useful, but every repository-output number
-> on this historical page predates the current LC-proxy v7 provenance/QC gates and is not a
-> corrected 3A/3B/3D result or evidence of LC tracking. See
-> [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md).
+> **SCOPE NOTE.** Literature descriptions may remain useful, but historical repository-output
+> numbers on this page are not v8 3A/3B/3D results or evidence of LC tracking. See the
+> [v8 QC-sensitivity report](QC_SENSITIVITY_RESULTS_2026-07.md) and
+> [issue register](ISSUE_REGISTER_2026-07.md).
+
+The primary papers do **not** provide a 70%, 74%, 75%, 80%, or 90% recording-coverage
+qualification rule. Lecci uses artifact-free NREM bouts ≥120 s; Naji uses uninterrupted 3-minute
+bins; Staresina/Helfrich use artifact-free NREM plus event morphology/amplitude criteria. Their
+75th percentiles concern event amplitude, not usable-recording coverage.
 
 Fact-checked reference notes for the human iEEG NREM-coordination work. Each dataset/method
 entry below has been verified against the primary source (paper, dataset record, or patent) and,
@@ -109,7 +114,7 @@ SWS/REM-selection intervals, while `electrodes.tsv` contains atlas and pathology
 
 **Why it matters here.** Those sidecars are analysis inputs, not optional descriptions. The legacy
 RESPect cache ignored both and therefore could misclassify author REM, retain author-marked
-disturbances, and include pathological/non-cortical contacts. Corrected-v7 consumes them
+disturbances, and include pathological/non-cortical contacts. V8 consumes them
 conservatively, while leaving author-unknown sleep unclassified and treating parietal/frontal iEEG
 ROIs as motivated scalp-source adaptations rather than direct LC measurements.
 
@@ -121,9 +126,9 @@ None of the Pattnaik, Falach, or Zurich holdings is a continuous full night: Pat
 Falach is ~3 min/patient, and Zurich is 5-min runs. The RESPect sleep runs used here are
 approximately one hour and may provide too little strictly annotated continuous data for a cohort
 endpoint. The historical HUP analyses used longer continuous high-delta candidate intervals, but
-those intervals have not been verified as lights-off-to-wake nights and their coupling outputs are
-withdrawn. The completed corrected-v7 HUP rerun found no estimable 3A, 3B, or pooled 3D endpoint
-under the current provenance/QC gates; that is endpoint unavailability, not a biological null.
+those intervals have not been verified as lights-off-to-wake nights. V8 recovers subject-level
+endpoint-local estimates but retains unvalidated staging/anatomy and disabled 3B/3D inference;
+availability is not a biological result.
 
 **License summary:** Falach = CC BY 4.0 (commercial OK) · Zurich ds003498 = CC0 (public domain) ·
 Pattnaik atlas = CC-BY-NC-SA-4.0 (non-commercial). Only one of the three is non-commercial.

@@ -1,10 +1,10 @@
 # WITHDRAWN 3B locality/globality follow-up — superseded estimators
 
-> **LEGACY / WITHDRAWN NUMBERS.** This follow-up predates the RR-domain corrected-v7 descriptive
+> **LEGACY / WITHDRAWN NUMBERS.** This follow-up predates the RR-domain v8 descriptive
 > path and unvalidated-anatomy audit. Its whole-stage-shift inference is invalid under local
 > nonstationarity, its command-line entry points are hard-stopped, and its numerical results are
-> historical only. Corrected 3B N2/N3 endpoints are each 0/6 estimable for RESPect and 0/25 for
-> HUP, so none of the old locality/globality conclusions survives as a current estimate.
+> historical only. V8 recovers descriptive 3B estimates but not this follow-up or a valid
+> event-locking p/z claim, so none of the old locality/globality conclusions is current.
 
 **Withdrawn historical bottom line: partial, mixed, and none reached scalp magnitudes.** Three predictions,
 three answers: (1) coupling is stronger for **global** slow waves — directional support in N3 (global

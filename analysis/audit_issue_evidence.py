@@ -2,14 +2,13 @@
 
 These are counterexamples to legacy estimators, not tests of the biological data.
 """
-import glob
 import json
 import os
 
 import numpy as np
 from scipy import interpolate, signal, stats
 
-from pipeline_version import ANALYSIS_VERSION
+from pipeline_version import ANALYSIS_VERSION, CACHE_SCHEMA_VERSION
 from cache_lc_series import aggregate_staging_features, staging_epoch_features
 from cohort_3A_cortical import delta_ratio
 from cohort_stages_3ABD import reliable_two_state_split, stage_epochs, SWA_BAND
@@ -86,18 +85,35 @@ for channels in (6, 54, 93):
     print(f"{channels:2d} independent null channels: P(at least one p<.05) = {chance_any:.1%}")
 
 
-heading(f"E6. Production outputs carry the current {ANALYSIS_VERSION} lineage")
+heading(f"E6. Current QC outputs carry {ANALYSIS_VERSION}; legacy results are quarantined")
+current_outputs = [
+    os.path.join(ROOT, "outputs", "qc_calibration", "staging_window_calibration.json"),
+]
+for grid_id in (
+        "coverage_oat_v1", "auxiliary_window_support_v1",
+        "event_count_oat_v1", "staging_window_support_v1"):
+    for cohort in ("hup", "respect"):
+        current_outputs.append(os.path.join(
+            ROOT, "outputs", "qc_grid", grid_id, f"{cohort}_qc_grid.json"))
+
+for path in current_outputs:
+    with open(path, encoding="utf-8") as handle:
+        record = json.load(handle)
+    relative = os.path.relpath(path, ROOT)
+    print(f"{relative:72s}: {record.get('analysis_version')}")
+    assert record.get("analysis_version") == ANALYSIS_VERSION
+    assert record.get("cache_schema_version") == CACHE_SCHEMA_VERSION
+
 for directory in (
         "lecci_faithful_3A", "event_3B_cached", "event_3D_by_stage",
         "ds003848_3A", "ds003848_3B"):
-    files = glob.glob(os.path.join(ROOT, "outputs", directory, "*.json"))
-    records = [json.load(open(f)) for f in files]
-    corrected = sum(r.get("analysis_version") == ANALYSIS_VERSION for r in records)
-    print(f"{directory:24s}: {corrected}/{len(records)} {ANALYSIS_VERSION}")
-    assert records and corrected == len(records)
-    manifest = json.load(open(os.path.join(
-        ROOT, "outputs", directory, "RUN_MANIFEST.json")))
-    assert manifest["run_state"] == "complete"
+    marker = os.path.join(ROOT, "outputs", directory, "LEGACY_DO_NOT_USE.md")
+    with open(marker, encoding="utf-8") as handle:
+        warning = handle.read().lower()
+    print(f"outputs/{directory:24s}: legacy marker present")
+    assert "legacy" in warning and (
+        "do not use" in warning or "do not cite" in warning
+    )
 
 
 heading("E7. Independently randomized channel nulls are anti-conservative")
@@ -322,14 +338,17 @@ baseline_swa = swa_welch(baseline)
 unmasked_swa = swa_welch(artifact)
 clean = np.ones(len(t), bool)
 clean[contaminated] = False
-safe_dr, safe_swa = staging_epoch_features(
-    artifact, clean, np.ones(len(t), bool), sf)
+safe_dr, safe_swa, safe_details = staging_epoch_features(
+    artifact, clean, np.ones(len(t), bool), sf, return_details=True)
 print(f"nominal clean fraction                    : {clean.mean():.1%}")
 print(f"unmasked/baseline SWA inflation           : {unmasked_swa / baseline_swa:,.0f}x")
 print(f"old unmasked delta ratio                  : {delta_ratio(artifact, sf):.6f}")
-print(f"corrected artifact-tainted feature usable : {np.isfinite(safe_dr) or np.isfinite(safe_swa)}")
+print(f"gap-aware complete windows retained       : {safe_details['n_valid_windows']}/14")
+print(f"gap-aware/baseline SWA ratio              : {safe_swa / baseline_swa:.6f}")
 assert unmasked_swa > 1000 * baseline_swa
-assert np.isnan(safe_dr) and np.isnan(safe_swa)
+assert safe_details["n_valid_windows"] == 12
+assert np.isclose(safe_swa, baseline_swa, rtol=1e-6)
+assert np.isfinite(safe_dr)
 
 
 heading("E19. Changing contact gain/availability can manufacture stage-proxy modes")

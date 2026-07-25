@@ -25,6 +25,14 @@ jobs:
         env:
           MPLCONFIGDIR: /tmp/matplotlib
       - run: python analysis/test_spectral_gapped.py
+      - run: python analysis/test_overlap_aggregate.py
+      - run: python analysis/test_qc_profiles.py
+      - run: python analysis/test_event_3d_cache_support.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
+      - run: python analysis/test_calibrate_staging_windows.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
       - run: python analysis/test_3B_null.py
       - run: python analysis/test_coherence_calibration.py
         env:

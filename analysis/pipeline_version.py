@@ -16,9 +16,9 @@ import scipy
 
 
 # Increment both values whenever an estimator or a cached derived signal changes materially.
-ANALYSIS_VERSION = "2026-07-corrected-v7"
+ANALYSIS_VERSION = "2026-07-qc-sensitivity-v8"
 CACHE_SCHEMA_VERSION = (
-    "2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7")
+    "2026-07-neutral-per-contact-gap-aware-source-pin-v8")
 
 # Only files that can change cache values or cache metadata belong here.  The broader
 # ``source_tree_sha256`` intentionally includes downstream analyses and tests, which would make a
@@ -32,6 +32,7 @@ _CACHE_SOURCE_FILES = (
     "analysis/cohort_stages_3ABD.py",
     "analysis/infraslow_rr_sigma_coherence.py",
     "analysis/results_3A_tutorial_style.py",
+    "analysis/spectral_gapped.py",
     "analysis/pipeline_version.py",
     "env/requirements.txt",
     "env/PYTHON_VERSION",

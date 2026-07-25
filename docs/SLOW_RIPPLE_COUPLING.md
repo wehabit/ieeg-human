@@ -1,6 +1,6 @@
 # Slow-oscillation → ripple (and spindle) coupling  [1 kHz cohort]
 
-> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v7
+> **SEPARATE HISTORICAL STUDY.** These numbers are not outputs of the current LC-proxy v8
 > 3A/3B/3D pipelines and must not be used as corrected LC-tracking evidence. Their original
 > study-specific validation/inference claims require separate review.
 

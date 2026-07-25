@@ -1,0 +1,419 @@
+{
+  "accepted_population_recommended_minimum_valid_windows": 9,
+  "analysis_version": "2026-07-qc-sensitivity-v8",
+  "cache_directory_relative": "data/derived/ds003848",
+  "cache_files_sha256": {
+    "sub-RESP0521": "ca240f6fd5deb4555e449159b6e17dd3a839a9b590057e1206c99d2fa52d80d1",
+    "sub-RESP0699": "882e2f77772bbc7e88718b604d10720acf5f737d665565d83d0c60c2de422681",
+    "sub-RESP0724": "540bf2153b2ae967967cb6e131d764313417ef055e01a9b9c40af4bbc11e50a8",
+    "sub-RESP0749": "036486bacacb75598770f4559d66a2696296e9cfef42205efbe58041887029a9",
+    "sub-RESP0779": "9ffbd84e993b0effdc132251adceded910eaa446635704fd3f6b955ac8b52c6b",
+    "sub-RESP0800": "8c643acf6c481de62107f87eb6b9d9d7ba28f1d4e021cd7292d6dd7e406ca87c"
+  },
+  "cache_manifest_sha256": "5eab2fbfb5bb65e0fd6ae39daa250352d4253683e6f7666b1cf0c854bdb78746",
+  "cache_pipeline": "stage_ds003848",
+  "cache_run_id": "75e8af2b-2ca9-4767-b080-d44a1c2ebf56",
+  "cache_runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v8",
+  "calibration_source_files_sha256": {
+    "analysis/calibrate_staging_windows.py": "85a782591a79a36c5f0aa85966b946d7339edfe86331e76320f38d5453b4fb35",
+    "analysis/pipeline_version.py": "9353a5cb719ecf7e9ba9589d698e97d9b310417fd8dd3fcc3981fc0571693e49"
+  },
+  "calibration_targets": {
+    "maximum_median_absolute_delta_ratio_error": 0.02,
+    "maximum_median_absolute_log_swa_error": 0.1,
+    "maximum_p95_absolute_delta_ratio_error": 0.05,
+    "maximum_p95_absolute_log_swa_error": 0.3,
+    "minimum_records": 100,
+    "minimum_spearman": 0.95
+  },
+  "generated_at_utc": "2026-07-25T22:44:04.811355+00:00",
+  "limitations": [
+    "does not validate the automatic artifact detector against human labels",
+    "does not validate HUP/RESPect proxy sleep stages against PSG scoring",
+    "reuses real window-mask geometry on fully clean epochs; it does not model undetected artifacts"
+  ],
+  "n_calibration_records": 42075,
+  "recommendation_basis": "first exact-support stratum meeting every reconstruction target; more conservative than pooling cleaner epochs above the threshold",
+  "recommended_minimum_valid_windows": 11,
+  "references_per_empirical_mask": 3,
+  "runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "selection_blinding": "calibrated only against all-window SWA/delta-ratio reconstruction; 0.02-Hz, HR, SO timing, and spindle-phase outcomes were not inputs",
+  "source_tree_sha256": "47a09052107450fdbd823fef461df54bef0b98963f42bda7e11b746a735b101c",
+  "subjects": [
+    "sub-RESP0521",
+    "sub-RESP0699",
+    "sub-RESP0724",
+    "sub-RESP0749",
+    "sub-RESP0779",
+    "sub-RESP0800"
+  ],
+  "support_results": [
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.9218562411728103,
+        "median_absolute_delta_ratio_error": 0.013619065753333603,
+        "median_absolute_log_swa_error": 0.09726196814610796,
+        "meets_calibration_targets": false,
+        "n_records": 42075,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.10410033937117226,
+        "p95_absolute_log_swa_error": 0.6787700554110605,
+        "swa_spearman": 0.9427914495128412
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.5784355996887897,
+        "median_absolute_delta_ratio_error": 0.08109846020643341,
+        "median_absolute_log_swa_error": 0.49272682343891233,
+        "meets_calibration_targets": false,
+        "n_records": 1331,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.2850923565913464,
+        "p95_absolute_log_swa_error": 1.6167187369881213,
+        "swa_spearman": 0.7211430168927715
+      },
+      "minimum_valid_windows": 1
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.9345848579134611,
+        "median_absolute_delta_ratio_error": 0.01294202125819649,
+        "median_absolute_log_swa_error": 0.09330959015831111,
+        "meets_calibration_targets": false,
+        "n_records": 40744,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.09340368283352903,
+        "p95_absolute_log_swa_error": 0.6196747155938415,
+        "swa_spearman": 0.9510879776152584
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.7479729581345639,
+        "median_absolute_delta_ratio_error": 0.057029192176179966,
+        "median_absolute_log_swa_error": 0.3836616396019681,
+        "meets_calibration_targets": false,
+        "n_records": 1430,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.2080470923194447,
+        "p95_absolute_log_swa_error": 1.2194412539660877,
+        "swa_spearman": 0.7895369381788118
+      },
+      "minimum_valid_windows": 2
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.9422029462579679,
+        "median_absolute_delta_ratio_error": 0.012270255228972737,
+        "median_absolute_log_swa_error": 0.08907798854935046,
+        "meets_calibration_targets": false,
+        "n_records": 39314,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.08542538749577817,
+        "p95_absolute_log_swa_error": 0.5740150191768207,
+        "swa_spearman": 0.9572254455027647
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.8350352624272118,
+        "median_absolute_delta_ratio_error": 0.046269283666465544,
+        "median_absolute_log_swa_error": 0.32345539636676796,
+        "meets_calibration_targets": false,
+        "n_records": 1763,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.1660041119598501,
+        "p95_absolute_log_swa_error": 1.0048672076201675,
+        "swa_spearman": 0.8479444986958463
+      },
+      "minimum_valid_windows": 3
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.94859218990361,
+        "median_absolute_delta_ratio_error": 0.011537006837705643,
+        "median_absolute_log_swa_error": 0.08402621287172633,
+        "meets_calibration_targets": false,
+        "n_records": 37551,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.078429087215653,
+        "p95_absolute_log_swa_error": 0.5256675415940741,
+        "swa_spearman": 0.9625733885948591
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.8552916936229932,
+        "median_absolute_delta_ratio_error": 0.04018745512970012,
+        "median_absolute_log_swa_error": 0.2656608606190534,
+        "meets_calibration_targets": false,
+        "n_records": 2303,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.14924840153035365,
+        "p95_absolute_log_swa_error": 0.915881069038873,
+        "swa_spearman": 0.8714560272834222
+      },
+      "minimum_valid_windows": 4
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.9556161485712491,
+        "median_absolute_delta_ratio_error": 0.01056831101375677,
+        "median_absolute_log_swa_error": 0.07795880412014719,
+        "meets_calibration_targets": false,
+        "n_records": 35248,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.07048370553697136,
+        "p95_absolute_log_swa_error": 0.4724291342928356,
+        "swa_spearman": 0.9685986998807646
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.8873989191537806,
+        "median_absolute_delta_ratio_error": 0.03244309432772019,
+        "median_absolute_log_swa_error": 0.212051079127217,
+        "meets_calibration_targets": false,
+        "n_records": 2794,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.12304666551686448,
+        "p95_absolute_log_swa_error": 0.7670025375209514,
+        "swa_spearman": 0.9067093498171239
+      },
+      "minimum_valid_windows": 5
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.962621155983478,
+        "median_absolute_delta_ratio_error": 0.009479206577113375,
+        "median_absolute_log_swa_error": 0.07071470401061695,
+        "meets_calibration_targets": false,
+        "n_records": 32454,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.06316615340579185,
+        "p95_absolute_log_swa_error": 0.42121662071267574,
+        "swa_spearman": 0.9738714967825879
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.922486402433632,
+        "median_absolute_delta_ratio_error": 0.02605453128513424,
+        "median_absolute_log_swa_error": 0.1795982546774204,
+        "meets_calibration_targets": false,
+        "n_records": 3027,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.10682148738390969,
+        "p95_absolute_log_swa_error": 0.6700110238633347,
+        "swa_spearman": 0.9294463381918349
+      },
+      "minimum_valid_windows": 6
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.9680898882618989,
+        "median_absolute_delta_ratio_error": 0.008433601921165934,
+        "median_absolute_log_swa_error": 0.06328778734712902,
+        "meets_calibration_targets": false,
+        "n_records": 29427,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.05606422048516415,
+        "p95_absolute_log_swa_error": 0.37314582551767583,
+        "swa_spearman": 0.9787072892435075
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.9420686296995507,
+        "median_absolute_delta_ratio_error": 0.022602281672709945,
+        "median_absolute_log_swa_error": 0.15573710660799794,
+        "meets_calibration_targets": false,
+        "n_records": 3364,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.08738935776751232,
+        "p95_absolute_log_swa_error": 0.5755810754549624,
+        "swa_spearman": 0.9493757729569654
+      },
+      "minimum_valid_windows": 7
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.97268749239641,
+        "median_absolute_delta_ratio_error": 0.0072285717748502565,
+        "median_absolute_log_swa_error": 0.05477401775420344,
+        "meets_calibration_targets": false,
+        "n_records": 26063,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.04950056853471543,
+        "p95_absolute_log_swa_error": 0.3221980695322135,
+        "swa_spearman": 0.9826846694835611
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.9524449335095082,
+        "median_absolute_delta_ratio_error": 0.01817722018164858,
+        "median_absolute_log_swa_error": 0.1315763478467074,
+        "meets_calibration_targets": false,
+        "n_records": 3637,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.07314111463088165,
+        "p95_absolute_log_swa_error": 0.46619866674458266,
+        "swa_spearman": 0.9638301964733316
+      },
+      "minimum_valid_windows": 8
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.9771295862320106,
+        "median_absolute_delta_ratio_error": 0.005826604773093491,
+        "median_absolute_log_swa_error": 0.045527569790314595,
+        "meets_calibration_targets": true,
+        "n_records": 22426,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.042940501720087704,
+        "p95_absolute_log_swa_error": 0.2792348941851371,
+        "swa_spearman": 0.985982950920231
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.9591384433992816,
+        "median_absolute_delta_ratio_error": 0.01571648537185444,
+        "median_absolute_log_swa_error": 0.11846503681724153,
+        "meets_calibration_targets": false,
+        "n_records": 3961,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.06523949201162604,
+        "p95_absolute_log_swa_error": 0.42300333595959605,
+        "swa_spearman": 0.9722699614260094
+      },
+      "minimum_valid_windows": 9
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.9825372438344825,
+        "median_absolute_delta_ratio_error": 0.00423295181140515,
+        "median_absolute_log_swa_error": 0.03314029104314996,
+        "meets_calibration_targets": true,
+        "n_records": 18465,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.03611101741381684,
+        "p95_absolute_log_swa_error": 0.22489143133708128,
+        "swa_spearman": 0.9895610869450441
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.9688934244238797,
+        "median_absolute_delta_ratio_error": 0.012793403637281098,
+        "median_absolute_log_swa_error": 0.09310472774944256,
+        "meets_calibration_targets": false,
+        "n_records": 3277,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.050539015988536225,
+        "p95_absolute_log_swa_error": 0.32067402104533577,
+        "swa_spearman": 0.9803295276350393
+      },
+      "minimum_valid_windows": 10
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.9863593027336209,
+        "median_absolute_delta_ratio_error": 0.002579017065494127,
+        "median_absolute_log_swa_error": 0.020233328927440702,
+        "meets_calibration_targets": true,
+        "n_records": 15188,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.03037860478603982,
+        "p95_absolute_log_swa_error": 0.18720125418323477,
+        "swa_spearman": 0.9917905395655957
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.971677255971555,
+        "median_absolute_delta_ratio_error": 0.01074144819956696,
+        "median_absolute_log_swa_error": 0.07850100710217789,
+        "meets_calibration_targets": true,
+        "n_records": 4430,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.04553809733858921,
+        "p95_absolute_log_swa_error": 0.292855216362677,
+        "swa_spearman": 0.9823787118335875
+      },
+      "minimum_valid_windows": 11
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.9928470954710066,
+        "median_absolute_delta_ratio_error": 0.0,
+        "median_absolute_log_swa_error": 0.0,
+        "meets_calibration_targets": true,
+        "n_records": 10758,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.020598792588266468,
+        "p95_absolute_log_swa_error": 0.12273970370473973,
+        "swa_spearman": 0.9959182724999871
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.9828431418532758,
+        "median_absolute_delta_ratio_error": 0.007620253070921845,
+        "median_absolute_log_swa_error": 0.05711296561661266,
+        "meets_calibration_targets": true,
+        "n_records": 3730,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.03297540766952605,
+        "p95_absolute_log_swa_error": 0.22215891398653415,
+        "swa_spearman": 0.9898550962952012
+      },
+      "minimum_valid_windows": 12
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 0.998925329770877,
+        "median_absolute_delta_ratio_error": 0.0,
+        "median_absolute_log_swa_error": 0.0,
+        "meets_calibration_targets": true,
+        "n_records": 7028,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.007265670774857513,
+        "p95_absolute_log_swa_error": 0.04448190534538925,
+        "swa_spearman": 0.9995120391043126
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 0.9931738756321395,
+        "median_absolute_delta_ratio_error": 0.004372066736686664,
+        "median_absolute_log_swa_error": 0.032618610976133035,
+        "meets_calibration_targets": true,
+        "n_records": 1094,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.02070713077175368,
+        "p95_absolute_log_swa_error": 0.1127421697413396,
+        "swa_spearman": 0.996820199727458
+      },
+      "minimum_valid_windows": 13
+    },
+    {
+      "accepted_population_at_or_above": {
+        "delta_ratio_spearman": 1.0,
+        "median_absolute_delta_ratio_error": 0.0,
+        "median_absolute_log_swa_error": 0.0,
+        "meets_calibration_targets": true,
+        "n_records": 5934,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.0,
+        "p95_absolute_log_swa_error": 0.0,
+        "swa_spearman": 1.0
+      },
+      "exact_support": {
+        "delta_ratio_spearman": 1.0,
+        "median_absolute_delta_ratio_error": 0.0,
+        "median_absolute_log_swa_error": 0.0,
+        "meets_calibration_targets": true,
+        "n_records": 5934,
+        "n_subjects": 6,
+        "p95_absolute_delta_ratio_error": 0.0,
+        "p95_absolute_log_swa_error": 0.0,
+        "swa_spearman": 1.0
+      },
+      "minimum_valid_windows": 14
+    }
+  ]
+}

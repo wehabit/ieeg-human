@@ -1,11 +1,12 @@
-# Branch summary — corrected cohort endpoints unavailable
+# Branch summary — v8 endpoint-local sensitivity
 
 > **QUARANTINED DOCUMENT.** Earlier versions of this page described numerical 3A, 3B, and 3D
 > results as corrected, validated, negative, weak, or positive. Those descriptions were based on
 > superseded caches and estimators and have been removed. Do not recover or cite them as findings.
-> The v7 RESPect rerun is now complete, but none of its prespecified 3A/3B endpoints is estimable.
+> V8 supersedes the former all-unavailable verdict; see the authoritative result report below.
 
 The authoritative current status is the
+[v8 QC-sensitivity report](QC_SENSITIVITY_RESULTS_2026-07.md) and
 [issue register](ISSUE_REGISTER_2026-07.md). The current analysis contract is in
 [METHODS.md](METHODS.md), and the distinction between code corrections and unresolved scientific
 validation is in [AUDIT_CORRECTIONS_2026-07.md](AUDIT_CORRECTIONS_2026-07.md).
@@ -39,14 +40,11 @@ file.
 ## Current status
 
 - Legacy cohort numbers are historical artifacts and must not be interpreted.
-- The complete six-subject v7 RESPect cache and downstream manifests passed lineage checks. 3A
-  spectrum, cross-correlation, fixed-0.02-Hz coherence, and own-peak coherence were each estimable
-  in 0/6; 3B N2 and N3 were each estimable in 0/6. This is an endpoint-unavailable result, not a
-  null effect and not evidence for or against LC tracking.
-- The v7 HUP cache accounted for 25/25 requested participants: 17 completed, 8 structured skips,
-  and 0 failures. All terminal hashes validated. Every 3A endpoint and both 3B stages were
-  estimable in 0/25; the direct-stream 3D pooled endpoint was also estimable in 0/25, with
-  inference disabled.
+- The six-subject RESPect endpoint-local base yields 3/3/3 available 3A records and 0/1/2
+  available 3B N2/N3/pooled records; none reaches the default cohort minimum of five.
+- The HUP neutral cache accounts for 25/25 requested participants as 24 completed and one
+  structured skip. The endpoint-local base yields 3A=19/14/15, 3B=6/5/15, and descriptive 3D=7.
+  Availability is not support; 3B and 3D inference is disabled.
 - HUP N2-like/N3-like values are algorithmic proxies, not expert-scored sleep stages.
 - RESPect author annotations are now primary but remain coarse/incomplete and do not provide
   expert AASM/R&K N2/N3 scoring; author-unknown sleep stays unclassified.

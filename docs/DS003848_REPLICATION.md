@@ -1,29 +1,32 @@
-# Corrected ds003848 replication — primary endpoints unavailable
+# ds003848 RESPect v8 sensitivity — below cohort size, not all unavailable
 
-> **CURRENT CORRECTED-V7 RESULT (2026-07-24):** the complete six-subject cache and downstream
-> manifests passed exact cache-code, input-identity, result-file, and runtime checks. No subject
-> passed a complete 3A or 3B endpoint, so the prespecified cohort result is **unavailable**, not
-> positive or negative evidence for an LC proxy.
+> **CURRENT V8 RESULT:** the complete six-subject neutral cache and sensitivity grids pass exact
+> cache-code, input-identity, calibration, profile, result-file, and runtime checks. The
+> endpoint-local sensitivity recovers individual 3A and 3B estimates, but no endpoint reaches the
+> default cohort minimum of five. This is limited availability, not positive or negative evidence
+> for an LC proxy.
 
-## Current corrected-v7 result
+## Current v8 result
 
 - Cache: 6 completed, 0 skipped, 0 failed. Each subject uses seven files pinned to OpenNeuro
   snapshot 1.0.3 by S3 version ID, byte size, and SHA-256.
-- 3A: spectrum 0/6, cross-correlation 0/6, fixed-0.02-Hz coherence 0/6, own-peak coherence 0/6
-  (prespecified cohort minimum: 5).
-- 3B: N2 0/6 and N3 0/6 (prespecified cohort minimum: 5).
-- Closest 3A cases: RESP0521 had 16 stable motivated-parietal contacts but 79.2% aggregate
-  coverage; RESP0699 had 3 contacts but 79.7%. Both miss the fixed 80% gate.
-- Closest 3B cases: RESP0699 and RESP0724 had curated N3, but neither retained two
-  coverage-qualified frontal contacts with at least 30 eligible SOs. The dataset provides no
-  expert N2 labels; pooled author NREM is not relabeled N2.
+- Endpoint-local 3A: spectrum 3/6, cross-correlation 3/6, and fixed-0.02-Hz coherence 3/6.
+  RESP0699 and RESP0724 have accepted peaks at 0.0169 and 0.0221 Hz; only RESP0699's pointwise
+  coherence exceeds its analytic threshold. The Lecci-direction maxima occur at 0, 0, and 5 s.
+- Endpoint-local 3B: N2 0/6, N3 1/6, and exploratory pooled NREM 2/6. RESP0699 N3 has a
+  descriptive local HR change of +0.455% at a mean-channel latency of 2.35 s.
+- Historical `audit80`: 3A remains 0/6 because several locally introduced gates stack; 3B is
+  0/1/2 because v8 no longer lets a global power gate suppress endpoint-local cardiac estimates.
+- None reaches the default cohort minimum of five. No 3B p/z value is produced.
 
-This means the former numerical “null replication” is not supported by the corrected pipeline.
-The data are insufficient for the prespecified endpoints after author annotations, anatomy, signal
-coverage, stable-stage, and event-contact QC are enforced. Lowering those rules after seeing the
-data would not be a valid rescue analysis.
+The fixed 80% gate was neither a paper requirement nor preregistered. RESP0521 had approximately
+79.2% historical aggregate coverage and RESP0699 approximately 79.7%, illustrating why a binary
+79-versus-80 declaration is not scientifically justified. The locked one-axis grid shows which
+support choices change availability; the endpoint-local profile was designed without using the
+biological result direction. See
+[QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md).
 
-The v7 audit found three additional reasons the old values cannot be interpreted:
+The audit found three additional reasons the old values cannot be interpreted:
 
 - the legacy cache ignored the author `events.tsv`, including NREM/REM/SWS selections,
   transition, artifact, and seizure intervals; direct overlap showed that the proxy called many
@@ -32,7 +35,7 @@ The v7 audit found three additional reasons the old values cannot be interpreted
   contacts into endpoints; and
 - 3B did not enforce Naji's uninterrupted 3-minute stable-stage rule.
 
-Corrected-v7 now makes author annotations primary, leaves author-unknown sleep unclassified,
+V8 makes author annotations primary, leaves author-unknown sleep unclassified,
 excludes annotated disturbances, filters documented pathological/non-cortical contacts, and
 intersects motivated parietal/frontal Destrieux ROIs. These corrections can sharply reduce the
 number of estimable participants. They do not provide expert AASM/R&K N2/N3 scoring, validate the
@@ -40,13 +43,11 @@ iEEG ROIs as homologues of the cited scalp sensors, remove possible postictal ef
 LC directly.
 
 Everything from “Historical cohort and staging” through the old numerical sections is retained only
-to document what was withdrawn; it is not the corrected result.
+to document what was withdrawn; it is not the v8 result.
 
-The separate corrected-v7 HUP regeneration is also complete. Its cache manifest accounted for 25
-requested participants as 17 completed, 8 structured skips, and 0 failures, but every corrected 3A
-and 3B endpoint and the direct-stream pooled 3D endpoint was estimable in 0/25. Consequently the
-historical HUP comparisons below are also withdrawn; endpoint unavailability is not a zero
-biological effect or evidence about human LC tracking.
+The separate v8 HUP regeneration has 24 completed caches and one explicit skip, with many
+endpoint-local subject estimates but unresolved staging/anatomy/inference limitations. Historical
+HUP comparisons below remain withdrawn.
 
 The HUP `phaseII` result rests on a staging *proxy* (a Gaussian mixture on slow-wave power, because
 iEEG has no EOG/EMG). The historical RESPect analysis attempted to test whether wake/REM
@@ -103,8 +104,8 @@ into short runs, leaving very few bouts ≥120 s and a low Welch segment count:
   |r| = 0.066; per-subject signed peak r vs 0: p = 0.09, and the trend is *negative* if anything).
 
 The superseded analysis was previously interpreted as agreeing with a “negative” HUP result and as
-showing that REM/wake exclusion did not rescue a rhythm. That interpretation is withdrawn: neither
-corrected cohort has an estimable 3A endpoint.
+showing that REM/wake exclusion did not rescue a rhythm. That interpretation is withdrawn: v8
+recovers individual 3A estimates but does not provide a powered RESPect cohort result.
 
 ## Historical 3B — withdrawn
 
@@ -118,14 +119,14 @@ thousands of SOs. Its values are retained below only as withdrawn provenance:
 | N2 ≫ N3? | no (p=0.63) | no (p=0.57) | 3.6× |
 
 The legacy write-up contrasted these values with a nominally significant HUP result and speculated
-about power or wake/arousal contamination. Both corrected cohorts now have zero estimable 3B
-endpoints, so that numerical contrast and its interpretation are withdrawn.
+about power or wake/arousal contamination. V8 recovers descriptive 3B estimates but disables
+inference, so that legacy numerical contrast and its p-value interpretation remain withdrawn.
 
 ## What this replication does and does not establish
 
 - **Does not establish:** that the HUP result survives genuine REM/wake exclusion. That claim
-  requires an estimable corrected cohort and validation against expert staging; this corrected
-  RESPect rerun has no estimable primary endpoint.
+  requires a powered cohort and validation against expert staging; RESPect remains below the
+  default cohort minimum.
 - **Does not:** provide a *powered* independent 3A test. The legacy one-hour proxy analysis reported
   median K = 7 and only 2/6 usable coherence estimates. A definitive replication needs longer
   continuous sleep with cardiac + EOG/EMG, which no current public iEEG dataset provides.

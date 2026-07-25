@@ -1,8 +1,8 @@
 # WITHDRAWN HUP165 N2/N3 breakdown — superseded single-subject output
 
 > **LEGACY / WITHDRAWN NUMBERS.** This worked example used the quarantined combined estimator.
-> Do not cite it as current evidence. In the completed v7 HUP rerun, all 3A/3B endpoints and the
-> pooled 3D endpoint are 0/25 estimable; this single-subject table is not a substitute.
+> Do not cite it as current evidence. V8 recovers endpoint-local estimates, but this quarantined
+> single-subject table is not one of them and is not a substitute for the locked grids.
 
 Every result computed for this subject, split by sleep stage. HUP165 is the worked example
 throughout this branch: the longest reachable record (459 h), 1024 Hz, and the cleanest EKG.

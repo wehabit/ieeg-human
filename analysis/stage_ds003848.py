@@ -19,8 +19,10 @@ The raw .eeg (~3.9 GB) is optionally deleted after caching so disk stays bounded
 STAGING SENSITIVITY (not primary). True AASM scoring needs scalp EEG, which this dataset lacks.
 Within author-unknown sleep, the stored sensitivity proxy uses:
   * per 30 s epoch: submental EMG RMS (notch + 10-100 Hz), EOG movement variance (0.3-6 Hz),
-    slow-wave power (0.5-4 Hz, aggregated after per-contact power extraction), all robust-z-scored
-    within subject
+    and slow-wave power (0.5-4 Hz), all robust-z-scored within subject. EMG/EOG retain only samples
+    covered by complete finite/measured 4-s windows at 2-s stride. Fully measured epochs exactly
+    reproduce the former full-epoch RMS/variance; partial epochs intentionally omit samples in
+    incomplete windows instead of losing the entire epoch.
   * Wake  = high muscle tone (EMG z > 1.0)
   * REM   = muscle atonia (EMG z < -0.3) + low SWA + phasic eye movement (EOG z > 0.5)
   * NREM  = everything else with adequate delta; split N2/N3 by a 2-component GMM on log SWA
@@ -39,12 +41,16 @@ import mne
 from infraslow_rr_sigma_coherence import ROOT
 from cohort_stages_3ABD import (fsp_from, band_sos, EPOCH, SWA_BAND, CHUNK_S)
 from cache_lc_series import (detect_so_candidates, threshold_so_candidates, SIGMA_FIXED,
-                             SWA_BAND_L, SO_BAND_NAJI, FS_RR, sanitize_beats,
+                             SWA_BAND_L, SO_BAND_NAJI,
+                             SO_NEGATIVE_HALF_DURATION_S,
+                             SO_POSITIVE_HALF_MAX_S, FS_RR, sanitize_beats,
                              _aggregate_full_night_power, MIN_SIGNAL_COVERAGE, FILTER_EDGE_S,
                              MIN_CONTACT_COVERAGE, MIN_CONTACTS,
                              MIN_CONTACT_FRACTION_PER_BIN, prepare_continuous_signal,
                              aggregate_staging_features, interpolate_tachograms,
-                             staging_epoch_features)
+                             staging_epoch_features, _binned_power_values,
+                             STAGING_REFERENCE_MIN_VALID_WINDOWS,
+                             STAGING_WELCH_WINDOW_S, STAGING_WELCH_OVERLAP_S)
 from results_3A_tutorial_style import ied_clean_mask
 from pipeline_version import (CACHE_SCHEMA_VERSION, atomic_savez, cache_code_sha256, git_is_dirty,
                               git_revision, npz_scalar_text, runtime_versions,
@@ -447,12 +453,24 @@ def constrain_proxy_to_annotations(
 
 def aggregate_auxiliary_epoch_features(
         values_by_channel, min_channel_coverage=MIN_CONTACT_COVERAGE,
-        min_channel_fraction_per_epoch=MIN_CONTACT_FRACTION_PER_BIN):
-    """Scale-normalize and combine every stable good EMG/EOG channel."""
+        min_channel_fraction_per_epoch=MIN_CONTACT_FRACTION_PER_BIN,
+        valid_window_count_by_channel=None, min_valid_windows=1):
+    """Scale-normalize and combine a fixed set of sufficiently supported EMG/EOG channels.
+
+    Window support is optional so historical callers remain compatible.  Neutral RESPect caches
+    provide it, allowing an offline profile to choose both its complete-window requirement and its
+    channel coverage/fraction rules rather than inheriting an irreversible 80% gate.
+    """
     values = np.asarray(values_by_channel, float)
     if values.ndim != 2:
         raise ValueError("auxiliary features must be channel-by-epoch")
     valid = np.isfinite(values) & (values > 0)
+    if valid_window_count_by_channel is not None:
+        window_count = np.asarray(valid_window_count_by_channel)
+        if window_count.shape != values.shape:
+            raise ValueError("auxiliary valid-window support must align with feature values")
+        valid &= window_count >= int(min_valid_windows)
+        values = np.where(valid, values, np.nan)
     coverage = valid.mean(axis=1)
     selected = coverage >= float(min_channel_coverage)
     out = np.full(values.shape[1], np.nan)
@@ -474,8 +492,87 @@ def aggregate_auxiliary_epoch_features(
         n_selected_channels=n_selected,
         required_channel_count=max(1, required) if n_selected else 0,
         support_count=support,
+        minimum_valid_windows=int(min_valid_windows),
+        minimum_channel_coverage=float(min_channel_coverage),
+        minimum_channel_fraction_per_epoch=float(min_channel_fraction_per_epoch),
         normalization="divide each channel by its full-record median then geometric median",
     )
+
+
+def auxiliary_epoch_window_features(
+        segment, measured_mask, sf, kind, *, return_details=False):
+    """Gap-aware EMG/EOG feature from complete fixed 4-s windows at 2-s stride.
+
+    Only samples belonging to at least one fully measured, finite window enter the default epoch
+    value, and each retained sample is counted once despite overlapping windows.  Thus a fully
+    measured 30-s epoch is *exactly* the former full-epoch RMS/variance.  In a partial epoch, the
+    result differs intentionally: incomplete-window samples are omitted instead of invalidating
+    the whole epoch.  Per-window mean-square (EMG) or variance (EOG) is also returned for offline
+    support thresholds and alternative equal-window aggregation.
+    """
+    segment = np.asarray(segment, float)
+    measured_mask = np.asarray(measured_mask, bool)
+    if kind not in ("emg_rms", "eog_variance"):
+        raise ValueError("kind must be 'emg_rms' or 'eog_variance'")
+    nperseg = int(round(STAGING_WELCH_WINDOW_S * float(sf)))
+    noverlap = int(round(STAGING_WELCH_OVERLAP_S * float(sf)))
+    step = nperseg - noverlap
+    n_windows = (
+        0 if len(segment) < nperseg
+        else 1 + (len(segment) - nperseg) // step
+    )
+    empty_details = dict(
+        n_valid_windows=0,
+        n_total_windows=int(n_windows),
+        valid_window_mask=np.zeros(n_windows, bool),
+        window_power=np.full(n_windows, np.nan),
+        covered_sample_fraction=0.0,
+    )
+    if (
+        len(segment) == 0
+        or measured_mask.shape != segment.shape
+        or nperseg < 1
+        or step < 1
+        or n_windows < 1
+    ):
+        return (np.nan, empty_details) if return_details else np.nan
+
+    finite_measured = measured_mask & np.isfinite(segment)
+    starts = np.arange(n_windows, dtype=int) * step
+    valid_windows = np.asarray([
+        bool(finite_measured[start:start + nperseg].all())
+        for start in starts
+    ])
+    window_power = np.full(n_windows, np.nan)
+    covered = np.zeros(len(segment), bool)
+    for window, start in enumerate(starts):
+        if not valid_windows[window]:
+            continue
+        values = segment[start:start + nperseg]
+        window_power[window] = (
+            float(np.mean(values ** 2))
+            if kind == "emg_rms"
+            else float(np.var(values))
+        )
+        covered[start:start + nperseg] = True
+
+    if covered.any():
+        retained = segment[covered]
+        value = (
+            float(np.sqrt(np.mean(retained ** 2)))
+            if kind == "emg_rms"
+            else float(np.var(retained))
+        )
+    else:
+        value = np.nan
+    details = dict(
+        n_valid_windows=int(valid_windows.sum()),
+        n_total_windows=int(n_windows),
+        valid_window_mask=valid_windows,
+        window_power=window_power,
+        covered_sample_fraction=float(covered.mean()),
+    )
+    return (value, details) if return_details else value
 
 
 # ---------------------------------------------------------------- staging
@@ -668,10 +765,9 @@ def run(subject, delete_raw=False, force=False):
         for path in paths.values()
     }
     roles = channel_roles(paths["_channels.tsv"])
-    if not roles["ieeg"] or not roles["ecg"] or not roles["emg"] or not roles["eog"]:
-        reason = (f"required modalities missing: iEEG={bool(roles['ieeg'])}, "
-                  f"ECG={bool(roles['ecg'])}, EMG={bool(roles['emg'])}, "
-                  f"EOG={bool(roles['eog'])}")
+    if not roles["ieeg"] or not roles["ecg"]:
+        reason = (f"extraction inputs missing: iEEG={bool(roles['ieeg'])}, "
+                  f"ECG={bool(roles['ecg'])}; EMG/EOG are retained as optional modalities")
         atomic_savez(fp, subject=subject, status="skip",
                      cache_schema_version=CACHE_SCHEMA_VERSION,
                      cache_code_sha256=current_cache_digest, reason=reason)
@@ -707,10 +803,9 @@ def run(subject, delete_raw=False, force=False):
         index for index, keep in zip(all_good_ie, anatomy_qc["selected_mask"])
         if keep
     ]
-    if len(ie) < MIN_CONTACTS:
+    if len(ie) == 0:
         reason = (
-            f"only {len(ie)} non-SOZ, non-resected, non-edge cortical gray-matter "
-            f"contacts (<{MIN_CONTACTS})")
+            "no non-SOZ, non-resected, non-edge cortical gray-matter contacts")
         atomic_savez(
             fp, subject=subject, status="skip",
             cache_schema_version=CACHE_SCHEMA_VERSION,
@@ -743,11 +838,36 @@ def run(subject, delete_raw=False, force=False):
     sig_fixed_ch = np.full((len(ie), total_s), np.nan)
     sig_fsp_ch = np.full((len(ie), total_s), np.nan)
     swa_ch = np.full((len(ie), total_s), np.nan)
+    sig_fixed_num_ch = np.full((len(ie), total_s), np.nan)
+    sig_fsp_num_ch = np.full((len(ie), total_s), np.nan)
+    swa_num_ch = np.full((len(ie), total_s), np.nan)
+    sig_fixed_den_ch = np.zeros((len(ie), total_s), dtype=np.uint32)
+    sig_fsp_den_ch = np.zeros((len(ie), total_s), dtype=np.uint32)
+    swa_den_ch = np.zeros((len(ie), total_s), dtype=np.uint32)
     ep_dr_ch = np.full((len(ie), n_ep), np.nan)
     ep_swa_ch = np.full((len(ie), n_ep), np.nan)
     ep_clean_ch = np.full((len(ie), n_ep), np.nan)
+    ep_measured_ch = np.full((len(ie), n_ep), np.nan)
+    ep_valid_window_ch = np.zeros(
+        (len(ie), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
+    ep_window_swa_ch = np.full(
+        (len(ie), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), np.nan, dtype=np.float32)
+    ep_window_total_ch = np.full(
+        (len(ie), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), np.nan, dtype=np.float32)
+    ep_longest_clean_run_ch = np.zeros((len(ie), n_ep), dtype=np.float32)
+    ep_valid_window_span_ch = np.zeros((len(ie), n_ep), dtype=np.float32)
     ep_emg_ch = np.full((len(emg_indices), n_ep), np.nan)
     ep_eog_ch = np.full((len(eog_indices), n_ep), np.nan)
+    ep_emg_valid_window_ch = np.zeros(
+        (len(emg_indices), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
+    ep_eog_valid_window_ch = np.zeros(
+        (len(eog_indices), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
+    ep_emg_window_power_ch = np.full(
+        (len(emg_indices), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS),
+        np.nan, dtype=np.float32)
+    ep_eog_window_power_ch = np.full(
+        (len(eog_indices), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS),
+        np.nan, dtype=np.float32)
     beats = []
     so_candidates = {c: [] for c in ctx}
     failed_chunks = []
@@ -842,19 +962,22 @@ def run(subject, delete_raw=False, force=False):
 
         n_sec = int(core_n // int(sf))
         k = int(sf)
-        for sos_b, dest in ((sos_fixed, sig_fixed_ch), (sos_fsp, sig_fsp_ch),
-                            (sos_swa, swa_ch)):
+        for sos_b, dest, numerator_dest, denominator_dest in (
+                (sos_fixed, sig_fixed_ch, sig_fixed_num_ch, sig_fixed_den_ch),
+                (sos_fsp, sig_fsp_ch, sig_fsp_num_ch, sig_fsp_den_ch),
+                (sos_swa, swa_ch, swa_num_ch, swa_den_ch)):
             for ci, (xc, clean_c) in enumerate(zip(x_channels, clean_channels)):
                 env2 = np.abs(signal.hilbert(signal.sosfiltfilt(sos_b, xc))) ** 2
                 start = core_a
                 stop = start + n_sec * k
-                e2 = env2[start:stop].reshape(n_sec, k)
-                cm = clean_c[start:stop].reshape(n_sec, k).astype(float)
-                num, den = (e2 * cm).sum(1), cm.sum(1)
-                vals_c = np.where(
-                    den >= 0.5 * k, num / np.maximum(den, 1e-12), np.nan)
+                vals_c, numerator, denominator = _binned_power_values(
+                    env2[start:stop], clean_c[start:stop], sf, n_sec,
+                    return_support=True)
                 sl = slice(off, min(off + n_sec, total_s))
-                dest[ci, sl] = vals_c[:sl.stop - sl.start]
+                length = sl.stop - sl.start
+                dest[ci, sl] = vals_c[:length]
+                numerator_dest[ci, sl] = numerator[:length]
+                denominator_dest[ci, sl] = denominator[:length]
 
         # EMG / EOG epoch features
         emg_filtered, emg_measured = [], []
@@ -885,19 +1008,34 @@ def run(subject, delete_raw=False, force=False):
             for ci, (xc, clean_c, measured_c) in enumerate(zip(
                     x_channels, clean_channels, measured_channels)):
                 seg = xc[epoch_a:epoch_b]
-                dr, swa_value = staging_epoch_features(
-                    seg, clean_c[epoch_a:epoch_b], measured_c[epoch_a:epoch_b], sf)
+                dr, swa_value, staging_details = staging_epoch_features(
+                    seg, clean_c[epoch_a:epoch_b], measured_c[epoch_a:epoch_b], sf,
+                    return_details=True)
                 ep_dr_ch[ci, gi] = dr
                 ep_swa_ch[ci, gi] = swa_value
-                ep_clean_ch[ci, gi] = float(clean_c[epoch_a:epoch_b].mean())
+                ep_clean_ch[ci, gi] = staging_details["clean_fraction"]
+                ep_measured_ch[ci, gi] = staging_details["measured_fraction"]
+                ep_valid_window_ch[ci, gi] = staging_details["valid_window_mask"]
+                ep_window_swa_ch[ci, gi] = staging_details["window_swa_power"]
+                ep_window_total_ch[ci, gi] = staging_details["window_total_power"]
+                ep_longest_clean_run_ch[ci, gi] = staging_details["longest_valid_run_s"]
+                ep_valid_window_span_ch[ci, gi] = staging_details["valid_window_span_s"]
             for channel in range(len(emg_indices)):
-                if emg_measured[channel, epoch_a:epoch_b].all():
-                    ep_emg_ch[channel, gi] = float(np.sqrt(np.mean(
-                        emg_filtered[channel, epoch_a:epoch_b] ** 2)))
+                value, details = auxiliary_epoch_window_features(
+                    emg_filtered[channel, epoch_a:epoch_b],
+                    emg_measured[channel, epoch_a:epoch_b],
+                    sf, "emg_rms", return_details=True)
+                ep_emg_ch[channel, gi] = value
+                ep_emg_valid_window_ch[channel, gi] = details["valid_window_mask"]
+                ep_emg_window_power_ch[channel, gi] = details["window_power"]
             for channel in range(len(eog_indices)):
-                if eog_measured[channel, epoch_a:epoch_b].all():
-                    ep_eog_ch[channel, gi] = float(np.var(
-                        eog_filtered[channel, epoch_a:epoch_b]))
+                value, details = auxiliary_epoch_window_features(
+                    eog_filtered[channel, epoch_a:epoch_b],
+                    eog_measured[channel, epoch_a:epoch_b],
+                    sf, "eog_variance", return_details=True)
+                ep_eog_ch[channel, gi] = value
+                ep_eog_valid_window_ch[channel, gi] = details["valid_window_mask"]
+                ep_eog_window_power_ch[channel, gi] = details["window_power"]
         t += dur
 
     sig_fixed, sigma_contact_qc = _aggregate_full_night_power(
@@ -913,7 +1051,9 @@ def run(subject, delete_raw=False, force=False):
         min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN,
         return_details=True)
     ep_dr, ep_swa, ep_clean, staging_contact_qc = aggregate_staging_features(
-        ep_dr_ch, ep_swa_ch, ep_clean_ch, eligible_contacts)
+        ep_dr_ch, ep_swa_ch, ep_clean_ch, eligible_contacts,
+        valid_window_count_by_contact=ep_valid_window_ch.sum(axis=2),
+        min_valid_windows=STAGING_REFERENCE_MIN_VALID_WINDOWS)
     sig_fsp = _aggregate_full_night_power(
         sig_fsp_ch, eligible_channels=eligible_contacts,
         min_contact_coverage=MIN_CONTACT_COVERAGE, min_contacts=MIN_CONTACTS,
@@ -930,8 +1070,17 @@ def run(subject, delete_raw=False, force=False):
         swa_ch, eligible_channels=parietal_contact_qc["selected_mask"],
         min_contact_coverage=MIN_CONTACT_COVERAGE, min_contacts=MIN_CONTACTS,
         min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN)
-    ep_emg, emg_contact_qc = aggregate_auxiliary_epoch_features(ep_emg_ch)
-    ep_eog, eog_contact_qc = aggregate_auxiliary_epoch_features(ep_eog_ch)
+    # These two aggregate arrays remain the historical all-measured-epoch/audit80 reference.
+    # Neutral per-channel values and complete-window support below permit less destructive offline
+    # profiles without changing this compatibility output.
+    ep_emg, emg_contact_qc = aggregate_auxiliary_epoch_features(
+        ep_emg_ch,
+        valid_window_count_by_channel=ep_emg_valid_window_ch.sum(axis=2),
+        min_valid_windows=STAGING_REFERENCE_MIN_VALID_WINDOWS)
+    ep_eog, eog_contact_qc = aggregate_auxiliary_epoch_features(
+        ep_eog_ch,
+        valid_window_count_by_channel=ep_eog_valid_window_ch.sum(axis=2),
+        min_valid_windows=STAGING_REFERENCE_MIN_VALID_WINDOWS)
 
     # heart rate grids
     beats = sanitize_beats(beats)
@@ -941,33 +1090,26 @@ def run(subject, delete_raw=False, force=False):
     hr_coverage = float(np.isfinite(hr_4).mean())
     if failed_chunks:
         raise RuntimeError(f"{len(failed_chunks)} acquisition chunks failed")
+    qc_warnings = []
     if ecg_failures:
-        raise RuntimeError(
-            f"ECG detection failed in {len(ecg_failures)} chunks; publication cache fails closed")
-    # Global sigma is not a cache-wide requirement: 3A uses the separately gated parietal
-    # aggregate, whereas 3B uses coverage-qualified frontal SO contacts.  Rejecting the whole cache
-    # would erase a potentially valid endpoint because an unrelated aggregate missed its gate.
+        rr_1[:] = np.nan
+        rr_4[:] = np.nan
+        hr_1[:] = np.nan
+        hr_4[:] = np.nan
+        hr_coverage = 0.0
+        qc_warnings.append(
+            f"cardiac series invalidated after {len(ecg_failures)} ECG detector exceptions")
     if hr_coverage < MIN_SIGNAL_COVERAGE:
-        # Low usable cardiac coverage is an expected participant-level QC exclusion.  Treating it
-        # as a pipeline exception makes one noisy ECG invalidate the complete cohort manifest.
-        reason = (
-            f"cardiac coverage QC failed: HR={hr_coverage:.1%}; "
-            f"minimum is {MIN_SIGNAL_COVERAGE:.0%}")
-        source_hashes = {
-            os.path.basename(path): file_sha256(path) for path in paths.values()
-        }
-        atomic_savez(
-            fp, subject=subject, status="skip",
-            cache_schema_version=CACHE_SCHEMA_VERSION,
-            cache_code_sha256=current_cache_digest,
-            reason=reason, sigma_coverage=sigma_coverage,
-            hr_coverage=hr_coverage,
-            source_dataset="OpenNeuro ds003848 snapshot 1.0.3",
-            source_files_sha256_json=json.dumps(source_hashes, sort_keys=True),
-            source_files_snapshot_identity_json=json.dumps(
-                source_snapshot_identities, sort_keys=True))
-        print(f"[{subject}] SKIP {reason}", flush=True)
-        return "skip"
+        qc_warnings.append(
+            f"HR coverage {hr_coverage:.1%} is below the historical audit80 reference")
+    if len(ctx) < MIN_CONTACTS:
+        qc_warnings.append(
+            f"only {len(ctx)} anatomy-eligible contacts; historical audit80 required "
+            f"{MIN_CONTACTS}")
+    if not emg_indices or not eog_indices:
+        qc_warnings.append(
+            f"optional staging modalities missing: EMG={bool(emg_indices)}, "
+            f"EOG={bool(eog_indices)}")
 
     proxy_lab, stage_counts = score_stages(ep_swa, ep_emg, ep_eog, ep_dr, ep_clean)
     annotation_lab, annotation_sources = annotation_epoch_context(
@@ -997,6 +1139,7 @@ def run(subject, delete_raw=False, force=False):
                        source_snapshot_identities, sort_keys=True),
                    failed_chunks_json=json.dumps(failed_chunks, sort_keys=True),
                    ecg_failures_json=json.dumps(ecg_failures, sort_keys=True),
+                   qc_warnings_json=json.dumps(qc_warnings, sort_keys=True),
                    ecg_processing_method=(
                        "NeuroKit2 ecg_clean/ecg_peaks method=neurokit with artifact correction; "
                        "not Naji Pan-Tompkins 0.5-100 Hz; requires blinded R-peak validation"),
@@ -1027,6 +1170,8 @@ def run(subject, delete_raw=False, force=False):
                        staging_contact_qc["per_contact_feature_coverage"]),
                    staging_minimum_contact_feature_coverage=(
                        staging_contact_qc["minimum_contact_feature_coverage"]),
+                   staging_minimum_valid_welch_windows=(
+                       staging_contact_qc["minimum_valid_welch_windows"]),
                    staging_swa_normalization=staging_contact_qc["swa_normalization"],
                    emg_channel_names=np.asarray(
                        [names[index] for index in emg_indices], dtype="<U96"),
@@ -1037,6 +1182,18 @@ def run(subject, delete_raw=False, force=False):
                    emg_per_channel_coverage=emg_contact_qc["per_channel_coverage"],
                    eog_per_channel_coverage=eog_contact_qc["per_channel_coverage"],
                    auxiliary_channel_aggregation=emg_contact_qc["normalization"],
+                   auxiliary_historical_minimum_valid_windows=(
+                       STAGING_REFERENCE_MIN_VALID_WINDOWS),
+                   auxiliary_window_duration_s=STAGING_WELCH_WINDOW_S,
+                   auxiliary_window_overlap_s=STAGING_WELCH_OVERLAP_S,
+                   auxiliary_epoch_value_semantics=(
+                       "EMG RMS or EOG variance over the union of samples belonging to at "
+                       "least one complete finite/measured 4-s window; overlapping samples "
+                       "count once; fully measured epochs exactly equal the former full-epoch "
+                       "feature; partial epochs intentionally omit incomplete-window samples"),
+                   auxiliary_window_power_semantics=(
+                       "EMG stores per-window mean square (take square root after averaging "
+                       "to obtain RMS); EOG stores per-window variance; invalid windows are NaN"),
                    subject=subject, sf=sf, night_s=0.0, hours=total_s / 3600.0,
                    cortical_chans=np.asarray(ctx, dtype="<U96"),
                    all_good_ieeg_channels=np.asarray(
@@ -1053,12 +1210,49 @@ def run(subject, delete_raw=False, force=False):
                        "from Destrieux labels"),
                    ekg=names[ecg_i], fsp=fsp, fsp_is_real_peak=fsp_real,
                    sigma_fixed=sig_fixed, sigma_fsp=sig_fsp, swa=swa_1,
+                   sigma_fixed_by_contact=sig_fixed_ch,
+                   sigma_fsp_by_contact=sig_fsp_ch,
+                   swa_by_contact=swa_ch,
+                   sigma_fixed_power_numerator_by_contact=sig_fixed_num_ch,
+                   sigma_fixed_clean_sample_count_by_contact=sig_fixed_den_ch,
+                   sigma_fsp_power_numerator_by_contact=sig_fsp_num_ch,
+                   sigma_fsp_clean_sample_count_by_contact=sig_fsp_den_ch,
+                   swa_power_numerator_by_contact=swa_num_ch,
+                   swa_clean_sample_count_by_contact=swa_den_ch,
+                   power_samples_per_second=int(sf),
+                   power_historical_minimum_clean_fraction_per_second=0.5,
+                   power_support_semantics=(
+                       "numerator=sum of clean squared-envelope samples in each nominal "
+                       "1-s bin; denominator=count of those clean samples; historical "
+                       "*_by_contact arrays require denominator >= 0.5*samples_per_second"),
                    sigma_fixed_parietal=sig_fixed_parietal,
                    sigma_fsp_parietal=sig_fsp_parietal,
                    swa_parietal=swa_parietal,
                    hr_1=hr_1, hr_4=hr_4, rr_1=rr_1, rr_4=rr_4, fs_rr=FS_RR,
                    ep_dr=ep_dr, ep_swa=ep_swa, ep_clean=ep_clean, ep_emg=ep_emg, ep_eog=ep_eog,
+                   ep_dr_by_contact=ep_dr_ch,
+                   ep_swa_by_contact=ep_swa_ch,
+                   ep_clean_fraction_by_contact=ep_clean_ch,
+                   ep_measured_fraction_by_contact=ep_measured_ch,
+                   ep_valid_welch_window_mask_by_contact=ep_valid_window_ch,
+                   ep_window_swa_power_by_contact=ep_window_swa_ch,
+                   ep_window_total_power_by_contact=ep_window_total_ch,
+                   ep_longest_clean_run_s_by_contact=ep_longest_clean_run_ch,
+                   ep_valid_window_span_s_by_contact=ep_valid_window_span_ch,
+                   event_3b_so_band_hz=np.asarray(SO_BAND_NAJI),
+                   event_3b_negative_half_duration_s=np.asarray(
+                       SO_NEGATIVE_HALF_DURATION_S),
+                   event_3b_positive_half_max_s=SO_POSITIVE_HALF_MAX_S,
+                   event_3b_amplitude_semantics=(
+                       "Naji cites fixed Dang-Vu scalp-voltage gates, which do not "
+                       "transfer to iEEG; cache retains duration-qualified down/up "
+                       "amplitudes before an offline within-contact/stage percentile "
+                       "sensitivity rule"),
                    ep_emg_by_channel=ep_emg_ch, ep_eog_by_channel=ep_eog_ch,
+                   ep_emg_valid_window_mask_by_channel=ep_emg_valid_window_ch,
+                   ep_eog_valid_window_mask_by_channel=ep_eog_valid_window_ch,
+                   ep_emg_window_mean_square_by_channel=ep_emg_window_power_ch,
+                   ep_eog_window_variance_by_channel=ep_eog_window_power_ch,
                    epoch_s=EPOCH, beats=beats, stage_lab=np.asarray(stage_lab, dtype="<U4"),
                    stage_lab_proxy=np.asarray(proxy_lab, dtype="<U4"),
                    stage_lab_proxy_sensitivity=np.asarray(

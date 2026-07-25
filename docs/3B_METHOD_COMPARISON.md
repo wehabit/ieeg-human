@@ -1,10 +1,9 @@
 # WITHDRAWN 3B comparison — superseded implementation vs Naji 2019
 
-> **LEGACY / WITHDRAWN NUMBERS.** This comparison predates the RR-domain corrected-v7 descriptive
+> **LEGACY / WITHDRAWN NUMBERS.** This comparison predates the RR-domain v8 descriptive
 > estimator. Whole-stage shifts are now diagnostic only and no 3B event-locking p/z claim is
-> available. The direct legacy entry point is hard-stopped. In the completed corrected runs, N2
-> and N3 are each 0/6 estimable for RESPect and 0/25 estimable for HUP; that is endpoint
-> unavailability, not evidence of no effect.
+> available. The direct legacy entry point is hard-stopped. V8 recovers subject-level N2-like,
+> N3-like, and pooled estimates, but inference remains explicitly disabled.
 
 **Purpose.** A step-by-step comparison of how we implemented the slow-oscillation → heart-rate
 coupling test against the method it follows. Written because the coupling was cited to the wrong

@@ -21,7 +21,8 @@ from event_3D_by_stage import (detect_so_events, detect_spindle_events, bh_fdr, 
 from cache_lc_series import (detect_so_candidates, threshold_so_candidates, sanitize_beats,
                              _write_multichannel_power, _aggregate_full_night_power,
                              aggregate_staging_features, interpolate_tachograms,
-                             staging_epoch_features)
+                             staging_epoch_features, _binned_power_values,
+                             power_from_binned_support)
 from cohort_stages_3ABD import (
     band_sos, fsp_from, nrem_mask_adaptive,
     reliable_two_state_split as mixture_high_tail_split, stage_epochs,
@@ -34,7 +35,7 @@ from stage_ds003848 import (
     electrode_eligibility_from_rows, event_annotations_from_rows,
     event_exclusion_mask, annotation_epoch_context, annotation_second_masks,
     constrain_proxy_to_annotations, aggregate_auxiliary_epoch_features,
-    SNAPSHOT_FILES, verify_pinned_snapshot_file,
+    auxiliary_epoch_window_features, SNAPSHOT_FILES, verify_pinned_snapshot_file,
 )
 from spectral_gapped import fill_short_gaps
 
@@ -423,6 +424,12 @@ strong = [(float(i + 100), 10.0, 10.0, 20.0) for i in range(100)]
 selected = threshold_so_candidates(weak + strong)
 check("3B percentile is applied once across the channel-night",
       len(selected) == 100 and np.all(selected >= 100))
+duration_probe = np.asarray(
+    [1.0] * 5 + [-1.0] * 12 + [1.0] * 2 + [-1.0] * 5 + [1.0] * 5)
+check(
+    "3B uses Naji/Dang-Vu asymmetric half-wave durations rather than the old 0.3-1.0 s rule",
+    len(detect_so_candidates(duration_probe, sf=10, edge_s=0)) == 1,
+)
 check("R-peak refractory filtering compares with the last retained peak",
       np.allclose(sanitize_beats([0.0, 0.2, 0.4, 0.8]), [0.0, 0.4, 0.8]))
 
@@ -442,36 +449,113 @@ check("per-contact power is invariant to contact polarity",
       np.allclose(_aggregate_full_night_power(dest_same),
                   _aggregate_full_night_power(dest_opposite), atol=1e-8, equal_nan=True))
 
+# The neutral cache must retain enough information to vary the clean-sample rule without filtering
+# raw data again, while the 0.5 reconstruction remains exactly the historical array.
+support_env2 = np.arange(1.0, 41.0)
+support_clean = np.zeros(40, bool)
+support_clean[:4] = True
+support_clean[10:15] = True
+support_clean[20:27] = True
+support_values, support_num, support_den = _binned_power_values(
+    support_env2, support_clean, 10, 4, return_support=True)
+legacy_support_values = np.where(
+    support_den >= 0.5 * 10,
+    support_num / np.maximum(support_den, 1e-12),
+    np.nan)
+check("per-second power support exactly reconstructs the historical 50% rule",
+      np.array_equal(np.isnan(support_values), np.isnan(legacy_support_values))
+      and np.array_equal(
+          support_values[np.isfinite(support_values)],
+          legacy_support_values[np.isfinite(legacy_support_values)])
+      and np.array_equal(
+          support_values[np.isfinite(support_values)],
+          power_from_binned_support(
+              support_num, support_den, 10, 0.5)[np.isfinite(support_values)])
+      and np.array_equal(support_den, [4, 5, 7, 0])
+      and np.isnan(support_values[[0, 3]]).all()
+      and np.isfinite(support_values[[1, 2]]).all())
+support_70 = power_from_binned_support(support_num, support_den, 10, 0.7)
+check("per-second clean support threshold is reversible offline",
+      np.isnan(support_70[[0, 1, 3]]).all()
+      and np.isclose(support_70[2], support_num[2] / support_den[2]))
+
 # Missing raw samples may be filled only as a numerical scaffold for filtering. They must remain
 # missing in derived power, rather than becoming a plausible trough that inflates coverage.
 with_gap = base.copy()
 with_gap[int(60 * sf_power):int(70 * sf_power)] = np.nan
 dest_gap = np.full((1, 180), np.nan)
+dest_gap_num = np.full((1, 180), np.nan)
+dest_gap_den = np.zeros((1, 180), dtype=np.uint32)
 _write_multichannel_power(
-    with_gap[:, None], sos, sf_power, 180, 180, 0, dest_gap)
+    with_gap[:, None], sos, sf_power, 180, 180, 0, dest_gap,
+    numerator_dest=dest_gap_num, clean_sample_count_dest=dest_gap_den)
 check("raw NaN gaps remain ineligible in derived sigma power",
-      np.isnan(dest_gap[0, 60:70]).all())
+      np.isnan(dest_gap[0, 60:70]).all()
+      and np.allclose(
+          dest_gap,
+          power_from_binned_support(dest_gap_num, dest_gap_den, int(sf_power), 0.5),
+          equal_nan=True))
 
 # A brief high-amplitude artifact can dominate a 30-s Welch spectrum even if most samples remain
-# clean. Contact-level staging therefore fails closed rather than using the unmasked epoch.
+# clean. Gap-aware staging must reject every overlapping 4-s periodogram while retaining clean,
+# temporally separate windows from the same epoch.
 stage_sf = 200.0
 stage_t = np.arange(int(30 * stage_sf)) / stage_sf
 clean_stage_signal = np.sin(2 * np.pi * stage_t) + 0.05 * rng.randn(len(stage_t))
 clean_stage_mask = np.ones(len(stage_t), bool)
 measured_stage_mask = np.ones(len(stage_t), bool)
-clean_dr, clean_swa = staging_epoch_features(
-    clean_stage_signal, clean_stage_mask, measured_stage_mask, stage_sf)
+clean_dr, clean_swa, clean_stage_details = staging_epoch_features(
+    clean_stage_signal, clean_stage_mask, measured_stage_mask, stage_sf,
+    return_details=True)
+welch_f, welch_p = signal.welch(
+    clean_stage_signal, stage_sf, nperseg=int(4 * stage_sf))
+welch_swa_band = (welch_f >= 0.5) & (welch_f < 4.0)
+welch_total_band = (welch_f >= 0.5) & (welch_f < 25.0)
+welch_swa = float(np.trapezoid(
+    welch_p[welch_swa_band], welch_f[welch_swa_band]))
+welch_dr = welch_swa / float(np.trapezoid(
+    welch_p[welch_total_band], welch_f[welch_total_band]))
+check("fourteen clean staging windows reproduce scipy Welch",
+      clean_stage_details["n_valid_windows"] == 14
+      and np.isclose(clean_swa, welch_swa, rtol=1e-12, atol=1e-12)
+      and np.isclose(clean_dr, welch_dr, rtol=1e-12, atol=1e-12))
 artifact_stage_signal = clean_stage_signal.copy()
 artifact_region = (stage_t >= 10) & (stage_t < 12)
 artifact_stage_signal[artifact_region] += 100 * np.sin(
     2 * np.pi * stage_t[artifact_region])
 artifact_clean_mask = clean_stage_mask.copy()
 artifact_clean_mask[artifact_region] = False
-artifact_dr, artifact_swa = staging_epoch_features(
-    artifact_stage_signal, artifact_clean_mask, measured_stage_mask, stage_sf)
-check("artifact-tainted contact epochs cannot contribute delta/SWA staging power",
+artifact_dr, artifact_swa, artifact_stage_details = staging_epoch_features(
+    artifact_stage_signal, artifact_clean_mask, measured_stage_mask, stage_sf,
+    return_details=True)
+check("masked artifact samples never enter a retained staging periodogram",
+      artifact_stage_details["n_valid_windows"] == 12
+      and not artifact_stage_details["valid_window_mask"][4]
+      and not artifact_stage_details["valid_window_mask"][5])
+check("clean subwindows recover staging power instead of discarding the whole epoch",
       np.isfinite(clean_dr) and np.isfinite(clean_swa)
-      and np.isnan(artifact_dr) and np.isnan(artifact_swa))
+      and np.isfinite(artifact_dr) and np.isfinite(artifact_swa)
+      and abs(np.log(artifact_swa / clean_swa)) < 0.02
+      and abs(artifact_dr - clean_dr) < 0.01)
+dirty_dr, dirty_swa, dirty_details = staging_epoch_features(
+    artifact_stage_signal, np.zeros_like(artifact_clean_mask),
+    measured_stage_mask, stage_sf, return_details=True)
+check("an epoch without a complete clean Welch window remains unavailable",
+      dirty_details["n_valid_windows"] == 0
+      and np.isnan(dirty_dr) and np.isnan(dirty_swa))
+
+# Applying the historical reference support after neutral feature extraction reproduces the former
+# all-clean eligibility without destroying the recoverable per-window data in the cache.
+support_counts = np.array([[14, 14], [14, 12], [14, 14]])
+reference_dr, reference_swa, _, reference_qc = aggregate_staging_features(
+    np.ones((3, 2)), np.ones((3, 2)), np.ones((3, 2)), np.ones(3, bool),
+    valid_window_count_by_contact=support_counts, min_valid_windows=14,
+    min_contact_feature_coverage=0.5, min_contacts=3,
+    min_contact_fraction_per_epoch=1.0)
+check("historical all-clean support is an offline profile rather than destructive extraction",
+      reference_qc["minimum_valid_welch_windows"] == 14
+      and np.isfinite(reference_dr[0]) and np.isnan(reference_dr[1])
+      and np.isfinite(reference_swa[0]) and np.isnan(reference_swa[1]))
 
 # Contact gain/availability must not manufacture a two-mode epoch series. In this counterexample,
 # three low-gain contacts are available in one half and three high-gain contacts in the other.
@@ -693,6 +777,62 @@ auxiliary, auxiliary_qc = aggregate_auxiliary_epoch_features(np.array([
 check("all stable EMG/EOG channels contribute after within-channel scale normalization",
       auxiliary_qc["n_selected_channels"] == 2
       and np.allclose(auxiliary / auxiliary[0], [1.0, 2.0, 4.0, 8.0]))
+
+# EMG/EOG now use the same complete 4-s, 2-s-stride support geometry as iEEG staging.  Fully
+# measured epochs must retain the exact former full-epoch definition, while a gap rejects only
+# overlapping windows and remains available to a profile that permits partial support.
+aux_sf = 100.0
+aux_t = np.arange(int(30 * aux_sf)) / aux_sf
+aux_emg_signal = (1.0 + 0.2 * np.sin(2 * np.pi * 0.07 * aux_t)) * np.sin(
+    2 * np.pi * 20 * aux_t)
+aux_eog_signal = np.sin(2 * np.pi * 1.2 * aux_t) + 0.1 * np.sin(
+    2 * np.pi * 0.4 * aux_t)
+aux_measured = np.ones(len(aux_t), bool)
+clean_emg_value, clean_emg_details = auxiliary_epoch_window_features(
+    aux_emg_signal, aux_measured, aux_sf, "emg_rms", return_details=True)
+clean_eog_value, clean_eog_details = auxiliary_epoch_window_features(
+    aux_eog_signal, aux_measured, aux_sf, "eog_variance", return_details=True)
+check("all-clean auxiliary windows exactly preserve former full-epoch features",
+      clean_emg_details["n_valid_windows"] == 14
+      and clean_eog_details["n_valid_windows"] == 14
+      and np.isclose(clean_emg_value, np.sqrt(np.mean(aux_emg_signal ** 2)),
+                     rtol=0, atol=1e-15)
+      and np.isclose(clean_eog_value, np.var(aux_eog_signal), rtol=0, atol=1e-15))
+aux_gap = (aux_t >= 10) & (aux_t < 12)
+partial_measured = aux_measured.copy()
+partial_measured[aux_gap] = False
+contaminated_emg = aux_emg_signal.copy()
+contaminated_eog = aux_eog_signal.copy()
+contaminated_emg[aux_gap] = 1e6
+contaminated_eog[aux_gap] = 1e6
+partial_emg_value, partial_emg_details = auxiliary_epoch_window_features(
+    contaminated_emg, partial_measured, aux_sf, "emg_rms", return_details=True)
+partial_eog_value, partial_eog_details = auxiliary_epoch_window_features(
+    contaminated_eog, partial_measured, aux_sf, "eog_variance", return_details=True)
+check("auxiliary gaps reject only overlapping complete windows",
+      partial_emg_details["n_valid_windows"] == 12
+      and partial_eog_details["n_valid_windows"] == 12
+      and not partial_emg_details["valid_window_mask"][4:6].any()
+      and not partial_eog_details["valid_window_mask"][4:6].any()
+      and np.isfinite(partial_emg_value) and np.isfinite(partial_eog_value)
+      and np.isnan(partial_emg_details["window_power"][4:6]).all()
+      and np.isnan(partial_eog_details["window_power"][4:6]).all())
+aux_values = np.array([
+    [clean_emg_value, partial_emg_value],
+    [2 * clean_emg_value, 2 * partial_emg_value],
+])
+aux_window_counts = np.array([[14, 12], [14, 12]])
+aux_reference, _ = aggregate_auxiliary_epoch_features(
+    aux_values, min_channel_coverage=0.0, min_channel_fraction_per_epoch=1.0,
+    valid_window_count_by_channel=aux_window_counts, min_valid_windows=14)
+aux_partial, aux_partial_qc = aggregate_auxiliary_epoch_features(
+    aux_values, min_channel_coverage=0.0, min_channel_fraction_per_epoch=1.0,
+    valid_window_count_by_channel=aux_window_counts, min_valid_windows=12)
+check("auxiliary complete-window and channel gates are selectable offline",
+      np.isfinite(aux_reference[0]) and np.isnan(aux_reference[1])
+      and np.isfinite(aux_partial).all()
+      and aux_partial_qc["minimum_valid_windows"] == 12
+      and aux_partial_qc["minimum_channel_coverage"] == 0.0)
 
 isolated_stage_labels = np.array(["N2", "W"] * 20)
 stable_stage_labels = np.array(["W", "N2", "N2", "N2", "N2", "N2", "N2", "W"])

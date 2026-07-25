@@ -11,9 +11,13 @@ Cached per subject -> data/derived/lc_infraslow/<subject>.npz
     sigma_fsp     compatibility copy using 12-14 Hz; individualized FSP is disabled until
                   all-clean-NREM estimation and manual quality control are available
     swa           1 Hz, IED-masked 0.5-4 Hz power (Lecci's negative control: no 0.02 Hz peak)
+    *_power_numerator_by_contact / *_clean_sample_count_by_contact
+                  reversible per-band 1-s support before the historical 50%-clean rule
     hr_1          1 Hz instantaneous heart rate
     hr_4          4 Hz instantaneous heart rate (Naji 2019 resolution, PCHIP of RR intervals)
     ep_dr/ep_swa/ep_clean   per-30 s-epoch staging features
+    event_3d_*    20 Hz, per-contact pre-threshold spindle RMS, SO phase,
+                  sample validity, and duration-qualified SO candidates
     so_candidate_*_<ch>  clean complete SO candidates and amplitudes; downstream stage-specific
                          thresholds are applied only after staging
     beats         R-peak times (s)
@@ -32,6 +36,7 @@ from infraslow_rr_sigma_coherence import (
     IEEG_CONNECT_TIMEOUT_S, IEEG_READ_TIMEOUT_S, sess, pull_continuous, notch, ROOT,
 )
 from results_3A_tutorial_style import ied_clean_mask
+from spectral_gapped import contiguous_runs
 from cohort_3A_cortical import (
     COHORT, HUP_SOURCE_PIN_SCHEMA_VERSION, NIGHT_PROBE_WORKERS, cortical_channels,
     delta_ratio, find_night, verify_hup_source_identity,
@@ -46,7 +51,12 @@ OUT = os.path.join(ROOT, "data", "derived", "lc_infraslow")
 SIGMA_FIXED = (10.0, 15.0)      # Lecci's band
 SWA_BAND_L = (0.5, 4.0)       # Lecci human SWA control
 SO_BAND_NAJI = (0.15, 4.0)
-SO_DUR = (0.3, 1.0)
+# Naji cites the Dang-Vu scalp detector: negative-to-positive zero crossing
+# 0.3--1.5 s, followed by a positive-to-negative crossing in <1 s.  Absolute
+# scalp-voltage gates do not transfer to iEEG, so amplitude is retained for an
+# explicit offline percentile sensitivity analysis.
+SO_NEGATIVE_HALF_DURATION_S = (0.3, 1.5)
+SO_POSITIVE_HALF_MAX_S = 1.0
 AMP_PCT = 75
 FS_RR = 4.0
 MIN_SIGNAL_COVERAGE = 0.80
@@ -55,6 +65,18 @@ MIN_CONTACTS = 3
 MIN_CONTACT_FRACTION_PER_BIN = 0.80
 FILTER_EDGE_S = 30.0
 MISSING_PAD_S = 5.0
+STAGING_WELCH_WINDOW_S = 4.0
+STAGING_WELCH_OVERLAP_S = 2.0
+# Fourteen 4-s windows at 2-s stride exactly cover a 30-s epoch.  Requiring all fourteen is the
+# historical all-samples-clean rule; neutral caches retain every window so support can be
+# calibrated and sensitivity-tested offline.
+STAGING_REFERENCE_MIN_VALID_WINDOWS = 14
+EVENT_3D_SO_BAND = (0.16, 1.25)
+EVENT_3D_SPINDLE_BAND = (12.0, 16.0)
+EVENT_3D_SO_DURATION_S = (0.8, 2.0)
+EVENT_3D_SAMPLING_HZ = 20.0
+EVENT_3D_RMS_WINDOW_S = 0.2
+EVENT_3D_IED_PAD_S = 2.5
 HUP_ANATOMY_SELECTION_METHOD = (
     "UNVALIDATED contact-number heuristic; lateral-contact candidates require "
     "coordinate/tissue/SOZ QC")
@@ -99,47 +121,131 @@ def prepare_continuous_signal(x, sf, missing_pad_s=MISSING_PAD_S):
     return filled, measured
 
 
-def staging_epoch_features(segment, clean_mask, measured_mask, sf):
-    """Artifact-safe delta-ratio and SWA features for one contact/30-s epoch.
+def staging_epoch_features(segment, clean_mask, measured_mask, sf, *, return_details=False):
+    """Gap-aware delta-ratio/SWA from complete artifact-free 4-s Welch windows.
 
-    Welch power is not a missing-data estimator.  Computing it on the unmasked raw epoch and only
-    later accepting an epoch with (for example) 90% clean samples lets a short high-amplitude IED
-    dominate both staging features.  Until a validated gap-aware spectral estimator is supplied,
-    fail closed for this contact-epoch whenever any sample is unmeasured or artifact-masked.
+    A contaminated sample never enters a retained periodogram.  Unlike the former fail-closed
+    implementation, a brief masked event does not erase clean, temporally separate pieces of the
+    entire 30-s epoch.  With a fully clean 30-s epoch, averaging the fourteen fixed 4-s Hann
+    periodograms is numerically the same construction as ``scipy.signal.welch`` with its 50%
+    overlap.  The neutral cache stores per-window support; an offline QC profile decides how many
+    valid windows are adequate rather than hard-coding a coverage percentage here.
     """
     segment = np.asarray(segment, float)
     clean_mask = np.asarray(clean_mask, bool)
     measured_mask = np.asarray(measured_mask, bool)
+    nperseg = int(round(STAGING_WELCH_WINDOW_S * float(sf)))
+    noverlap = int(round(STAGING_WELCH_OVERLAP_S * float(sf)))
+    step = nperseg - noverlap
+    n_windows = (
+        0 if len(segment) < nperseg
+        else 1 + (len(segment) - nperseg) // step
+    )
+    empty_details = dict(
+        n_valid_windows=0,
+        n_total_windows=int(n_windows),
+        valid_window_mask=np.zeros(n_windows, bool),
+        window_swa_power=np.full(n_windows, np.nan),
+        window_total_power=np.full(n_windows, np.nan),
+        measured_fraction=0.0,
+        clean_fraction=0.0,
+        longest_valid_run_s=0.0,
+        valid_window_span_s=0.0,
+    )
     if (
         len(segment) == 0
         or clean_mask.shape != segment.shape
         or measured_mask.shape != segment.shape
-        or not measured_mask.all()
-        or not clean_mask.all()
-        or not np.isfinite(segment).all()
+        or nperseg < 2
+        or step < 1
+        or n_windows < 1
     ):
-        return np.nan, np.nan
-    dr = float(delta_ratio(segment, sf))
-    fq, pp = signal.welch(
-        segment, sf, nperseg=int(min(4 * sf, len(segment))))
-    band = (fq >= SWA_BAND[0]) & (fq < SWA_BAND[1])
-    swa = float(np.trapezoid(pp[band], fq[band])) if band.any() else np.nan
+        return (np.nan, np.nan, empty_details) if return_details else (np.nan, np.nan)
+
+    finite = np.isfinite(segment)
+    measured = measured_mask & finite
+    valid_samples = clean_mask & measured
+    starts = np.arange(n_windows, dtype=int) * step
+    window_valid = np.asarray([
+        bool(valid_samples[start:start + nperseg].all())
+        for start in starts
+    ])
+
+    # Nonfinite values occur only in windows that are ineligible.  Zero is numerical scaffolding
+    # for the vectorized FFT and is never allowed into a retained periodogram.
+    numerical_segment = np.where(finite, segment, 0.0)
+    fq, _, pxx = signal.spectrogram(
+        numerical_segment,
+        fs=float(sf),
+        window="hann",
+        nperseg=nperseg,
+        noverlap=noverlap,
+        detrend="constant",
+        scaling="density",
+        mode="psd",
+    )
+    if pxx.shape[1] != n_windows:
+        raise RuntimeError(
+            f"staging Welch geometry produced {pxx.shape[1]} windows; expected {n_windows}"
+        )
+    swa_band = (fq >= SWA_BAND[0]) & (fq < SWA_BAND[1])
+    total_band = (fq >= 0.5) & (fq < 25.0)
+    window_swa = np.trapezoid(pxx[swa_band], fq[swa_band], axis=0)
+    window_total = np.trapezoid(pxx[total_band], fq[total_band], axis=0)
+    window_swa = np.where(window_valid, window_swa, np.nan)
+    window_total = np.where(window_valid, window_total, np.nan)
+
+    n_valid = int(window_valid.sum())
+    swa = (
+        float(np.nanmean(window_swa))
+        if n_valid and np.isfinite(window_swa).any()
+        else np.nan
+    )
+    total = (
+        float(np.nanmean(window_total))
+        if n_valid and np.isfinite(window_total).any()
+        else np.nan
+    )
+    dr = float(swa / total) if np.isfinite(swa) and np.isfinite(total) and total > 0 else np.nan
     if not np.isfinite(dr) or not np.isfinite(swa):
-        return np.nan, np.nan
-    return dr, swa
+        dr = swa = np.nan
+
+    longest = 0
+    if valid_samples.any():
+        longest = max((stop - start for start, stop in contiguous_runs(valid_samples)), default=0)
+    valid_starts = starts[window_valid]
+    span = (
+        float((valid_starts[-1] - valid_starts[0] + nperseg) / sf)
+        if len(valid_starts)
+        else 0.0
+    )
+    details = dict(
+        n_valid_windows=n_valid,
+        n_total_windows=int(n_windows),
+        valid_window_mask=window_valid,
+        window_swa_power=window_swa,
+        window_total_power=window_total,
+        measured_fraction=float(measured.mean()),
+        clean_fraction=float(valid_samples.mean()),
+        longest_valid_run_s=float(longest / sf),
+        valid_window_span_s=span,
+    )
+    return (dr, swa, details) if return_details else (dr, swa)
 
 
 def aggregate_staging_features(
         dr_by_contact, swa_by_contact, clean_by_contact, candidate_contact_mask,
         min_contacts=MIN_CONTACTS,
         min_contact_feature_coverage=MIN_CONTACT_COVERAGE,
-        min_contact_fraction_per_epoch=MIN_CONTACT_FRACTION_PER_BIN):
+        min_contact_fraction_per_epoch=MIN_CONTACT_FRACTION_PER_BIN,
+        valid_window_count_by_contact=None,
+        min_valid_windows=1):
     """Aggregate staging features from one fixed, normalized full-night contact set.
 
     Changing which contacts contribute from epoch to epoch can turn stable contact gain differences
     into an apparent two-state SWA distribution.  Candidate contacts are fixed before aggregation;
     SWA is normalized within contact over the whole available night; and every reported epoch must
-    contain the prespecified fraction of that exact set.
+    contain the profile-defined fraction of that exact set.
     """
     dr = np.asarray(dr_by_contact, float)
     swa = np.asarray(swa_by_contact, float)
@@ -150,6 +256,13 @@ def aggregate_staging_features(
     if len(selected) != dr.shape[0]:
         raise ValueError("candidate_contact_mask must align with staging contacts")
     feature_valid = np.isfinite(dr) & np.isfinite(swa)
+    if valid_window_count_by_contact is not None:
+        window_count = np.asarray(valid_window_count_by_contact)
+        if window_count.shape != dr.shape:
+            raise ValueError("valid-window support must align with staging feature matrices")
+        feature_valid &= window_count >= int(min_valid_windows)
+        dr = np.where(feature_valid, dr, np.nan)
+        swa = np.where(feature_valid, swa, np.nan)
     feature_coverage = feature_valid.mean(axis=1)
     # A contact that is stable for the 1-s sigma series can still be nearly absent from the
     # stricter, fully-clean 30-s staging features.  Letting one finite epoch qualify such a contact
@@ -188,6 +301,7 @@ def aggregate_staging_features(
         contact_count=support,
         per_contact_feature_coverage=feature_coverage,
         minimum_contact_feature_coverage=float(min_contact_feature_coverage),
+        minimum_valid_welch_windows=int(min_valid_windows),
         swa_normalization="divide each fixed contact by its full-night median clean-epoch SWA",
     )
 
@@ -234,17 +348,50 @@ def interpolate_tachograms(beats, total_s, fs_rr=FS_RR, max_gap_s=5.0):
     return rr_1, rr_f, hr_1, hr_f
 
 
-def _binned_power_values(env2, clean, sf, n_sec):
-    """IED-masked mean of a squared envelope in 1 s bins."""
+def power_from_binned_support(
+        numerator, clean_sample_count, samples_per_second,
+        minimum_clean_fraction_per_second=0.5):
+    """Materialize per-second power at an explicit clean-sample support threshold.
+
+    ``numerator`` is the sum of squared-envelope samples admitted by the clean mask and
+    ``clean_sample_count`` is its denominator.  Keeping both quantities in the neutral cache makes
+    the clean-fraction choice reversible: changing the threshold does not require filtering the
+    raw recording again.  A zero-support bin is always unavailable, including when the requested
+    minimum fraction is zero.
+    """
+    numerator = np.asarray(numerator, float)
+    denominator = np.asarray(clean_sample_count, float)
+    if numerator.shape != denominator.shape:
+        raise ValueError("power numerator and clean-sample denominator must align")
+    samples_per_second = int(samples_per_second)
+    if samples_per_second < 1:
+        raise ValueError("samples_per_second must be positive")
+    minimum = float(minimum_clean_fraction_per_second)
+    if not 0.0 <= minimum <= 1.0:
+        raise ValueError("minimum_clean_fraction_per_second must lie in [0, 1]")
+    eligible = (
+        np.isfinite(numerator)
+        & np.isfinite(denominator)
+        & (denominator > 0)
+        & (denominator >= minimum * samples_per_second)
+    )
+    return np.divide(
+        numerator, denominator, out=np.full(numerator.shape, np.nan), where=eligible)
+
+
+def _binned_power_values(env2, clean, sf, n_sec, *, return_support=False):
+    """IED-masked mean power plus its reversible numerator/denominator support."""
     k = int(sf)
     e2 = env2[:n_sec * k].reshape(n_sec, k)
     cm = clean[:n_sec * k].reshape(n_sec, k).astype(float)
     num, den = (e2 * cm).sum(1), cm.sum(1)
-    return np.where(den >= 0.5 * k, num / np.maximum(den, 1e-12), np.nan)
+    values = power_from_binned_support(num, den, k, 0.5)
+    return (values, num, den) if return_support else values
 
 
 def _write_multichannel_power(x_ctx, sos, sf, n_sec, total_s, off, dest,
-                              core_start_sample=0):
+                              core_start_sample=0, numerator_dest=None,
+                              clean_sample_count_dest=None):
     """Compute power per contact and write it to a full-night channel-by-time array.
 
     Averaging raw voltages before Hilbert power can cancel spindles with different phase/polarity.
@@ -259,9 +406,15 @@ def _write_multichannel_power(x_ctx, sos, sf, n_sec, total_s, off, dest,
         env2 = np.abs(signal.hilbert(signal.sosfiltfilt(sos, x))) ** 2
         start = int(core_start_sample)
         stop = start + int(n_sec * sf)
-        vals = _binned_power_values(env2[start:stop], clean[start:stop], sf, n_sec)
+        vals, numerator, denominator = _binned_power_values(
+            env2[start:stop], clean[start:stop], sf, n_sec, return_support=True)
         sl = slice(off, min(off + n_sec, total_s))
-        dest[j, sl] = vals[:sl.stop - sl.start]
+        length = sl.stop - sl.start
+        dest[j, sl] = vals[:length]
+        if numerator_dest is not None:
+            numerator_dest[j, sl] = numerator[:length]
+        if clean_sample_count_dest is not None:
+            clean_sample_count_dest[j, sl] = denominator[:length]
 
 
 def _aggregate_full_night_power(
@@ -325,8 +478,14 @@ def detect_so_candidates(x, sf, edge_s=5.0):
     for a, b, c in zip(zc[:-2], zc[1:-1], zc[2:]):
         if x[a + 1] >= 0:
             continue
-        if not (SO_DUR[0] <= (b - a) / sf <= SO_DUR[1]
-                and SO_DUR[0] <= (c - b) / sf <= SO_DUR[1]):
+        negative_half_s = (b - a) / float(sf)
+        positive_half_s = (c - b) / float(sf)
+        if not (
+            SO_NEGATIVE_HALF_DURATION_S[0]
+            <= negative_half_s
+            <= SO_NEGATIVE_HALF_DURATION_S[1]
+            and 0 < positive_half_s < SO_POSITIVE_HALF_MAX_S
+        ):
             continue
         tr = a + int(np.argmin(x[a:b]))
         if tr < edge or tr >= len(x) - edge:
@@ -353,6 +512,43 @@ def detect_so_halfwaves(x, sf):
     return threshold_so_candidates(candidates).astype(int)
 
 
+def event_3d_so_candidates(so, sf):
+    """Return fixed-duration SO candidates before any amplitude-percentile threshold.
+
+    The output is ``(trough_sample, peak_to_peak_amplitude)`` and deliberately retains the
+    complete candidate amplitude distribution.  Sleep-stage restriction and the published
+    75th-percentile threshold therefore remain rerunnable offline.
+    """
+    so = np.asarray(so, float)
+    crossings = np.where((so[:-1] >= 0) & (so[1:] < 0))[0] + 1
+    candidates = []
+    for start, stop in zip(crossings[:-1], crossings[1:]):
+        duration_s = (stop - start) / float(sf)
+        if not (
+            EVENT_3D_SO_DURATION_S[0]
+            <= duration_s
+            <= EVENT_3D_SO_DURATION_S[1]
+        ):
+            continue
+        cycle = so[start:stop]
+        trough = start + int(np.argmin(cycle))
+        candidates.append(
+            (trough, float(np.max(cycle) - np.min(cycle)))
+        )
+    return np.asarray(candidates, float).reshape(-1, 2)
+
+
+def event_3d_spindle_rms(spindle_band_signal, sf):
+    """Compute the fixed 200-ms RMS envelope used by the 3D event detector."""
+    window = max(1, int(round(EVENT_3D_RMS_WINDOW_S * float(sf))))
+    signal_values = np.asarray(spindle_band_signal, float)
+    return np.sqrt(np.convolve(
+        signal_values ** 2,
+        np.ones(window, float) / window,
+        mode="same",
+    ))
+
+
 def _run_with_session(n, hours, force, s):
     name = f"HUP{n}_phaseII"
     fp = os.path.join(OUT, f"{name}.npz")
@@ -369,7 +565,7 @@ def _run_with_session(n, hours, force, s):
     ctx = cortical_channels(labels)
     source_identity = verify_hup_source_identity(ds, ctx, ekg)
     source_identity_json = json.dumps(source_identity, sort_keys=True)
-    if ekg is None or len(ctx) < 3:
+    if ekg is None or len(ctx) == 0:
         atomic_savez(fp, subject=name, status="skip",
                      cache_schema_version=CACHE_SCHEMA_VERSION,
                      cache_code_sha256=current_cache_digest,
@@ -418,12 +614,35 @@ def _run_with_session(n, hours, force, s):
           f"fixed sigma primary; individualized FSP disabled | streaming {hours} h", flush=True)
 
     total_s = int(hours * 3600); n_ep = int(total_s // EPOCH)
+    n_event_3d = int(np.ceil(total_s * EVENT_3D_SAMPLING_HZ))
     sig_fixed_ch = np.full((len(ctx), total_s), np.nan)
     sig_fsp_ch = np.full((len(ctx), total_s), np.nan)
     swa_ch = np.full((len(ctx), total_s), np.nan)
+    sig_fixed_num_ch = np.full((len(ctx), total_s), np.nan)
+    sig_fsp_num_ch = np.full((len(ctx), total_s), np.nan)
+    swa_num_ch = np.full((len(ctx), total_s), np.nan)
+    sig_fixed_den_ch = np.zeros((len(ctx), total_s), dtype=np.uint32)
+    sig_fsp_den_ch = np.zeros((len(ctx), total_s), dtype=np.uint32)
+    swa_den_ch = np.zeros((len(ctx), total_s), dtype=np.uint32)
     ep_dr_ch = np.full((len(ctx), n_ep), np.nan)
     ep_swa_ch = np.full((len(ctx), n_ep), np.nan)
     ep_clean_ch = np.full((len(ctx), n_ep), np.nan)
+    ep_measured_ch = np.full((len(ctx), n_ep), np.nan)
+    ep_valid_window_ch = np.zeros(
+        (len(ctx), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
+    ep_window_swa_ch = np.full(
+        (len(ctx), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), np.nan, dtype=np.float32)
+    ep_window_total_ch = np.full(
+        (len(ctx), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), np.nan, dtype=np.float32)
+    ep_longest_clean_run_ch = np.zeros((len(ctx), n_ep), dtype=np.float32)
+    ep_valid_window_span_ch = np.zeros((len(ctx), n_ep), dtype=np.float32)
+    event_3d_rms_ch = np.full(
+        (len(ctx), n_event_3d), np.nan, dtype=np.float32)
+    event_3d_phase_ch = np.full(
+        (len(ctx), n_event_3d), np.nan, dtype=np.float32)
+    event_3d_valid_ch = np.zeros(
+        (len(ctx), n_event_3d), dtype=np.uint8)
+    event_3d_candidates = []
     beats = []
     so_candidates = {c: [] for c in ctx}
     failed_chunks = []
@@ -433,6 +652,8 @@ def _run_with_session(n, hours, force, s):
     sos_fsp = band_sos((fsp - 1, fsp + 1), sf)
     sos_swa = band_sos(SWA_BAND_L, sf, 3)
     sos_so = signal.butter(3, list(SO_BAND_NAJI), btype="band", fs=sf, output="sos")
+    sos_event_3d_so = band_sos(EVENT_3D_SO_BAND, sf, 3)
+    sos_event_3d_spindle = band_sos(EVENT_3D_SPINDLE_BAND, sf)
 
     t = 0.0
     while t < total_s:
@@ -490,12 +711,70 @@ def _run_with_session(n, hours, force, s):
             so_candidates[c].extend(
                 [(tr / sf + pull_start, down, up, p2p) for tr, down, up, p2p in cand])
 
+            # The 3D sidecar is outcome-neutral: retain fixed-filter RMS/phase samples and every
+            # clean, duration-qualified SO candidate before amplitude thresholding, stage
+            # restriction, spindle detection, pairing, or contact/event-count QC.
+            event_clean = (
+                ied_clean_mask(xc, sf, pad_s=EVENT_3D_IED_PAD_S)
+                & measured_channels[ci]
+            )
+            event_so = signal.sosfiltfilt(sos_event_3d_so, xc)
+            event_phase = np.angle(signal.hilbert(event_so))
+            event_spindle = signal.sosfiltfilt(sos_event_3d_spindle, xc)
+            event_rms = event_3d_spindle_rms(event_spindle, sf)
+            candidates_3d = event_3d_so_candidates(event_so, sf)
+            if len(candidates_3d):
+                troughs = candidates_3d[:, 0].astype(int)
+                candidate_keep = (
+                    (troughs >= core_a)
+                    & (troughs < core_b)
+                    & event_clean[troughs]
+                )
+                for trough, amplitude in candidates_3d[candidate_keep]:
+                    event_sample = int(round(
+                        (pull_start + float(trough) / sf)
+                        * EVENT_3D_SAMPLING_HZ
+                    ))
+                    if 0 <= event_sample < n_event_3d:
+                        event_3d_candidates.append(
+                            (ci, event_sample, float(amplitude))
+                        )
+
+            event_start = int(round(t * EVENT_3D_SAMPLING_HZ))
+            n_event_out = min(
+                int(round(dur * EVENT_3D_SAMPLING_HZ)),
+                n_event_3d - event_start,
+            )
+            local_samples = (
+                core_a
+                + np.round(
+                    np.arange(n_event_out) * sf / EVENT_3D_SAMPLING_HZ
+                ).astype(int)
+            )
+            in_bounds = local_samples < len(xc)
+            event_indices = event_start + np.arange(n_event_out)[in_bounds]
+            local_samples = local_samples[in_bounds]
+            valid_event = (
+                event_clean[local_samples]
+                & np.isfinite(event_rms[local_samples])
+                & np.isfinite(event_phase[local_samples])
+            )
+            event_indices = event_indices[valid_event]
+            local_samples = local_samples[valid_event]
+            event_3d_rms_ch[ci, event_indices] = event_rms[local_samples]
+            event_3d_phase_ch[ci, event_indices] = event_phase[local_samples]
+            event_3d_valid_ch[ci, event_indices] = 1
+
         n_sec = int(core_n // int(sf))
-        for sos_b, dest in ((sos_fixed, sig_fixed_ch), (sos_fsp, sig_fsp_ch),
-                            (sos_swa, swa_ch)):
+        for sos_b, dest, numerator_dest, denominator_dest in (
+                (sos_fixed, sig_fixed_ch, sig_fixed_num_ch, sig_fixed_den_ch),
+                (sos_fsp, sig_fsp_ch, sig_fsp_num_ch, sig_fsp_den_ch),
+                (sos_swa, swa_ch, swa_num_ch, swa_den_ch)):
             _write_multichannel_power(
                 x_ctx, sos_b, sf, n_sec, total_s, off, dest,
-                core_start_sample=core_a)
+                core_start_sample=core_a,
+                numerator_dest=numerator_dest,
+                clean_sample_count_dest=denominator_dest)
 
         ke = int(EPOCH * sf)
         for e in range(int(core_n // ke)):
@@ -507,11 +786,17 @@ def _run_with_session(n, hours, force, s):
                 a = core_a + e * ke
                 b = a + ke
                 seg = xc[a:b]
-                dr, swa_value = staging_epoch_features(
-                    seg, clean_c[a:b], measured_c[a:b], sf)
+                dr, swa_value, staging_details = staging_epoch_features(
+                    seg, clean_c[a:b], measured_c[a:b], sf, return_details=True)
                 ep_dr_ch[ci, gi] = dr
                 ep_swa_ch[ci, gi] = swa_value
-                ep_clean_ch[ci, gi] = float(clean_c[a:b].mean())
+                ep_clean_ch[ci, gi] = staging_details["clean_fraction"]
+                ep_measured_ch[ci, gi] = staging_details["measured_fraction"]
+                ep_valid_window_ch[ci, gi] = staging_details["valid_window_mask"]
+                ep_window_swa_ch[ci, gi] = staging_details["window_swa_power"]
+                ep_window_total_ch[ci, gi] = staging_details["window_total_power"]
+                ep_longest_clean_run_ch[ci, gi] = staging_details["longest_valid_run_s"]
+                ep_valid_window_span_ch[ci, gi] = staging_details["valid_window_span_s"]
         t += dur
 
     sig_fixed, sigma_contact_qc = _aggregate_full_night_power(
@@ -521,7 +806,9 @@ def _run_with_session(n, hours, force, s):
         return_details=True)
     eligible_contacts = sigma_contact_qc["selected_mask"]
     ep_dr, ep_swa, ep_clean, staging_contact_qc = aggregate_staging_features(
-        ep_dr_ch, ep_swa_ch, ep_clean_ch, eligible_contacts)
+        ep_dr_ch, ep_swa_ch, ep_clean_ch, eligible_contacts,
+        valid_window_count_by_contact=ep_valid_window_ch.sum(axis=2),
+        min_valid_windows=STAGING_REFERENCE_MIN_VALID_WINDOWS)
     sig_fsp = _aggregate_full_night_power(
         sig_fsp_ch, eligible_channels=eligible_contacts,
         min_contact_coverage=MIN_CONTACT_COVERAGE, min_contacts=MIN_CONTACTS,
@@ -539,27 +826,25 @@ def _run_with_session(n, hours, force, s):
     hr_coverage = float(np.isfinite(hr_4).mean())
     if failed_chunks:
         raise RuntimeError(f"{len(failed_chunks)} acquisition chunks failed")
+    qc_warnings = []
     if ecg_failures:
-        raise RuntimeError(
-            f"ECG detection failed in {len(ecg_failures)} chunks; publication cache fails closed")
+        # ECG failure cannot be allowed to erase otherwise usable EEG/SO/spindle data.  Because
+        # detector failures may be state-dependent, invalidate the complete cardiac series rather
+        # than silently using only the successful chunks.
+        rr_1[:] = np.nan
+        rr_4[:] = np.nan
+        hr_1[:] = np.nan
+        hr_4[:] = np.nan
+        hr_coverage = 0.0
+        qc_warnings.append(
+            f"cardiac series invalidated after {len(ecg_failures)} ECG detector exceptions")
     if hr_coverage < MIN_SIGNAL_COVERAGE:
-        # Insufficient participant data are an expected cohort exclusion, not an execution
-        # failure.  Raising here used to put the participant in ``manifest.failed`` and thereby
-        # invalidate every otherwise usable participant in the same production run.
-        reason = (
-            f"cardiac coverage QC failed: HR={hr_coverage:.1%}; "
-            f"minimum is {MIN_SIGNAL_COVERAGE:.0%}")
-        atomic_savez(
-            fp, subject=name, status="skip",
-            cache_schema_version=CACHE_SCHEMA_VERSION,
-            cache_code_sha256=current_cache_digest,
-            source_dataset=name, source_kind="iEEG.org API",
-            source_identity_json=source_identity_json,
-            source_selection_json=source_selection_json,
-            hours=float(hours), reason=reason,
-            sigma_coverage=sigma_coverage, hr_coverage=hr_coverage)
-        print(f"[{name}] SKIP {reason}", flush=True)
-        return "skip"
+        qc_warnings.append(
+            f"HR coverage {hr_coverage:.1%} is below the historical audit80 reference")
+    if len(ctx) < MIN_CONTACTS:
+        qc_warnings.append(
+            f"only {len(ctx)} lateral-contact candidates; historical audit80 required "
+            f"{MIN_CONTACTS}")
 
     os.makedirs(OUT, exist_ok=True)
     payload = dict(status="ok", cache_schema_version=CACHE_SCHEMA_VERSION,
@@ -572,6 +857,7 @@ def _run_with_session(n, hours, force, s):
                    source_selection_json=source_selection_json,
                    failed_chunks_json=json.dumps(failed_chunks, sort_keys=True),
                    ecg_failures_json=json.dumps(ecg_failures, sort_keys=True),
+                   qc_warnings_json=json.dumps(qc_warnings, sort_keys=True),
                    ecg_processing_method=(
                        "NeuroKit2 ecg_clean/ecg_peaks method=neurokit with artifact correction; "
                        "not Naji Pan-Tompkins 0.5-100 Hz; requires blinded R-peak validation"),
@@ -592,15 +878,80 @@ def _run_with_session(n, hours, force, s):
                        staging_contact_qc["per_contact_feature_coverage"]),
                    staging_minimum_contact_feature_coverage=(
                        staging_contact_qc["minimum_contact_feature_coverage"]),
+                   staging_minimum_valid_welch_windows=(
+                       staging_contact_qc["minimum_valid_welch_windows"]),
                    staging_swa_normalization=staging_contact_qc["swa_normalization"],
                    subject=name, sf=sf, night_s=night, hours=hours,
                    cortical_chans=np.array(ctx),
                    anatomy_selection_method=HUP_ANATOMY_SELECTION_METHOD,
                    ekg=ekg, fsp=fsp, fsp_is_real_peak=fsp_real,
                    sigma_fixed=sig_fixed, sigma_fsp=sig_fsp, swa=swa_1,
+                   sigma_fixed_by_contact=sig_fixed_ch,
+                   sigma_fsp_by_contact=sig_fsp_ch,
+                   swa_by_contact=swa_ch,
+                   sigma_fixed_power_numerator_by_contact=sig_fixed_num_ch,
+                   sigma_fixed_clean_sample_count_by_contact=sig_fixed_den_ch,
+                   sigma_fsp_power_numerator_by_contact=sig_fsp_num_ch,
+                   sigma_fsp_clean_sample_count_by_contact=sig_fsp_den_ch,
+                   swa_power_numerator_by_contact=swa_num_ch,
+                   swa_clean_sample_count_by_contact=swa_den_ch,
+                   power_samples_per_second=int(sf),
+                   power_historical_minimum_clean_fraction_per_second=0.5,
+                   power_support_semantics=(
+                       "numerator=sum of clean squared-envelope samples in each nominal "
+                       "1-s bin; denominator=count of those clean samples; historical "
+                       "*_by_contact arrays require denominator >= 0.5*samples_per_second"),
                    hr_1=hr_1, hr_4=hr_4, rr_1=rr_1, rr_4=rr_4, fs_rr=FS_RR,
                    ep_dr=ep_dr, ep_swa=ep_swa, ep_clean=ep_clean, epoch_s=EPOCH,
+                   ep_dr_by_contact=ep_dr_ch,
+                   ep_swa_by_contact=ep_swa_ch,
+                   ep_clean_fraction_by_contact=ep_clean_ch,
+                   ep_measured_fraction_by_contact=ep_measured_ch,
+                   ep_valid_welch_window_mask_by_contact=ep_valid_window_ch,
+                   ep_window_swa_power_by_contact=ep_window_swa_ch,
+                   ep_window_total_power_by_contact=ep_window_total_ch,
+                   ep_longest_clean_run_s_by_contact=ep_longest_clean_run_ch,
+                   ep_valid_window_span_s_by_contact=ep_valid_window_span_ch,
+                   event_3b_so_band_hz=np.asarray(SO_BAND_NAJI),
+                   event_3b_negative_half_duration_s=np.asarray(
+                       SO_NEGATIVE_HALF_DURATION_S),
+                   event_3b_positive_half_max_s=SO_POSITIVE_HALF_MAX_S,
+                   event_3b_amplitude_semantics=(
+                       "Naji cites fixed Dang-Vu scalp-voltage gates, which do not "
+                       "transfer to iEEG; cache retains duration-qualified down/up "
+                       "amplitudes before an offline within-contact/stage percentile "
+                       "sensitivity rule"),
+                   event_3d_rms_12_16_by_contact=event_3d_rms_ch,
+                   event_3d_so_phase_0p16_1p25_by_contact=event_3d_phase_ch,
+                   event_3d_valid_sample_mask_by_contact=event_3d_valid_ch,
+                   event_3d_sampling_hz=EVENT_3D_SAMPLING_HZ,
+                   event_3d_so_band_hz=np.asarray(EVENT_3D_SO_BAND),
+                   event_3d_spindle_band_hz=np.asarray(
+                       EVENT_3D_SPINDLE_BAND),
+                   event_3d_so_duration_s=np.asarray(
+                       EVENT_3D_SO_DURATION_S),
+                   event_3d_rms_window_s=EVENT_3D_RMS_WINDOW_S,
+                   event_3d_ied_padding_s=EVENT_3D_IED_PAD_S,
+                   event_3d_support_semantics=(
+                       "20-Hz RMS and SO phase are retained only where the "
+                       "source sample is measured and passes the +/-2.5-s IED "
+                       "mask; SO candidates are complete 0.8-2.0-s cycles "
+                       "retained before stage restriction and the 75th-"
+                       "percentile amplitude threshold"),
                    beats=beats)
+    candidate_values = np.asarray(
+        sorted(event_3d_candidates, key=lambda value: (value[0], value[1])),
+        float,
+    ).reshape(-1, 3)
+    payload["event_3d_so_candidate_contact_index"] = (
+        candidate_values[:, 0].astype(np.int16)
+    )
+    payload["event_3d_so_candidate_sample"] = (
+        candidate_values[:, 1].astype(np.int32)
+    )
+    payload["event_3d_so_candidate_amplitude"] = (
+        candidate_values[:, 2].astype(np.float32)
+    )
     for c in ctx:
         values = np.asarray(sorted(so_candidates[c]), float).reshape(-1, 4)
         payload[f"so_candidate_t_{c}"] = values[:, 0]

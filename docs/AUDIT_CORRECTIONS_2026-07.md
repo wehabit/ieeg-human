@@ -3,15 +3,14 @@
 ## Status
 
 Legacy numerical cohort results are historical artifacts. Current readers require
-`analysis_version = 2026-07-corrected-v7` and
-`cache_schema_version = 2026-07-respect-annotations-anatomy-stable-stage-source-pin-v7`.
-The complete six-subject RESPect cache and downstream manifests pass those gates, but 3A spectrum,
-cross-correlation, fixed-0.02-Hz coherence, and own-peak coherence are each estimable in 0/6, and
-3B N2/N3 are each estimable in 0/6. The prespecified RESPect endpoint is therefore unavailable,
-not positive or negative evidence for an LC proxy. The HUP cache also completed with 25 requested,
-17 completed, 8 structured skips, and 0 failures; all four 3A endpoints, both 3B stages, and the
-direct-stream 3D pooled endpoint were each estimable in 0/25. Terminal artifact hashes validated,
-and all 3D inference remains disabled.
+`analysis_version = 2026-07-qc-sensitivity-v8` and
+`cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v8`.
+The former v7 fixed-80 result is retained only as historical `audit80`. Under the outcome-blind
+endpoint-local base, RESPect has 3/3/3 available 3A records and 0/1/2 available 3B N2/N3/pooled
+records; HUP has 19/14/15 available 3A records, 6/5/15 available 3B records, and 7 descriptive 3D
+records among 24 completed caches plus one explicit skip. Availability is not hypothesis support;
+RESPect remains below the default cohort minimum and all 3B/3D inference remains disabled. See
+[QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md).
 
 In this document, **FIXED** means that the corresponding implementation change is present in the
 working tree; the issue register gives its executable regression where available and otherwise a
@@ -57,13 +56,13 @@ and is not an LC measurement.
   aggregation rather than selecting the first channel.
 - Makes the HUP staging proxy fail closed when high-delta or N2-like/N3-like mixture partitions are
   unstable; this is a high-tail algorithm, not evidence for two latent physiological states.
-- Computes staging spectra only from fully artifact-free contact-epochs, fits every staging model
-  on its exact downstream-eligible reference set, and aggregates a fixed full-night contact set
-  selected by joint delta/SWA coverage after within-contact SWA normalization with an 80%
-  per-epoch support requirement.
+- Computes staging spectra from complete artifact-free 4-second windows, fits every staging model
+  on its exact downstream-eligible reference set, and retains joint delta/SWA observation support
+  for historical fixed-set and endpoint-local overlap-connected aggregation.
 - Validates the RESPect BrainVision header rate against the BIDS nominal rate within 10 ppm, stores
   both, and uses the nominal BIDS rate for exact sample/event boundaries.
-- Requires endpoint-specific signal coverage and cache-wide RR/HR coverage.
+- Retains reversible support and applies power, RR/HR, staging, contact, and event rules at their
+  own endpoints rather than as one cache-wide participant qualification.
 - Adds cache schema, cache-producer source digest, code revision, runtime versions, timestamps,
   source selection/checksums where available, error logs, and atomic writes. Cache acceptance is
   tied to the exact cache-producing code, not a schema label or broad repository hash alone.
@@ -122,8 +121,8 @@ and is not an LC measurement.
 - Uses raw per-contact complex phase means and averages contacts equally into one descriptive
   participant vector for pooled NREM. Participant rotations are not production inference: the
   finite SO-centered pairing window itself aligns directions under independent event trains.
-- Requires a pooled descriptive endpoint to have at least three included contacts and 200 paired events from
-  those contacts, with at least 1,200 s and 80% valid pooled NREM per included contact; the cohort
+- Uses three contacts, 200 paired events, and 1,200 valid pooled-NREM seconds per included contact
+  as the base descriptive sensitivity, then varies contact/event/support rules offline; the cohort
   summary revalidates the per-contact evidence rather than trusting a status flag.
 - Disables all 3D inference pending a pairing-aware time-shift/block null. The N2-like/N3-like
   comparison additionally needs matched contact sets and event-count-controlled validation.
@@ -137,8 +136,9 @@ and is not an LC measurement.
 - Creates an `in_progress` manifest before work. Caught subject failures are finalized and every
   requested subject is completed, skipped with a reason, or failed; runner `None` values cannot
   disappear. An unexpected process interruption intentionally remains `in_progress` and is rejected.
-- Classifies a participant below a prespecified signal-coverage gate as an atomic, reasoned
-  `status=skip` record; acquisition-chunk, ECG-detector, and runtime failures remain fatal.
+- Uses atomic, reasoned `status=skip` records only for structural/cache-wide exclusions;
+  endpoint-local support failure does not discard unrelated endpoints. Acquisition-chunk,
+  ECG-detector, and runtime failures remain fatal.
 - Records endpoint availability and a partial-status reason for unavailable required 3A/3B
   endpoints. Available endpoints from a partial record still enter their own endpoint-specific
   denominator; each inferential endpoint has its own minimum sample-size gate. Summaries reject
@@ -193,7 +193,7 @@ Then run all synthetic checks and
   repeats event pairing/contact aggregation; no 3D p value is currently valid. A stage contrast
   additionally requires matched contacts and event-count control.
 - Verified HUP lights-off/sleep-onset timing; sparse high-delta probes do not establish either.
-- New or longer appropriately staged, anatomically validated data if an estimable cohort endpoint
-  is required. Both current-version regenerations are complete but their prespecified endpoints
-  are unavailable; do not lower gates after seeing that result.
+- New or longer appropriately staged, anatomically validated data for robust inference. The v8
+  grids recover estimates but show substantial profile/staging sensitivity; do not select a
+  profile after seeing the biological direction.
 - An independent LC/NE-sensitive measurement or intervention for any LC-specific claim.

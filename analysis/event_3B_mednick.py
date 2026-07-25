@@ -135,7 +135,8 @@ def so_triggered(hr, trough_times_s, stage_mean_hr, stage_pool_idx, n_sur=200, r
 
 def subject_so_triggered(tachogram, trough_times_by_channel, stage_mean_hr, stage_pool_idx,
                          n_sur=1000, rng=None, domain="hr", minimum_channels=1,
-                         channel_ids=None):
+                         channel_ids=None, minimum_events_per_channel=30,
+                         minimum_surrogate_pool_samples=100):
     """One participant-level SO->HR estimate across channels.
 
     Naji first formed an SO-triggered curve for each frontal electrode.  The old implementation
@@ -170,7 +171,7 @@ def subject_so_triggered(tachogram, trough_times_by_channel, stage_mean_hr, stag
         stage_csum[centres + hw] - stage_csum[centres - hw]) == (2 * hw)
     eligible = full_window & full_stage
     pool = np.unique(pool[eligible[pool]])
-    if len(pool) < 100:
+    if len(pool) < int(minimum_surrogate_pool_samples):
         return None
 
     if channel_ids is None:
@@ -183,7 +184,7 @@ def subject_so_triggered(tachogram, trough_times_by_channel, stage_mean_hr, stag
         idx = np.round(np.asarray(trough_times_s, float) * FS_RR).astype(int)
         idx = idx[(idx >= hw) & (idx < len(series) - hw)]
         idx = np.unique(idx[eligible[idx]])
-        if len(idx) >= 30:
+        if len(idx) >= int(minimum_events_per_channel):
             channel_indices.append(idx)
             retained_channel_ids.append(channel_id)
     if len(channel_indices) < int(minimum_channels):

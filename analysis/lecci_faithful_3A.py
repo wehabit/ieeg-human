@@ -62,6 +62,7 @@ NPERSEG = 256
 ALPHA = 0.05
 XCORR_WIN_S = 120.0           # Lecci: 120 s intervals, z-transformed
 XCORR_MAX_LAG_S = 60.0
+CORE_STUDY_WINDOW_S = 210.0 * 60.0  # Lecci core study: first 210 min from sleep onset
 LECCI_XCORR_LAG_WINDOW_S = (0.0, 15.0)  # source Fig. 6: positive peak near +5 s
 MIN_SURROGATE_PEAK_LOCATIONS = 20
 MIN_SURROGATE_PEAK_FRACTION = 0.05
@@ -293,6 +294,44 @@ def nrem_bouts(nrem, min_s=MIN_BOUT_S):
         if s1 - s0 >= min_s:
             out.append((s0, s1))
     return out
+
+
+def core_study_nrem_mask(labels, epoch_s=EPOCH, window_s=CORE_STUDY_WINDOW_S):
+    """Restrict labels to Lecci's core-study interval without selecting on signal values.
+
+    Lecci defined sleep onset as the first S1 epoch followed by S2.  These datasets do not
+    contain expert S1/S2 scoring, so the reproducible adaptation starts at the first available
+    classified sleep epoch (R/NREM/N2/N3).  The approximation and exact epoch bounds are returned
+    for every participant rather than silently analysing the full seven-hour HUP window.
+    """
+    labels = np.asarray(labels).astype(str)
+    sleep = np.isin(labels, ("R", "NREM", "N2", "N3"))
+    nrem = np.isin(labels, ("NREM", "N2", "N3"))
+    found = np.flatnonzero(sleep)
+    if not len(found):
+        return np.zeros(len(labels), bool), dict(
+            start_epoch=None,
+            stop_epoch=None,
+            requested_window_seconds=float(window_s),
+            available_window_seconds=0.0,
+            onset_proxy="no classified sleep epoch",
+        )
+    start = int(found[0])
+    n_window_epochs = int(np.ceil(float(window_s) / float(epoch_s)))
+    stop = min(len(labels), start + n_window_epochs)
+    within = np.zeros(len(labels), bool)
+    within[start:stop] = True
+    return nrem & within, dict(
+        start_epoch=start,
+        stop_epoch=stop,
+        start_second=float(start * epoch_s),
+        stop_second=float(stop * epoch_s),
+        requested_window_seconds=float(window_s),
+        available_window_seconds=float((stop - start) * epoch_s),
+        onset_proxy=(
+            "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 "
+            "is unavailable"),
+    )
 
 
 # ------------------------------------------------------------------ Lecci Step 1
@@ -529,7 +568,8 @@ def fit_peak(freqs, spec, search=PEAK_SEARCH):
 
 # ------------------------------------------------------------------ Lecci Step 2
 def cross_correlation(sig, hr, nrem, fs=FS, win_s=XCORR_WIN_S,
-                      max_lag_s=XCORR_MAX_LAG_S, smooth_4s=True):
+                      max_lag_s=XCORR_MAX_LAG_S, smooth_4s=True,
+                      minimum_windows=5):
     """Lecci Fig 6: z-transform each 120 s interval, cross-correlate with HR as source wave,
     average the cross-correlograms within subject. Positive lag => sigma FOLLOWS heart rate."""
     s, _, _ = fill_short_gaps(sig, fs, 5.0)
@@ -554,7 +594,7 @@ def cross_correlation(sig, hr, nrem, fs=FS, win_s=XCORR_WIN_S,
             lags = signal.correlation_lags(len(b), len(a), mode="full")
             keep = np.abs(lags) <= ml
             acc.append(c[keep]); n += 1
-    if n < 5:
+    if n < int(minimum_windows):
         return None
     lags_s = signal.correlation_lags(w, w, mode="full")[np.abs(
         signal.correlation_lags(w, w, mode="full")) <= ml] / fs

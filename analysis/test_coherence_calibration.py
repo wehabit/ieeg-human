@@ -27,8 +27,16 @@ import os
 import numpy as np
 
 from spectral_gapped import coherence_gapped, analytic_msc_threshold
-from lecci_faithful_3A import load, nrem_bouts, NPERSEG, FS
-from cohort_stages_3ABD import stage_epochs
+from lecci_faithful_3A import (
+    CacheSubjectSkipped,
+    core_study_nrem_mask,
+    load,
+    nrem_bouts,
+    NPERSEG,
+    FS,
+)
+from materialize_qc_cache import materialize
+from qc_profiles import load_qc_profile
 
 rng = np.random.RandomState(0)
 N_SIM = 400
@@ -113,21 +121,29 @@ CACHE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 subjects = sorted(f[:-4] for f in os.listdir(CACHE) if f.endswith(".npz"))[:6] \
     if os.path.isdir(CACHE) else []
 tested = 0
+real_cache_profile = load_qc_profile("overlap11_endpoint_local")
 for s in subjects:
-    d = load(s)
+    try:
+        d = load(s)
+    except CacheSubjectSkipped as exc:
+        print(f"    {s:18s} intentionally skipped: {exc}")
+        continue
     if d is None:
         continue
-    ep = dict(dr=d["ep_dr"], swa=d["ep_swa"], clean=d["ep_clean"])
-    lab, nrem, _ = stage_epochs(ep)
+    materialized = materialize(d, real_cache_profile)
+    d.close()
+    nrem, _ = core_study_nrem_mask(materialized["stage_lab"])
     if nrem.sum() < 40:
         continue
-    n = len(d["sigma_fsp"])
+    sigma = np.asarray(materialized["sigma_parietal"], float)
+    hr = np.asarray(materialized["hr_1"], float)
+    n = len(sigma)
     mask = np.zeros(n, bool)
     bouts = nrem_bouts(nrem)
     for a, b in bouts:
         mask[a:b] = True
     # also carry that subject's real missing-sample pattern
-    real_gaps = np.isfinite(d["sigma_fsp"]) & np.isfinite(d["hr_1"])
+    real_gaps = np.isfinite(sigma) & np.isfinite(hr)
     mask &= real_gaps
     if mask.sum() < 3000:
         continue

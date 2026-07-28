@@ -39,11 +39,11 @@
     ]
   },
   "code_dirty": true,
-  "code_revision": "376012141ef4d3f396e6e387c2cc3b8d29787c75",
+  "code_revision": "7592317c8d6149756e7791c5bf29e796f3fa2a8f",
   "current_locked_qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "frozen_cache_manifest_path_relative": "data/derived/lc_infraslow/RUN_MANIFEST.json",
   "frozen_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
-  "generated_at_utc": "2026-07-28T00:17:26.540350+00:00",
+  "generated_at_utc": "2026-07-28T05:28:30.204186+00:00",
   "n_requested": 25,
   "pipeline": "audit_hup_scalp_inventory",
   "qc_grid_path_relative": "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json",
@@ -93,10 +93,10 @@
   "selection_inputs": "exact frozen cohort membership; pinned portal snapshot and channel metadata; exact C3/C03 label and geometry; frozen 3A spectrum availability; prespecified numerical activity QC from full-interval sidecars",
   "selection_was_blind_to_scalp_endpoint_values": true,
   "sidecar_manifest_path_relative": "data/derived/paired_scalp/RUN_MANIFEST.json",
-  "sidecar_manifest_sha256": "54564654b10a037920e7f2dd641868997eff8a3f9b8ea0f0fe6ffecc9c9a4a95",
+  "sidecar_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
   "source_pin_path_relative": "analysis/hup_ieeg_source_pin.json",
   "source_pin_sha256": "a3a08e6b69486b5ea9ea996aa4d975ba1e228ac68a72443b2bbed4f10991a123",
-  "source_tree_sha256": "b74c9de70e62ecd6f7bff002d4451b1c86d0d0988788baf5cd748f5c5153cee0",
+  "source_tree_sha256": "f09dc3c74944cbc393eaafc60f6d2bba02d85efd32f7f0825a08b527cffaaf28",
   "subjects": [
     {
       "dataset_name": "HUP116_phaseII",
@@ -2234,7 +2234,7 @@
           "f3": "F3",
           "fz": "FZ"
         },
-        "sha256": "3a6323804585c7e808b2ccfdfe719332071a4e3a7df124aec999b8dd1e6e9a01"
+        "sha256": "fb22e6758e4d987125c71eecec666812a1e1bd09e7ef385b211ddd3f4eb9552f"
       },
       "snapshot_id": "c93ccfda-873a-438c-a2a8-2916706b7c48",
       "subject": "HUP160_phaseII"
@@ -4153,7 +4153,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "67218b10cb96d7ca6400c60cfecefbdbe3e6e2b9fdf806f04c827e2ad8af85df"
+        "sha256": "0a56899a0ec7fa3675492c55493a124e02603e2b4964b31f5e1730670a3ffda8"
       },
       "snapshot_id": "3fcbea55-342b-429d-8e5e-8cbd5f50c3db",
       "subject": "HUP185_phaseII"
@@ -4408,7 +4408,7 @@
           "f3": "F3",
           "fz": "FZ"
         },
-        "sha256": "d677ce6c44ba9bbf182d6a85df5df1933bfd59287165746e11bb2e101cddf6a0"
+        "sha256": "626af5cd5aa82632010505ce2c051dd4029945a1fdcc6ae5e0a1be40f514055e"
       },
       "snapshot_id": "a06e2e34-1c7a-482a-8031-89e80808e6fe",
       "subject": "HUP187_phaseII"
@@ -4684,7 +4684,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "eeeedea0c8f40d09c535df92048b98c533ee2ce78f9ee281fd6f873deed3f523"
+        "sha256": "7143c219337c6cae080025ef0895622111fad5260ff13c38b87f171db5c171c0"
       },
       "snapshot_id": "e33bad75-2b0a-40d3-9a62-2fe867448125",
       "subject": "HUP191_phaseII"
@@ -4960,7 +4960,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "8f91d349251cfa8861ddf9cb46f10d2811432191daae9f38e5124fe2a6d1fa3d"
+        "sha256": "7090968ab6863402a26afa34dd90568dadf51c373e55d8faa83a804c7f3470ef"
       },
       "snapshot_id": "3a0d1211-c75a-4b15-a6d7-6761c378d208",
       "subject": "HUP199_phaseII"
@@ -5240,7 +5240,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "11fe9d61259d0482286bc4ac3d3883959545f3199cab3e3f2ffdc30c92b47ee5"
+        "sha256": "8e6a464fb687598c4ec8e8b4d5ed2e6c6244d497a04f7290eacd7ce64d9ef68c"
       },
       "snapshot_id": "15444ee1-2327-4a0a-a7bf-c46c95cd9133",
       "subject": "HUP205_phaseII"
@@ -5612,7 +5612,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "e58b703a6ffbee9bbae865df422c2a549f0727326fc36dfdafabc292d19e3e14"
+        "sha256": "2a306fa3ead85a82e424d3aa5b793714ba06f20bce21faf3ef3b506a2543f7a1"
       },
       "snapshot_id": "b4632b6a-d8a0-42da-a122-fcaf29ba823c",
       "subject": "HUP211_phaseII"
@@ -5860,7 +5860,7 @@
           "c3": "C03",
           "fz": "FZ"
         },
-        "sha256": "0a61f7ab768071fac288ef80ffdaca343e48f8f509f94cde98dd73e6e755cbde"
+        "sha256": "cf15c1aad1987686e03a55075e8da43e1650e3908088c71dcef9f5abc5f2ae5d"
       },
       "snapshot_id": "8deb9e32-6dce-429c-8900-09492a6af9ce",
       "subject": "HUP212_phaseII"

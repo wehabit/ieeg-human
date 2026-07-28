@@ -2,7 +2,7 @@
   "3a_sensor": "single C3/C03 scalp channel, Lecci-aligned sensor location but unknown online reference; compared with the frozen iEEG aggregate",
   "3b_sensors": "single F3 (unilateral/reference-incomplete) and Fz (not a Naji sensor), both exploratory one-channel profile clones",
   "code_dirty": true,
-  "code_revision": "376012141ef4d3f396e6e387c2cc3b8d29787c75",
+  "code_revision": "7592317c8d6149756e7791c5bf29e796f3fa2a8f",
   "comparison_design": "within-participant simultaneous EEG-arm comparison: same portal snapshot, frozen night, duration, sample rate, cached ECG/RR, profile-materialized stage labels, and exact intersected finite positive 3A EEG/HR support. The EEG arms differ jointly in modality, location, reference, and contact aggregation, so this does not isolate a pure modality effect",
   "completed_subjects": [
     "HUP160_phaseII",
@@ -14,6 +14,10 @@
     "HUP211_phaseII",
     "HUP212_phaseII"
   ],
+  "csv_artifacts": {
+    "paired_metrics.csv": "normalized observations; unique by subject/question/stage/modality, including exactly one iEEG row per participant-stage for 3B",
+    "role_pair_metrics.csv": "explicit scalp-role pairs; a 3B iEEG observation is intentionally repeated under F3 and Fz when it contributes to both contrasts, so do not pool this table across roles"
+  },
   "exact_naji_label_inventory_status": [
     {
       "current_exact_naji_comparison_available": false,
@@ -79,7 +83,7 @@
   "frozen_qc_grid_path_relative": "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json",
   "frozen_qc_grid_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "frozen_qc_grid_sha256": "f0876c2fd01da0b4efc18a1bf672daffed371d57d5b8630f84f00065c268a057",
-  "generated_at_utc": "2026-07-28T00:17:58.476285+00:00",
+  "generated_at_utc": "2026-07-28T05:29:03.499040+00:00",
   "group_summary": {
     "3A_C3": {
       "accepted_peak_hz": {
@@ -875,7 +879,7 @@
       ]
     },
     "manifest_path_relative": "outputs/paired_scalp_inventory/RUN_MANIFEST.json",
-    "manifest_sha256": "59d19f6c5965da5fa224ae2a703da06e3fd0ae27d5916997939da747a8451950",
+    "manifest_sha256": "ec6c0fe28b4bdac826e43ef8eec107c057f738710f151b302010eb315ab00363",
     "n_frozen_hup_participants": 25,
     "paired_3a_eligible_subjects": [
       "HUP160_phaseII",
@@ -893,11 +897,11 @@
     "path_relative": "outputs/paired_scalp_inventory/hup_scalp_channel_inventory.json",
     "reference_warning": "A channel label does not identify its online reference. Presence of A1/A2/M1/M2 also does not prove a reconstructable Naji montage.",
     "selection_was_blind_to_scalp_endpoint_values": true,
-    "sha256": "5eb69ae0f8d8e98909280ebb3b8761caad30b762f868325832f91692b601a246"
+    "sha256": "2e354b17a5753ffc1e9a790c06230cd73a4ca1d4b3b5c1da20ee8a3f43829028"
   },
-  "schema_version": "2026-07-paired-scalp-ieeg-results-v2-shared-support",
+  "schema_version": "2026-07-paired-scalp-ieeg-results-v3-normalized-csv",
   "sleep_label_provenance": "HUP sleep labels are an iEEG-derived delta/SWA GMM proxy without independent visual PSG scoring or EOG/EMG. Holding the same labels fixed controls timing but makes this comparison asymmetric and does not validate a scalp-paper staging pipeline.",
-  "source_tree_sha256": "b74c9de70e62ecd6f7bff002d4451b1c86d0d0988788baf5cd748f5c5153cee0",
+  "source_tree_sha256": "f09dc3c74944cbc393eaafc60f6d2bba02d85efd32f7f0825a08b527cffaaf28",
   "subjects": [
     {
       "frozen_ieeg_verification": {
@@ -1319,8 +1323,8 @@
         "ieeg_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
         "ieeg_cache_sha256": "dd012b561540b4874a352da6f90198bf3d546267e848d45a0c53ca92741441aa",
         "night_s": 896400.0,
-        "scalp_cache_manifest_sha256": "54564654b10a037920e7f2dd641868997eff8a3f9b8ea0f0fe6ffecc9c9a4a95",
-        "scalp_cache_sha256": "3a6323804585c7e808b2ccfdfe719332071a4e3a7df124aec999b8dd1e6e9a01",
+        "scalp_cache_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
+        "scalp_cache_sha256": "fb22e6758e4d987125c71eecec666812a1e1bd09e7ef385b211ddd3f4eb9552f",
         "sf": 1024.0
       },
       "scalp": {
@@ -2860,8 +2864,8 @@
         "ieeg_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
         "ieeg_cache_sha256": "be0d304e53886758d2655c0232c15f7fda1d8413e3dca57afa24d1099d0df263",
         "night_s": 25200.0,
-        "scalp_cache_manifest_sha256": "54564654b10a037920e7f2dd641868997eff8a3f9b8ea0f0fe6ffecc9c9a4a95",
-        "scalp_cache_sha256": "67218b10cb96d7ca6400c60cfecefbdbe3e6e2b9fdf806f04c827e2ad8af85df",
+        "scalp_cache_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
+        "scalp_cache_sha256": "0a56899a0ec7fa3675492c55493a124e02603e2b4964b31f5e1730670a3ffda8",
         "sf": 512.0
       },
       "scalp": {
@@ -3667,8 +3671,8 @@
         "ieeg_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
         "ieeg_cache_sha256": "cc661a488ec6505ad6fce06605c17f8a4cee52385cc042bdc5ea77078299dfd6",
         "night_s": 142200.0,
-        "scalp_cache_manifest_sha256": "54564654b10a037920e7f2dd641868997eff8a3f9b8ea0f0fe6ffecc9c9a4a95",
-        "scalp_cache_sha256": "d677ce6c44ba9bbf182d6a85df5df1933bfd59287165746e11bb2e101cddf6a0",
+        "scalp_cache_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
+        "scalp_cache_sha256": "626af5cd5aa82632010505ce2c051dd4029945a1fdcc6ae5e0a1be40f514055e",
         "sf": 512.0
       },
       "scalp": {
@@ -5208,8 +5212,8 @@
         "ieeg_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
         "ieeg_cache_sha256": "2d9999c86866c4e9f2d089f06f0ba35eb84dafcb24958f4f6734e178e4744780",
         "night_s": 658800.0,
-        "scalp_cache_manifest_sha256": "54564654b10a037920e7f2dd641868997eff8a3f9b8ea0f0fe6ffecc9c9a4a95",
-        "scalp_cache_sha256": "eeeedea0c8f40d09c535df92048b98c533ee2ce78f9ee281fd6f873deed3f523",
+        "scalp_cache_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
+        "scalp_cache_sha256": "7143c219337c6cae080025ef0895622111fad5260ff13c38b87f171db5c171c0",
         "sf": 512.0
       },
       "scalp": {
@@ -5945,8 +5949,8 @@
         "ieeg_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
         "ieeg_cache_sha256": "ca7de8d4c44a8a6107d6f74859db93e0c4655a6b2fa285a0fdb8e52de5fb6984",
         "night_s": 379800.0,
-        "scalp_cache_manifest_sha256": "54564654b10a037920e7f2dd641868997eff8a3f9b8ea0f0fe6ffecc9c9a4a95",
-        "scalp_cache_sha256": "8f91d349251cfa8861ddf9cb46f10d2811432191daae9f38e5124fe2a6d1fa3d",
+        "scalp_cache_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
+        "scalp_cache_sha256": "7090968ab6863402a26afa34dd90568dadf51c373e55d8faa83a804c7f3470ef",
         "sf": 512.0
       },
       "scalp": {
@@ -6768,8 +6772,8 @@
         "ieeg_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
         "ieeg_cache_sha256": "d76b95165f0f8db4b1a306cd5ce9fbc8336ccfdc9caf41577aa34778c3cc9671",
         "night_s": 106200.0,
-        "scalp_cache_manifest_sha256": "54564654b10a037920e7f2dd641868997eff8a3f9b8ea0f0fe6ffecc9c9a4a95",
-        "scalp_cache_sha256": "11fe9d61259d0482286bc4ac3d3883959545f3199cab3e3f2ffdc30c92b47ee5",
+        "scalp_cache_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
+        "scalp_cache_sha256": "8e6a464fb687598c4ec8e8b4d5ed2e6c6244d497a04f7290eacd7ce64d9ef68c",
         "sf": 512.0
       },
       "scalp": {
@@ -7862,8 +7866,8 @@
         "ieeg_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
         "ieeg_cache_sha256": "f3fbe193a38aa5685e669ae4285b33aecf6e1f70bbf4b610c9cf31bae5ccd1e8",
         "night_s": 187200.0,
-        "scalp_cache_manifest_sha256": "54564654b10a037920e7f2dd641868997eff8a3f9b8ea0f0fe6ffecc9c9a4a95",
-        "scalp_cache_sha256": "e58b703a6ffbee9bbae865df422c2a549f0727326fc36dfdafabc292d19e3e14",
+        "scalp_cache_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
+        "scalp_cache_sha256": "2a306fa3ead85a82e424d3aa5b793714ba06f20bce21faf3ef3b506a2543f7a1",
         "sf": 512.0
       },
       "scalp": {
@@ -8903,8 +8907,8 @@
         "ieeg_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
         "ieeg_cache_sha256": "b59ed75d0a6854cf41cfe68a7680c85cf32d59fc689131b0a38c928b0f5da6e7",
         "night_s": 628200.0,
-        "scalp_cache_manifest_sha256": "54564654b10a037920e7f2dd641868997eff8a3f9b8ea0f0fe6ffecc9c9a4a95",
-        "scalp_cache_sha256": "0a61f7ab768071fac288ef80ffdaca343e48f8f509f94cde98dd73e6e755cbde",
+        "scalp_cache_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
+        "scalp_cache_sha256": "cf15c1aad1987686e03a55075e8da43e1650e3908088c71dcef9f5abc5f2ae5d",
         "sf": 1024.0
       },
       "scalp": {

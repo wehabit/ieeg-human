@@ -1,95 +1,89 @@
 subject,question,comparison_role,sensor,stage,modality,sensor_available,available,unavailability_reason,n_events_or_bouts,pre_window_candidate_count,peak_hz,coherence_at_0p02_hz,coherence_analytic_threshold,coherence_above_threshold,coherence_K,shared_support_fraction,sigma_peak_window_mean,swa_same_window_mean,sigma_to_swa_same_peak_window_ratio,xcorr_lecci_direction_peak_r,xcorr_lecci_direction_peak_lag_s,local_hr_change_pct,pct_above_stage_mean,so_hr_peak_lag_s,exploratory
 HUP160_phaseII,3A,c3,iEEG aggregate,NREM first 210 min,iEEG,True,True,,13,,0.01772554729067774,0.2651056918885238,0.16156611126074016,True,18,0.8898809523809523,1.7048618553951806,1.319712121754966,1.2918437493231771,0.0994296451343716,0.0,,,,True
 HUP160_phaseII,3A,c3,C3/C03,NREM first 210 min,scalp_C3,True,True,,13,,0.021013545597458834,0.3012489008306652,0.16156611126074016,True,18,0.8898809523809523,1.68885171659035,1.2069510830157255,1.3992710560982575,0.09528402668210068,0.0,,,,True
-HUP160_phaseII,3B,f3,iEEG aggregate,N2,iEEG,True,True,,635,645,,,,,,,,,,,,0.6063698959661561,0.8684853856130893,2.0416666666666665,True
-HUP160_phaseII,3B,f3,F3,N2,scalp_F3,True,True,,98,100,,,,,,,,,,,,0.5152108286785899,1.4010292061441005,0.0,True
-HUP160_phaseII,3B,f3,iEEG aggregate,N3,iEEG,True,True,,902,919,,,,,,,,,,,,0.1451432469260583,0.17223745242929475,2.5,True
-HUP160_phaseII,3B,f3,F3,N3,scalp_F3,True,True,,158,163,,,,,,,,,,,,0.34286269184438195,0.30458606328935933,0.75,True
-HUP160_phaseII,3B,f3,iEEG aggregate,NREM,iEEG,True,True,,1878,1925,,,,,,,,,,,,0.5574742948699413,5.606551818538975,2.875,True
-HUP160_phaseII,3B,f3,F3,NREM,scalp_F3,True,True,,310,319,,,,,,,,,,,,0.58790547741041,5.89926650808951,3.25,True
-HUP160_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,True,,635,645,,,,,,,,,,,,0.6063698959661561,0.8684853856130893,2.0416666666666665,True
-HUP160_phaseII,3B,fz,FZ,N2,scalp_FZ,True,True,,99,102,,,,,,,,,,,,0.5747406020247462,1.1099243146221536,0.0,True
-HUP160_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,True,,902,919,,,,,,,,,,,,0.1451432469260583,0.17223745242929475,2.5,True
-HUP160_phaseII,3B,fz,FZ,N3,scalp_FZ,True,True,,155,159,,,,,,,,,,,,0.34506386136110995,0.3235397773141815,0.75,True
-HUP160_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,1878,1925,,,,,,,,,,,,0.5574742948699413,5.606551818538975,2.875,True
-HUP160_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,310,320,,,,,,,,,,,,0.6577411137420871,5.665598008347357,3.25,True
 HUP185_phaseII,3A,c3,iEEG aggregate,NREM first 210 min,iEEG,True,True,,22,,,0.1732849920351089,0.5271291954984121,False,5,0.7878968253968254,,,,0.1352664965832389,0.0,,,,True
 HUP185_phaseII,3A,c3,C3/C03,NREM first 210 min,scalp_C3,True,True,,22,,,0.19225056145238748,0.5271291954984121,False,5,0.7878968253968254,,,,0.11729315829936211,0.0,,,,True
-HUP185_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP185_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP185_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP185_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
-HUP185_phaseII,3B,fz,FZ,N2,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
-HUP185_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
-HUP185_phaseII,3B,fz,FZ,N3,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
-HUP185_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,865,903,,,,,,,,,,,,0.0022172574213647094,0.23688490860311973,0.6666666666666666,True
-HUP185_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,153,159,,,,,,,,,,,,-0.17501518316285553,0.08474379134452195,1.75,True
 HUP187_phaseII,3A,c3,iEEG aggregate,NREM first 210 min,iEEG,True,True,,19,,0.026942069880718657,0.08212211515081146,0.3481636551311609,False,8,0.8401587301587301,1.279783450748591,1.4235980640995012,0.8989780774660716,0.12016586088689903,0.0,,,,True
 HUP187_phaseII,3A,c3,C3/C03,NREM first 210 min,scalp_C3,True,True,,19,,0.028173093665132248,0.09565399020098227,0.3481636551311609,False,8,0.8401587301587301,1.3182144501137771,1.4169410463182486,0.9303241327781415,0.11428330868065674,0.0,,,,True
-HUP187_phaseII,3B,f3,iEEG aggregate,N2,iEEG,True,True,,496,560,,,,,,,,,,,,1.3004022955618912,1.4330865720326083,3.25,True
-HUP187_phaseII,3B,f3,F3,N2,scalp_F3,True,True,,80,92,,,,,,,,,,,,3.9673800263582666,2.6899972817998434,3.25,True
-HUP187_phaseII,3B,f3,iEEG aggregate,N3,iEEG,True,True,,1299,1321,,,,,,,,,,,,0.6272538464944779,2.542524813299922,2.5,True
-HUP187_phaseII,3B,f3,F3,N3,scalp_F3,True,True,,241,245,,,,,,,,,,,,0.3499132590026386,0.4328618059177344,2.75,True
-HUP187_phaseII,3B,f3,iEEG aggregate,NREM,iEEG,True,True,,2383,2434,,,,,,,,,,,,0.16306675461593526,2.013566247662047,2.0,True
-HUP187_phaseII,3B,f3,F3,NREM,scalp_F3,True,True,,421,426,,,,,,,,,,,,0.23873546459156209,0.8111706625346177,3.25,True
-HUP187_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,True,,496,560,,,,,,,,,,,,1.3004022955618912,1.4330865720326083,3.25,True
-HUP187_phaseII,3B,fz,FZ,N2,scalp_FZ,True,True,,77,91,,,,,,,,,,,,3.0869501261053376,2.7552105726074836,4.5,True
-HUP187_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,True,,1299,1321,,,,,,,,,,,,0.6272538464944779,2.542524813299922,2.5,True
-HUP187_phaseII,3B,fz,FZ,N3,scalp_FZ,True,True,,225,229,,,,,,,,,,,,0.020012479929704754,0.5815066338078545,2.5,True
-HUP187_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,2383,2434,,,,,,,,,,,,0.16306675461593526,2.013566247662047,2.0,True
-HUP187_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,406,412,,,,,,,,,,,,0.24163520317345974,1.6896627848164867,3.25,True
 HUP191_phaseII,3A,c3,iEEG aggregate,NREM first 210 min,iEEG,True,True,,5,,,0.019563791401764084,0.11734615615494881,False,25,0.8792857142857143,,,,0.039322367353607626,8.0,,,,True
 HUP191_phaseII,3A,c3,C3/C03,NREM first 210 min,scalp_C3,True,True,,5,,0.009803274397301255,0.04757004776084683,0.11734615615494881,False,25,0.8792857142857143,2.3738832283898716,1.4338611131988648,1.6555879830605558,0.07139465447672769,5.0,,,,True
-HUP191_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP191_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP191_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP191_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
-HUP191_phaseII,3B,fz,FZ,N2,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
-HUP191_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
-HUP191_phaseII,3B,fz,FZ,N3,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
-HUP191_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,1364,1370,,,,,,,,,,,,0.12168680308740858,0.3295649236173728,2.9583333333333335,True
-HUP191_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,206,207,,,,,,,,,,,,0.43012284128215955,0.47652544533436064,2.25,True
 HUP199_phaseII,3A,c3,iEEG aggregate,NREM first 210 min,iEEG,True,True,,32,,,0.030996593646657567,0.13294591102652342,False,22,0.8205555555555556,,,,0.07019040129863775,0.0,,,,True
 HUP199_phaseII,3A,c3,C3/C03,NREM first 210 min,scalp_C3,True,True,,32,,0.013993514145424114,0.00333056503303382,0.13294591102652342,False,22,0.8205555555555556,2.669036291954228,1.368324982843016,1.950586538593105,0.09916154659347766,0.0,,,,True
-HUP199_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP199_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP199_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP199_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
-HUP199_phaseII,3B,fz,FZ,N2,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
-HUP199_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
-HUP199_phaseII,3B,fz,FZ,N3,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
-HUP199_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,2437,2464,,,,,,,,,,,,0.22196301216432968,2.5905059517753704,1.125,True
-HUP199_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,306,306,,,,,,,,,,,,0.08346315804696522,6.412962883738809,0.25,True
 HUP205_phaseII,3A,c3,iEEG aggregate,NREM first 210 min,iEEG,True,True,,3,,,0.026446692209345122,0.2384041903808527,False,12,0.9521825396825396,,,,0.019096594853254004,11.0,,,,True
 HUP205_phaseII,3A,c3,C3/C03,NREM first 210 min,scalp_C3,True,True,,3,,,0.1473605560222297,0.2384041903808527,False,12,0.9521825396825396,,,,0.0411680463098695,2.0,,,,True
-HUP205_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP205_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP205_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP205_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,True,,576,607,,,,,,,,,,,,0.05713509800868704,0.9142632886601726,1.3,True
-HUP205_phaseII,3B,fz,FZ,N2,scalp_FZ,True,True,,86,87,,,,,,,,,,,,0.784706615557871,2.0671428093383266,4.75,True
-HUP205_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,True,,557,579,,,,,,,,,,,,0.35218486255213516,0.7303338321319102,1.1,True
-HUP205_phaseII,3B,fz,FZ,N3,scalp_FZ,True,True,,87,87,,,,,,,,,,,,0.5684048761057269,0.8186424166540063,1.25,True
-HUP205_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,1289,1293,,,,,,,,,,,,-0.11044471761506494,1.6442016884536133,1.2083333333333333,True
-HUP205_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,186,188,,,,,,,,,,,,0.4193771891117415,2.400603501336594,4.5,True
 HUP211_phaseII,3A,c3,iEEG aggregate,NREM first 210 min,iEEG,True,True,,21,,0.017694697110156348,0.018005032139587752,0.0820316358566705,False,36,0.43976190476190474,2.0720867188153025,1.1788610134042528,1.7577023035409742,0.021167583593046015,0.0,,,,True
 HUP211_phaseII,3A,c3,C3/C03,NREM first 210 min,scalp_C3,True,True,,21,,,0.05673862462467023,0.0820316358566705,False,36,0.43976190476190474,,,,-0.003482209370142425,0.0,,,,True
-HUP211_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP211_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP211_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP211_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,True,,767,1024,,,,,,,,,,,,0.5317562267726378,2.2139765240078693,3.25,True
-HUP211_phaseII,3B,fz,FZ,N2,scalp_FZ,True,True,,48,112,,,,,,,,,,,,-0.726662410288587,1.77406983467947,0.25,True
-HUP211_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,True,,1269,1284,,,,,,,,,,,,0.5289909800854262,0.07900724644835053,1.8125,True
-HUP211_phaseII,3B,fz,FZ,N3,scalp_FZ,True,True,,158,158,,,,,,,,,,,,0.308388179458508,-0.06878893140551287,3.5,True
-HUP211_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,3046,3278,,,,,,,,,,,,0.4801429965384407,2.2544346172858085,2.25,True
-HUP211_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,370,400,,,,,,,,,,,,0.16986069644016377,1.9771506191100652,3.75,True
 HUP212_phaseII,3A,c3,iEEG aggregate,NREM first 210 min,iEEG,True,True,,5,,0.02324190287056788,0.01494790350888273,0.17074972298248092,False,17,0.6182539682539683,1.8394785027244451,1.456123038700038,1.2632713402891078,0.07685823881444462,0.0,,,,True
 HUP212_phaseII,3A,c3,C3/C03,NREM first 210 min,scalp_C3,True,True,,5,,0.02017302525131631,0.0012148783950286935,0.17074972298248092,False,17,0.6182539682539683,1.8465629306000246,1.3959728135055451,1.3227785761550503,0.07159732204585105,0.0,,,,True
+HUP160_phaseII,3B,subject_stage,iEEG aggregate,N2,iEEG,True,True,,635,645,,,,,,,,,,,,0.6063698959661561,0.8684853856130893,2.0416666666666665,True
+HUP160_phaseII,3B,f3,F3,N2,scalp_F3,True,True,,98,100,,,,,,,,,,,,0.5152108286785899,1.4010292061441005,0.0,True
+HUP160_phaseII,3B,fz,FZ,N2,scalp_FZ,True,True,,99,102,,,,,,,,,,,,0.5747406020247462,1.1099243146221536,0.0,True
+HUP160_phaseII,3B,subject_stage,iEEG aggregate,N3,iEEG,True,True,,902,919,,,,,,,,,,,,0.1451432469260583,0.17223745242929475,2.5,True
+HUP160_phaseII,3B,f3,F3,N3,scalp_F3,True,True,,158,163,,,,,,,,,,,,0.34286269184438195,0.30458606328935933,0.75,True
+HUP160_phaseII,3B,fz,FZ,N3,scalp_FZ,True,True,,155,159,,,,,,,,,,,,0.34506386136110995,0.3235397773141815,0.75,True
+HUP160_phaseII,3B,subject_stage,iEEG aggregate,NREM,iEEG,True,True,,1878,1925,,,,,,,,,,,,0.5574742948699413,5.606551818538975,2.875,True
+HUP160_phaseII,3B,f3,F3,NREM,scalp_F3,True,True,,310,319,,,,,,,,,,,,0.58790547741041,5.89926650808951,3.25,True
+HUP160_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,310,320,,,,,,,,,,,,0.6577411137420871,5.665598008347357,3.25,True
+HUP185_phaseII,3B,subject_stage,iEEG aggregate,N2,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
+HUP185_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP185_phaseII,3B,fz,FZ,N2,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
+HUP185_phaseII,3B,subject_stage,iEEG aggregate,N3,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
+HUP185_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP185_phaseII,3B,fz,FZ,N3,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
+HUP185_phaseII,3B,subject_stage,iEEG aggregate,NREM,iEEG,True,True,,865,903,,,,,,,,,,,,0.0022172574213647094,0.23688490860311973,0.6666666666666666,True
+HUP185_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP185_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,153,159,,,,,,,,,,,,-0.17501518316285553,0.08474379134452195,1.75,True
+HUP187_phaseII,3B,subject_stage,iEEG aggregate,N2,iEEG,True,True,,496,560,,,,,,,,,,,,1.3004022955618912,1.4330865720326083,3.25,True
+HUP187_phaseII,3B,f3,F3,N2,scalp_F3,True,True,,80,92,,,,,,,,,,,,3.9673800263582666,2.6899972817998434,3.25,True
+HUP187_phaseII,3B,fz,FZ,N2,scalp_FZ,True,True,,77,91,,,,,,,,,,,,3.0869501261053376,2.7552105726074836,4.5,True
+HUP187_phaseII,3B,subject_stage,iEEG aggregate,N3,iEEG,True,True,,1299,1321,,,,,,,,,,,,0.6272538464944779,2.542524813299922,2.5,True
+HUP187_phaseII,3B,f3,F3,N3,scalp_F3,True,True,,241,245,,,,,,,,,,,,0.3499132590026386,0.4328618059177344,2.75,True
+HUP187_phaseII,3B,fz,FZ,N3,scalp_FZ,True,True,,225,229,,,,,,,,,,,,0.020012479929704754,0.5815066338078545,2.5,True
+HUP187_phaseII,3B,subject_stage,iEEG aggregate,NREM,iEEG,True,True,,2383,2434,,,,,,,,,,,,0.16306675461593526,2.013566247662047,2.0,True
+HUP187_phaseII,3B,f3,F3,NREM,scalp_F3,True,True,,421,426,,,,,,,,,,,,0.23873546459156209,0.8111706625346177,3.25,True
+HUP187_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,406,412,,,,,,,,,,,,0.24163520317345974,1.6896627848164867,3.25,True
+HUP191_phaseII,3B,subject_stage,iEEG aggregate,N2,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
+HUP191_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP191_phaseII,3B,fz,FZ,N2,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
+HUP191_phaseII,3B,subject_stage,iEEG aggregate,N3,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
+HUP191_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP191_phaseII,3B,fz,FZ,N3,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
+HUP191_phaseII,3B,subject_stage,iEEG aggregate,NREM,iEEG,True,True,,1364,1370,,,,,,,,,,,,0.12168680308740858,0.3295649236173728,2.9583333333333335,True
+HUP191_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP191_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,206,207,,,,,,,,,,,,0.43012284128215955,0.47652544533436064,2.25,True
+HUP199_phaseII,3B,subject_stage,iEEG aggregate,N2,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
+HUP199_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP199_phaseII,3B,fz,FZ,N2,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
+HUP199_phaseII,3B,subject_stage,iEEG aggregate,N3,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
+HUP199_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP199_phaseII,3B,fz,FZ,N3,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
+HUP199_phaseII,3B,subject_stage,iEEG aggregate,NREM,iEEG,True,True,,2437,2464,,,,,,,,,,,,0.22196301216432968,2.5905059517753704,1.125,True
+HUP199_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP199_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,306,306,,,,,,,,,,,,0.08346315804696522,6.412962883738809,0.25,True
+HUP205_phaseII,3B,subject_stage,iEEG aggregate,N2,iEEG,True,True,,576,607,,,,,,,,,,,,0.05713509800868704,0.9142632886601726,1.3,True
+HUP205_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP205_phaseII,3B,fz,FZ,N2,scalp_FZ,True,True,,86,87,,,,,,,,,,,,0.784706615557871,2.0671428093383266,4.75,True
+HUP205_phaseII,3B,subject_stage,iEEG aggregate,N3,iEEG,True,True,,557,579,,,,,,,,,,,,0.35218486255213516,0.7303338321319102,1.1,True
+HUP205_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP205_phaseII,3B,fz,FZ,N3,scalp_FZ,True,True,,87,87,,,,,,,,,,,,0.5684048761057269,0.8186424166540063,1.25,True
+HUP205_phaseII,3B,subject_stage,iEEG aggregate,NREM,iEEG,True,True,,1289,1293,,,,,,,,,,,,-0.11044471761506494,1.6442016884536133,1.2083333333333333,True
+HUP205_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP205_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,186,188,,,,,,,,,,,,0.4193771891117415,2.400603501336594,4.5,True
+HUP211_phaseII,3B,subject_stage,iEEG aggregate,N2,iEEG,True,True,,767,1024,,,,,,,,,,,,0.5317562267726378,2.2139765240078693,3.25,True
+HUP211_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP211_phaseII,3B,fz,FZ,N2,scalp_FZ,True,True,,48,112,,,,,,,,,,,,-0.726662410288587,1.77406983467947,0.25,True
+HUP211_phaseII,3B,subject_stage,iEEG aggregate,N3,iEEG,True,True,,1269,1284,,,,,,,,,,,,0.5289909800854262,0.07900724644835053,1.8125,True
+HUP211_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP211_phaseII,3B,fz,FZ,N3,scalp_FZ,True,True,,158,158,,,,,,,,,,,,0.308388179458508,-0.06878893140551287,3.5,True
+HUP211_phaseII,3B,subject_stage,iEEG aggregate,NREM,iEEG,True,True,,3046,3278,,,,,,,,,,,,0.4801429965384407,2.2544346172858085,2.25,True
+HUP211_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
+HUP211_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,370,400,,,,,,,,,,,,0.16986069644016377,1.9771506191100652,3.75,True
+HUP212_phaseII,3B,subject_stage,iEEG aggregate,N2,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
 HUP212_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP212_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP212_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP212_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
 HUP212_phaseII,3B,fz,FZ,N2,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
-HUP212_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
+HUP212_phaseII,3B,subject_stage,iEEG aggregate,N3,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
+HUP212_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
 HUP212_phaseII,3B,fz,FZ,N3,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
-HUP212_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,1124,1138,,,,,,,,,,,,0.13164366159516358,0.49583073357371815,2.4166666666666665,True
+HUP212_phaseII,3B,subject_stage,iEEG aggregate,NREM,iEEG,True,True,,1124,1138,,,,,,,,,,,,0.13164366159516358,0.49583073357371815,2.4166666666666665,True
+HUP212_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
 HUP212_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,220,223,,,,,,,,,,,,0.25523964897752444,0.7289642292466703,4.75,True

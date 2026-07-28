@@ -2,7 +2,7 @@
   "3a_sensor": "single C3/C03 scalp channel, Lecci-aligned sensor location but unknown online reference; compared with the frozen iEEG aggregate",
   "3b_sensors": "single F3 (unilateral/reference-incomplete) and Fz (not a Naji sensor), both exploratory one-channel profile clones",
   "code_dirty": true,
-  "code_revision": "376012141ef4d3f396e6e387c2cc3b8d29787c75",
+  "code_revision": "7592317c8d6149756e7791c5bf29e796f3fa2a8f",
   "comparison_design": "within-participant simultaneous EEG-arm comparison: same portal snapshot, frozen night, duration, sample rate, cached ECG/RR, profile-materialized stage labels, and exact intersected finite positive 3A EEG/HR support. The EEG arms differ jointly in modality, location, reference, and contact aggregation, so this does not isolate a pure modality effect",
   "completed_subjects": [
     "HUP160_phaseII",
@@ -14,6 +14,10 @@
     "HUP211_phaseII",
     "HUP212_phaseII"
   ],
+  "csv_artifacts": {
+    "paired_metrics.csv": "normalized observations; unique by subject/question/stage/modality, including exactly one iEEG row per participant-stage for 3B",
+    "role_pair_metrics.csv": "explicit scalp-role pairs; a 3B iEEG observation is intentionally repeated under F3 and Fz when it contributes to both contrasts, so do not pool this table across roles"
+  },
   "exact_naji_label_inventory_status": [
     {
       "current_exact_naji_comparison_available": false,
@@ -79,7 +83,7 @@
   "frozen_qc_grid_path_relative": "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json",
   "frozen_qc_grid_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "frozen_qc_grid_sha256": "f0876c2fd01da0b4efc18a1bf672daffed371d57d5b8630f84f00065c268a057",
-  "generated_at_utc": "2026-07-28T00:17:58.476285+00:00",
+  "generated_at_utc": "2026-07-28T05:29:03.499040+00:00",
   "lc_specificity": "none: these are downstream cortical/cardiac observables. Neither arm records LC neurons, norepinephrine, nor an independently validated LC signal, and neither selectively perturbs LC.",
   "pipeline": "paired_scalp_ieeg_comparison",
   "profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
@@ -96,13 +100,14 @@
     "HUP212_phaseII"
   ],
   "result_files_sha256": {
-    "group_summary.json": "71728f0d6b46bb2d409151b3701d6dc0fda2aae9cfb8e3ba6e0912badee91364",
+    "group_summary.json": "9541f03784cdda4d2965e52b4384762dffc988888ce5721ce689181309bf7191",
     "paired_3A_C3.png": "3f2a3911e7e4dfcb1299e3689a702eb561618638f721139583578c1b22c9bb6d",
-    "paired_3A_C3.svg": "a179e80925dc326f9bd150f77c940024f10b84fd5d566c51c0f1a9bba745ab20",
+    "paired_3A_C3.svg": "4f51ecf2b1e0baac75413921c91124f878dd4a6f1f7b86980eae2cfd010348be",
     "paired_3B_F3_Fz.png": "fc6c1b9d7b06dca2867f0914e254094640970539169f8389236c12c811c77877",
-    "paired_3B_F3_Fz.svg": "0c850d5da90c7ea39983e8d7fae6e6552a1ca1fecbc6a482e2a7cdea5a12d818",
-    "paired_metrics.csv": "224cb10384c3143dff3ced0ccfcca7f7651dd0e375428bf59e3d4583213d485b",
-    "subject_results.json": "0ba9576bdab812b06c6b51fd5eed910e0ac886dd50a63b36ee04d78cddf6da13"
+    "paired_3B_F3_Fz.svg": "e567b662cc2f92d77dd73bd99bffcdadeda369778ed58fb99d5b95c90ce7d2a4",
+    "paired_metrics.csv": "87e3792a1643bef9362ec391d5f93fdf7c921bc346eba550ff4aee0061aa34ef",
+    "role_pair_metrics.csv": "224cb10384c3143dff3ced0ccfcca7f7651dd0e375428bf59e3d4583213d485b",
+    "subject_results.json": "15633f911908f0a7f1dd7b899e47ea6bab475b4a479d84a44b26c46a4223cc9a"
   },
   "run_state": "complete",
   "runtime_versions": {
@@ -154,7 +159,7 @@
       ]
     },
     "manifest_path_relative": "outputs/paired_scalp_inventory/RUN_MANIFEST.json",
-    "manifest_sha256": "59d19f6c5965da5fa224ae2a703da06e3fd0ae27d5916997939da747a8451950",
+    "manifest_sha256": "ec6c0fe28b4bdac826e43ef8eec107c057f738710f151b302010eb315ab00363",
     "n_frozen_hup_participants": 25,
     "paired_3a_eligible_subjects": [
       "HUP160_phaseII",
@@ -172,9 +177,9 @@
     "path_relative": "outputs/paired_scalp_inventory/hup_scalp_channel_inventory.json",
     "reference_warning": "A channel label does not identify its online reference. Presence of A1/A2/M1/M2 also does not prove a reconstructable Naji montage.",
     "selection_was_blind_to_scalp_endpoint_values": true,
-    "sha256": "5eb69ae0f8d8e98909280ebb3b8761caad30b762f868325832f91692b601a246"
+    "sha256": "2e354b17a5753ffc1e9a790c06230cd73a4ca1d4b3b5c1da20ee8a3f43829028"
   },
-  "schema_version": "2026-07-paired-scalp-ieeg-results-v2-shared-support",
+  "schema_version": "2026-07-paired-scalp-ieeg-results-v3-normalized-csv",
   "sleep_label_provenance": "HUP sleep labels are an iEEG-derived delta/SWA GMM proxy without independent visual PSG scoring or EOG/EMG. Holding the same labels fixed controls timing but makes this comparison asymmetric and does not validate a scalp-paper staging pipeline.",
-  "source_tree_sha256": "b74c9de70e62ecd6f7bff002d4451b1c86d0d0988788baf5cd748f5c5153cee0"
+  "source_tree_sha256": "f09dc3c74944cbc393eaafc60f6d2bba02d85efd32f7f0825a08b527cffaaf28"
 }

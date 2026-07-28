@@ -60,6 +60,19 @@ This correction materially changes the descriptive 3A effect estimate and peak a
 not the threshold-pass conclusion. It does not change 3B, whose event analysis does not use this
 3A common-support comparison.
 
+### Flat-file export correction
+
+The v2 role-pair CSV repeated the same iEEG 3B estimate under both `f3` and `fz` for HUP160 and
+HUP187. That repetition was correct for reconstructing each role-specific contrast, but pooling
+the file without `comparison_role` over-weighted those two participants. It did not affect
+`group_summary.json`, the figures, or any headline value because those artifacts are calculated
+directly from one participant record at a time.
+
+In v3, `paired_metrics.csv` is normalized to one observation per
+subject/question/stage/modality. The separate `role_pair_metrics.csv` retains explicit F3/Fz
+pair membership and intentionally repeats a shared iEEG comparator when it contributes to both
+roles; that table must not be pooled across roles.
+
 ## What was held fixed
 
 For each participant, both EEG arms use:
@@ -303,7 +316,8 @@ current paired result must not claim what a clean HUP138 rebuild will show.
 - [3B figure](../outputs/paired_scalp_ieeg/paired_3B_F3_Fz.png)
 - [Group summary](../outputs/paired_scalp_ieeg/group_summary.json)
 - [Participant results](../outputs/paired_scalp_ieeg/subject_results.json)
-- [Tidy metrics](../outputs/paired_scalp_ieeg/paired_metrics.csv)
+- [Normalized subject-stage metrics](../outputs/paired_scalp_ieeg/paired_metrics.csv)
+- [Explicit role-pair metrics](../outputs/paired_scalp_ieeg/role_pair_metrics.csv)
 - [Result manifest](../outputs/paired_scalp_ieeg/RUN_MANIFEST.json)
 - [All-25 scalp inventory](../outputs/paired_scalp_inventory/hup_scalp_channel_inventory.json)
 - [Inventory manifest](../outputs/paired_scalp_inventory/RUN_MANIFEST.json)

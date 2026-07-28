@@ -287,7 +287,7 @@ proxy is proven.” It is:
 | A98 | Transient portal failures could be retried without preserving the failed-run trail | Real HUP retry audit | Add a finalizer that verifies retry bytes and records recovery provenance |
 | A99 | Release validation demanded obsolete v7 directories masquerade as current | Audit-script failure on quarantined outputs | Validate v8 QC artifacts and require explicit legacy markers for old directories |
 | A100 | An invariant auxiliary grid looked indistinguishable from an inactive code path | Real-cache intermediate audit | Serialize finite auxiliary, proxy-stage, final-stage, and disagreement diagnostics |
-| A101 | The real-cache coherence test read obsolete raw stage aggregates and tested no v8 subject | `--require-real-cache` failed while endpoint-local records existed | Materialize the exact v8 3A profile; HUP133/HUP139 real gap geometries now pass calibrated FPR checks |
+| A101 | The real-cache coherence test read obsolete raw stage aggregates and tested no v8 subject | `--require-real-cache` failed while endpoint-local records existed | Materialize the exact v8 3A profile; HUP133/HUP139 real gap geometries passed calibrated FPR checks on the frozen run; report later stale cache lineage as pending by default while keeping publication mode fail-closed |
 
 ## Remaining real blockers
 

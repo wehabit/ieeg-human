@@ -52,6 +52,7 @@ from cache_lc_series import (detect_so_candidates, threshold_so_candidates, SIGM
                              empty_channel_activity_extrema,
                              update_channel_activity_extrema,
                              finalize_channel_activity_qc,
+                             finalize_ecg_cache_qc,
                              STAGING_REFERENCE_MIN_VALID_WINDOWS,
                              STAGING_WELCH_WINDOW_S, STAGING_WELCH_OVERLAP_S)
 from results_3A_tutorial_style import ied_clean_mask
@@ -1099,18 +1100,7 @@ def run(subject, delete_raw=False, force=False):
     hr_coverage = float(np.isfinite(hr_4).mean())
     if failed_chunks:
         raise RuntimeError(f"{len(failed_chunks)} acquisition chunks failed")
-    qc_warnings = []
-    if ecg_failures:
-        rr_1[:] = np.nan
-        rr_4[:] = np.nan
-        hr_1[:] = np.nan
-        hr_4[:] = np.nan
-        hr_coverage = 0.0
-        qc_warnings.append(
-            f"cardiac series invalidated after {len(ecg_failures)} ECG detector exceptions")
-    if hr_coverage < MIN_SIGNAL_COVERAGE:
-        qc_warnings.append(
-            f"HR coverage {hr_coverage:.1%} is below the historical audit80 reference")
+    qc_warnings = finalize_ecg_cache_qc(ecg_failures, hr_coverage)
     if len(ctx) < MIN_CONTACTS:
         qc_warnings.append(
             f"only {len(ctx)} anatomy-eligible contacts; historical audit80 required "

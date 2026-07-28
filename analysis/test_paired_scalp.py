@@ -14,6 +14,10 @@ from cache_paired_scalp import (
     cache_dependency_sha256,
 )
 from paired_scalp_ieeg_comparison import (
+    STAGES_3B,
+    _group_summary,
+    _normalized_csv_rows,
+    _role_pair_csv_rows,
     _shared_3a_materializations,
     _validate_scalp_inventory,
     _validate_scalp_cache,
@@ -186,6 +190,62 @@ result_manifest_path = os.path.join(result_dir, "RUN_MANIFEST.json")
 if os.path.isfile(result_manifest_path):
     with open(result_manifest_path) as handle:
         result_manifest = json.load(handle)
+    with open(os.path.join(result_dir, "subject_results.json")) as handle:
+        paired_results = json.load(handle)
+
+    role_pair_rows = _role_pair_csv_rows(paired_results["subjects"])
+    normalized_rows = _normalized_csv_rows(
+        paired_results["subjects"], role_pair_rows)
+    normalized_keys = [
+        (
+            row["subject"],
+            row["question"],
+            row["stage"],
+            row["modality"],
+        )
+        for row in normalized_rows
+    ]
+    check(
+        "normalized CSV has no duplicate subject/question/stage/modality",
+        len(normalized_keys) == len(set(normalized_keys)),
+    )
+    normalized_ieeg_3b = [
+        row for row in normalized_rows
+        if row["question"] == "3B" and row["modality"] == "iEEG"
+    ]
+    check(
+        "normalized CSV has exactly one iEEG 3B row per subject-stage",
+        len(normalized_ieeg_3b)
+        == len(paired_results["subjects"]) * len(STAGES_3B)
+        and all(
+            row["comparison_role"] == "subject_stage"
+            for row in normalized_ieeg_3b
+        ),
+    )
+    available_scalp_role_keys = {
+        (row["subject"], row["stage"], row["comparison_role"])
+        for row in role_pair_rows
+        if (
+            row["question"] == "3B"
+            and row["modality"] != "iEEG"
+            and row["sensor_available"]
+        )
+    }
+    ieeg_role_keys = {
+        (row["subject"], row["stage"], row["comparison_role"])
+        for row in role_pair_rows
+        if row["question"] == "3B" and row["modality"] == "iEEG"
+    }
+    check(
+        "role-pair CSV retains one iEEG mate for every available scalp role",
+        available_scalp_role_keys == ieeg_role_keys,
+    )
+    check(
+        "CSV normalization leaves authoritative group summary unchanged",
+        _group_summary(paired_results["subjects"])
+        == paired_results["group_summary"],
+    )
+
     hashes_match = all(
         file_sha256(os.path.join(result_dir, name)) == expected
         for name, expected in result_manifest["result_files_sha256"].items()
@@ -195,8 +255,6 @@ if os.path.isfile(result_manifest_path):
         "paired results identify the exact current analysis source tree",
         result_manifest.get("source_tree_sha256") == source_tree_sha256(ROOT),
     )
-    with open(os.path.join(result_dir, "subject_results.json")) as handle:
-        paired_results = json.load(handle)
     common_support_ok = True
     for subject_result in paired_results["subjects"]:
         shared = subject_result["shared_inputs"]

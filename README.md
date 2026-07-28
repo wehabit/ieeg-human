@@ -237,6 +237,9 @@ The scalp sidecars are ignored derived data. The checked-in inventory proves the
 25-person frozen cohort intersection before the comparison accepts the eight selected records.
 The strict, hash-manifested comparison outputs and their interpretation are in
 [`docs/PAIRED_SCALP_IEEG_RESULTS_2026-07.md`](docs/PAIRED_SCALP_IEEG_RESULTS_2026-07.md).
+`outputs/paired_scalp_ieeg/paired_metrics.csv` is the normalized table for pooled descriptive
+work. `role_pair_metrics.csv` retains explicit F3/Fz pair membership and must be filtered by
+`comparison_role`; its shared iEEG comparator can intentionally appear in more than one role.
 
 ## Primary sources
 

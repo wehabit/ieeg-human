@@ -128,6 +128,19 @@ for s in subjects:
     except CacheSubjectSkipped as exc:
         print(f"    {s:18s} intentionally skipped: {exc}")
         continue
+    except RuntimeError as exc:
+        message = str(exc)
+        stale_markers = (
+            "produced by different cache-building source",
+            "was produced by different cache-building source",
+            "has cache schema",
+            "has a stale cache schema",
+            "has a stale cache builder digest",
+        )
+        if not any(marker in message for marker in stale_markers):
+            raise
+        print(f"    {s:18s} non-current cache skipped: {message}")
+        continue
     if d is None:
         continue
     materialized = materialize(d, real_cache_profile)

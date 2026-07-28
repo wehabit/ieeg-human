@@ -19,7 +19,8 @@ Before accepting any paired result this script:
   positive iEEG/scalp sigma and SWA with the shared finite HR support;
 * hashes the shared RR, HR, and stage-label arrays used on both modality arms.
 
-Outputs are strict JSON (no NaN/Infinity), tidy CSV, and PNG/SVG figures.
+Outputs are strict JSON (no NaN/Infinity), a normalized subject-stage CSV, an
+explicit role-pair CSV, and PNG/SVG figures.
 
 Usage
 -----
@@ -85,7 +86,7 @@ DEFAULT_SCALP_INVENTORY = os.path.join(
     "hup_scalp_channel_inventory.json")
 PROFILE_ID = "overlap11_endpoint_local"
 PIPELINE = "paired_scalp_ieeg_comparison"
-RESULT_SCHEMA = "2026-07-paired-scalp-ieeg-results-v2-shared-support"
+RESULT_SCHEMA = "2026-07-paired-scalp-ieeg-results-v3-normalized-csv"
 SCALP_INVENTORY_SCHEMA = "2026-07-hup-scalp-channel-inventory-v1"
 N_SURROGATES_3B = 199
 STAGES_3B = ("N2", "N3", "NREM")
@@ -1187,11 +1188,65 @@ def _group_summary(records):
     return result
 
 
-def _csv_rows(records):
-    def joined_reasons(value):
-        reasons = value.get("support_reasons", []) if isinstance(value, dict) else []
-        return "; ".join(str(reason) for reason in reasons) or None
+def _joined_support_reasons(value):
+    reasons = value.get("support_reasons", []) if isinstance(value, dict) else []
+    return "; ".join(str(reason) for reason in reasons) or None
 
+
+def _ieeg_3b_csv_row(record, stage, comparison_role):
+    ieeg_stage = (
+        record["ieeg"]["result_3b"]
+        .get("stages", {}).get(stage, {})
+    )
+    estimate = ieeg_stage.get("estimate")
+    candidate_count = sum(
+        int(value) for value in
+        ieeg_stage.get("candidate_so_counts_by_contact", {}).values()
+    )
+    return {
+        "subject": record["subject"],
+        "question": "3B",
+        "comparison_role": comparison_role,
+        "sensor": "iEEG aggregate",
+        "stage": stage,
+        "modality": "iEEG",
+        "sensor_available": True,
+        "available": estimate is not None,
+        "unavailability_reason": (
+            None if estimate is not None
+            else _joined_support_reasons(ieeg_stage)
+        ),
+        "n_events_or_bouts": (
+            None if estimate is None else estimate.get("n_so_total")
+        ),
+        "pre_window_candidate_count": candidate_count,
+        "peak_hz": None,
+        "coherence_at_0p02_hz": None,
+        "coherence_analytic_threshold": None,
+        "coherence_above_threshold": None,
+        "coherence_K": None,
+        "shared_support_fraction": None,
+        "sigma_peak_window_mean": None,
+        "swa_same_window_mean": None,
+        "sigma_to_swa_same_peak_window_ratio": None,
+        "xcorr_lecci_direction_peak_r": None,
+        "xcorr_lecci_direction_peak_lag_s": None,
+        "local_hr_change_pct": _metric(
+            estimate, ("event_locked_local_change_pct",)),
+        "pct_above_stage_mean": _metric(
+            estimate, ("pct_above_stage_mean",)),
+        "so_hr_peak_lag_s": _metric(estimate, ("peak_lag_s",)),
+        "exploratory": True,
+    }
+
+
+def _role_pair_csv_rows(records):
+    """Return rows keyed to an explicit scalp comparison role.
+
+    An iEEG estimate is intentionally repeated when the same participant-stage
+    contributes to both the F3 and Fz contrasts.  This table is for reconstructing
+    role-specific pairs, not for pooling observations across roles.
+    """
     rows = []
     for record in records:
         subject = record["subject"]
@@ -1211,7 +1266,7 @@ def _csv_rows(records):
                 "unavailability_reason": (
                     None
                     if result["endpoint_availability"]["spectrum"]
-                    else joined_reasons(result)
+                    else _joined_support_reasons(result)
                 ),
                 "n_events_or_bouts": result.get("n_bouts"),
                 "pre_window_candidate_count": None,
@@ -1293,84 +1348,100 @@ def _csv_rows(records):
             for stage in STAGES_3B:
                 scalp_stage = scalp_role.get("stages", {}).get(stage, {})
                 scalp_est = scalp_stage.get("estimate")
-                ieeg_stage = (
-                    record["ieeg"]["result_3b"]
-                    .get("stages", {}).get(stage, {})
-                )
-                ieeg_est = ieeg_stage.get("estimate")
-                ieeg_candidate_count = sum(
-                    int(value) for value in
-                    ieeg_stage.get(
-                        "candidate_so_counts_by_contact", {}).values()
-                )
-                for (
-                    modality, estimate, sensor, sensor_available, available,
-                    event_count, candidate_count, unavailable_reason,
-                ) in (
-                    (
-                        "iEEG",
-                        ieeg_est,
-                        "iEEG aggregate",
-                        True,
-                        ieeg_est is not None,
-                        (
-                            None if ieeg_est is None
-                            else ieeg_est.get("n_so_total")
-                        ),
-                        ieeg_candidate_count,
-                        (
-                            None if ieeg_est is not None
-                            else joined_reasons(ieeg_stage)
-                        ),
+                rows.append(_ieeg_3b_csv_row(
+                    record, stage, comparison_role=role))
+                rows.append({
+                    "subject": subject,
+                    "question": "3B",
+                    "comparison_role": role,
+                    "sensor": scalp_role.get("channel"),
+                    "stage": stage,
+                    "modality": f"scalp_{role.upper()}",
+                    "sensor_available": True,
+                    "available": scalp_est is not None,
+                    "unavailability_reason": (
+                        None if scalp_est is not None
+                        else _joined_support_reasons(scalp_stage)
                     ),
-                    (
-                        f"scalp_{role.upper()}",
-                        scalp_est,
-                        scalp_role.get("channel"),
-                        True,
-                        scalp_est is not None,
-                        (
-                            None if scalp_est is None
-                            else scalp_est.get("n_so_total")
-                        ),
-                        scalp_stage.get("candidate_so_count"),
-                        (
-                            None if scalp_est is not None
-                            else joined_reasons(scalp_stage)
-                        ),
+                    "n_events_or_bouts": (
+                        None if scalp_est is None
+                        else scalp_est.get("n_so_total")
                     ),
-                ):
-                    rows.append({
-                        "subject": subject,
-                        "question": "3B",
-                        "comparison_role": role,
-                        "sensor": sensor,
-                        "stage": stage,
-                        "modality": modality,
-                        "sensor_available": sensor_available,
-                        "available": available,
-                        "unavailability_reason": unavailable_reason,
-                        "n_events_or_bouts": event_count,
-                        "pre_window_candidate_count": candidate_count,
-                        "peak_hz": None,
-                        "coherence_at_0p02_hz": None,
-                        "coherence_analytic_threshold": None,
-                        "coherence_above_threshold": None,
-                        "coherence_K": None,
-                        "shared_support_fraction": None,
-                        "sigma_peak_window_mean": None,
-                        "swa_same_window_mean": None,
-                        "sigma_to_swa_same_peak_window_ratio": None,
-                        "xcorr_lecci_direction_peak_r": None,
-                        "xcorr_lecci_direction_peak_lag_s": None,
-                        "local_hr_change_pct": _metric(
-                            estimate, ("event_locked_local_change_pct",)),
-                        "pct_above_stage_mean": _metric(
-                            estimate, ("pct_above_stage_mean",)),
-                        "so_hr_peak_lag_s": _metric(
-                            estimate, ("peak_lag_s",)),
-                        "exploratory": True,
-                    })
+                    "pre_window_candidate_count": scalp_stage.get(
+                        "candidate_so_count"),
+                    "peak_hz": None,
+                    "coherence_at_0p02_hz": None,
+                    "coherence_analytic_threshold": None,
+                    "coherence_above_threshold": None,
+                    "coherence_K": None,
+                    "shared_support_fraction": None,
+                    "sigma_peak_window_mean": None,
+                    "swa_same_window_mean": None,
+                    "sigma_to_swa_same_peak_window_ratio": None,
+                    "xcorr_lecci_direction_peak_r": None,
+                    "xcorr_lecci_direction_peak_lag_s": None,
+                    "local_hr_change_pct": _metric(
+                        scalp_est, ("event_locked_local_change_pct",)),
+                    "pct_above_stage_mean": _metric(
+                        scalp_est, ("pct_above_stage_mean",)),
+                    "so_hr_peak_lag_s": _metric(
+                        scalp_est, ("peak_lag_s",)),
+                    "exploratory": True,
+                })
+    return rows
+
+
+def _normalized_csv_rows(records, role_pair_rows=None):
+    """Return one observation per subject/question/stage/modality.
+
+    In particular, each 3B iEEG participant-stage appears exactly once and is
+    not duplicated merely because both an F3 and an Fz scalp comparison exists.
+    The separate role-pair table retains those explicit pair memberships.
+    """
+    if role_pair_rows is None:
+        role_pair_rows = _role_pair_csv_rows(records)
+
+    rows = [
+        dict(row) for row in role_pair_rows
+        if row["question"] == "3A"
+    ]
+    scalp_rows = {
+        (
+            row["subject"],
+            row["stage"],
+            row["modality"],
+        ): row
+        for row in role_pair_rows
+        if row["question"] == "3B" and row["modality"] != "iEEG"
+    }
+    for record in records:
+        for stage in STAGES_3B:
+            rows.append(_ieeg_3b_csv_row(
+                record, stage, comparison_role="subject_stage"))
+            for role in ("f3", "fz"):
+                modality = f"scalp_{role.upper()}"
+                key = (record["subject"], stage, modality)
+                if key not in scalp_rows:
+                    raise RuntimeError(
+                        "role-pair export is missing normalized scalp row "
+                        f"{key!r}"
+                    )
+                rows.append(dict(scalp_rows[key]))
+
+    keys = [
+        (
+            row["subject"],
+            row["question"],
+            row["stage"],
+            row["modality"],
+        )
+        for row in rows
+    ]
+    if len(keys) != len(set(keys)):
+        raise RuntimeError(
+            "normalized CSV would duplicate a "
+            "subject/question/stage/modality observation"
+        )
     return rows
 
 
@@ -1852,6 +1923,18 @@ def main():
             "none: these are downstream cortical/cardiac observables. Neither "
             "arm records LC neurons, norepinephrine, nor an independently "
             "validated LC signal, and neither selectively perturbs LC."),
+        "csv_artifacts": {
+            "paired_metrics.csv": (
+                "normalized observations; unique by "
+                "subject/question/stage/modality, including exactly one iEEG "
+                "row per participant-stage for 3B"
+            ),
+            "role_pair_metrics.csv": (
+                "explicit scalp-role pairs; a 3B iEEG observation is "
+                "intentionally repeated under F3 and Fz when it contributes "
+                "to both contrasts, so do not pool this table across roles"
+            ),
+        },
     }
     full = {
         **metadata,
@@ -1866,8 +1949,16 @@ def main():
         _json_safe({**metadata, "group_summary": summary}),
         os.path.join(output_dir, "group_summary.json"),
     )
-    rows = _csv_rows(records)
-    _write_csv(os.path.join(output_dir, "paired_metrics.csv"), rows)
+    role_pair_rows = _role_pair_csv_rows(records)
+    normalized_rows = _normalized_csv_rows(records, role_pair_rows)
+    _write_csv(
+        os.path.join(output_dir, "paired_metrics.csv"),
+        normalized_rows,
+    )
+    _write_csv(
+        os.path.join(output_dir, "role_pair_metrics.csv"),
+        role_pair_rows,
+    )
     _make_3a_figure(records, output_dir)
     _make_3b_figure(records, output_dir)
     manifest = {
@@ -1879,6 +1970,7 @@ def main():
                 "subject_results.json",
                 "group_summary.json",
                 "paired_metrics.csv",
+                "role_pair_metrics.csv",
                 "paired_3A_C3.png",
                 "paired_3A_C3.svg",
                 "paired_3B_F3_Fz.png",

@@ -83,6 +83,29 @@ HUP_ANATOMY_SELECTION_METHOD = (
 SIGNAL_FLAT_EPSILON_MULTIPLIER = 64.0
 
 
+def finalize_ecg_cache_qc(
+        ecg_failures, hr_coverage, minimum_coverage=MIN_SIGNAL_COVERAGE):
+    """Enforce fatal detector exceptions while retaining low coverage as QC metadata.
+
+    A detector exception can be state-dependent, so successful chunks cannot safely be used as a
+    partial cardiac series.  This is different from a detector that completes successfully but
+    yields sparse usable support: the latter remains available for endpoint-specific support
+    checks and receives a warning here.
+    """
+    failures = list(ecg_failures)
+    if failures:
+        first = failures[0]
+        first_error = first.get("error", "unreported detector error")
+        raise RuntimeError(
+            f"{len(failures)} ECG detector chunks failed; refusing status='ok' cache "
+            f"(first error: {first_error})")
+    warnings = []
+    if hr_coverage < minimum_coverage:
+        warnings.append(
+            f"HR coverage {hr_coverage:.1%} is below the historical audit80 reference")
+    return warnings
+
+
 def sanitize_beats(beats, min_interval_s=0.25):
     """Sort/deduplicate R peaks and enforce the refractory interval sequentially."""
     values = np.unique(np.round(np.asarray(beats, float), 4))
@@ -905,21 +928,7 @@ def _run_with_session(n, hours, force, s):
     hr_coverage = float(np.isfinite(hr_4).mean())
     if failed_chunks:
         raise RuntimeError(f"{len(failed_chunks)} acquisition chunks failed")
-    qc_warnings = []
-    if ecg_failures:
-        # ECG failure cannot be allowed to erase otherwise usable EEG/SO/spindle data.  Because
-        # detector failures may be state-dependent, invalidate the complete cardiac series rather
-        # than silently using only the successful chunks.
-        rr_1[:] = np.nan
-        rr_4[:] = np.nan
-        hr_1[:] = np.nan
-        hr_4[:] = np.nan
-        hr_coverage = 0.0
-        qc_warnings.append(
-            f"cardiac series invalidated after {len(ecg_failures)} ECG detector exceptions")
-    if hr_coverage < MIN_SIGNAL_COVERAGE:
-        qc_warnings.append(
-            f"HR coverage {hr_coverage:.1%} is below the historical audit80 reference")
+    qc_warnings = finalize_ecg_cache_qc(ecg_failures, hr_coverage)
     if len(ctx) < MIN_CONTACTS:
         qc_warnings.append(
             f"only {len(ctx)} lateral-contact candidates; historical audit80 required "

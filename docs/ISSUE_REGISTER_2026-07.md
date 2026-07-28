@@ -25,10 +25,11 @@ an effect, a null effect, or human LC tracking. See
 
 The latest raw-channel selector and numerical flat-line fixes change cache-building source
 lineage, so the current builder correctly rejects those frozen v8 caches as reusable current
-caches. Synthetic coherence calibration passes, while real-cache calibration intentionally
-aborts until the full HUP cache and QC grids are rebuilt. The paired analysis below treats the
-terminal v8 bytes as an explicitly historical, hash-pinned input and does not relabel them as a
-current rebuilt cohort.
+caches. Synthetic coherence calibration passes; default real-cache calibration now reports the
+stale lineage as pending, while publication mode (`--require-real-cache`) still exits nonzero
+until the full HUP cache and QC grids are rebuilt. The paired analysis below treats the terminal
+v8 bytes as an explicitly historical, hash-pinned input and does not relabel them as a current
+rebuilt cohort.
 
 The simultaneous scalp sensitivity does not rescue a hidden consistent 3A effect: eight
 participants have paired iEEG/C3 estimates, but only HUP160 exceeds its analytic 0.02-Hz
@@ -168,6 +169,9 @@ oscillation (SO), and neither SWA nor an SO is an LC measurement.
 | A103 | High selection provenance | **A positive-only sidecar plan could prove that selected C3 channels existed but not that other frozen participants lacked C3.** | **FIXED for this paired frame:** a terminal, snapshot-pinned metadata audit queries all 25 frozen HUP participants, stores every ordered label list and relevant channel geometry, verifies cache/QC/profile/sidecar/source lineage, and forces selected subjects to equal the audited eligible intersection. It finds 15 without C3, HUP138/HUP182 with C3 but no frozen 3A spectrum, and exactly eight eligible paired records. |
 | A104 | Critical 3B QC | **The HUP 3B path replaced the materialized frontal/activity mask with all-True, potentially re-admitting numerically flat contacts and legacy standard-scalp labels.** | **FIXED:** use the materialized `frontal_contact_mask` for every cohort, require exact contact-shape alignment, and regress a removed HUP contact against re-entry. |
 | A105 | Moderate reporting | **The paired CSV labeled pre-window scalp SO candidates as analyzed events and omitted absent-sensor, coherence-threshold, \(K\), and pass-status fields.** | **FIXED:** analyzed-event counts now use the final estimator; pre-window candidates have a separate column; sensor absence is explicit; and 3A threshold, \(K\), pass, shared-support, and SWA-control fields are reconstructable from CSV. |
+| A106 | Moderate export integrity | **The role-pair CSV repeated the shared iEEG 3B estimate under both F3 and Fz for HUP160/HUP187, so pooling rows without `comparison_role` over-weighted those participants.** | **FIXED without changing estimators:** `paired_metrics.csv` is normalized to one observation per subject/question/stage/modality. `role_pair_metrics.csv` separately retains intentional role membership and warns against pooling across roles. A regression requires unique normalized keys and exact role-specific group summaries. |
+| A107 | High cardiac/cache contract | **Both cache builders caught ECG-detector exceptions, nulled RR/HR, retained partial beats, and still serialized `status="ok"`, contradicting A62/A72 and the documented fatal-failure contract.** | **FIXED fail-closed:** a shared finalizer raises on any detector exception before serialization in both HUP and RESPect builders. Successfully completed but low-coverage ECG remains an endpoint-support condition, not an execution failure. Regressions cover both cases. No frozen production cache recorded an ECG exception, so this correction does not change the current reported values. |
+| A108 | Moderate validation usability | **The coherence calibration's default real-cache section raised an uncaught stale-lineage error locally even though its no-cache CI path reported validation pending.** | **FIXED without weakening publication mode:** recognized stale schema/source lineage is reported as a non-current cache and skipped; unexpected runtime errors still propagate; `--require-real-cache` still fails unless at least one current real cache is actually calibrated. |
 
 ## B. Real concerns that still need to be fixed
 

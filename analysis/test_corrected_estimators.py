@@ -25,7 +25,8 @@ from cache_lc_series import (detect_so_candidates, threshold_so_candidates, sani
                              power_from_binned_support,
                              empty_channel_activity_extrema,
                              update_channel_activity_extrema,
-                             finalize_channel_activity_qc)
+                             finalize_channel_activity_qc,
+                             finalize_ecg_cache_qc)
 from cohort_stages_3ABD import (
     band_sos, fsp_from, nrem_mask_adaptive,
     reliable_two_state_split as mixture_high_tail_split, stage_epochs,
@@ -52,6 +53,28 @@ def check(name, condition):
 
 
 rng = np.random.RandomState(7)
+
+
+low_coverage_warnings = finalize_ecg_cache_qc([], hr_coverage=0.25)
+check(
+    "completed ECG detection permits low coverage and records a warning",
+    len(low_coverage_warnings) == 1
+    and "HR coverage 25.0%" in low_coverage_warnings[0],
+)
+try:
+    finalize_ecg_cache_qc(
+        [{"start_s": 0.0, "duration_s": 60.0, "error": "SyntheticError: detector failed"}],
+        hr_coverage=0.95,
+    )
+except RuntimeError as exc:
+    ecg_failure_rejected = (
+        "ECG detector chunks failed" in str(exc)
+        and "refusing status='ok' cache" in str(exc)
+    )
+else:
+    ecg_failure_rejected = False
+check("ECG detector exceptions are fatal even when nominal coverage is high",
+      ecg_failure_rejected)
 
 
 class _FakeHttp:

@@ -177,6 +177,7 @@ endpoint_cache = ArrayCache({
     "cache_schema_version": np.asarray(CACHE_SCHEMA_VERSION),
     "subject": np.asarray("synthetic"),
     "cortical_chans": np.asarray(["power_only", "stage_a", "stage_b"]),
+    "cortical_signal_nonflat_mask": np.ones(3, bool),
     "sigma_fixed_by_contact": np.r_[
         np.ones((1, 180)), np.full((2, 180), np.nan)],
     "swa_by_contact": np.r_[
@@ -217,6 +218,18 @@ check(
     and endpoint_materialized["staging_qc"][
         "selected_contact_mask"].tolist() == [False, True, True]
     and np.isfinite(endpoint_materialized["ep_dr"]).all(),
+)
+
+legacy_v8_values = copy.deepcopy(endpoint_cache.values)
+legacy_v8_values["cache_schema_version"] = np.asarray(
+    "2026-07-neutral-per-contact-gap-aware-source-pin-v8")
+legacy_v8_values.pop("cortical_signal_nonflat_mask")
+legacy_v8_materialized = materialize(ArrayCache(legacy_v8_values), overlap11)
+check(
+    "legacy v8 caches remain readable with explicit missing-flat-QC provenance",
+    legacy_v8_materialized["cortical_signal_nonflat_mask"].all()
+    and "not applied" in legacy_v8_materialized[
+        "cortical_signal_activity_qc_provenance"],
 )
 
 # Per-second support must be rematerialized from numerator/denominator rather

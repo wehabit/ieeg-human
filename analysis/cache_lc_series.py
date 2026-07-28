@@ -80,6 +80,7 @@ EVENT_3D_IED_PAD_S = 2.5
 HUP_ANATOMY_SELECTION_METHOD = (
     "UNVALIDATED contact-number heuristic; lateral-contact candidates require "
     "coordinate/tissue/SOZ QC")
+SIGNAL_FLAT_EPSILON_MULTIPLIER = 64.0
 
 
 def sanitize_beats(beats, min_interval_s=0.25):
@@ -119,6 +120,78 @@ def prepare_continuous_signal(x, sf, missing_pad_s=MISSING_PAD_S):
     else:
         measured = finite.copy()
     return filled, measured
+
+
+def empty_channel_activity_extrema(n_channels):
+    """Initialize streaming raw-signal extrema for numerical flat-line rejection."""
+    n_channels = int(n_channels)
+    if n_channels < 0:
+        raise ValueError("n_channels must be nonnegative")
+    return dict(
+        minimum=np.full(n_channels, np.inf),
+        maximum=np.full(n_channels, -np.inf),
+        maximum_absolute=np.zeros(n_channels),
+        finite_count=np.zeros(n_channels, dtype=np.int64),
+    )
+
+
+def update_channel_activity_extrema(state, channel_by_sample):
+    """Update raw per-channel extrema from one non-overlapping core data block."""
+    values = np.asarray(channel_by_sample, float)
+    if values.ndim != 2:
+        raise ValueError("channel activity values must be channel-by-sample")
+    n_channels = values.shape[0]
+    required = {"minimum", "maximum", "maximum_absolute", "finite_count"}
+    if set(state) != required or any(
+            np.asarray(state[key]).shape != (n_channels,) for key in required):
+        raise ValueError("channel activity state does not align with the data")
+    for channel in range(n_channels):
+        finite = values[channel][np.isfinite(values[channel])]
+        if not len(finite):
+            continue
+        state["minimum"][channel] = min(
+            state["minimum"][channel], float(np.min(finite)))
+        state["maximum"][channel] = max(
+            state["maximum"][channel], float(np.max(finite)))
+        state["maximum_absolute"][channel] = max(
+            state["maximum_absolute"][channel], float(np.max(np.abs(finite))))
+        state["finite_count"][channel] += len(finite)
+    return state
+
+
+def finalize_channel_activity_qc(state):
+    """Reject only numerical flat lines, without imposing a physiological amplitude gate."""
+    minimum = np.asarray(state["minimum"], float)
+    maximum = np.asarray(state["maximum"], float)
+    maximum_absolute = np.asarray(state["maximum_absolute"], float)
+    finite_count = np.asarray(state["finite_count"], np.int64)
+    if not (
+        minimum.shape == maximum.shape == maximum_absolute.shape == finite_count.shape
+    ):
+        raise ValueError("channel activity extrema arrays must align")
+    dynamic_range = maximum - minimum
+    tolerance = (
+        SIGNAL_FLAT_EPSILON_MULTIPLIER
+        * np.finfo(float).eps
+        * np.maximum(1.0, maximum_absolute)
+    )
+    nonflat = (
+        (finite_count >= 2)
+        & np.isfinite(dynamic_range)
+        & (dynamic_range > tolerance)
+    )
+    return dict(
+        minimum=minimum,
+        maximum=maximum,
+        dynamic_range=dynamic_range,
+        numerical_flat_tolerance=tolerance,
+        finite_count=finite_count,
+        nonflat_mask=nonflat,
+        method=(
+            "raw full-interval range must exceed 64 float64 eps times "
+            "max(1, maximum absolute raw value)"
+        ),
+    )
 
 
 def staging_epoch_features(segment, clean_mask, measured_mask, sf, *, return_details=False):
@@ -647,6 +720,7 @@ def _run_with_session(n, hours, force, s):
     so_candidates = {c: [] for c in ctx}
     failed_chunks = []
     ecg_failures = []
+    channel_activity_state = empty_channel_activity_extrema(len(ctx))
 
     sos_fixed = band_sos(SIGMA_FIXED, sf)
     sos_fsp = band_sos((fsp - 1, fsp + 1), sf)
@@ -673,6 +747,8 @@ def _run_with_session(n, hours, force, s):
         core_n = min(int(round(dur * sf)), max(0, len(d) - core_a))
         core_b = core_a + core_n
         x_ctx, x_ekg = d[:, :len(ctx)], d[:, len(ctx)]
+        update_channel_activity_extrema(
+            channel_activity_state, x_ctx[core_a:core_b].T)
         prepared = [prepare_continuous_signal(x_ctx[:, ci], sf) for ci in range(len(ctx))]
         x_channels = np.asarray([
             notch(signal.detrend(filled), sf) for filled, _ in prepared
@@ -799,8 +875,11 @@ def _run_with_session(n, hours, force, s):
                 ep_valid_window_span_ch[ci, gi] = staging_details["valid_window_span_s"]
         t += dur
 
+    channel_activity_qc = finalize_channel_activity_qc(channel_activity_state)
+    nonflat_contacts = channel_activity_qc["nonflat_mask"]
     sig_fixed, sigma_contact_qc = _aggregate_full_night_power(
-        sig_fixed_ch, min_contact_coverage=MIN_CONTACT_COVERAGE,
+        sig_fixed_ch, eligible_channels=nonflat_contacts,
+        min_contact_coverage=MIN_CONTACT_COVERAGE,
         min_contacts=MIN_CONTACTS,
         min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN,
         return_details=True)
@@ -870,6 +949,14 @@ def _run_with_session(n, hours, force, s):
                    sigma_contact_count=sigma_contact_qc["contact_count"],
                    sigma_n_selected_contacts=sigma_contact_qc["n_selected"],
                    sigma_required_contact_count=sigma_contact_qc["required_contact_count"],
+                   cortical_signal_nonflat_mask=nonflat_contacts,
+                   cortical_signal_raw_minimum=channel_activity_qc["minimum"],
+                   cortical_signal_raw_maximum=channel_activity_qc["maximum"],
+                   cortical_signal_raw_dynamic_range=channel_activity_qc["dynamic_range"],
+                   cortical_signal_numerical_flat_tolerance=(
+                       channel_activity_qc["numerical_flat_tolerance"]),
+                   cortical_signal_finite_sample_count=channel_activity_qc["finite_count"],
+                   cortical_signal_activity_qc_method=channel_activity_qc["method"],
                    staging_selected_contact_mask=staging_contact_qc["selected_contact_mask"],
                    staging_contact_count=staging_contact_qc["contact_count"],
                    staging_n_selected_contacts=staging_contact_qc["n_selected_contacts"],

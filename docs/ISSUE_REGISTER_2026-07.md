@@ -12,8 +12,9 @@ supported by at least one of:
 
 The working tree fixes the confirmed implementation defects marked **FIXED**. The separate
 **OPEN** section contains scientific/validation limitations that code changes have not resolved.
-The v8 neutral caches and locked sensitivity grids supersede the former v7 “all unavailable”
-verdict. Under `overlap11_endpoint_local`, RESPect has 3/3/3 available 3A
+The frozen v8 neutral caches and locked sensitivity grids supersede the former v7 “all
+unavailable” verdict as the audited historical baseline. Under `overlap11_endpoint_local`,
+RESPect has 3/3/3 available 3A
 spectrum/coherence/cross-correlation records and 0/1/2 available 3B N2/N3/pooled records; it
 remains below the default cohort minimum of five. HUP has 24 completed caches plus one explicit
 skip, with 19/14/15 available 3A records, 6/5/15 available 3B records, and 7 descriptive 3D
@@ -21,6 +22,24 @@ records. The historical `audit80` profile still makes most/all endpoints unavail
 that endpoint availability is sensitive to locally introduced engineering rules; it does not prove
 an effect, a null effect, or human LC tracking. See
 [QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md).
+
+The latest raw-channel selector and numerical flat-line fixes change cache-building source
+lineage, so the current builder correctly rejects those frozen v8 caches as reusable current
+caches. Synthetic coherence calibration passes, while real-cache calibration intentionally
+aborts until the full HUP cache and QC grids are rebuilt. The paired analysis below treats the
+terminal v8 bytes as an explicitly historical, hash-pinned input and does not relabel them as a
+current rebuilt cohort.
+
+The simultaneous scalp sensitivity does not rescue a hidden consistent 3A effect: eight
+participants have paired iEEG/C3 estimates, but only HUP160 exceeds its analytic 0.02-Hz
+coherence threshold, in both arms. HUP160 and HUP212 have accepted peaks in the descriptive
+0.015–0.025-Hz neighborhood in both arms, and HUP211 has an iEEG-only target-compatible peak.
+With exact shared support, median coherence is 0.0287 iEEG versus 0.0762 scalp, with an
+exploratory mean-difference sign-flip \(p=0.102\); this is not evidence of equivalence. Exact
+Naji 3B transfer remains unavailable: HUP138 is the only all-cohort F3+F4 label match but has no
+valid frozen staged endpoint, F3 is unilateral in only two paired participants, and Fz was not a
+Naji sensor. See
+[PAIRED_SCALP_IEEG_RESULTS_2026-07.md](PAIRED_SCALP_IEEG_RESULTS_2026-07.md).
 
 Run:
 
@@ -144,7 +163,11 @@ oscillation (SO), and neither SWA nor an SO is an LC measurement.
 | A98 | High acquisition provenance | **Transient HUP portal failures could be repaired by retry without preserving which failed run was replaced.** | **FIXED:** a retry finalizer verifies terminal bytes and records prior manifest hash/run, failed records, retried subjects/files, and recovery method. |
 | A99 | High release validation | **The executable audit required superseded v7 output directories to carry the current version, contradicting their explicit quarantine markers.** | **FIXED:** E6 validates the nine v8 QC/calibration artifacts and separately requires legacy warning markers for obsolete endpoint directories. |
 | A100 | Moderate diagnostic transparency | **An invariant auxiliary-threshold grid was indistinguishable from an inactive parameter path in endpoint-only JSON.** | **FIXED:** profile outputs now record finite EMG/EOG epochs, proxy/final stage counts, label disagreements, and exact auxiliary/iEEG window requirements. Real-cache inspection shows RESP intermediates change but author-constrained labels do not; HUP auxiliary support is explicitly not applicable. |
-| A101 | High release validation | **The publication coherence calibration read obsolete pre-materialized HUP stage arrays, so every current cache appeared to contain zero NREM and `--require-real-cache` failed despite usable endpoint-local records.** | **FIXED:** materialize the locked endpoint-local profile, use its parietal sigma/HR/final stage labels and 210-minute window, and tolerate structured skips. HUP133 and HUP139 now test real bout/gap geometry; all 1/f and 1/f² false-positive rates pass the 2–9% calibration interval. |
+| A101 | High release validation | **The publication coherence calibration read obsolete pre-materialized HUP stage arrays, so every then-current cache appeared to contain zero NREM and `--require-real-cache` failed despite usable endpoint-local records.** | **FIXED in code:** materialize the locked endpoint-local profile, use its parietal sigma/HR/final stage labels and 210-minute window, and tolerate structured skips. The frozen v8 run previously passed its real geometry. Later raw-channel/flat-line builder fixes intentionally invalidate that cache digest; synthetic calibration still passes, and current real-cache mode now correctly requires a complete rebuild rather than silently blessing historical bytes. |
+| A102 | Critical paired-comparison validity | **The first scalp–iEEG 3A draft used arm-specific missingness, so the two coherence values could use different Welch counts and thresholds.** HUP187 used \(K=11\) iEEG versus 8 scalp, HUP199 34 versus 22, and HUP211 71 versus 36. | **FIXED:** intersect finite positive iEEG/scalp sigma+SWA and shared HR before either arm is analyzed; fail unless bout support, \(K\), valid samples, threshold, and exact retained 120-s cross-correlation window starts match. The correction materially changes the coherence effect estimate and adds HUP211 as an iEEG-only target-compatible peak. |
+| A103 | High selection provenance | **A positive-only sidecar plan could prove that selected C3 channels existed but not that other frozen participants lacked C3.** | **FIXED for this paired frame:** a terminal, snapshot-pinned metadata audit queries all 25 frozen HUP participants, stores every ordered label list and relevant channel geometry, verifies cache/QC/profile/sidecar/source lineage, and forces selected subjects to equal the audited eligible intersection. It finds 15 without C3, HUP138/HUP182 with C3 but no frozen 3A spectrum, and exactly eight eligible paired records. |
+| A104 | Critical 3B QC | **The HUP 3B path replaced the materialized frontal/activity mask with all-True, potentially re-admitting numerically flat contacts and legacy standard-scalp labels.** | **FIXED:** use the materialized `frontal_contact_mask` for every cohort, require exact contact-shape alignment, and regress a removed HUP contact against re-entry. |
+| A105 | Moderate reporting | **The paired CSV labeled pre-window scalp SO candidates as analyzed events and omitted absent-sensor, coherence-threshold, \(K\), and pass-status fields.** | **FIXED:** analyzed-event counts now use the final estimator; pre-window candidates have a separate column; sensor absence is explicit; and 3A threshold, \(K\), pass, shared-support, and SWA-control fields are reconstructable from CSV. |
 
 ## B. Real concerns that still need to be fixed
 
@@ -152,13 +175,13 @@ These are blockers, not optional polish.
 
 | ID | Severity | Open concern | Why it is real / required resolution |
 |---|---|---|---|
-| B1 | Critical construct validity | **None of 3A/3B/3D is a validated human LC measure.** | Osorio-Forero directly assayed/manipulated LC/NE only in mice. Lecci’s human arm observed sigma and HR and speculated about arousal generators. Naji measures CNS–ANS timing; Staresina/Helfrich measure SO–spindle nesting. Use “LC-motivated candidate signature” for 3A and “downstream physiology” for 3B/3D. Human LC specificity needs an independent LC/NE-sensitive measurement or intervention. |
+| B1 | Critical construct validity | **None of 3A/3B/3D is a validated human LC measure.** | Osorio-Forero directly assayed/manipulated LC/NE only in mice. Lecci’s human arm observed sigma and HR and speculated about arousal generators. Naji measures CNS–ANS timing; Staresina/Helfrich measure SO–spindle nesting. Jacobsen et al. 2026 adds direct mouse LC/NE evidence, but its human arm again measures HR, sigma, and memory rather than LC/NE. Use “LC-motivated candidate signature” for 3A and “downstream physiology” for 3B/3D. Human LC specificity needs an independent LC/NE-sensitive measurement or intervention. |
 | B2 | Critical staging validity | **Sleep stages are not source-comparable or expert validated, and strict annotation use sharply limits estimability.** | Lecci used experienced visual scoring; Naji used R&K stable 3-minute bins; Staresina/Helfrich used PSG NREM and artifact-free events. A63/A66 now make RESPect author annotations primary and enforce Naji's duration rule, but the dataset supplies explicit NREM/REM only for RESP0521/RESP0699, curated SWS windows for RESP0699/RESP0724, and unknown sleep for the remaining runs. Unknown sleep therefore remains unclassified in the primary analysis, which can legitimately leave too few participants for a cohort endpoint. HUP’s delta/SWA stages and any RESPect N2/N3 subdivision still lack expert validation. Seeded one-mode skew distributions also pass every BIC/CV/stability/separation gate, proving that density improvement is not evidence for latent stages. Obtain expert scoring/validation; do not lower the annotation or sample-size gates to recover a result. |
 | B3 | Critical source transfer | **The conservative RESPect anatomy filter does not establish scalp-to-iEEG homology, and HUP anatomy/pathology remains unverified.** | A64 removes RESPect contacts explicitly marked pathological/non-cortical and intersects Destrieux ROIs, but Lecci's human core was scalp C3/parietal and Naji used scalp F3/F4. Parietal/postcentral/precuneus iEEG for 3A and frontal iEEG for 3B are motivated adaptations, not validated homologous sensors and not direct LC measurements. HUP still needs coordinates, gray-matter/region labels, bad-contact/SOZ exclusions, and clinical review. A negative result without source validation cannot refute the scalp findings. |
 | B4 | High | **3A’s signal construction is still an approximation.** | Lecci used 0.1 s four-cycle FieldTrip Morlet band power and a second wavelet at 0.5 s steps. This branch caches 1 Hz Hilbert/Butterworth power and uses a custom support-corrected CWT. Benchmark both on identical synthetic signals and at least one raw recording, or retain the “approximation” label. |
 | B5 | Critical raw QC | **No blinded raw-data validation of missing-data boundaries, R peaks, SOs, spindles, artifacts, or stages.** | A30 preserves missingness and the synthetic detectors pass constructed tests, but every source used visual/manual/expert confirmation. The current spindle rule called 248 events (4.13/min) in 60 min of stationary Gaussian noise after 12–16 Hz filtering; a percentile/duration detector necessarily labels some band-limited noise and therefore does not prove spindle identity. Epilepsy IEDs are another demonstrated false-coupling mechanism. Report blinded sensitivity/precision plus spectral/morphologic QC and representative false-positive/negative review, inspect both sides of real acquisition gaps, and exclude pathological contacts and movement/seizure periods. |
 | B6 | High | **The HUP interval is not known sleep onset/lights-off and high delta can select pathology/artifact.** | Lecci core analysis used artifact-free NREM in the first 210 min after sleep onset. The branch selects a high-delta candidate interval from multi-day monitoring. Add verified sleep timing/clinical annotations or a validated automated sleep-onset procedure and prespecify the interval. |
-| B7 | High | **The hard-coded 25-subject cohort has no machine-readable screening trail.** | The available probe script checks only three subjects and no committed manifest supports the claimed candidate/reachable/eligible flow. Commit a screening manifest with every candidate, access result, ECG/iEEG/anatomy QC, inclusion/exclusion reason, and reviewer/date. |
+| B7 | High | **The hard-coded 25-subject cohort still lacks a complete clinical/anatomical screening trail.** | A103 now provides a machine-readable all-25 scalp-label/access/geometry and paired-eligibility trail, so the scalp subset is no longer a positive-only claim. It does not establish why these 25 were the parent clinical cohort or provide full ECG/iEEG anatomy, pathology, reviewer, and exclusion provenance. Commit that broader screening manifest. |
 | B8 | High inference | **The 3D N2-like versus N3-like contrast has additional unresolved bias.** | All 3D inference is already disabled under B15. A future stage contrast must also use the same-contact intersection, control unequal event counts, and preserve serial dependence in a within-participant stage/block null; the iid algebraic magnitude correction is invalid. |
 | B9 | High | **Naji’s headline behavioral endpoint is absent.** | Naji’s inferential finding related SO–HR timing to perceptual speed across visits. A physiological timing curve alone does not replicate that finding. Describe 3B as an adapted physiological comparison or collect the behavioral endpoint. |
 | B10 | High endpoint/profile sensitivity | **Endpoint availability changes materially with reasonable engineering architecture and support choices.** | `audit80` makes HUP endpoints unavailable, while the outcome-blind endpoint-local profile yields HUP 3A=19/14/15, 3B=6/5/15, and descriptive 3D=7; RESPect 3A becomes 3/3/3 but remains below cohort `n=5`. The 1–14 staging grid also changes HUP counts nonmonotonically because proxy-stage fits change. Report the complete locked grid, do not promote a profile because of its result, and do not confuse availability with evidence. |
@@ -168,6 +191,7 @@ These are blockers, not optional polish.
 | B14 | High method/raw QC | **Current ECG processing does not replicate Naji's detector and has not been validated on these records.** | Naji filtered ECG at 0.5–100 Hz, used Pan–Tompkins, and visually confirmed R peaks. The pinned code uses NeuroKit2 0.2.13 `method="neurokit"` cleaning/detection; its documented cleaner is a 0.5 Hz high-pass plus power-line filtering and its detector is NeuroKit's own, not Pan–Tompkins. The cache now records this deviation explicitly. Do not silently switch algorithms: compare candidate detectors against blinded manually adjudicated R peaks, report sensitivity/precision/timing error and downstream robustness, then prespecify one. |
 | B15 | Critical inference | **The current 3D event-pairing operation itself induces a shared phase under independence.** | In E17, 25 participants × 3 contacts × 30 minutes of independent spindle/SO trains all pass the pooled QC gate, yet nearest-event selection inside ±2 s yields an invalid participant-rotation p < .001. Analytically, truncating event offsets to a finite SO-centered window is not phase-uniform. Keep every 3D p value disabled until complete spindle trains are shifted/block-resampled relative to SOs and detection, pairing, contact aggregation, and the cohort statistic are repeated inside the null. |
 | B16 | Critical source transfer | **Intracranial polarity/reference is not calibrated to the source definitions.** | Naji defines a negative scalp downstate, but bipolar/depth polarity can reverse, so the same cortical event can be labeled an upstate. A voltage-sign flip also rotates 3D SO phase by π, allowing equal coupling on oppositely oriented contacts to cancel. Prespecify anatomical/reference orientation or validate a sign-invariant/sensitivity analysis before interpreting 3B timing, 3D preferred phase, or a negative result across contacts/participants. |
+| B17 | Critical paired source transfer | **The simultaneous scalp comparison is not a pure modality experiment or an exact paper montage.** | The comparison fixes participant, interval, ECG/RR, iEEG-derived stage labels, and exact finite support, but compares one C3/C03 channel with an intracranial contact aggregate, so location, reference, spatial scale, and aggregation change jointly. The all-25 audit proves eight frozen 3A-eligible C3 records. HUP138 alone has F3+F4 labels but no valid frozen staged endpoint; HUP160/HUP187 provide unilateral F3, and Fz in eight was not a Naji sensor. The portal reference is undocumented, and sidecar v1 cannot recover opposite-polarity SO candidates without re-streaming. The lack of a scalp-only coherence pass does not establish sensor equivalence or refute scalp findings. Obtain exact reference metadata/montage, prespecify polarity sensitivity, independently validate stage/event labels, and use an equivalence design before making a modality claim. |
 
 ## C. Paper-method evidence
 
@@ -214,6 +238,17 @@ These are blockers, not optional polish.
 - direct LC/terminal optogenetics, thalamic NE measurement, receptor blockade, and autonomic
   pharmacology establish a noradrenergic mechanism in mice;
 - they do not validate this branch’s human iEEG/ECG measures as LC-specific.
+
+### Jacobsen et al. 2026
+
+[eLife reviewed preprint](https://elifesciences.org/reviewed-preprints/110252):
+
+- mouse experiments combine cortical NE measurements with LC optogenetics and heart-rate
+  recording, adding causal support for LC/NE contributions to infraslow cardiac dynamics;
+- the human reanalysis measures HR, sigma power, and memory, not LC neurons or NE;
+- the eLife review notes that some human associations were not sigma-specific; and
+- it strengthens the biological rationale for a candidate proxy but does not validate the HUP
+  scalp/iEEG/ECG endpoints as LC-specific.
 
 ### Demuru et al. 2022 / RESPect ds003848
 

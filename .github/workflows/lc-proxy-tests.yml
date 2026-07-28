@@ -38,4 +38,7 @@ jobs:
         env:
           MPLCONFIGDIR: /tmp/matplotlib
       - run: python analysis/test_run_integrity.py
+      - run: python analysis/test_paired_scalp.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
       - run: python analysis/audit_issue_evidence.py

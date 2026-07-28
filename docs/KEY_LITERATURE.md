@@ -130,12 +130,42 @@ those intervals have not been verified as lights-off-to-wake nights. V8 recovers
 endpoint-local estimates but retains unvalidated staging/anatomy and disabled 3B/3D inference;
 availability is not a biological result.
 
+An all-25 snapshot-pinned inventory proves that eight HUP records form the frozen
+3A-eligible C3/C03 intersection. The paired analysis fixes participant, interval, ECG/RR,
+iEEG-derived stage labels, and exact finite sample/window support, but does not fix electrode
+location, reference, spatial scale, or aggregation across arms. HUP160 is the sole
+above-threshold 0.02-Hz coherence participant in both arms; the corrected median coherence is
+0.0287 iEEG versus 0.0762 scalp, which is exploratory and not an equivalence result. HUP138 alone
+has both F3 and F4 labels, but no valid frozen staged endpoint, so exact Naji transfer remains
+unavailable. See
+[the paired scalp–iEEG report](PAIRED_SCALP_IEEG_RESULTS_2026-07.md).
+
 **License summary:** Falach = CC BY 4.0 (commercial OK) · Zurich ds003498 = CC0 (public domain) ·
 Pattnaik atlas = CC-BY-NC-SA-4.0 (non-commercial). Only one of the three is non-commercial.
 
 ---
 
-## Part 2 — Conceptual literature (NOT YET VERIFIED)
+## Part 2 — LC-proxy anchor literature (verified)
+
+- [Lecci et al. 2017](https://pubmed.ncbi.nlm.nih.gov/28246641/) establishes coordinated
+  approximately 0.02-Hz sigma-power and cardiac dynamics in human scalp EEG/ECG, evaluates SWA
+  as a comparison signal, and reports parallel mammalian observations. Its human arm does not
+  record LC or norepinephrine.
+- [Naji et al. 2019](https://escholarship.org/uc/item/5393b9zk) establishes human
+  slow-oscillation–heart-rate timing using scalp F3/F4 and ECG and relates timing to perceptual
+  speed. It is a central–autonomic study, not an LC assay.
+- [Osorio-Forero et al. 2021](https://pubmed.ncbi.nlm.nih.gov/34648731/) directly measures
+  thalamic norepinephrine and manipulates LC in mice, providing causal biological support for
+  LC/NE-linked spindle and heart-rate rhythms. It does not validate the human HUP endpoints as
+  LC-specific.
+- [Jacobsen et al. 2026](https://elifesciences.org/reviewed-preprints/110252) is an eLife
+  reviewed preprint with direct mouse NE/LC experiments and a human HR/sigma/memory reanalysis.
+  The species split matters: the human arm still observes downstream signals rather than LC/NE.
+
+These studies justify the term **LC-motivated candidate proxy**. They do not justify calling a
+human EEG/ECG association a direct or uniquely LC-driven measurement.
+
+## Part 3 — Conceptual literature still to verify
 
 > The references below are placeholders. Each needs its citation (year, journal, DOI) and the
 > specific claim we rely on verified against the primary source before it is finalized here.

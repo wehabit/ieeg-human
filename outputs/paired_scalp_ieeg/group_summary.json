@@ -1,0 +1,901 @@
+{
+  "3a_sensor": "single C3/C03 scalp channel, Lecci-aligned sensor location but unknown online reference; compared with the frozen iEEG aggregate",
+  "3b_sensors": "single F3 (unilateral/reference-incomplete) and Fz (not a Naji sensor), both exploratory one-channel profile clones",
+  "code_dirty": true,
+  "code_revision": "376012141ef4d3f396e6e387c2cc3b8d29787c75",
+  "comparison_design": "within-participant simultaneous EEG-arm comparison: same portal snapshot, frozen night, duration, sample rate, cached ECG/RR, profile-materialized stage labels, and exact intersected finite positive 3A EEG/HR support. The EEG arms differ jointly in modality, location, reference, and contact aggregation, so this does not isolate a pure modality effect",
+  "completed_subjects": [
+    "HUP160_phaseII",
+    "HUP185_phaseII",
+    "HUP187_phaseII",
+    "HUP191_phaseII",
+    "HUP199_phaseII",
+    "HUP205_phaseII",
+    "HUP211_phaseII",
+    "HUP212_phaseII"
+  ],
+  "exact_naji_label_inventory_status": [
+    {
+      "current_exact_naji_comparison_available": false,
+      "frozen_3b_available_stages": [],
+      "reason_if_unavailable": "no valid frozen staged 3B endpoint",
+      "reference_status": "online reference is undocumented; F3/F4 labels alone do not prove Naji's F3/A2 and F4/A1 montage",
+      "subject": "HUP138_phaseII",
+      "unique_f3_and_f4_labels_present": true
+    }
+  ],
+  "exploratory_single_channel_profile": {
+    "cohort": {
+      "minimum_participants": 5
+    },
+    "endpoint_3a": {
+      "minimum_cross_correlation_windows": 1,
+      "minimum_nrem_epochs": 4
+    },
+    "endpoint_3b": {
+      "minimum_contacts": 1,
+      "minimum_finite_rr_samples": 1,
+      "minimum_finite_stage_samples": 100,
+      "minimum_so_per_contact": 30,
+      "so_amplitude_percentile": 75
+    },
+    "endpoint_3d": {
+      "minimum_contact_acquisition_fraction": 0.0,
+      "minimum_contact_event_valid_fraction": 0.0,
+      "minimum_contacts": 3,
+      "minimum_events_per_contact": 20,
+      "minimum_paired_events": 200,
+      "minimum_valid_nrem_fraction_per_contact": 0.8,
+      "minimum_valid_nrem_seconds_per_contact": 1200
+    },
+    "hr": {
+      "minimum_coverage": 0.0
+    },
+    "power": {
+      "aggregation": "overlap_connected_median_polish",
+      "minimum_aggregate_coverage": 0.0,
+      "minimum_clean_fraction_per_second": 0.5,
+      "minimum_contact_coverage": 0.0,
+      "minimum_contact_fraction_per_bin": 0.0,
+      "minimum_contacts": 1
+    },
+    "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
+    "role": "post-audit simultaneous single-scalp-sensor exploratory comparison",
+    "selection_blinded_to_endpoint_values": true,
+    "staging": {
+      "aggregation": "overlap_connected_median_polish",
+      "auxiliary_aggregation": "overlap_connected_median_polish",
+      "minimum_auxiliary_channel_coverage": 0.0,
+      "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+      "minimum_contact_feature_coverage": 0.0,
+      "minimum_contact_fraction_per_epoch": 0.0,
+      "minimum_contacts": 1,
+      "minimum_valid_auxiliary_windows": 14,
+      "minimum_valid_welch_windows": 11
+    }
+  },
+  "exploratory_single_channel_profile_sha256": "513c368a2138b3bb4505d66342043a9c466c45677bb25278c41bedf6bd291ef1",
+  "frozen_qc_grid_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
+  "frozen_qc_grid_path_relative": "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json",
+  "frozen_qc_grid_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
+  "frozen_qc_grid_sha256": "f0876c2fd01da0b4efc18a1bf672daffed371d57d5b8630f84f00065c268a057",
+  "generated_at_utc": "2026-07-28T00:17:58.476285+00:00",
+  "group_summary": {
+    "3A_C3": {
+      "accepted_peak_hz": {
+        "exploratory_exact_signflip_p": 0.75,
+        "exploratory_wilcoxon_p": 0.75,
+        "ieeg_mean": 0.02263650668065476,
+        "ieeg_median": 0.02324190287056788,
+        "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+        "n_pairs": 3,
+        "participants": [
+          "HUP160_phaseII",
+          "HUP187_phaseII",
+          "HUP212_phaseII"
+        ],
+        "scalp_mean": 0.023119888171302463,
+        "scalp_median": 0.021013545597458834,
+        "scalp_minus_ieeg_mean": 0.0004833814906477045,
+        "scalp_minus_ieeg_median": 0.0012310237844135909,
+        "scalp_minus_ieeg_values": [
+          0.003287998306781094,
+          0.0012310237844135909,
+          -0.0030688776192515713
+        ],
+        "signflip_statistic": "absolute mean paired difference"
+      },
+      "coherence_at_0p02_hz": {
+        "exploratory_exact_signflip_p": 0.1015625,
+        "exploratory_wilcoxon_p": 0.109375,
+        "ieeg_mean": 0.07880910149758516,
+        "ieeg_median": 0.028721642928001345,
+        "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+        "n_pairs": 8,
+        "participants": [
+          "HUP160_phaseII",
+          "HUP185_phaseII",
+          "HUP187_phaseII",
+          "HUP191_phaseII",
+          "HUP199_phaseII",
+          "HUP205_phaseII",
+          "HUP211_phaseII",
+          "HUP212_phaseII"
+        ],
+        "scalp_mean": 0.10567101553998051,
+        "scalp_median": 0.07619630741282625,
+        "scalp_minus_ieeg_mean": 0.026861914042395352,
+        "scalp_minus_ieeg_median": 0.023485912888180666,
+        "scalp_minus_ieeg_values": [
+          0.0361432089421414,
+          0.018965569417278588,
+          0.01353187505017081,
+          0.028006256359082743,
+          -0.027666028613623748,
+          0.12091386381288458,
+          0.03873359248508247,
+          -0.013733025113854037
+        ],
+        "signflip_statistic": "absolute mean paired difference"
+      },
+      "endpoint_counts": {
+        "accepted_peak_both_subjects": [
+          "HUP160_phaseII",
+          "HUP187_phaseII",
+          "HUP212_phaseII"
+        ],
+        "accepted_peak_ieeg_only_subjects": [
+          "HUP211_phaseII"
+        ],
+        "accepted_peak_scalp_only_subjects": [
+          "HUP191_phaseII",
+          "HUP199_phaseII"
+        ],
+        "both_accepted_peaks": 3,
+        "coherence_above_threshold_both_subjects": [
+          "HUP160_phaseII"
+        ],
+        "coherence_above_threshold_ieeg_only_subjects": [],
+        "coherence_above_threshold_scalp_only_subjects": [],
+        "ieeg_accepted_peak_subjects": [
+          "HUP160_phaseII",
+          "HUP187_phaseII",
+          "HUP211_phaseII",
+          "HUP212_phaseII"
+        ],
+        "ieeg_coherence_above_threshold_subjects": [
+          "HUP160_phaseII"
+        ],
+        "ieeg_target_compatible_accepted_peak_subjects": [
+          "HUP160_phaseII",
+          "HUP211_phaseII",
+          "HUP212_phaseII"
+        ],
+        "paired_coherence": 8,
+        "paired_cross_correlation": 8,
+        "paired_spectra": 8,
+        "requested": 8,
+        "scalp_accepted_peak_subjects": [
+          "HUP160_phaseII",
+          "HUP187_phaseII",
+          "HUP191_phaseII",
+          "HUP199_phaseII",
+          "HUP212_phaseII"
+        ],
+        "scalp_coherence_above_threshold_subjects": [
+          "HUP160_phaseII"
+        ],
+        "scalp_target_compatible_accepted_peak_subjects": [
+          "HUP160_phaseII",
+          "HUP212_phaseII"
+        ],
+        "target_compatible_accepted_peak_both_subjects": [
+          "HUP160_phaseII",
+          "HUP212_phaseII"
+        ],
+        "target_compatible_accepted_peak_ieeg_only_subjects": [
+          "HUP211_phaseII"
+        ],
+        "target_compatible_accepted_peak_scalp_only_subjects": [],
+        "target_compatible_peak_band_hz": [
+          0.015,
+          0.025
+        ],
+        "target_compatible_peak_band_status": "descriptive +/-0.005-Hz window around 0.02 Hz requested for interpretation; not a Lecci-defined acceptance threshold"
+      },
+      "lecci_direction_peak_lag_s": {
+        "exploratory_exact_signflip_p": 0.5,
+        "exploratory_wilcoxon_p": 0.5,
+        "ieeg_mean": 2.375,
+        "ieeg_median": 0.0,
+        "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+        "n_pairs": 8,
+        "participants": [
+          "HUP160_phaseII",
+          "HUP185_phaseII",
+          "HUP187_phaseII",
+          "HUP191_phaseII",
+          "HUP199_phaseII",
+          "HUP205_phaseII",
+          "HUP211_phaseII",
+          "HUP212_phaseII"
+        ],
+        "scalp_mean": 0.875,
+        "scalp_median": 0.0,
+        "scalp_minus_ieeg_mean": -1.5,
+        "scalp_minus_ieeg_median": 0.0,
+        "scalp_minus_ieeg_values": [
+          0.0,
+          0.0,
+          0.0,
+          -3.0,
+          0.0,
+          -9.0,
+          0.0,
+          0.0
+        ],
+        "signflip_statistic": "absolute mean paired difference"
+      },
+      "lecci_direction_peak_r": {
+        "exploratory_exact_signflip_p": 0.6953125,
+        "exploratory_wilcoxon_p": 0.84375,
+        "ieeg_mean": 0.07268714856468744,
+        "ieeg_median": 0.07352432005654119,
+        "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+        "n_pairs": 8,
+        "participants": [
+          "HUP160_phaseII",
+          "HUP185_phaseII",
+          "HUP187_phaseII",
+          "HUP191_phaseII",
+          "HUP199_phaseII",
+          "HUP205_phaseII",
+          "HUP211_phaseII",
+          "HUP212_phaseII"
+        ],
+        "scalp_mean": 0.07583748171473786,
+        "scalp_median": 0.08344067436397587,
+        "scalp_minus_ieeg_mean": 0.0031503331500504343,
+        "scalp_minus_ieeg_median": -0.0047032676104322435,
+        "scalp_minus_ieeg_values": [
+          -0.004145618452270919,
+          -0.017973338283876775,
+          -0.005882552206242286,
+          0.03207228712312006,
+          0.028971145294839906,
+          0.022071451456615494,
+          -0.02464979296318844,
+          -0.005260916768593568
+        ],
+        "signflip_statistic": "absolute mean paired difference"
+      },
+      "sigma_to_swa_same_peak_window_ratio": {
+        "exploratory_exact_signflip_p": 0.25,
+        "exploratory_wilcoxon_p": 0.25,
+        "ieeg_mean": 1.151364389026119,
+        "ieeg_median": 1.2632713402891078,
+        "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+        "interpretation": "descriptive frequency-specificity control at each arm's fitted sigma-peak window; ratio >1 means normalized sigma-window power exceeded normalized SWA power, not a significance test",
+        "n_pairs": 3,
+        "participants": [
+          "HUP160_phaseII",
+          "HUP187_phaseII",
+          "HUP212_phaseII"
+        ],
+        "scalp_mean": 1.21745792167715,
+        "scalp_median": 1.3227785761550503,
+        "scalp_minus_ieeg_mean": 0.06609353265103095,
+        "scalp_minus_ieeg_median": 0.05950723586594253,
+        "scalp_minus_ieeg_values": [
+          0.10742730677508039,
+          0.03134605531206991,
+          0.05950723586594253
+        ],
+        "signflip_statistic": "absolute mean paired difference"
+      }
+    },
+    "3B": {
+      "f3": {
+        "N2": {
+          "event_locked_local_change_pct": {
+            "exploratory_exact_signflip_p": 1.0,
+            "exploratory_wilcoxon_p": 1.0,
+            "ieeg_mean": 0.9533860957640237,
+            "ieeg_median": 0.9533860957640237,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 2,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "scalp_mean": 2.2412954275184283,
+            "scalp_median": 2.2412954275184283,
+            "scalp_minus_ieeg_mean": 1.2879093317544048,
+            "scalp_minus_ieeg_median": 1.2879093317544048,
+            "scalp_minus_ieeg_values": [
+              -0.09115906728756618,
+              2.6669777307963756
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "pct_above_stage_mean": {
+            "exploratory_exact_signflip_p": 0.5,
+            "exploratory_wilcoxon_p": 0.5,
+            "ieeg_mean": 1.1507859788228487,
+            "ieeg_median": 1.1507859788228487,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 2,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "scalp_mean": 2.045513243971972,
+            "scalp_median": 2.045513243971972,
+            "scalp_minus_ieeg_mean": 0.8947272651491232,
+            "scalp_minus_ieeg_median": 0.8947272651491232,
+            "scalp_minus_ieeg_values": [
+              0.5325438205310112,
+              1.2569107097672352
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "peak_lag_s": {
+            "exploratory_exact_signflip_p": 1.0,
+            "exploratory_wilcoxon_p": 1.0,
+            "ieeg_mean": 2.645833333333333,
+            "ieeg_median": 2.645833333333333,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 2,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "scalp_mean": 1.625,
+            "scalp_median": 1.625,
+            "scalp_minus_ieeg_mean": -1.0208333333333333,
+            "scalp_minus_ieeg_median": -1.0208333333333333,
+            "scalp_minus_ieeg_values": [
+              -2.0416666666666665,
+              0.0
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          }
+        },
+        "N3": {
+          "event_locked_local_change_pct": {
+            "exploratory_exact_signflip_p": 1.0,
+            "exploratory_wilcoxon_p": 1.0,
+            "ieeg_mean": 0.3861985467102681,
+            "ieeg_median": 0.3861985467102681,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 2,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "scalp_mean": 0.3463879754235103,
+            "scalp_median": 0.3463879754235103,
+            "scalp_minus_ieeg_mean": -0.03981057128675783,
+            "scalp_minus_ieeg_median": -0.03981057128675783,
+            "scalp_minus_ieeg_values": [
+              0.19771944491832366,
+              -0.2773405874918393
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "pct_above_stage_mean": {
+            "exploratory_exact_signflip_p": 1.0,
+            "exploratory_wilcoxon_p": 1.0,
+            "ieeg_mean": 1.3573811328646084,
+            "ieeg_median": 1.3573811328646084,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 2,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "scalp_mean": 0.36872393460354685,
+            "scalp_median": 0.36872393460354685,
+            "scalp_minus_ieeg_mean": -0.9886571982610615,
+            "scalp_minus_ieeg_median": -0.9886571982610615,
+            "scalp_minus_ieeg_values": [
+              0.13234861086006458,
+              -2.1096630073821876
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "peak_lag_s": {
+            "exploratory_exact_signflip_p": 1.0,
+            "exploratory_wilcoxon_p": 1.0,
+            "ieeg_mean": 2.5,
+            "ieeg_median": 2.5,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 2,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "scalp_mean": 1.75,
+            "scalp_median": 1.75,
+            "scalp_minus_ieeg_mean": -0.75,
+            "scalp_minus_ieeg_median": -0.75,
+            "scalp_minus_ieeg_values": [
+              -1.75,
+              0.25
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          }
+        },
+        "NREM": {
+          "event_locked_local_change_pct": {
+            "exploratory_exact_signflip_p": 0.5,
+            "exploratory_wilcoxon_p": 0.5,
+            "ieeg_mean": 0.36027052474293825,
+            "ieeg_median": 0.36027052474293825,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 2,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "scalp_mean": 0.413320471000986,
+            "scalp_median": 0.413320471000986,
+            "scalp_minus_ieeg_mean": 0.05304994625804778,
+            "scalp_minus_ieeg_median": 0.05304994625804778,
+            "scalp_minus_ieeg_values": [
+              0.030431182540468726,
+              0.07566870997562683
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "pct_above_stage_mean": {
+            "exploratory_exact_signflip_p": 1.0,
+            "exploratory_wilcoxon_p": 1.0,
+            "ieeg_mean": 3.8100590331005106,
+            "ieeg_median": 3.8100590331005106,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 2,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "scalp_mean": 3.355218585312064,
+            "scalp_median": 3.355218585312064,
+            "scalp_minus_ieeg_mean": -0.4548404477884471,
+            "scalp_minus_ieeg_median": -0.4548404477884471,
+            "scalp_minus_ieeg_values": [
+              0.29271468955053503,
+              -1.2023955851274293
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "peak_lag_s": {
+            "exploratory_exact_signflip_p": 0.5,
+            "exploratory_wilcoxon_p": 0.5,
+            "ieeg_mean": 2.4375,
+            "ieeg_median": 2.4375,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 2,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "scalp_mean": 3.25,
+            "scalp_median": 3.25,
+            "scalp_minus_ieeg_mean": 0.8125,
+            "scalp_minus_ieeg_median": 0.8125,
+            "scalp_minus_ieeg_values": [
+              0.375,
+              1.25
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          }
+        },
+        "naji_reported_mean_context": {
+          "N2": {
+            "n_participants": 2,
+            "naji_healthy_scalp_reported_mean_pct": 12.09,
+            "our_unilateral_f3_median_over_naji_mean": 0.16919050818626732,
+            "our_unilateral_f3_median_pct": 2.045513243971972,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "warning": "Naji's value is a published group mean, not an acceptance threshold; our F3 is unilateral with an undocumented reference and comes from epilepsy inpatients"
+          },
+          "N3": {
+            "n_participants": 2,
+            "naji_healthy_scalp_reported_mean_pct": 3.35,
+            "our_unilateral_f3_median_over_naji_mean": 0.1100668461503125,
+            "our_unilateral_f3_median_pct": 0.36872393460354685,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII"
+            ],
+            "warning": "Naji's value is a published group mean, not an acceptance threshold; our F3 is unilateral with an undocumented reference and comes from epilepsy inpatients"
+          }
+        },
+        "sensor_inventory": {
+          "note": "sensor presence is distinct from whether a stage-specific endpoint has enough events and cardiac support",
+          "requested_participants": 8,
+          "sensor_absent_n": 6,
+          "sensor_absent_participants": [
+            "HUP185_phaseII",
+            "HUP191_phaseII",
+            "HUP199_phaseII",
+            "HUP205_phaseII",
+            "HUP211_phaseII",
+            "HUP212_phaseII"
+          ],
+          "sensor_present_n": 2,
+          "sensor_present_participants": [
+            "HUP160_phaseII",
+            "HUP187_phaseII"
+          ]
+        }
+      },
+      "fz": {
+        "N2": {
+          "event_locked_local_change_pct": {
+            "exploratory_exact_signflip_p": 0.75,
+            "exploratory_wilcoxon_p": 0.875,
+            "ieeg_mean": 0.623915879077343,
+            "ieeg_median": 0.569063061369397,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 4,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII",
+              "HUP205_phaseII",
+              "HUP211_phaseII"
+            ],
+            "scalp_mean": 0.9299337333498419,
+            "scalp_median": 0.6797236087913086,
+            "scalp_minus_ieeg_mean": 0.30601785427249895,
+            "scalp_minus_ieeg_median": 0.34797111180388707,
+            "scalp_minus_ieeg_values": [
+              -0.0316292939414099,
+              1.7865478305434463,
+              0.727571517549184,
+              -1.258418637061225
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "pct_above_stage_mean": {
+            "exploratory_exact_signflip_p": 0.375,
+            "exploratory_wilcoxon_p": 0.375,
+            "ieeg_mean": 1.3574529425784347,
+            "ieeg_median": 1.1736749303463905,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 4,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII",
+              "HUP205_phaseII",
+              "HUP211_phaseII"
+            ],
+            "scalp_mean": 1.9265868828118584,
+            "scalp_median": 1.9206063220088985,
+            "scalp_minus_ieeg_mean": 0.5691339402334237,
+            "scalp_minus_ieeg_median": 0.6971592248436091,
+            "scalp_minus_ieeg_values": [
+              0.24143892900906427,
+              1.3221240005748753,
+              1.152879520678154,
+              -0.43990668932839916
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "peak_lag_s": {
+            "exploratory_exact_signflip_p": 1.0,
+            "exploratory_wilcoxon_p": 1.0,
+            "ieeg_mean": 2.4604166666666663,
+            "ieeg_median": 2.645833333333333,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 4,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII",
+              "HUP205_phaseII",
+              "HUP211_phaseII"
+            ],
+            "scalp_mean": 2.375,
+            "scalp_median": 2.375,
+            "scalp_minus_ieeg_mean": -0.08541666666666659,
+            "scalp_minus_ieeg_median": -0.39583333333333326,
+            "scalp_minus_ieeg_values": [
+              -2.0416666666666665,
+              1.25,
+              3.45,
+              -3.0
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          }
+        },
+        "N3": {
+          "event_locked_local_change_pct": {
+            "exploratory_exact_signflip_p": 0.625,
+            "exploratory_wilcoxon_p": 0.625,
+            "ieeg_mean": 0.4133932340145244,
+            "ieeg_median": 0.44058792131878066,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 4,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII",
+              "HUP205_phaseII",
+              "HUP211_phaseII"
+            ],
+            "scalp_mean": 0.3104673492137624,
+            "scalp_median": 0.32672602040980897,
+            "scalp_minus_ieeg_mean": -0.102925884800762,
+            "scalp_minus_ieeg_median": -0.010341093095933285,
+            "scalp_minus_ieeg_values": [
+              0.19992061443505166,
+              -0.6072413665647731,
+              0.21622001355359172,
+              -0.22060280062691823
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "pct_above_stage_mean": {
+            "exploratory_exact_signflip_p": 0.75,
+            "exploratory_wilcoxon_p": 0.875,
+            "ieeg_mean": 0.8810258360773693,
+            "ieeg_median": 0.4512856422806025,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 4,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII",
+              "HUP205_phaseII",
+              "HUP211_phaseII"
+            ],
+            "scalp_mean": 0.41372497409263237,
+            "scalp_median": 0.452523205561018,
+            "scalp_minus_ieeg_mean": -0.46730086198473697,
+            "scalp_minus_ieeg_median": -0.029743796665883643,
+            "scalp_minus_ieeg_values": [
+              0.15130232488488674,
+              -1.9610181794920674,
+              0.08830858452209611,
+              -0.1477961778538634
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "peak_lag_s": {
+            "exploratory_exact_signflip_p": 1.0,
+            "exploratory_wilcoxon_p": 1.0,
+            "ieeg_mean": 1.978125,
+            "ieeg_median": 2.15625,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 4,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP187_phaseII",
+              "HUP205_phaseII",
+              "HUP211_phaseII"
+            ],
+            "scalp_mean": 2.0,
+            "scalp_median": 1.875,
+            "scalp_minus_ieeg_mean": 0.021874999999999978,
+            "scalp_minus_ieeg_median": 0.07499999999999996,
+            "scalp_minus_ieeg_values": [
+              -1.75,
+              0.0,
+              0.1499999999999999,
+              1.6875
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          }
+        },
+        "NREM": {
+          "event_locked_local_change_pct": {
+            "exploratory_exact_signflip_p": 0.546875,
+            "exploratory_wilcoxon_p": 0.84375,
+            "ieeg_mean": 0.19596875783468987,
+            "ieeg_median": 0.14735520810554942,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 8,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP185_phaseII",
+              "HUP187_phaseII",
+              "HUP191_phaseII",
+              "HUP199_phaseII",
+              "HUP205_phaseII",
+              "HUP211_phaseII",
+              "HUP212_phaseII"
+            ],
+            "scalp_mean": 0.26030308345140574,
+            "scalp_median": 0.24843742607549207,
+            "scalp_minus_ieeg_mean": 0.06433432561671587,
+            "scalp_minus_ieeg_median": 0.08941763371483516,
+            "scalp_minus_ieeg_values": [
+              0.10026681887214584,
+              -0.17723244058422025,
+              0.07856844855752448,
+              0.30843603819475096,
+              -0.13849985411736446,
+              0.5298219067268064,
+              -0.31028230009827695,
+              0.12359598738236086
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "pct_above_stage_mean": {
+            "exploratory_exact_signflip_p": 0.359375,
+            "exploratory_wilcoxon_p": 0.640625,
+            "ieeg_mean": 1.8964426111887531,
+            "ieeg_median": 1.8288839680578302,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 8,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP185_phaseII",
+              "HUP187_phaseII",
+              "HUP191_phaseII",
+              "HUP199_phaseII",
+              "HUP205_phaseII",
+              "HUP211_phaseII",
+              "HUP212_phaseII"
+            ],
+            "scalp_mean": 2.429526407909358,
+            "scalp_median": 1.833406701963276,
+            "scalp_minus_ieeg_mean": 0.5330837967206049,
+            "scalp_minus_ieeg_median": 0.10300335576268485,
+            "scalp_minus_ieeg_values": [
+              0.05904618980838183,
+              -0.15214111725859777,
+              -0.32390346284556015,
+              0.14696052171698787,
+              3.8224569319634383,
+              0.7564018128829806,
+              -0.27728399817574334,
+              0.2331334956729521
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          },
+          "peak_lag_s": {
+            "exploratory_exact_signflip_p": 0.0859375,
+            "exploratory_wilcoxon_p": 0.078125,
+            "ieeg_mean": 1.9375,
+            "ieeg_median": 2.125,
+            "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
+            "n_pairs": 8,
+            "participants": [
+              "HUP160_phaseII",
+              "HUP185_phaseII",
+              "HUP187_phaseII",
+              "HUP191_phaseII",
+              "HUP199_phaseII",
+              "HUP205_phaseII",
+              "HUP211_phaseII",
+              "HUP212_phaseII"
+            ],
+            "scalp_mean": 2.96875,
+            "scalp_median": 3.25,
+            "scalp_minus_ieeg_mean": 1.03125,
+            "scalp_minus_ieeg_median": 1.1666666666666667,
+            "scalp_minus_ieeg_values": [
+              0.375,
+              1.0833333333333335,
+              1.25,
+              -0.7083333333333335,
+              -0.875,
+              3.291666666666667,
+              1.5,
+              2.3333333333333335
+            ],
+            "signflip_statistic": "absolute mean paired difference"
+          }
+        },
+        "sensor_inventory": {
+          "note": "sensor presence is distinct from whether a stage-specific endpoint has enough events and cardiac support",
+          "requested_participants": 8,
+          "sensor_absent_n": 0,
+          "sensor_absent_participants": [],
+          "sensor_present_n": 8,
+          "sensor_present_participants": [
+            "HUP160_phaseII",
+            "HUP185_phaseII",
+            "HUP187_phaseII",
+            "HUP191_phaseII",
+            "HUP199_phaseII",
+            "HUP205_phaseII",
+            "HUP211_phaseII",
+            "HUP212_phaseII"
+          ]
+        }
+      }
+    },
+    "interpretation_guardrail": "These compare downstream cortical/cardiac observables. Agreement between scalp and iEEG does not identify LC as their cause."
+  },
+  "lc_specificity": "none: these are downstream cortical/cardiac observables. Neither arm records LC neurons, norepinephrine, nor an independently validated LC signal, and neither selectively perturbs LC.",
+  "pipeline": "paired_scalp_ieeg_comparison",
+  "profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+  "profile_id": "overlap11_endpoint_local",
+  "profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
+  "requested_subjects": [
+    "HUP160_phaseII",
+    "HUP185_phaseII",
+    "HUP187_phaseII",
+    "HUP191_phaseII",
+    "HUP199_phaseII",
+    "HUP205_phaseII",
+    "HUP211_phaseII",
+    "HUP212_phaseII"
+  ],
+  "runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "scalp_inventory": {
+    "classification_counts": {
+      "c3_present_but_frozen_3a_spectrum_unavailable": 2,
+      "no_c3_or_c03_label": 15,
+      "paired_3a_eligible": 8
+    },
+    "classification_subjects": {
+      "c3_present_but_frozen_3a_spectrum_unavailable": [
+        "HUP138_phaseII",
+        "HUP182_phaseII"
+      ],
+      "no_c3_or_c03_label": [
+        "HUP116_phaseII",
+        "HUP130_phaseII",
+        "HUP133_phaseII",
+        "HUP139_phaseII",
+        "HUP141_phaseII",
+        "HUP143_phaseII",
+        "HUP150_phaseII",
+        "HUP151_phaseII",
+        "HUP157_phaseII",
+        "HUP165_phaseII",
+        "HUP171_phaseII",
+        "HUP172_phaseII",
+        "HUP173_phaseII",
+        "HUP177_phaseII",
+        "HUP178_phaseII"
+      ],
+      "paired_3a_eligible": [
+        "HUP160_phaseII",
+        "HUP185_phaseII",
+        "HUP187_phaseII",
+        "HUP191_phaseII",
+        "HUP199_phaseII",
+        "HUP205_phaseII",
+        "HUP211_phaseII",
+        "HUP212_phaseII"
+      ]
+    },
+    "manifest_path_relative": "outputs/paired_scalp_inventory/RUN_MANIFEST.json",
+    "manifest_sha256": "59d19f6c5965da5fa224ae2a703da06e3fd0ae27d5916997939da747a8451950",
+    "n_frozen_hup_participants": 25,
+    "paired_3a_eligible_subjects": [
+      "HUP160_phaseII",
+      "HUP185_phaseII",
+      "HUP187_phaseII",
+      "HUP191_phaseII",
+      "HUP199_phaseII",
+      "HUP205_phaseII",
+      "HUP211_phaseII",
+      "HUP212_phaseII"
+    ],
+    "participants_with_unique_f3_and_f4_labels": [
+      "HUP138_phaseII"
+    ],
+    "path_relative": "outputs/paired_scalp_inventory/hup_scalp_channel_inventory.json",
+    "reference_warning": "A channel label does not identify its online reference. Presence of A1/A2/M1/M2 also does not prove a reconstructable Naji montage.",
+    "selection_was_blind_to_scalp_endpoint_values": true,
+    "sha256": "5eb69ae0f8d8e98909280ebb3b8761caad30b762f868325832f91692b601a246"
+  },
+  "schema_version": "2026-07-paired-scalp-ieeg-results-v2-shared-support",
+  "sleep_label_provenance": "HUP sleep labels are an iEEG-derived delta/SWA GMM proxy without independent visual PSG scoring or EOG/EMG. Holding the same labels fixed controls timing but makes this comparison asymmetric and does not validate a scalp-paper staging pipeline.",
+  "source_tree_sha256": "b74c9de70e62ecd6f7bff002d4451b1c86d0d0988788baf5cd748f5c5153cee0"
+}

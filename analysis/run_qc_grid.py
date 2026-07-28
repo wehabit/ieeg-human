@@ -283,12 +283,13 @@ def analyse_3b(cache, materialized, profile):
     rr = np.asarray(materialized["rr_4"], float)
     lab = np.asarray(materialized["stage_lab"]).astype(str)
     contacts = [str(value) for value in materialized["contacts"]]
-    roi_mask = np.asarray(
-        materialized["frontal_contact_mask"]
-        if materialized["cohort"] == "RESPect"
-        else np.ones(len(contacts), bool),
-        bool,
-    )
+    # ``materialize`` defines the HUP frontal mask as all numerically active
+    # intracranial candidates and the RESPect mask as the active frontal ROI.
+    # Replacing the HUP mask with all-True would re-admit flat channels (and any
+    # legacy standard-scalp label removed by a compatibility overlay) into 3B.
+    roi_mask = np.asarray(materialized["frontal_contact_mask"], bool)
+    if roi_mask.shape != (len(contacts),):
+        raise RuntimeError("3B frontal eligibility mask does not align with contacts")
     eligible_contacts = [
         contact for contact, keep in zip(contacts, roi_mask) if keep
     ]

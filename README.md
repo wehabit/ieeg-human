@@ -19,7 +19,9 @@ Under `overlap11_endpoint_local`, RESPect has 3/3/3 available 3A
 spectrum/coherence/cross-correlation records, 0/1/2 available 3B N2/N3/pooled records, and still
 does not reach the default cohort minimum of five. HUP has 19/14/15 available 3A records,
 6/5/15 available 3B records, and 7 descriptive 3D records among 24 analyzed participants; HUP116
-is one explicit structured skip. Availability is not hypothesis support: 3B and 3D inference is
+is one explicit structured skip. These counts describe the hash-pinned frozen v8 baseline; the
+latest raw-channel/flat-line fixes require a full new HUP cache/grid run before they can be called
+current-builder results. Availability is not hypothesis support: 3B and 3D inference is
 disabled, 3A is heterogeneous, and none of the measures is LC-specific. See the authoritative
 [v8 QC-sensitivity results](docs/QC_SENSITIVITY_RESULTS_2026-07.md), proof-backed
 [issue register](docs/ISSUE_REGISTER_2026-07.md), and
@@ -130,10 +132,13 @@ to rise in deeper NREM. SWA is not a discrete slow-oscillation event and is not 
 - Withdrawn 3A/3B/3D command-line generators, follow-ups, figures, the combined pipeline, and its
   summarizer are hard-stopped.
 
-Synthetic regression tests demonstrate many of the corresponding failure modes and fixes; the issue
-register states additional acceptance checks. Neither substitutes for blinded raw-data QC. The
-RESPect and HUP v8 grids are complete. They recover endpoint-local estimates while retaining the
-open inference and validation limitations below.
+Synthetic regression tests demonstrate many of the corresponding failure modes and fixes; the
+issue register states additional acceptance checks. Neither substitutes for blinded raw-data QC.
+The RESPect and HUP v8 grids are complete as a frozen audited baseline. The latest HUP
+raw-channel/flat-line fixes change the cache-builder digest, so a full current-cache/grid rebuild
+is still required; old v8 bytes are not silently accepted as a current rebuild. The frozen grids
+recover endpoint-local estimates while retaining the open inference and validation limitations
+below.
 
 ## Important unresolved limitations
 
@@ -213,10 +218,25 @@ Run the available checks:
 .venv/bin/python analysis/test_calibrate_staging_windows.py
 .venv/bin/python analysis/test_3B_null.py
 .venv/bin/python analysis/test_run_integrity.py
+.venv/bin/python analysis/test_paired_scalp.py
 .venv/bin/python analysis/test_coherence_calibration.py --require-real-cache
 ```
 
 The last command deliberately fails publication/QC mode if no current real cache was tested.
+
+The simultaneous scalp sensitivity uses the exact frozen HUP interval, ECG/RR, and stage labels:
+
+```bash
+.venv/bin/python analysis/cache_paired_scalp.py \
+  --subjects 160,185,187,191,199,205,211,212 --force
+.venv/bin/python analysis/audit_hup_scalp_inventory.py
+.venv/bin/python analysis/paired_scalp_ieeg_comparison.py
+```
+
+The scalp sidecars are ignored derived data. The checked-in inventory proves the complete
+25-person frozen cohort intersection before the comparison accepts the eight selected records.
+The strict, hash-manifested comparison outputs and their interpretation are in
+[`docs/PAIRED_SCALP_IEEG_RESULTS_2026-07.md`](docs/PAIRED_SCALP_IEEG_RESULTS_2026-07.md).
 
 ## Primary sources
 
@@ -225,6 +245,7 @@ The last command deliberately fails publication/QC mode if no current real cache
 - [Staresina et al. 2015, Nature Neuroscience](https://pmc.ncbi.nlm.nih.gov/articles/PMC4625581/)
 - [Helfrich et al. 2018, Neuron](https://pmc.ncbi.nlm.nih.gov/articles/PMC5754239/)
 - [Osorio-Forero et al. 2021, Current Biology](https://doi.org/10.1016/j.cub.2021.09.041)
+- [Jacobsen et al. 2026, eLife reviewed preprint](https://elifesciences.org/reviewed-preprints/110252)
 
 ## Repository map
 
@@ -236,10 +257,15 @@ The last command deliberately fails publication/QC mode if no current real cache
 - `analysis/materialize_qc_cache.py` — endpoint-local materialization from neutral caches
 - `analysis/qc_profiles_v1.json` — locked QC profiles and sensitivity grids
 - `analysis/run_qc_grid.py` — 3A/3B/3D profile-grid runner
+- `analysis/cache_paired_scalp.py` — pinned simultaneous scalp sidecar builder
+- `analysis/audit_hup_scalp_inventory.py` — all-cohort pinned scalp-label inventory
+- `analysis/paired_scalp_ieeg_comparison.py` — strict paired scalp–iEEG comparison
+- `analysis/test_paired_scalp.py` — sidecar, shared-support, and output-integrity checks
 - `analysis/audit_issue_evidence.py` — executable legacy counterexamples
 - `analysis/test_corrected_estimators.py` — regression tests for confirmed defects
 - `docs/ISSUE_REGISTER_2026-07.md` — prioritized proof, fix status, and acceptance tests
 - `docs/QC_SENSITIVITY_RESULTS_2026-07.md` — authoritative v8 result interpretation
+- `docs/PAIRED_SCALP_IEEG_RESULTS_2026-07.md` — simultaneous scalp–iEEG results and limits
 
 This branch is a standalone study and is not intended to be merged into the separate
 hierarchical-nesting work on `master`.

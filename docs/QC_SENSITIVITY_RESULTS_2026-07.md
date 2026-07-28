@@ -5,6 +5,11 @@
 The v8 rerun changes the **availability** conclusion, but it does not establish a human
 locus-coeruleus (LC) biomarker.
 
+This document describes the exact hash-pinned v8 baseline. Subsequent raw-channel selector and
+numerical flat-line fixes change the cache-builder digest, so the current code intentionally
+rejects these caches as reusable current-build artifacts. A complete HUP cache/grid rebuild is
+still required to measure how those fixes change the cohort-wide results.
+
 - The former fixed-80% pipeline stacked several locally introduced coverage and count gates. It
   made every HUP endpoint unavailable even though the cited papers do not specify a 70%, 75%, 80%,
   or 90% recording-coverage cutoff.

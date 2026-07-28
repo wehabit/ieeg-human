@@ -22,7 +22,10 @@ from cache_lc_series import (detect_so_candidates, threshold_so_candidates, sani
                              _write_multichannel_power, _aggregate_full_night_power,
                              aggregate_staging_features, interpolate_tachograms,
                              staging_epoch_features, _binned_power_values,
-                             power_from_binned_support)
+                             power_from_binned_support,
+                             empty_channel_activity_extrema,
+                             update_channel_activity_extrema,
+                             finalize_channel_activity_qc)
 from cohort_stages_3ABD import (
     band_sos, fsp_from, nrem_mask_adaptive,
     reliable_two_state_split as mixture_high_tail_split, stage_epochs,
@@ -30,6 +33,8 @@ from cohort_stages_3ABD import (
 from cohort_3A_cortical import HUP_SOURCE_PINS, find_night, verify_hup_source_identity
 from infraslow_rr_sigma_coherence import configure_http_session
 from results_3A_tutorial_style import dilate_boolean_mask, ied_clean_mask
+from run_qc_grid import analyse_3b
+from qc_profiles import load_qc_profile
 from stage_ds003848 import (
     score_stages, channel_roles_from_rows, selected_channel_name_mismatches,
     electrode_eligibility_from_rows, event_annotations_from_rows,
@@ -121,6 +126,39 @@ except RuntimeError:
     retargeted_hup_rejected = True
 check("a HUP dataset name retargeted to another snapshot is rejected",
       retargeted_hup_rejected)
+
+scalp_mixed_labels = [
+    "LF1", "LF12", "RF1", "RF12",
+    "F8", "F03", "C3", "C04", "CZ", "A01", "M2", "EKG1",
+]
+selected_intracranial = cortical_module.cortical_channels(scalp_mixed_labels)
+check("conventional and zero-padded 10-20 labels cannot become cortical contacts",
+      selected_intracranial == ["LF12", "RF12"]
+      and all(cortical_module.is_standard_scalp_eeg_label(label)
+              for label in ("F8", "F03", "C3", "C04", "CZ", "A01", "M2")))
+
+
+class _NoCandidateCache:
+    files = ()
+
+
+masked_3b = analyse_3b(
+    _NoCandidateCache(),
+    {
+        "subject": "synthetic",
+        "cohort": "HUP",
+        "rr_4": np.asarray([], float),
+        "stage_lab": np.asarray([], dtype="<U5"),
+        "contacts": np.asarray(["flat", "active"]),
+        "frontal_contact_mask": np.asarray([False, True]),
+        "hr_coverage": 0.0,
+        "hr_meets_profile": False,
+        "staging_qc": {},
+    },
+    load_qc_profile("overlap11_endpoint_local"),
+)
+check("HUP 3B cannot re-admit a contact removed by raw activity QC",
+      masked_3b["eligible_contact_ids"] == ["active"])
 
 
 class _SyntheticNightDataset:
@@ -613,6 +651,34 @@ qualified, contact_qc = _aggregate_full_night_power(
     min_contact_fraction_per_bin=0.80, return_details=True)
 check("disjoint low-coverage contacts cannot masquerade as 100% aggregate coverage",
       np.isnan(qualified).all() and contact_qc["n_selected"] == 0)
+
+# Finite derived power is not evidence that the source voltage varied: detrending/filter roundoff
+# can turn a constant raw channel into tiny positive band power.  The raw activity mask must be
+# inherited by both sigma aggregation and staging-contact selection.
+activity_state = empty_channel_activity_extrema(3)
+update_channel_activity_extrema(
+    activity_state,
+    np.asarray([
+        np.zeros(100),
+        1e6 + np.linspace(0.0, 1e-10, 100),
+        np.sin(np.linspace(0.0, 4 * np.pi, 100)),
+    ]))
+activity_qc = finalize_channel_activity_qc(activity_state)
+finite_power = np.ones((3, 100))
+nonflat_power, nonflat_power_qc = _aggregate_full_night_power(
+    finite_power, eligible_channels=activity_qc["nonflat_mask"],
+    min_contacts=1, return_details=True)
+nonflat_dr, nonflat_swa, _, nonflat_staging_qc = aggregate_staging_features(
+    finite_power, finite_power, finite_power, activity_qc["nonflat_mask"],
+    min_contacts=1, min_contact_feature_coverage=0.0)
+check("numerically flat raw channels cannot pass sigma or staging contact selection",
+      activity_qc["nonflat_mask"].tolist() == [False, False, True]
+      and nonflat_power_qc["selected_mask"].tolist() == [False, False, True]
+      and nonflat_staging_qc["selected_contact_mask"].tolist()
+      == [False, False, True]
+      and np.isfinite(nonflat_power).all()
+      and np.isfinite(nonflat_dr).all()
+      and np.isfinite(nonflat_swa).all())
 
 # Filter/Hilbert context must make a streamed result effectively invariant to an internal 600-s
 # boundary. Without overlap, the synthetic boundary discrepancy is about 7%.

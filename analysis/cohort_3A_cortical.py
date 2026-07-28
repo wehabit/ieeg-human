@@ -39,6 +39,19 @@ with open(HUP_SOURCE_PIN_PATH) as _pin_handle:
 HUP_SOURCE_PIN_SCHEMA_VERSION = _HUP_SOURCE_PIN_PAYLOAD["schema_version"]
 HUP_SOURCE_PINS = _HUP_SOURCE_PIN_PAYLOAD["datasets"]
 
+# Some HUP datasets mix conventional scalp EEG with intracranial channels.  Bare labels such as
+# F8 satisfy the old "letters + contact number" shaft heuristic, so keep an explicit standard
+# scalp/reference deny-list.  ``is_standard_scalp_eeg_label`` also normalizes zero padding.
+STANDARD_SCALP_EEG_LABELS = frozenset({
+    "FP1", "FP2", "FPZ",
+    "F7", "F3", "FZ", "F4", "F8",
+    "T3", "C3", "CZ", "C4", "T4",
+    "T5", "P3", "PZ", "P4", "T6",
+    "O1", "OZ", "O2",
+    "T7", "T8", "P7", "P8",
+    "A1", "A2", "M1", "M2",
+})
+
 
 class NightProbeSourceMismatch(RuntimeError):
     """A worker reopened a different immutable portal snapshot."""
@@ -103,6 +116,15 @@ def delta_ratio(x, sf):
     return float(num / den) if den > 0 else np.nan
 
 
+def is_standard_scalp_eeg_label(label):
+    """Return whether ``label`` is an unadorned conventional scalp/reference name."""
+    value = str(label).strip().upper()
+    match = re.fullmatch(r"([A-Z]+)0*(\d+)", value)
+    if match:
+        value = f"{match.group(1)}{int(match.group(2))}"
+    return value in STANDARD_SCALP_EEG_LABELS
+
+
 def cortical_channels(labels, n_want=6):
     """Return heuristic lateral-contact candidates, not anatomically validated cortex.
 
@@ -113,7 +135,11 @@ def cortical_channels(labels, n_want=6):
     sh = {}
     for l in labels:
         m = re.match(r"^([A-Z]{1,3})(\d+)$", l)
-        if m and not l.upper().startswith(("EKG", "ECG")):
+        if (
+            m
+            and not l.upper().startswith(("EKG", "ECG"))
+            and not is_standard_scalp_eeg_label(l)
+        ):
             sh.setdefault(m.group(1), []).append(int(m.group(2)))
     # Take the highest contact on each shaft. Shaft lengths differ across subjects (HUP165 has
     # 12-contact shafts, most others 8), so an absolute contact-number cutoff would silently drop

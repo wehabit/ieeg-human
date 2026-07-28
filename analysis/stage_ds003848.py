@@ -49,6 +49,9 @@ from cache_lc_series import (detect_so_candidates, threshold_so_candidates, SIGM
                              MIN_CONTACT_FRACTION_PER_BIN, prepare_continuous_signal,
                              aggregate_staging_features, interpolate_tachograms,
                              staging_epoch_features, _binned_power_values,
+                             empty_channel_activity_extrema,
+                             update_channel_activity_extrema,
+                             finalize_channel_activity_qc,
                              STAGING_REFERENCE_MIN_VALID_WINDOWS,
                              STAGING_WELCH_WINDOW_S, STAGING_WELCH_OVERLAP_S)
 from results_3A_tutorial_style import ied_clean_mask
@@ -872,6 +875,7 @@ def run(subject, delete_raw=False, force=False):
     so_candidates = {c: [] for c in ctx}
     failed_chunks = []
     ecg_failures = []
+    channel_activity_state = empty_channel_activity_extrema(len(ctx))
 
     sos_fixed = band_sos(SIGMA_FIXED, sf)
     sos_fsp = band_sos((fsp - 1, fsp + 1), sf)
@@ -909,6 +913,8 @@ def run(subject, delete_raw=False, force=False):
         core_b = core_a + core_n
         x_ie = d[:len(ie)]
         x_ecg = d[len(ie)]
+        update_channel_activity_extrema(
+            channel_activity_state, x_ie[:, core_a:core_b])
         col = len(ie) + 1
         x_emg = d[col:col + len(emg_indices)]
         col += len(emg_indices)
@@ -1038,14 +1044,17 @@ def run(subject, delete_raw=False, force=False):
                 ep_eog_window_power_ch[channel, gi] = details["window_power"]
         t += dur
 
+    channel_activity_qc = finalize_channel_activity_qc(channel_activity_state)
+    nonflat_contacts = channel_activity_qc["nonflat_mask"]
     sig_fixed, sigma_contact_qc = _aggregate_full_night_power(
-        sig_fixed_ch, min_contact_coverage=MIN_CONTACT_COVERAGE,
+        sig_fixed_ch, eligible_channels=nonflat_contacts,
+        min_contact_coverage=MIN_CONTACT_COVERAGE,
         min_contacts=MIN_CONTACTS,
         min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN,
         return_details=True)
     eligible_contacts = sigma_contact_qc["selected_mask"]
     sig_fixed_parietal, parietal_contact_qc = _aggregate_full_night_power(
-        sig_fixed_ch, eligible_channels=parietal_contact_mask,
+        sig_fixed_ch, eligible_channels=(parietal_contact_mask & nonflat_contacts),
         min_contact_coverage=MIN_CONTACT_COVERAGE,
         min_contacts=MIN_CONTACTS,
         min_contact_fraction_per_bin=MIN_CONTACT_FRACTION_PER_BIN,
@@ -1157,11 +1166,20 @@ def run(subject, delete_raw=False, force=False):
                    sigma_contact_count=sigma_contact_qc["contact_count"],
                    sigma_n_selected_contacts=sigma_contact_qc["n_selected"],
                    sigma_required_contact_count=sigma_contact_qc["required_contact_count"],
+                   cortical_signal_nonflat_mask=nonflat_contacts,
+                   cortical_signal_raw_minimum=channel_activity_qc["minimum"],
+                   cortical_signal_raw_maximum=channel_activity_qc["maximum"],
+                   cortical_signal_raw_dynamic_range=channel_activity_qc["dynamic_range"],
+                   cortical_signal_numerical_flat_tolerance=(
+                       channel_activity_qc["numerical_flat_tolerance"]),
+                   cortical_signal_finite_sample_count=channel_activity_qc["finite_count"],
+                   cortical_signal_activity_qc_method=channel_activity_qc["method"],
                    parietal_sigma_coverage=float(np.isfinite(sig_fixed_parietal).mean()),
                    parietal_selected_contact_mask=parietal_contact_qc["selected_mask"],
                    parietal_n_selected_contacts=parietal_contact_qc["n_selected"],
                    frontal_selected_contact_mask=(
-                       frontal_contact_mask & sigma_contact_qc["selected_mask"]),
+                       frontal_contact_mask & nonflat_contacts
+                       & sigma_contact_qc["selected_mask"]),
                    staging_selected_contact_mask=staging_contact_qc["selected_contact_mask"],
                    staging_contact_count=staging_contact_qc["contact_count"],
                    staging_n_selected_contacts=staging_contact_qc["n_selected_contacts"],

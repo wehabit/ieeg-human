@@ -35,6 +35,7 @@ from stage_ds003848 import (
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LEGACY_CACHE_SCHEMA_V8 = "2026-07-neutral-per-contact-gap-aware-source-pin-v8"
 
 
 def _required(cache, key):
@@ -262,27 +263,44 @@ def materialize(cache, profile):
     """Return profile-specific arrays and structured support without modifying the cache."""
     profile = validate_qc_profile(profile)
     schema = npz_scalar_text(cache, "cache_schema_version")
-    if schema != CACHE_SCHEMA_VERSION:
+    if schema not in {CACHE_SCHEMA_VERSION, LEGACY_CACHE_SCHEMA_V8}:
         raise RuntimeError(
             f"cache schema {schema!r} does not match {CACHE_SCHEMA_VERSION!r}")
     contacts = [str(value) for value in _required(cache, "cortical_chans")]
     n_contacts = len(contacts)
-    all_contacts = np.ones(n_contacts, bool)
+    if "cortical_signal_nonflat_mask" in cache.files:
+        nonflat_contacts = np.asarray(
+            cache["cortical_signal_nonflat_mask"], bool).ravel()
+        activity_qc_provenance = (
+            "raw-signal numerical flat-line mask stored by the cache")
+    elif schema == LEGACY_CACHE_SCHEMA_V8:
+        # v8 predates raw-voltage flat-line metadata.  Preserve its prior behaviour explicitly so
+        # pinned results remain inspectable, but never claim that legacy all-True eligibility is a
+        # completed activity check.
+        nonflat_contacts = np.ones(n_contacts, bool)
+        activity_qc_provenance = (
+            "legacy v8 compatibility: activity mask unavailable; all contacts provisionally "
+            "eligible and numerical flat-line exclusion not applied")
+    else:
+        raise RuntimeError(
+            "current neutral cache lacks the required raw-signal activity mask")
+    if len(nonflat_contacts) != n_contacts:
+        raise RuntimeError("raw-signal activity mask does not align with neutral contact matrices")
     if "parietal_contact_mask" in cache.files:
-        parietal = np.asarray(cache["parietal_contact_mask"], bool)
-        frontal = np.asarray(cache["frontal_contact_mask"], bool)
+        parietal = np.asarray(cache["parietal_contact_mask"], bool) & nonflat_contacts
+        frontal = np.asarray(cache["frontal_contact_mask"], bool) & nonflat_contacts
         cohort = "RESPect"
     else:
-        parietal = all_contacts.copy()
-        frontal = all_contacts.copy()
+        parietal = nonflat_contacts.copy()
+        frontal = nonflat_contacts.copy()
         cohort = "HUP"
     if len(parietal) != n_contacts or len(frontal) != n_contacts:
         raise RuntimeError("ROI masks do not align with neutral contact matrices")
 
     prepared_power = _power_matrices(cache, profile)
     sigma_global, swa_global, global_qc = _power_pair(
-        cache, all_contacts, profile, prepared=prepared_power)
-    if np.array_equal(parietal, all_contacts):
+        cache, nonflat_contacts, profile, prepared=prepared_power)
+    if np.array_equal(parietal, nonflat_contacts):
         sigma_parietal = sigma_global
         swa_parietal = swa_global
         parietal_qc = global_qc
@@ -296,7 +314,7 @@ def materialize(cache, profile):
     candidate_contacts = (
         np.asarray(global_qc["sigma"]["selected_mask"], bool)
         if profile["power"]["aggregation"] == "fixed_contact_mean"
-        else all_contacts.copy()
+        else nonflat_contacts.copy()
     )
     ep_dr, ep_swa, ep_clean, staging_qc = _materialize_staging(
         cache, candidate_contacts, profile)
@@ -340,6 +358,8 @@ def materialize(cache, profile):
         subject=npz_scalar_text(cache, "subject"),
         cohort=cohort,
         contacts=np.asarray(contacts, dtype="<U96"),
+        cortical_signal_nonflat_mask=nonflat_contacts,
+        cortical_signal_activity_qc_provenance=activity_qc_provenance,
         parietal_contact_mask=parietal,
         frontal_contact_mask=frontal,
         sigma_global=sigma_global,

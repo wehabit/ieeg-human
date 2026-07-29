@@ -29,6 +29,8 @@ from cache_paired_scalp import (
 )
 from hup_portal import (
     PortalSampleCountMismatch,
+    expected_portal_sample_count,
+    expected_portal_sample_offset,
     find_night,
     pull_continuous_exact,
     validate_hup_series_geometry,
@@ -61,6 +63,21 @@ def check(name, condition):
 check(
     "cache digest includes the active HUP acquisition/source helper",
     "analysis/hup_portal.py" in _CACHE_SOURCE_FILES,
+)
+
+check(
+    "a first-chunk zero offset maps to sample zero without becoming a zero-duration request",
+    expected_portal_sample_offset(0.0, 1024.0) == 0,
+)
+try:
+    expected_portal_sample_count(0.0, 1024.0)
+except ValueError:
+    zero_request_rejected = True
+else:
+    zero_request_rejected = False
+check(
+    "a zero-duration portal request remains invalid",
+    zero_request_rejected,
 )
 
 check(

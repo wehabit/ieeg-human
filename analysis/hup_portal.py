@@ -50,18 +50,27 @@ class PortalSampleCountMismatch(RuntimeError):
     """A portal response did not contain the exact requested sample geometry."""
 
 
-def expected_portal_sample_count(duration_s, sample_rate_hz):
-    """Return the integer sample count for one portal request."""
-    duration_s = float(duration_s)
+def expected_portal_sample_offset(offset_s, sample_rate_hz):
+    """Return the sample index for a finite nonnegative time offset."""
+    offset_s = float(offset_s)
     sample_rate_hz = float(sample_rate_hz)
     if (
-        not np.isfinite([duration_s, sample_rate_hz]).all()
-        or duration_s <= 0
+        not np.isfinite([offset_s, sample_rate_hz]).all()
+        or offset_s < 0
         or sample_rate_hz <= 0
     ):
         raise ValueError(
-            "portal duration and sample rate must be finite and positive")
-    return int(round(duration_s * sample_rate_hz))
+            "portal offset must be finite and nonnegative and sample rate "
+            "must be finite and positive")
+    return int(round(offset_s * sample_rate_hz))
+
+
+def expected_portal_sample_count(duration_s, sample_rate_hz):
+    """Return the positive integer sample count for one portal request."""
+    duration_s = float(duration_s)
+    if not np.isfinite(duration_s) or duration_s <= 0:
+        raise ValueError("portal request duration must be finite and positive")
+    return expected_portal_sample_offset(duration_s, sample_rate_hz)
 
 
 def pull_continuous_exact(

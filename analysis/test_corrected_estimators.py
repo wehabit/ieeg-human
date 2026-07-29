@@ -42,7 +42,8 @@ from cache_lc_series import (detect_so_candidates, threshold_so_candidates, sani
                              empty_channel_activity_extrema,
                              update_channel_activity_extrema,
                              finalize_channel_activity_qc,
-                             finalize_ecg_cache_qc)
+                             finalize_ecg_cache_qc,
+                             require_complete_acquisition)
 from staging_helpers import (
     band_sos, fsp_from, nrem_mask_adaptive,
     reliable_two_state_split as mixture_high_tail_split, stage_epochs,
@@ -106,6 +107,28 @@ else:
     ecg_failure_rejected = False
 check("ECG detector exceptions are fatal even when nominal coverage is high",
       ecg_failure_rejected)
+
+try:
+    require_complete_acquisition([
+        {
+            "start_s": 0.0,
+            "duration_s": 600.0,
+            "error": "ValueError: synthetic portal failure",
+        },
+    ])
+except RuntimeError as exc:
+    acquisition_failure_visible = (
+        "1 acquisition chunks failed" in str(exc)
+        and "start_s=0.0" in str(exc)
+        and "duration_s=600.0" in str(exc)
+        and "ValueError: synthetic portal failure" in str(exc)
+    )
+else:
+    acquisition_failure_visible = False
+check(
+    "fatal acquisition errors retain chunk geometry and the underlying exception",
+    acquisition_failure_visible,
+)
 
 
 class _FakeHttp:

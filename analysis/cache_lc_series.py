@@ -53,7 +53,7 @@ from event_3d_estimators import (
 )
 from hup_portal import (
     COHORT, HUP_SOURCE_PIN_SCHEMA_VERSION, NIGHT_PROBE_WORKERS, cortical_channels,
-    delta_ratio, expected_portal_sample_count, find_night,
+    delta_ratio, expected_portal_sample_count, expected_portal_sample_offset, find_night,
     pull_continuous_exact, validate_hup_series_geometry,
     verify_hup_source_identity,
 )
@@ -103,6 +103,19 @@ HUP_ANATOMY_SELECTION_METHOD = (
     "UNVALIDATED contact-number heuristic; lateral-contact candidates require "
     "coordinate/tissue/SOZ QC")
 SIGNAL_FLAT_EPSILON_MULTIPLIER = 64.0
+
+
+def require_complete_acquisition(failed_chunks):
+    """Reject a partial night while preserving the first actionable failure."""
+    failures = list(failed_chunks)
+    if not failures:
+        return
+    first = failures[0]
+    raise RuntimeError(
+        f"{len(failures)} acquisition chunks failed; "
+        f"first at start_s={first.get('start_s')!r}, "
+        f"duration_s={first.get('duration_s')!r}: "
+        f"{first.get('error', 'unspecified acquisition error')}")
 
 
 def finalize_ecg_cache_qc(
@@ -933,7 +946,7 @@ def _pull_analysis_chunk(source, buffers, t, dur):
             records=buffers.acquisition_sample_counts,
             purpose="analysis_subrequest",
         )
-        core_a = expected_portal_sample_count(t - pull_start, source.sf)
+        core_a = expected_portal_sample_offset(t - pull_start, source.sf)
         requested_core = expected_portal_sample_count(dur, source.sf)
         returned_core = max(
             0, min(len(data), core_a + requested_core) - core_a)
@@ -1253,9 +1266,7 @@ def _finalize_cache_series(source, buffers):
         beats, source.total_s)
     sigma_coverage = float(np.isfinite(sig_fixed).mean())
     hr_coverage = float(np.isfinite(hr_4).mean())
-    if buffers.failed_chunks:
-        raise RuntimeError(
-            f"{len(buffers.failed_chunks)} acquisition chunks failed")
+    require_complete_acquisition(buffers.failed_chunks)
     qc_warnings = finalize_ecg_cache_qc(
         buffers.ecg_failures, hr_coverage)
     if len(source.ctx) < MIN_CONTACTS:

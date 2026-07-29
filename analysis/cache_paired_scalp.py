@@ -54,6 +54,7 @@ from cache_lc_series import (
 )
 from hup_portal import (
     expected_portal_sample_count,
+    expected_portal_sample_offset,
     pull_continuous_exact,
     same_series_geometry,
 )
@@ -704,7 +705,7 @@ def build_subject(subject, *, cache_dir=DEFAULT_IEEG_CACHE,
                 if data.ndim != 2 or data.shape[1] != n_channels:
                     raise RuntimeError(
                         f"portal returned unexpected block shape {data.shape}")
-                core_start = expected_portal_sample_count(
+                core_start = expected_portal_sample_offset(
                     t - pull_start, sf)
                 requested_core = expected_portal_sample_count(duration, sf)
                 returned_core = max(

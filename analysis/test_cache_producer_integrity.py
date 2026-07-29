@@ -4,21 +4,29 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 
 import numpy as np
 
+import cache_paired_scalp as paired_scalp_cache
 from cache_lc_series import (
+    FILTER_EDGE_S,
+    SIGMA_FIXED,
+    SO_BAND_NAJI,
+    SWA_BAND_L,
     conservative_resampled_interval,
     detect_so_candidates,
     event_3d_so_candidates,
     retain_complete_clean_event_3d_candidates,
 )
 from cache_paired_scalp import (
+    HISTORICAL_POWER_SUPPORT,
     IEEG_CACHE_SCHEMA,
     PIPELINE as SCALP_PIPELINE,
     SCALP_CACHE_SCHEMA,
     SCALP_CHANNEL_PLAN,
+    TERMINAL_SIDECAR_MANIFEST_FIELDS,
     _DEPENDENCY_FILES as SCALP_DEPENDENCY_FILES,
     _manifest_config,
     _write_in_progress_manifest,
@@ -26,6 +34,7 @@ from cache_paired_scalp import (
     cache_dependency_sha256,
     freeze_pinned_ieeg_inputs,
     validate_reusable_sidecar_run,
+    validate_terminal_sidecar_manifest,
 )
 from hup_portal import (
     PortalSampleCountMismatch,
@@ -45,11 +54,14 @@ from pipeline_version import (
     atomic_savez,
     cache_code_sha256,
     file_sha256,
+    git_revision,
     require_integer_sample_rate,
     runtime_versions,
+    utc_now,
     write_run_manifest,
 )
 from run_qc_grid import _cache_manifest
+from staging_helpers import CHUNK_S
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -64,6 +76,11 @@ def check(name, condition):
 check(
     "cache digest includes the active HUP acquisition/source helper",
     "analysis/hup_portal.py" in _CACHE_SOURCE_FILES,
+)
+check(
+    "paired scalp plan covers the v9 spectrum-eligible HUP138 candidate",
+    SCALP_CHANNEL_PLAN.get("HUP138_phaseII")
+    == {"c3": "C3", "f3": "F3", "f4": "F4", "fz": "Fz"},
 )
 
 check(
@@ -118,6 +135,45 @@ check(
     "paired-scalp digest follows canonical helper implementations, not withdrawn wrappers",
     CANONICAL_HELPER_SOURCES <= set(SCALP_DEPENDENCY_FILES)
     and not WITHDRAWN_WRAPPER_SOURCES & set(SCALP_DEPENDENCY_FILES),
+)
+
+SCALP_VALIDATION_SOURCE = "analysis/paired_scalp_sidecar_validation.py"
+captured_scalp_dependencies = []
+real_scalp_hash_files = paired_scalp_cache._hash_files
+
+
+def capture_scalp_dependencies(relative_paths):
+    captured_scalp_dependencies.extend(relative_paths)
+    return "a" * 64
+
+
+paired_scalp_cache._hash_files = capture_scalp_dependencies
+try:
+    captured_scalp_digest = cache_dependency_sha256()
+finally:
+    paired_scalp_cache._hash_files = real_scalp_hash_files
+
+check(
+    "validator-only source is outside the paired-scalp producer digest",
+    captured_scalp_digest == "a" * 64
+    and tuple(captured_scalp_dependencies) == SCALP_DEPENDENCY_FILES
+    and SCALP_VALIDATION_SOURCE not in captured_scalp_dependencies,
+)
+sidecar_contract = paired_scalp_cache._validation_contract()
+check(
+    "byte-affecting sidecar contract values remain producer hash-bound",
+    "analysis/cache_paired_scalp.py" in captured_scalp_dependencies
+    and _manifest_config.__module__ == "cache_paired_scalp"
+    and sidecar_contract.channel_plan is SCALP_CHANNEL_PLAN
+    and sidecar_contract.scalp_cache_schema == SCALP_CACHE_SCHEMA
+    and sidecar_contract.ieeg_cache_schema == IEEG_CACHE_SCHEMA
+    and sidecar_contract.filter_edge_s == FILTER_EDGE_S
+    and sidecar_contract.chunk_s == CHUNK_S
+    and sidecar_contract.historical_power_support
+    == HISTORICAL_POWER_SUPPORT
+    and sidecar_contract.sigma_band_hz == tuple(SIGMA_FIXED)
+    and sidecar_contract.swa_band_hz == tuple(SWA_BAND_L)
+    and sidecar_contract.so_band_hz == tuple(SO_BAND_NAJI),
 )
 
 with tempfile.TemporaryDirectory() as digest_root:
@@ -292,6 +348,8 @@ check(
 
 def _geometry(sample_count=100):
     return {
+        "revision_id": "synthetic-revision",
+        "data_check": "synthetic-data-check",
         "start_time_us": 0,
         "end_time_us": 1_000_000,
         "duration_us": 1_000_000.0,
@@ -560,7 +618,27 @@ def _write_sidecar(directory, cache_dir, subject, source_identity):
     source = {
         "dataset_name": subject,
         "snapshot_id": source_identity["snapshot_id"],
+        "reference_ieeg_channel": "A1",
+        "reference_ieeg_identity": source_identity["channels"]["A1"],
         "scalp_role_to_channel": roles,
+        "scalp_channels": {
+            channel: _geometry(FIXTURE_SF)
+            for channel in roles.values()
+        },
+    }
+    n_channels = len(roles)
+    shape = (n_channels, int(FIXTURE_DURATION_S))
+    denominator = np.full(shape, FIXTURE_SF, dtype=np.int64)
+    numerator = np.full(shape, 2.0, dtype=float)
+    power = numerator / denominator
+    minimum = np.zeros(n_channels, dtype=float)
+    maximum = np.ones(n_channels, dtype=float)
+    tolerance = np.full(
+        n_channels, 64 * np.finfo(float).eps, dtype=float)
+    candidates = {
+        f"so_candidate_{field}_{channel}": np.asarray([], dtype=float)
+        for channel in roles.values()
+        for field in ("t", "down", "up", "p2p")
     }
     path = os.path.join(directory, f"{subject}.npz")
     atomic_savez(
@@ -587,12 +665,42 @@ def _write_sidecar(directory, cache_dir, subject, source_identity):
         sf=float(FIXTURE_SF),
         channel_roles_json=json.dumps(roles),
         source_identity_json=json.dumps(source),
+        scalp_chans=np.asarray(list(roles.values()), dtype="<U16"),
+        filter_edge_seconds=float(FILTER_EDGE_S),
+        chunk_seconds=float(CHUNK_S),
+        sigma_band_hz=np.asarray(SIGMA_FIXED, float),
+        swa_band_hz=np.asarray(SWA_BAND_L, float),
+        so_band_hz=np.asarray(SO_BAND_NAJI, float),
+        sigma_fixed_by_channel=power,
+        swa_by_channel=power,
+        sigma_fixed_power_numerator_by_channel=numerator,
+        sigma_fixed_clean_sample_count_by_channel=denominator,
+        swa_power_numerator_by_channel=numerator,
+        swa_clean_sample_count_by_channel=denominator,
+        power_samples_per_second=FIXTURE_SF,
+        power_historical_minimum_clean_fraction_per_second=(
+            HISTORICAL_POWER_SUPPORT),
+        scalp_signal_nonflat_mask=np.ones(n_channels, dtype=bool),
+        scalp_signal_raw_minimum=minimum,
+        scalp_signal_raw_maximum=maximum,
+        scalp_signal_raw_dynamic_range=maximum - minimum,
+        scalp_signal_numerical_flat_tolerance=tolerance,
+        scalp_signal_finite_sample_count=np.full(
+            n_channels, FIXTURE_SF, dtype=np.int64),
+        ecg_reused_not_redetected=True,
+        staging_reused_not_recomputed=True,
+        **candidates,
     )
     atomic_json_dump({
-        "run_id": "synthetic-sidecar-run",
+        "run_id": "11111111-1111-4111-8111-111111111111",
         "schema_version": SCALP_CACHE_SCHEMA,
         "pipeline": SCALP_PIPELINE,
         "run_state": "complete",
+        "analysis_version": ANALYSIS_VERSION,
+        "cache_schema_version": IEEG_CACHE_SCHEMA,
+        "generated_at_utc": utc_now(),
+        "code_revision": git_revision(ROOT),
+        "code_dirty": False,
         "runtime_versions": runtime_versions(),
         "cache_dependency_sha256": dependency,
         "requested": [subject],
@@ -606,6 +714,39 @@ def _write_sidecar(directory, cache_dir, subject, source_identity):
     return path
 
 
+def _rewrite_sidecar_and_rehash(sidecar_path, mutate):
+    with np.load(sidecar_path, allow_pickle=False) as cache:
+        payload = {key: np.asarray(cache[key]) for key in cache.files}
+    mutate(payload)
+    atomic_savez(sidecar_path, **payload)
+    manifest_path = os.path.join(
+        os.path.dirname(sidecar_path), "RUN_MANIFEST.json")
+    with open(manifest_path) as handle:
+        manifest = json.load(handle)
+    subject = str(np.asarray(payload["subject"]).item())
+    manifest["result_files_sha256"][subject] = file_sha256(sidecar_path)
+    atomic_json_dump(manifest, manifest_path)
+
+
+# The implementation under test is necessarily uncommitted in a developer run.
+# Simulate its eventual source commit only for the current-revision fixture;
+# every other revision below is hashed from its real stored Git bytes.
+_real_dependency_sha256_at_revision = (
+    paired_scalp_cache._dependency_sha256_at_revision)
+_fixture_revision = git_revision(ROOT)
+_fixture_dependency_sha256 = cache_dependency_sha256()
+
+
+def _fixture_dependency_sha256_at_revision(revision):
+    if revision == _fixture_revision:
+        return _fixture_dependency_sha256
+    return _real_dependency_sha256_at_revision(revision)
+
+
+paired_scalp_cache._dependency_sha256_at_revision = (
+    _fixture_dependency_sha256_at_revision)
+
+
 with tempfile.TemporaryDirectory() as base_dir, tempfile.TemporaryDirectory() as sidecar_dir:
     paired_subject = "HUP160_phaseII"
     pinned_identity = _write_pinned_ieeg(base_dir, paired_subject)
@@ -617,6 +758,223 @@ with tempfile.TemporaryDirectory() as base_dir, tempfile.TemporaryDirectory() as
         "paired sidecar reuse requires and accepts an exact terminal hash",
         reuse["subjects"][paired_subject]["sha256"] == file_sha256(sidecar_path),
     )
+    sidecar_manifest_path = os.path.join(
+        sidecar_dir, "RUN_MANIFEST.json")
+    with open(sidecar_manifest_path) as handle:
+        valid_sidecar_manifest = json.load(handle)
+    check(
+        "paired sidecar producer fixture uses the exact terminal schema",
+        set(valid_sidecar_manifest) == TERMINAL_SIDECAR_MANIFEST_FIELDS,
+    )
+
+    def terminal_manifest_rejected(mutate):
+        candidate = json.loads(json.dumps(valid_sidecar_manifest))
+        mutate(candidate)
+        try:
+            validate_terminal_sidecar_manifest(
+                candidate,
+                source="synthetic paired-scalp manifest",
+                output_dir=sidecar_dir,
+                cache_dir=base_dir,
+                expected_requested=[paired_subject],
+            )
+        except RuntimeError:
+            return True
+        return False
+
+    check(
+        "paired sidecar terminal validation rejects every missing field",
+        all(
+            terminal_manifest_rejected(
+                lambda candidate, field=field: candidate.pop(field))
+            for field in TERMINAL_SIDECAR_MANIFEST_FIELDS
+        ),
+    )
+    check(
+        "paired sidecar terminal validation rejects extra fields",
+        terminal_manifest_rejected(
+            lambda candidate: candidate.update({"unexpected": True})),
+    )
+    check(
+        "paired sidecar terminal validation rejects dirty production",
+        terminal_manifest_rejected(
+            lambda candidate: candidate.update({"code_dirty": True})),
+    )
+    stale_mutations = (
+        lambda candidate: candidate.update({"analysis_version": "stale"}),
+        lambda candidate: candidate.update({"cache_schema_version": "stale"}),
+        lambda candidate: candidate.update({"schema_version": "stale"}),
+        lambda candidate: candidate.update({
+            "cache_dependency_sha256": "0" * 64}),
+        lambda candidate: candidate.update({"runtime_versions": {}}),
+        lambda candidate: candidate["config"].update({"chunk_seconds": -1}),
+    )
+    check(
+        "paired sidecar terminal validation rejects stale provenance",
+        all(
+            terminal_manifest_rejected(mutate)
+            for mutate in stale_mutations
+        ),
+    )
+    malformed_identity_mutations = (
+        lambda candidate: candidate.update({"run_id": "not-a-uuid"}),
+        lambda candidate: candidate.update({
+            "generated_at_utc": "not-a-timestamp"}),
+        lambda candidate: candidate.update({"code_revision": "f" * 40}),
+    )
+    check(
+        "paired sidecar terminal validation rejects fabricated run identity",
+        all(
+            terminal_manifest_rejected(mutate)
+            for mutate in malformed_identity_mutations
+        ),
+    )
+    revision_list = subprocess.run(
+        ["git", "-C", ROOT, "rev-list", "--all"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=True,
+        text=True,
+    ).stdout.splitlines()
+    other_revision = None
+    for revision in revision_list:
+        if revision == _fixture_revision:
+            continue
+        recorded_digest = _real_dependency_sha256_at_revision(revision)
+        if (
+            recorded_digest is not None
+            and recorded_digest != _fixture_dependency_sha256
+        ):
+            other_revision = revision
+            break
+    check(
+        "paired sidecar terminal validation rejects a real commit whose "
+        "dependency bytes do not match",
+        other_revision is not None
+        and terminal_manifest_rejected(
+            lambda candidate: candidate.update({
+                "code_revision": other_revision})),
+    )
+
+    contradictory_manifest = json.loads(json.dumps(valid_sidecar_manifest))
+    contradictory_manifest["reused"] = [paired_subject]
+    atomic_json_dump(contradictory_manifest, sidecar_manifest_path)
+    try:
+        validate_reusable_sidecar_run(
+            sidecar_dir, [paired_subject], cache_dir=base_dir)
+    except RuntimeError:
+        contradictory_manifest_rejected = True
+    else:
+        contradictory_manifest_rejected = False
+    check(
+        "shared sidecar manifest validator rejects overlapping partitions",
+        contradictory_manifest_rejected,
+    )
+    sidecar_path = _write_sidecar(
+        sidecar_dir, base_dir, paired_subject, pinned_identity)
+
+    def corrupt_ledger(payload):
+        ledger = json.loads(str(np.asarray(
+            payload["acquisition_sample_counts_json"]).item()))
+        ledger[0]["returned_sample_count"] -= 1
+        payload["acquisition_sample_counts_json"] = np.asarray(
+            json.dumps(ledger))
+
+    def corrupt_roles(payload):
+        roles = json.loads(str(np.asarray(
+            payload["channel_roles_json"]).item()))
+        roles["f3"] = "F7"
+        payload["channel_roles_json"] = np.asarray(json.dumps(roles))
+        source = json.loads(str(np.asarray(
+            payload["source_identity_json"]).item()))
+        source["scalp_role_to_channel"] = roles
+        payload["source_identity_json"] = np.asarray(json.dumps(source))
+
+    def remove_scientific_payload(payload):
+        payload.pop("sigma_fixed_by_channel")
+
+    def split_band_support(payload):
+        payload["swa_clean_sample_count_by_channel"] = np.full(
+            np.asarray(
+                payload["swa_clean_sample_count_by_channel"]).shape,
+            FIXTURE_SF - 1,
+            dtype=np.int64,
+        )
+        payload["swa_power_numerator_by_channel"] = np.full(
+            np.asarray(
+                payload["swa_power_numerator_by_channel"]).shape,
+            1.98,
+        )
+
+    def exceed_raw_finite_support(payload):
+        n_channels = len(SCALP_CHANNEL_PLAN[paired_subject])
+        payload["scalp_signal_finite_sample_count"] = np.ones(
+            n_channels, dtype=np.int64)
+        payload["scalp_signal_nonflat_mask"] = np.zeros(
+            n_channels, dtype=bool)
+
+    def duplicate_so_time(payload):
+        for field, values in (
+            ("t", [0.25, 0.25]),
+            ("down", [1.0, 1.0]),
+            ("up", [2.0, 2.0]),
+            ("p2p", [3.0, 3.0]),
+        ):
+            payload[f"so_candidate_{field}_C3"] = np.asarray(values)
+
+    def remove_channel_revision(payload):
+        source = json.loads(str(np.asarray(
+            payload["source_identity_json"]).item()))
+        source["scalp_channels"]["C3"].pop("revision_id")
+        payload["source_identity_json"] = np.asarray(json.dumps(source))
+
+    for label, mutate in (
+        ("acquisition ledger", corrupt_ledger),
+        ("role/source identity", corrupt_roles),
+        ("required scientific payload", remove_scientific_payload),
+        ("split sigma/SWA support", split_band_support),
+        ("power support exceeding raw finite support",
+         exceed_raw_finite_support),
+        ("duplicate slow-oscillation times", duplicate_so_time),
+        ("channel identity without revision", remove_channel_revision),
+    ):
+        sidecar_path = _write_sidecar(
+            sidecar_dir, base_dir, paired_subject, pinned_identity)
+        _rewrite_sidecar_and_rehash(sidecar_path, mutate)
+        try:
+            validate_reusable_sidecar_run(
+                sidecar_dir, [paired_subject], cache_dir=base_dir)
+        except RuntimeError:
+            exploit_rejected = True
+        else:
+            exploit_rejected = False
+        check(
+            f"paired reuse rejects a rehashed malformed {label}",
+            exploit_rejected,
+        )
+
+    sidecar_path = _write_sidecar(
+        sidecar_dir, base_dir, paired_subject, pinned_identity)
+
+    def within_geometry_tolerance(payload):
+        source = json.loads(str(np.asarray(
+            payload["source_identity_json"]).item()))
+        source["reference_ieeg_identity"]["duration_us"] += 0.5
+        for identity in source["scalp_channels"].values():
+            identity["duration_us"] += 0.5
+        payload["source_identity_json"] = np.asarray(json.dumps(source))
+
+    _rewrite_sidecar_and_rehash(sidecar_path, within_geometry_tolerance)
+    tolerated = validate_reusable_sidecar_run(
+        sidecar_dir, [paired_subject], cache_dir=base_dir)
+    check(
+        "sidecar validator preserves the producer's geometry tolerances",
+        tolerated["subjects"][paired_subject]["sha256"]
+        == file_sha256(sidecar_path),
+    )
+
+    sidecar_path = _write_sidecar(
+        sidecar_dir, base_dir, paired_subject, pinned_identity)
     with np.load(sidecar_path, allow_pickle=False) as cache:
         tampered_payload = {key: np.asarray(cache[key]) for key in cache.files}
     tampered_payload["tampered_scientific_value"] = np.asarray([1.0])
@@ -630,6 +988,19 @@ with tempfile.TemporaryDirectory() as base_dir, tempfile.TemporaryDirectory() as
     check(
         "paired reuse cannot rehash and bless modified sidecar bytes",
         tampered_rejected,
+    )
+
+with tempfile.TemporaryDirectory() as base_dir, tempfile.TemporaryDirectory() as sidecar_dir:
+    four_role_subject = "HUP138_phaseII"
+    pinned_identity = _write_pinned_ieeg(base_dir, four_role_subject)
+    sidecar_path = _write_sidecar(
+        sidecar_dir, base_dir, four_role_subject, pinned_identity)
+    four_role_reuse = validate_reusable_sidecar_run(
+        sidecar_dir, [four_role_subject], cache_dir=base_dir)
+    check(
+        "four-role HUP138 C3/F3/F4/Fz sidecar validates end to end",
+        four_role_reuse["subjects"][four_role_subject]["sha256"]
+        == file_sha256(sidecar_path),
     )
 
 with tempfile.TemporaryDirectory() as base_dir, tempfile.TemporaryDirectory() as sidecar_dir:
@@ -697,9 +1068,18 @@ with tempfile.TemporaryDirectory() as contradictory_dir:
 
 def _write_current_cache(
         path, subject, *, generated_at="2999-01-01T00:00:00+00:00",
-        ecg_failures=None, truncate_acquisition=False):
+        ecg_failures=None, truncate_acquisition=False,
+        hours=FIXTURE_HOURS):
     acquisition_records = _acquisition_records(
         "analysis_subrequest", "analysis_core", channels=2)
+    duration_s = float(hours) * 3600.0
+    sample_count = int(round(duration_s * FIXTURE_SF))
+    acquisition_records[0]["request_duration_s"] = duration_s
+    acquisition_records[0]["requested_sample_count"] = sample_count
+    acquisition_records[0]["returned_sample_count"] = sample_count
+    acquisition_records[1]["analysis_duration_s"] = duration_s
+    acquisition_records[1]["requested_sample_count"] = sample_count
+    acquisition_records[1]["returned_sample_count"] = sample_count
     if truncate_acquisition:
         acquisition_records[0]["request_duration_s"] = 0.5
         acquisition_records[0]["requested_sample_count"] = 50
@@ -718,22 +1098,30 @@ def _write_current_cache(
         ecg_failures_json=json.dumps(ecg_failures or []),
         acquisition_sample_counts_json=json.dumps(acquisition_records),
         night_s=FIXTURE_NIGHT_S,
-        hours=FIXTURE_HOURS,
+        hours=hours,
         sf=float(FIXTURE_SF),
     )
 
 
 def _write_failed_batch(
         directory, *, unchanged_retry=False, fatal_retry=False,
-        truncate_retry_acquisition=False):
+        truncate_retry_acquisition=False,
+        truncate_stable_acquisition=False,
+        manifest_hours=FIXTURE_HOURS,
+        retried_hours=FIXTURE_HOURS):
     stable = "HUPSTABLE_phaseII"
     retried = "HUPRETRY_phaseII"
     stable_path = os.path.join(directory, f"{stable}.npz")
     retried_path = os.path.join(directory, f"{retried}.npz")
-    _write_current_cache(stable_path, stable)
+    _write_current_cache(
+        stable_path,
+        stable,
+        truncate_acquisition=truncate_stable_acquisition,
+    )
     _write_current_cache(
         retried_path,
         retried,
+        hours=retried_hours,
         ecg_failures=(
             [{"error": "synthetic detector failure"}] if fatal_retry else []
         ),
@@ -742,6 +1130,7 @@ def _write_failed_batch(
     retried_hash = file_sha256(retried_path)
     baseline_hash = retried_hash if unchanged_retry else "a" * 64
     config = {
+        "hours": manifest_hours,
         "cache_code_sha256": cache_code_sha256(ROOT),
         "cache_schema_version": CACHE_SCHEMA_VERSION,
     }
@@ -839,6 +1228,46 @@ with tempfile.TemporaryDirectory() as truncated_dir:
         "retry finalization rejects exact-looking records that cover only "
         "part of the cached interval",
         truncated_rejected,
+    )
+
+with tempfile.TemporaryDirectory() as truncated_stable_dir:
+    _stable, stable_retry_subject, _manifest, _manifest_hash = (
+        _write_failed_batch(
+            truncated_stable_dir,
+            truncate_stable_acquisition=True,
+        )
+    )
+    try:
+        finalize(truncated_stable_dir, [stable_retry_subject])
+        truncated_stable_rejected = False
+    except RuntimeError:
+        truncated_stable_rejected = True
+    check(
+        "retry finalization validates full acquisition for non-retried "
+        "completed caches",
+        truncated_stable_rejected,
+    )
+
+with tempfile.TemporaryDirectory() as wrong_retry_duration_dir:
+    _stable, wrong_duration_subject, _manifest, _manifest_hash = (
+        _write_failed_batch(
+            wrong_retry_duration_dir,
+            # The retry NPZ and its ledger consistently describe two seconds,
+            # but the failed batch requested one second. This
+            # internally consistent mismatch passed before the finalizer
+            # explicitly bound caches back to manifest config.hours.
+            retried_hours=2.0 / 3600.0,
+        )
+    )
+    try:
+        finalize(wrong_retry_duration_dir, [wrong_duration_subject])
+        wrong_retry_duration_rejected = False
+    except RuntimeError:
+        wrong_retry_duration_rejected = True
+    check(
+        "retry finalization binds embedded and acquired duration exactly to "
+        "prior manifest config.hours",
+        wrong_retry_duration_rejected,
     )
 
 check(

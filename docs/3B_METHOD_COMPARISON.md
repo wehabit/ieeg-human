@@ -42,6 +42,13 @@ actual code, contact the Mednick lab (UC Irvine Sleep & Cognition Lab).
   a hard-stopped compatibility shim; its superseded whole-night-null
   estimator has been removed.
 - [`analysis/test_3B_null.py`](../analysis/test_3B_null.py) — regression test for the null fix.
+- [`analysis/scalp_f3_f4_exploratory.py`](../analysis/scalp_f3_f4_exploratory.py) —
+  a separate HUP138-only bilateral scalp sensitivity. It is not imported into
+  paired/group reporting and cannot run until a current terminal sidecar proves
+  both F3 and F4.
+- [`analysis/scalp_f3_f4_artifact_validation.py`](../analysis/scalp_f3_f4_artifact_validation.py) —
+  clean-checkout validation of any published bilateral bytes; publication mode
+  additionally requires and recomputes from the ignored private sidecar.
 
 ---
 
@@ -116,6 +123,40 @@ performance improvement, and cross-visit correlations were poor.
 3. **We did not test Naji's actual finding.** Their result is a visit-specific Pearson association
    between SO→HR timing and perceptual speed. We have no behavioural task, so we cannot replicate
    that — we only measured the coupling itself.
+
+### Bounded HUP138 F3/F4 scalp-only sensitivity
+
+HUP138 is the only audited HUP participant with unique, geometry-matched F3 and
+F4 labels. Its acquisition plan now includes both channels, but no current
+terminal sidecar or bilateral result is implied by the plan alone. Once the
+private sidecar is regenerated, the separate runner applies the locked 3B gates
+to F3 and F4 independently and calls `subject_so_triggered` once with both event
+sets in the RR domain (`minimum_channels=2`). It does **not** average two
+unilateral scalar results: magnitude comes from the mean F3/F4 RR curve, while
+`peak_lag_s` is the mean of the two electrode-specific RR-minimum/HR-maximum
+lags.
+
+N2 and N3 remain unavailable whenever there is no uninterrupted 180-s proxy
+stage support. Pooled NREM is labeled a non-Naji sensitivity. All z/p fields
+remain null; the shared stage shift is diagnostic only. The artifact is one
+participant, scalp-only, and cannot support a paired iEEG, group, equivalence,
+behavioural, or LC claim. Unknown online references, automated ECG without
+visual adjudication, PCHIP rather than the paper's spline, repository-specific
+duration and percentile gates, and trough-only candidate artifact QC also
+prevent an exact-method claim.
+
+The runner writes deterministic JSON/CSV/PNG/SVG plus a byte-exact terminal
+manifest under `outputs/scalp_f3_f4_exploratory/`. It hard-stops on dirty source
+or nonterminal input lineage. Offline validation requires current source and
+profile hashes plus well-formed, manifest-consistent producing-runtime metadata,
+without opportunistically reading private data. Publication validation also
+requires that producing runtime and recomputes the endpoint and figure bytes
+from the pinned private inputs. Source tests do not generate those artifacts:
+
+```bash
+.venv/bin/python analysis/test_scalp_f3_f4_exploratory.py
+.venv/bin/python analysis/scalp_f3_f4_artifact_validation.py --artifact-validation offline
+```
 
 ---
 

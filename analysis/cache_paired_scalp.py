@@ -18,11 +18,11 @@ Preview the frozen channel plan without contacting the portal::
 
     .venv/bin/python analysis/cache_paired_scalp.py --show-plan
 
-Acquire the nine datasets with active C3/C03 scalp recordings::
+Acquire the ten datasets with unique, geometry-matched C3/C03 recordings::
 
     .venv/bin/python analysis/cache_paired_scalp.py --force
 
-Acquire only the two datasets that also contain F3::
+Acquire two example datasets that also contain F3::
 
     .venv/bin/python analysis/cache_paired_scalp.py --subjects 160,187 --force
 """
@@ -76,6 +76,23 @@ from pipeline_version import (
     validate_full_interval_acquisition,
     validate_terminal_run_manifest,
 )
+from paired_scalp_sidecar_validation import (
+    TERMINAL_SIDECAR_MANIFEST_FIELDS,
+    SidecarValidationContract,
+    _is_lower_hex,
+    _required_array,
+    _terminal_sidecar_partitions,
+    _valid_manifest_run_id,
+    _valid_utc_timestamp,
+    _validate_activity,
+    _validate_power_support as _validate_power_support_impl,
+    _validate_so_candidates,
+    dependency_sha256_at_revision as _dependency_sha256_at_revision_impl,
+    recorded_commit_exists as _recorded_commit_exists_impl,
+    validate_reusable_sidecar_run as _validate_reusable_sidecar_run_impl,
+    validate_scalp_sidecar_payload as _validate_scalp_sidecar_payload_impl,
+    validate_terminal_sidecar_manifest as _validate_terminal_manifest_impl,
+)
 from signal_qc import ied_clean_mask
 
 
@@ -83,21 +100,32 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_IEEG_CACHE = os.path.join(ROOT, "data", "derived", "lc_infraslow")
 DEFAULT_OUTPUT = os.path.join(ROOT, "data", "derived", "paired_scalp")
 IEEG_CACHE_SCHEMA = CACHE_SCHEMA_VERSION
-SCALP_CACHE_SCHEMA = "2026-07-paired-scalp-sidecar-v2"
+SCALP_CACHE_SCHEMA = "2026-07-paired-scalp-sidecar-v3"
 PIPELINE = "cache_paired_scalp"
 HISTORICAL_POWER_SUPPORT = 0.5
 # Compatibility alias for the inventory auditor; implementation is centralized.
 _same_series_geometry = same_series_geometry
 
-# This is an explicit, audit-derived acquisition plan.  C3/C03 is the Lecci-aligned
-# primary scalp sensor.  F3 is an incomplete unilateral Naji sensitivity (the paper
+# This is an explicit, audit-derived acquisition plan. C3/C03 is the
+# Lecci-motivated scalp location used by the adapted 3A comparison. The current
+# production 3B sensitivity remains limited to F3/Fz roles; HUP138's F4 is
+# acquired for a future bilateral analysis and is not yet admitted to the
+# estimator or group claims. The paper
 # derived a cardiac curve per referenced F3/A2 and F4/A1 electrode, then averaged
 # the electrode-specific HR-maximum/RR-minimum times).  Fz was not used by Naji.
 #
-# HUP182 is retained in the acquisition plan because it has an active C3 scalp
-# channel, even though its pinned iEEG 3A endpoint may remain unavailable.  That
-# distinction is made downstream rather than selected here from scalp outcomes.
+# HUP138 and HUP182 are retained because channel acquisition is intentionally
+# broader than the downstream paired intersection. HUP138 became spectrum-
+# eligible after the v9 rebuild; HUP182 has C3 but no frozen iEEG spectrum.
+# Endpoint eligibility and full-interval activity are decided only after these
+# sidecars exist, rather than being hard-coded from an earlier result release.
 SCALP_CHANNEL_PLAN = {
+    "HUP138_phaseII": {
+        "c3": "C3",
+        "f3": "F3",
+        "f4": "F4",
+        "fz": "Fz",
+    },
     "HUP160_phaseII": {"c3": "C3", "f3": "F3", "fz": "Fz"},
     "HUP182_phaseII": {"c3": "C3"},
     "HUP185_phaseII": {"c3": "C3", "fz": "Fz"},
@@ -109,6 +137,8 @@ SCALP_CHANNEL_PLAN = {
     "HUP212_phaseII": {"c3": "C03", "fz": "Fz"},
 }
 
+# The validator consumes existing bytes but cannot change bytes emitted by this
+# producer, so paired_scalp_sidecar_validation.py is intentionally not included.
 _DEPENDENCY_FILES = (
     "analysis/cache_paired_scalp.py",
     "analysis/cache_lc_series.py",
@@ -456,161 +486,109 @@ def _manifest_config(cache_dir, *, pinned_manifest_sha256=None):
     }
 
 
+def _recorded_commit_exists(value):
+    """Compatibility wrapper for callers that inspect recorded revisions."""
+    return _recorded_commit_exists_impl(value, root=ROOT)
+
+
+def _dependency_sha256_at_revision(revision):
+    """Hash dependency bytes stored by one recorded Git commit."""
+    return _dependency_sha256_at_revision_impl(
+        revision,
+        root=ROOT,
+        dependency_files=_DEPENDENCY_FILES,
+        commit_exists=_recorded_commit_exists,
+    )
+
+
+def _validation_contract():
+    """Bind validator behavior to producer-owned byte-affecting constants."""
+    return SidecarValidationContract(
+        analysis_version=ANALYSIS_VERSION,
+        ieeg_cache_schema=IEEG_CACHE_SCHEMA,
+        scalp_cache_schema=SCALP_CACHE_SCHEMA,
+        pipeline=PIPELINE,
+        channel_plan=SCALP_CHANNEL_PLAN,
+        filter_edge_s=FILTER_EDGE_S,
+        chunk_s=CHUNK_S,
+        historical_power_support=HISTORICAL_POWER_SUPPORT,
+        sigma_band_hz=tuple(SIGMA_FIXED),
+        swa_band_hz=tuple(SWA_BAND_L),
+        so_band_hz=tuple(SO_BAND_NAJI),
+    )
+
+
+def validate_terminal_sidecar_manifest(
+        manifest, *, source, output_dir, cache_dir,
+        expected_requested=None):
+    """Prove one exact, complete current paired-scalp terminal manifest."""
+    return _validate_terminal_manifest_impl(
+        manifest,
+        source=source,
+        output_dir=output_dir,
+        cache_dir=cache_dir,
+        expected_requested=expected_requested,
+        contract=_validation_contract(),
+        dependency_sha256=cache_dependency_sha256,
+        manifest_config=_manifest_config,
+        current_runtime_versions=runtime_versions,
+        commit_exists=_recorded_commit_exists,
+        dependency_sha256_for_revision=_dependency_sha256_at_revision,
+    )
+
+
+def _validate_power_support(cache, *, path, n_channels, total_s, sf):
+    """Compatibility wrapper around the contract-bound NPZ validator."""
+    return _validate_power_support_impl(
+        cache,
+        path=path,
+        n_channels=n_channels,
+        total_s=total_s,
+        sf=sf,
+        historical_power_support=HISTORICAL_POWER_SUPPORT,
+    )
+
+
+def validate_scalp_sidecar_payload(
+        cache, *, path, subject, pinned, dependency_digest):
+    """Validate one exact result-producing scalp sidecar payload."""
+    return _validate_scalp_sidecar_payload_impl(
+        cache,
+        path=path,
+        subject=subject,
+        pinned=pinned,
+        dependency_digest=dependency_digest,
+        contract=_validation_contract(),
+        normalize_scalp_label=_normalize_scalp_label,
+    )
+
+
 def _validate_reused_sidecar_payload(
         cache, *, path, subject, pinned, dependency_digest):
-    """Validate immutable embedded inputs after the file hash is proven."""
-    required_scalars = {
-        "status": "ok",
-        "cache_schema_version": SCALP_CACHE_SCHEMA,
-        "cache_dependency_sha256": dependency_digest,
-        "subject": subject,
-        "source_dataset": subject,
-        "source_kind": "iEEG.org API",
-        "ieeg_cache_sha256": pinned["sha256"],
-        "ieeg_cache_manifest_sha256": pinned["manifest_sha256"],
-        "ieeg_cache_manifest_run_id": str(
-            pinned["manifest_run_id"] or ""),
-        "ieeg_cache_schema_version": IEEG_CACHE_SCHEMA,
-    }
-    for key, expected in required_scalars.items():
-        if npz_scalar_text(cache, key) != str(expected):
-            raise RuntimeError(
-                f"{path} has stale or invalid embedded field {key!r}")
-    validate_completed_cache_failures(
-        cache, source=path, require_ecg=False)
-    validate_full_interval_acquisition(
+    """Backward-compatible reuse wrapper around the shared exact validator."""
+    return validate_scalp_sidecar_payload(
         cache,
-        source=path,
-        core_purpose="paired_scalp_core",
-        subrequest_purpose="paired_scalp_subrequest",
-        core_chunk_s=CHUNK_S,
-        filter_edge_s=FILTER_EDGE_S,
+        path=path,
+        subject=subject,
+        pinned=pinned,
+        dependency_digest=dependency_digest,
     )
-    for key, expected in (
-        ("night_s", pinned["night_s"]),
-        ("hours", pinned["hours"]),
-        ("sf", pinned["sf"]),
-    ):
-        if key not in cache.files or not np.isclose(
-                float(np.asarray(cache[key]).item()),
-                float(expected), rtol=0, atol=1e-9):
-            raise RuntimeError(f"{path} differs from the frozen {key}")
-    try:
-        roles = json.loads(npz_scalar_text(cache, "channel_roles_json"))
-        source_identity = json.loads(
-            npz_scalar_text(cache, "source_identity_json"))
-    except (TypeError, ValueError, json.JSONDecodeError) as exc:
-        raise RuntimeError(
-            f"{path} has malformed channel/source identity metadata") from exc
-    plan = SCALP_CHANNEL_PLAN[subject]
-    if (
-        set(roles) != set(plan)
-        or any(
-            _normalize_scalp_label(roles[role])
-            != _normalize_scalp_label(plan[role])
-            for role in plan
-        )
-        or source_identity.get("dataset_name") != subject
-        or source_identity.get("snapshot_id")
-        != pinned["source_identity"].get("snapshot_id")
-        or source_identity.get("scalp_role_to_channel") != roles
-    ):
-        raise RuntimeError(f"{path} has stale scalp source/channel identity")
 
 
 def validate_reusable_sidecar_run(
         output_dir, requested, *, cache_dir=DEFAULT_IEEG_CACHE,
         frozen_inputs=None):
     """Prove a complete prior sidecar run before reusing any existing bytes."""
-    output_dir = os.path.abspath(output_dir)
-    cache_dir = os.path.abspath(cache_dir)
-    requested = list(requested)
-    if len(requested) != len(set(requested)):
-        raise RuntimeError("paired-scalp reuse partition contains duplicates")
-    if frozen_inputs is None:
-        frozen_inputs = freeze_pinned_ieeg_inputs(requested, cache_dir)
-    if (
-        frozen_inputs.get("cache_dir") != cache_dir
-        or set(frozen_inputs.get("subjects", {})) != set(requested)
-    ):
-        raise RuntimeError(
-            "frozen iEEG inputs do not exactly match paired-scalp reuse scope")
-    assert_pinned_ieeg_inputs_unchanged(frozen_inputs, requested)
-    manifest_path = os.path.join(output_dir, "RUN_MANIFEST.json")
-    if not os.path.isfile(manifest_path):
-        raise RuntimeError(
-            "existing paired-scalp outputs have no terminal manifest; "
-            "rerun with --force")
-    try:
-        with open(manifest_path) as handle:
-            manifest = json.load(handle)
-    except Exception as exc:
-        raise RuntimeError(
-            "prior paired-scalp manifest cannot be read; rerun with --force"
-        ) from exc
-
-    completed = list(manifest.get("completed", []))
-    reused = list(manifest.get("reused", []))
-    failed = list(manifest.get("failed", []))
-    dependency_digest = cache_dependency_sha256()
-    expected_plan = {
-        subject: SCALP_CHANNEL_PLAN[subject] for subject in requested
-    }
-    recorded_hashes = manifest.get("result_files_sha256")
-    if (
-        manifest.get("pipeline") != PIPELINE
-        or manifest.get("run_state") != "complete"
-        or manifest.get("schema_version") != SCALP_CACHE_SCHEMA
-        or manifest.get("runtime_versions") != runtime_versions()
-        or manifest.get("cache_dependency_sha256") != dependency_digest
-        or manifest.get("requested") != requested
-        or failed
-        or len(completed) != len(set(completed))
-        or len(reused) != len(set(reused))
-        or set(completed) & set(reused)
-        or set(completed) | set(reused) != set(requested)
-        or manifest.get("channel_plan") != expected_plan
-        or manifest.get("config") != _manifest_config(
-            cache_dir,
-            pinned_manifest_sha256=frozen_inputs["manifest_sha256"],
-        )
-        or not isinstance(recorded_hashes, dict)
-        or set(recorded_hashes) != set(requested)
-    ):
-        raise RuntimeError(
-            "existing paired-scalp outputs do not match an exact complete "
-            "current run; rerun with --force")
-
-    validated = {}
-    for subject in requested:
-        path = os.path.join(output_dir, f"{subject}.npz")
-        if (
-            not os.path.isfile(path)
-            or file_sha256(path) != recorded_hashes[subject]
-        ):
-            raise RuntimeError(
-                f"{subject} bytes differ from the prior terminal manifest; "
-                "rerun with --force")
-        pinned = frozen_inputs["subjects"][subject]
-        with np.load(path, allow_pickle=False) as cache:
-            _validate_reused_sidecar_payload(
-                cache,
-                path=path,
-                subject=subject,
-                pinned=pinned,
-                dependency_digest=dependency_digest,
-            )
-        validated[subject] = {
-            "path": path,
-            "sha256": recorded_hashes[subject],
-        }
-    assert_pinned_ieeg_inputs_unchanged(frozen_inputs, requested)
-    return {
-        "manifest_path": manifest_path,
-        "manifest_sha256": file_sha256(manifest_path),
-        "requested": requested,
-        "subjects": validated,
-    }
+    return _validate_reusable_sidecar_run_impl(
+        output_dir,
+        requested,
+        cache_dir=cache_dir,
+        frozen_inputs=frozen_inputs,
+        freeze_pinned_inputs=freeze_pinned_ieeg_inputs,
+        assert_pinned_inputs_unchanged=assert_pinned_ieeg_inputs_unchanged,
+        validate_terminal_manifest=validate_terminal_sidecar_manifest,
+        validate_sidecar_payload=_validate_reused_sidecar_payload,
+    )
 
 
 def build_subject(subject, *, cache_dir=DEFAULT_IEEG_CACHE,
@@ -924,6 +902,8 @@ def _manifest_base(
         "schema_version": SCALP_CACHE_SCHEMA,
         "pipeline": PIPELINE,
         "run_state": run_state,
+        "analysis_version": ANALYSIS_VERSION,
+        "cache_schema_version": IEEG_CACHE_SCHEMA,
         "generated_at_utc": utc_now(),
         "code_revision": git_revision(ROOT),
         "code_dirty": git_is_dirty(ROOT),

@@ -26,23 +26,27 @@ from cache_paired_scalp import (
     DEFAULT_IEEG_CACHE,
     DEFAULT_OUTPUT as DEFAULT_SCALP_CACHE,
     IEEG_CACHE_SCHEMA,
-    SCALP_CACHE_SCHEMA,
     _channel_identity,
     _normalize_scalp_label,
     _same_series_geometry,
     _source_node_map,
-    cache_dependency_sha256,
+    validate_pinned_ieeg_cache,
+    validate_scalp_sidecar_payload,
+    validate_terminal_sidecar_manifest,
 )
 from infraslow_rr_sigma_coherence import sess
+from paired_artifact_validation import (
+    derive_inventory_classification,
+    json_safe_inventory_activity,
+)
 from pipeline_version import (
     ANALYSIS_VERSION,
     CACHE_SCHEMA_VERSION,
     atomic_json_dump,
     file_sha256,
-    git_is_dirty,
-    git_revision,
+    require_clean_release_provenance,
+    require_release_source_unchanged,
     runtime_versions,
-    source_tree_sha256,
     utc_now,
 )
 from qc_profiles import load_qc_profile, qc_profile_sha256
@@ -137,29 +141,21 @@ def _verify_pinned_snapshot(ds, subject, source_pin):
     return labels, nodes, reference, _channel_identity(ds, reference, nodes)
 
 
-def _load_sidecar_manifest(sidecar_dir, ieeg_manifest_sha256):
+def _load_sidecar_manifest(sidecar_dir, cache_dir):
     path = os.path.join(sidecar_dir, "RUN_MANIFEST.json")
     if not os.path.isfile(path):
         return None, path
     manifest = _load_json(path)
-    if (
-        manifest.get("pipeline") != "cache_paired_scalp"
-        or manifest.get("run_state") != "complete"
-        or manifest.get("schema_version") != SCALP_CACHE_SCHEMA
-    ):
-        raise RuntimeError("paired scalp sidecar manifest is not terminal/current")
-    if manifest.get("cache_dependency_sha256") != cache_dependency_sha256():
-        raise RuntimeError("paired scalp sidecar manifest has a stale source digest")
-    if (
-        manifest.get("config", {}).get("ieeg_cache_manifest_sha256")
-        != ieeg_manifest_sha256
-    ):
-        raise RuntimeError(
-            "paired scalp sidecars do not reference the frozen iEEG manifest")
+    validate_terminal_sidecar_manifest(
+        manifest,
+        source=path,
+        output_dir=sidecar_dir,
+        cache_dir=cache_dir,
+    )
     return manifest, path
 
 
-def _sidecar_evidence(subject, sidecar_dir, manifest):
+def _sidecar_evidence(subject, sidecar_dir, manifest, cache_dir):
     if manifest is None:
         return None
     expected = manifest.get("result_files_sha256", {}).get(subject)
@@ -168,55 +164,31 @@ def _sidecar_evidence(subject, sidecar_dir, manifest):
     path = os.path.join(sidecar_dir, f"{subject}.npz")
     if not os.path.isfile(path) or file_sha256(path) != expected:
         raise RuntimeError(f"{subject} sidecar bytes do not match its manifest")
+    pinned = validate_pinned_ieeg_cache(subject, cache_dir)
     with np.load(path, allow_pickle=False) as cache:
-        roles = json.loads(str(np.asarray(
-            cache["channel_roles_json"]).item()))
-        channels = [str(value) for value in cache["scalp_chans"]]
-        nonflat = np.asarray(cache["scalp_signal_nonflat_mask"], bool)
-        finite = np.asarray(cache["scalp_signal_finite_sample_count"], int)
-        dynamic = np.asarray(cache["scalp_signal_raw_dynamic_range"], float)
-        if not (
-            len(channels) == len(nonflat) == len(finite) == len(dynamic)
-        ):
-            raise RuntimeError(f"{subject} sidecar activity arrays do not align")
-        by_channel = {
-            channel: {
-                "numerically_nonflat_full_interval": bool(nonflat[index]),
-                "finite_sample_count": int(finite[index]),
-                "raw_dynamic_range": float(dynamic[index]),
-            }
-            for index, channel in enumerate(channels)
-        }
+        validated = validate_scalp_sidecar_payload(
+            cache,
+            path=path,
+            subject=subject,
+            pinned=pinned,
+            dependency_digest=manifest["cache_dependency_sha256"],
+        )
+        source_identity = json.loads(
+            str(np.asarray(cache["source_identity_json"]).item()))
         return {
             "path_relative": os.path.relpath(path, ROOT).replace(os.sep, "/"),
             "sha256": expected,
-            "roles": roles,
-            "channels": by_channel,
+            "roles": validated["roles"],
+            "source_dataset": source_identity["dataset_name"],
+            "source_snapshot_id": source_identity["snapshot_id"],
+            "source_identity_by_channel": source_identity["scalp_channels"],
+            "channels": json_safe_inventory_activity(
+                validated["activity_by_channel"]),
         }
 
 
 def _classification(record):
-    if record.get("query_status") != "ok":
-        return "inventory_error"
-    c3 = record["roles"]["c3"]
-    if len(c3["matches"]) == 0:
-        return "no_c3_or_c03_label"
-    if len(c3["matches"]) != 1:
-        return "ambiguous_c3_or_c03_labels"
-    if not c3["matches"][0]["same_geometry_as_pinned_reference"]:
-        return "c3_geometry_mismatch"
-    if not record["frozen_3a"]["spectrum_available"]:
-        return "c3_present_but_frozen_3a_spectrum_unavailable"
-    sidecar = record.get("sidecar")
-    if sidecar is None:
-        return "requires_full_interval_activity_sidecar"
-    label = c3["matches"][0]["label"]
-    activity = sidecar["channels"].get(label)
-    if activity is None:
-        return "c3_not_streamed_in_sidecar"
-    if not activity["numerically_nonflat_full_interval"]:
-        return "c3_numerically_flat"
-    return "paired_3a_eligible"
+    return derive_inventory_classification(record)
 
 
 def build_inventory(
@@ -225,7 +197,13 @@ def build_inventory(
     sidecar_dir=DEFAULT_SCALP_CACHE,
     qc_grid_path=DEFAULT_QC_GRID,
     source_pin_path=DEFAULT_SOURCE_PIN,
+    release_provenance=None,
 ):
+    release_provenance = (
+        require_clean_release_provenance(ROOT)
+        if release_provenance is None
+        else require_release_source_unchanged(ROOT, release_provenance)
+    )
     cache_manifest_path = os.path.join(cache_dir, "RUN_MANIFEST.json")
     cache_manifest = _load_json(cache_manifest_path)
     if (
@@ -269,7 +247,7 @@ def build_inventory(
         raise RuntimeError(
             "frozen QC-grid profile differs from the current locked profile")
     sidecar_manifest, sidecar_manifest_path = _load_sidecar_manifest(
-        sidecar_dir, cache_manifest_sha256)
+        sidecar_dir, cache_dir)
 
     session = sess()
     records = []
@@ -346,15 +324,18 @@ def build_inventory(
                     "pinned_reference_identity": reference,
                     "roles": role_records,
                     "sidecar": _sidecar_evidence(
-                        subject, sidecar_dir, sidecar_manifest),
+                        subject, sidecar_dir, sidecar_manifest, cache_dir),
                 })
+                record["selection_classification"] = _classification(record)
             except Exception as exc:
+                record["query_status"] = "error"
                 record["error"] = f"{type(exc).__name__}: {exc}"
                 record["traceback"] = traceback.format_exc()
             finally:
                 if ds is not None and hasattr(session, "close_dataset"):
                     session.close_dataset(ds)
-            record["selection_classification"] = _classification(record)
+            if "selection_classification" not in record:
+                record["selection_classification"] = _classification(record)
             records.append(record)
     finally:
         if hasattr(session, "close"):
@@ -368,16 +349,30 @@ def build_inventory(
         record["subject"] for record in records
         if record["query_status"] != "ok"
     ]
+    unresolved_activity_sidecars = [
+        subject
+        for classification in (
+            "requires_full_interval_activity_sidecar",
+            "c3_not_streamed_in_sidecar",
+        )
+        for subject in classes.get(classification, [])
+    ]
+    require_release_source_unchanged(ROOT, release_provenance)
     metadata = {
         "schema_version": SCHEMA,
         "pipeline": PIPELINE,
-        "run_state": "complete" if not errors else "failed",
+        # A metadata-only match is not enough to select a result-producing
+        # channel. Keep the audit non-terminal until every spectrum-eligible C3
+        # candidate has measured full-interval activity evidence.
+        "run_state": (
+            "complete"
+            if not errors and not unresolved_activity_sidecars
+            else "failed"
+        ),
         "analysis_version": ANALYSIS_VERSION,
         "cache_schema_version": CACHE_SCHEMA_VERSION,
         "generated_at_utc": utc_now(),
-        "code_revision": git_revision(ROOT),
-        "code_dirty": git_is_dirty(ROOT),
-        "source_tree_sha256": source_tree_sha256(ROOT),
+        **release_provenance,
         "audit_script_sha256": file_sha256(os.path.abspath(__file__)),
         "runtime_versions": runtime_versions(),
         "selection_was_blind_to_scalp_endpoint_values": True,
@@ -432,6 +427,7 @@ def main():
     parser.add_argument("--source-pin", default=DEFAULT_SOURCE_PIN)
     parser.add_argument("--output-dir", default=DEFAULT_OUTPUT)
     args = parser.parse_args()
+    release_provenance = require_clean_release_provenance(ROOT)
     output_dir = os.path.abspath(args.output_dir)
     os.makedirs(output_dir, exist_ok=True)
     payload = build_inventory(
@@ -439,7 +435,9 @@ def main():
         sidecar_dir=os.path.abspath(args.scalp_cache),
         qc_grid_path=os.path.abspath(args.qc_grid),
         source_pin_path=os.path.abspath(args.source_pin),
+        release_provenance=release_provenance,
     )
+    require_release_source_unchanged(ROOT, release_provenance)
     inventory_path = os.path.join(output_dir, "hup_scalp_channel_inventory.json")
     atomic_json_dump(payload, inventory_path)
     manifest = {
@@ -472,6 +470,7 @@ def main():
     }
     manifest["inventory_file"] = os.path.basename(inventory_path)
     manifest["inventory_file_sha256"] = file_sha256(inventory_path)
+    require_release_source_unchanged(ROOT, release_provenance)
     atomic_json_dump(
         manifest, os.path.join(output_dir, "RUN_MANIFEST.json"))
     print(

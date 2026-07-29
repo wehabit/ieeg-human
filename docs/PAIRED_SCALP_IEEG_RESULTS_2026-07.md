@@ -50,10 +50,13 @@ the iEEG coherence calculation used 11 versus 8 Welch segments for HUP187, 34 ve
 HUP199, and 71 versus 36 for HUP211. Magnitude-squared coherence and its analytic threshold both
 depend on the number of segments, so that was a real comparison confound.
 
-The corrected primary result intersects finite positive iEEG sigma/SWA, finite positive scalp
-sigma/SWA, and finite shared HR before either arm is analyzed. It then fails unless bout lengths,
-Welch segment counts, thresholds, and the exact retained 120-second cross-correlation window
-starts match between arms.
+The corrected primary result uses two explicit endpoint-local intersections. Spectra, fitted
+peaks, and the same-window SWA control use finite-positive iEEG/scalp sigma+SWA support; missing
+HR cannot remove otherwise usable EEG bouts from those endpoints. Coherence and
+cross-correlation use the stricter subset that also has finite shared HR. Both masks and their
+counts are hashed. The run fails unless spectrum bout geometry matches on EEG support and Welch
+counts, thresholds, and exact retained 120-second cross-correlation starts match on cardiac
+support.
 
 | 3A summary | Earlier independent support | Corrected shared support |
 |---|---:|---:|

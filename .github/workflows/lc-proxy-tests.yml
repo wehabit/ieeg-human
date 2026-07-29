@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Public artifacts identify the exact earlier commit containing
+          # their producer bytes, so offline validation needs Git history.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version-file: env/PYTHON_VERSION
@@ -40,10 +44,26 @@ jobs:
       - run: python analysis/test_run_integrity.py
       - run: python analysis/test_cache_producer_integrity.py
       - run: python analysis/test_manifest_contract.py
+      - run: python analysis/test_rebuild_comparison_ledger.py
       - run: python analysis/test_compare_qc_rebuilds.py
       - run: python analysis/test_public_artifacts.py
+      - run: python analysis/test_participant_visual_provenance.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
+      - run: python visualization/participant_visual_provenance.py --artifact-validation offline
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
       - run: python analysis/test_paired_artifact_contracts.py
+      - run: python analysis/test_paired_release_provenance.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
       - run: python analysis/test_paired_reporting.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
+      - run: python analysis/test_scalp_f3_f4_exploratory.py
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
+      - run: python analysis/scalp_f3_f4_artifact_validation.py --artifact-validation offline
         env:
           MPLCONFIGDIR: /tmp/matplotlib
       # A clean CI checkout has no private EEG-derived NPZ caches.  Offline

@@ -260,13 +260,23 @@ The simultaneous scalp sensitivity uses the exact frozen HUP interval, ECG/RR, a
 
 ```bash
 .venv/bin/python analysis/cache_paired_scalp.py \
-  --subjects 160,185,187,191,199,205,211,212 --force
+  --force
 .venv/bin/python analysis/audit_hup_scalp_inventory.py
 .venv/bin/python analysis/paired_scalp_ieeg_comparison.py
 ```
 
+After rebuilding the compact public QC artifacts, regenerate the deterministic
+v8-to-v9 machine comparison from its tracked historical snapshot:
+
+```bash
+.venv/bin/python analysis/compare_qc_rebuilds.py \
+  --write-machine-summary
+```
+
 The scalp sidecars are ignored derived data. The checked-in inventory proves the complete
-25-person frozen cohort intersection before the comparison accepts the eight selected records.
+25-person frozen cohort intersection before the comparison accepts the measured,
+activity-eligible C3/C03 subset; the subset size is derived from that inventory rather than
+hard-coded.
 The strict, hash-manifested comparison outputs and their interpretation are in
 [`docs/PAIRED_SCALP_IEEG_RESULTS_2026-07.md`](docs/PAIRED_SCALP_IEEG_RESULTS_2026-07.md).
 `outputs/paired_scalp_ieeg/paired_metrics.csv` is the normalized table for pooled descriptive
@@ -300,10 +310,11 @@ work. `role_pair_metrics.csv` retains explicit F3/Fz pair membership and must be
 - `analysis/qc_profiles_v1.json` — locked QC profiles and sensitivity grids
 - `analysis/run_qc_grid.py` — 3A/3B/3D profile-grid runner
 - `analysis/compact_qc_grid_artifacts.py` — compact public QC evidence builder
+- `analysis/rebuild_comparison_evidence.py` — reproducible compact v8/v9 evidence contract
 - `analysis/cache_paired_scalp.py` — pinned simultaneous scalp sidecar builder
 - `analysis/audit_hup_scalp_inventory.py` — all-cohort pinned scalp-label inventory
 - `analysis/paired_scalp_ieeg_comparison.py` — strict paired scalp–iEEG comparison
-- `analysis/test_paired_scalp.py` — sidecar, shared-support, and output-integrity checks
+- `analysis/test_paired_scalp.py` — sidecar, endpoint-local support, and output-integrity checks
 - `analysis/audit_issue_evidence.py` — executable legacy counterexamples
 - `analysis/test_corrected_estimators.py` — regression tests for confirmed defects
 - `docs/ISSUE_REGISTER_2026-07.md` — prioritized proof, fix status, and acceptance tests

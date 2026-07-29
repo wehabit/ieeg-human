@@ -1,4 +1,4 @@
-"""Reusable Lecci-aligned 3A estimators for sigma-infraslow coupling.
+"""Reusable Lecci-motivated 3A estimators for sigma-infraslow coupling.
 
 WHAT THE PREVIOUS 3A ACTUALLY TESTED, AND WHY IT IS NOT LECCI'S TEST
 -------------------------------------------------------------------

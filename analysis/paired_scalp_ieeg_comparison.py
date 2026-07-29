@@ -5,7 +5,9 @@ ECG/RR, and profile-materialized sleep labels fixed.  For 3A the primary scalp
 sensor is C3/C03.  For 3B, unilateral F3 and Fz are explicitly exploratory:
 Naji derived a cardiac curve for each referenced F3 and F4 electrode and then
 averaged the electrode-specific HR-maximum/RR-minimum times, whereas the portal
-reference is undocumented and Fz was not a Naji sensor.
+reference is undocumented and Fz was not a Naji sensor. F4 is in the HUP138
+acquisition plan for the separate scalp-only bilateral exploratory module, but
+is not analyzed by this paired scalp–iEEG pipeline.
 
 Before accepting any paired result this script:
 
@@ -14,9 +16,11 @@ Before accepting any paired result this script:
   activity mask; no legacy cache is patched in memory;
 * recomputes the original iEEG 3A and 3B result objects and requires an exact
   match to the locked ``overlap11_endpoint_local`` profile snapshot;
-* computes the primary paired 3A contrast only after intersecting finite,
-  positive iEEG/scalp sigma and SWA with the shared finite HR support;
-* hashes the shared RR, HR, and stage-label arrays used on both modality arms.
+* computes spectra, peaks, and SWA controls on common finite-positive EEG
+  support, then computes coherence and cross-correlation on the stricter
+  subset that also has finite shared HR;
+* hashes both endpoint-local support masks plus the shared RR, HR, and
+  stage-label arrays used on both modality arms.
 
 Outputs are strict JSON (no NaN/Infinity), a normalized subject-stage CSV, an
 explicit role-pair CSV, and PNG/SVG figures.
@@ -43,15 +47,16 @@ from cache_lc_series import power_from_binned_support
 from cache_paired_scalp import (
     DEFAULT_IEEG_CACHE,
     DEFAULT_OUTPUT as DEFAULT_SCALP_CACHE,
-    SCALP_CACHE_SCHEMA,
     SCALP_CHANNEL_PLAN,
-    cache_dependency_sha256,
     validate_pinned_ieeg_cache,
+    validate_scalp_sidecar_payload,
+    validate_terminal_sidecar_manifest,
 )
 from event_3B_cached import stable_stage_epoch_indices, stage_so_times
 from event_3b_estimators import FS_RR, rr_baseline_hr, subject_so_triggered
 from materialize_qc_cache import materialize
 from overlap_aggregate import overlap_connected_aggregate
+from paired_artifact_validation import _validate_classifications
 from paired_reporting import (
     EXACT_SIGNFLIP_MAX_PAIRS,
     MONTE_CARLO_SIGNFLIP_DRAWS,
@@ -76,12 +81,12 @@ from pipeline_version import (
     CACHE_SCHEMA_VERSION,
     atomic_json_dump,
     file_sha256,
-    git_is_dirty,
-    git_revision,
     npz_scalar_text,
+    require_clean_release_provenance,
+    require_release_source_unchanged,
     runtime_versions,
-    source_tree_sha256,
     utc_now,
+    validate_recorded_release_provenance,
 )
 from qc_profiles import (
     load_qc_profile,
@@ -104,6 +109,23 @@ PROFILE_ID = "overlap11_endpoint_local"
 PIPELINE = "paired_scalp_ieeg_comparison"
 RESULT_SCHEMA = PAIRED_RESULT_SCHEMA
 N_SURROGATES_3B = 199
+POLARITY_SENSITIVITY_STATUS = (
+    "not_computable_from_outcome_neutral_sidecar"
+)
+NAJI_EXACT_BLOCKING_REASONS = (
+    (
+        "F4 is not analyzed and electrode-specific F3/F4 cardiac curves are "
+        "not combined as in Naji"
+    ),
+    (
+        "online reference is undocumented, so F3/F4 labels do not establish "
+        "Naji's F3/A2 and F4/A1 derivations"
+    ),
+    (
+        "sleep stages are held-fixed iEEG-derived proxy labels, not "
+        "independently visually scored scalp PSG bins"
+    ),
+)
 
 
 def _json_safe(value):
@@ -142,7 +164,7 @@ def _array_sha256(value):
 
 def _validate_scalp_inventory(
         path,
-        selected_subjects,
+        selected_subjects=None,
         *,
         qc_grid_path=DEFAULT_QC_GRID,
         ieeg_cache_dir=DEFAULT_IEEG_CACHE,
@@ -169,15 +191,33 @@ def _validate_scalp_inventory(
                 f"scalp inventory {label} is not a terminal current-schema run")
     if manifest.get("inventory_file") != os.path.basename(path):
         raise RuntimeError("scalp inventory manifest names a different artifact")
+    for key in (
+        "requested_subjects",
+        "n_requested",
+        "classification_counts",
+        "classification_subjects",
+        "query_error_subjects",
+        "code_revision",
+        "code_dirty",
+        "source_tree_sha256",
+        "audit_script_sha256",
+    ):
+        if manifest.get(key) != payload.get(key):
+            raise RuntimeError(
+                f"scalp inventory payload/manifest disagree at {key}")
     actual_sha256 = file_sha256(path)
     if manifest.get("inventory_file_sha256") != actual_sha256:
         raise RuntimeError("scalp inventory bytes differ from its terminal manifest")
     audit_script = os.path.join(ROOT, "analysis", "audit_hup_scalp_inventory.py")
     if payload.get("audit_script_sha256") != file_sha256(audit_script):
         raise RuntimeError("scalp inventory was produced by a different audit script")
-    if payload.get("source_tree_sha256") != source_tree_sha256(ROOT):
+    inventory_provenance = validate_recorded_release_provenance(
+        payload, ROOT, label="scalp inventory")
+    manifest_provenance = validate_recorded_release_provenance(
+        manifest, ROOT, label="scalp inventory manifest")
+    if inventory_provenance != manifest_provenance:
         raise RuntimeError(
-            "scalp inventory was not produced by the current analysis source tree")
+            "scalp inventory payload/manifest provenance differs")
     expected_cache_manifest = os.path.join(
         os.path.abspath(ieeg_cache_dir), "RUN_MANIFEST.json")
     expected_sidecar_manifest = os.path.join(
@@ -197,30 +237,27 @@ def _validate_scalp_inventory(
         if payload.get(key) != expected:
             raise RuntimeError(
                 f"scalp inventory lineage differs at {key}")
-    if payload.get("query_error_subjects"):
-        raise RuntimeError("scalp inventory contains unresolved portal query errors")
-    records = payload.get("subjects", [])
-    if len(records) != int(payload.get("n_requested", -1)):
-        raise RuntimeError("scalp inventory subject count is incomplete")
-    if [value.get("subject") for value in records] != payload.get(
-            "requested_subjects"):
-        raise RuntimeError("scalp inventory does not preserve its frozen universe")
+    _validate_classifications(payload)
+    records = payload["subjects"]
     eligible = payload.get("classification_subjects", {}).get(
         "paired_3a_eligible", [])
-    if list(selected_subjects) != list(eligible):
+    if (
+        selected_subjects is not None
+        and list(selected_subjects) != list(eligible)
+    ):
         raise RuntimeError(
             "paired subjects do not exactly equal the all-cohort audited "
             "3A-eligible intersection in its frozen order: "
             f"selected={list(selected_subjects)!r}, "
             f"eligible={list(eligible)!r}")
-    exact_naji_labels = []
+    unique_f3_f4_labels = []
     for record in records:
         roles = record.get("roles", {})
         if (
             len(roles.get("f3", {}).get("matches", [])) == 1
             and len(roles.get("f4", {}).get("matches", [])) == 1
         ):
-            exact_naji_labels.append(record["subject"])
+            unique_f3_f4_labels.append(record["subject"])
     return {
         "path_relative": os.path.relpath(path, ROOT).replace(os.sep, "/"),
         "sha256": actual_sha256,
@@ -231,7 +268,7 @@ def _validate_scalp_inventory(
         "classification_counts": payload["classification_counts"],
         "classification_subjects": payload["classification_subjects"],
         "paired_3a_eligible_subjects": eligible,
-        "participants_with_unique_f3_and_f4_labels": exact_naji_labels,
+        "participants_with_unique_f3_and_f4_labels": unique_f3_f4_labels,
         "reference_warning": payload["reference_warning"],
         "selection_was_blind_to_scalp_endpoint_values": payload[
             "selection_was_blind_to_scalp_endpoint_values"],
@@ -251,77 +288,38 @@ def _validate_scalp_cache(subject, scalp_dir, pinned_ieeg):
         raise FileNotFoundError(f"missing paired-scalp cache for {subject}")
     with open(manifest_path) as handle:
         manifest = json.load(handle)
-    if manifest.get("pipeline") != "cache_paired_scalp":
-        raise RuntimeError(f"{manifest_path} has the wrong pipeline")
-    if manifest.get("run_state") != "complete":
-        raise RuntimeError(f"{manifest_path} is not a complete acquisition run")
-    if manifest.get("schema_version") != SCALP_CACHE_SCHEMA:
-        raise RuntimeError(f"{manifest_path} has the wrong scalp schema")
-    current_dependency = cache_dependency_sha256()
-    if manifest.get("cache_dependency_sha256") != current_dependency:
-        raise RuntimeError(
-            f"{manifest_path} was produced by different scalp-cache source bytes")
-    completed = set(manifest.get("completed", [])) | set(
-        manifest.get("reused", []))
+    cache_dir = os.path.dirname(pinned_ieeg["manifest_path"])
+    manifest_pin = validate_terminal_sidecar_manifest(
+        manifest,
+        source=manifest_path,
+        output_dir=scalp_dir,
+        cache_dir=cache_dir,
+    )
+    current_dependency = manifest_pin["cache_dependency_sha256"]
+    completed = set(manifest_pin["completed"]) | set(
+        manifest_pin["reused"])
     if subject not in completed:
         raise RuntimeError(f"{subject} is not complete in the scalp manifest")
-    expected = manifest.get("result_files_sha256", {}).get(subject)
+    expected = manifest_pin["result_files_sha256"].get(subject)
     actual = file_sha256(cache_path)
     if not expected or actual != expected:
         raise RuntimeError(
             f"{subject} scalp cache bytes differ from its manifest")
-    base_manifest_sha = manifest.get("config", {}).get(
-        "ieeg_cache_manifest_sha256")
-    if base_manifest_sha != pinned_ieeg["manifest_sha256"]:
-        raise RuntimeError(
-            "paired-scalp manifest points to a different iEEG cache manifest")
     with np.load(cache_path, allow_pickle=False) as scalp:
-        if npz_scalar_text(scalp, "status") != "ok":
-            raise RuntimeError(f"{cache_path} is not an OK cache")
-        if npz_scalar_text(
-                scalp, "cache_schema_version") != SCALP_CACHE_SCHEMA:
-            raise RuntimeError(f"{cache_path} has the wrong cache schema")
-        if npz_scalar_text(
-                scalp, "cache_dependency_sha256") != current_dependency:
-            raise RuntimeError(
-                f"{cache_path} was produced by different scalp-cache source bytes")
-        if npz_scalar_text(scalp, "subject") != subject:
-            raise RuntimeError(f"{cache_path} embeds a different subject")
-        if npz_scalar_text(
-                scalp, "ieeg_cache_sha256") != pinned_ieeg["sha256"]:
-            raise RuntimeError(
-                f"{cache_path} points to different frozen iEEG bytes")
-        if npz_scalar_text(
-                scalp, "ieeg_cache_manifest_sha256"
-        ) != pinned_ieeg["manifest_sha256"]:
-            raise RuntimeError(
-                f"{cache_path} points to a different iEEG manifest")
-        for key, expected_value in (
-            ("night_s", pinned_ieeg["night_s"]),
-            ("hours", pinned_ieeg["hours"]),
-            ("sf", pinned_ieeg["sf"]),
-        ):
-            if not np.isclose(
-                    float(np.asarray(scalp[key]).item()),
-                    float(expected_value), rtol=0, atol=1e-9):
-                raise RuntimeError(
-                    f"{cache_path} does not preserve frozen {key}")
-        failed = json.loads(npz_scalar_text(
-            scalp, "failed_chunks_json", "[]"))
-        if failed:
-            raise RuntimeError(f"{cache_path} contains failed chunks")
-        if not bool(np.asarray(
-                scalp["ecg_reused_not_redetected"]).item()):
-            raise RuntimeError("scalp sidecar did not declare cached ECG reuse")
-        if not bool(np.asarray(
-                scalp["staging_reused_not_recomputed"]).item()):
-            raise RuntimeError("scalp sidecar did not declare staging reuse")
+        validated_payload = validate_scalp_sidecar_payload(
+            scalp,
+            path=cache_path,
+            subject=subject,
+            pinned=pinned_ieeg,
+            dependency_digest=current_dependency,
+        )
     return {
         "path": cache_path,
         "sha256": actual,
         "manifest_path": manifest_path,
         "manifest_sha256": file_sha256(manifest_path),
         "cache_dependency_sha256": current_dependency,
+        **validated_payload,
     }
 
 
@@ -507,15 +505,13 @@ def _scalp_3a_materialized(base, scalp_power):
     return result
 
 
-def _shared_3a_materializations(ieeg, scalp, profile):
-    """Mask both 3A arms to one identical finite EEG/HR support set.
+def _endpoint_local_3a_materializations(ieeg, scalp, profile):
+    """Build matched EEG-only and EEG-plus-HR inputs for paired 3A.
 
-    Running the two arms on independent missingness changes the number of Welch
-    segments and 120-s cross-correlation windows.  Magnitude-squared coherence
-    has a support-dependent finite-sample floor and analytic threshold, so that
-    would confound the EEG-arm contrast with data availability.  Sigma and SWA
-    are already joint-supported within each arm; intersect them across arms and
-    with the shared HR series before either comparison result is computed.
+    Missing HR is irrelevant to the sigma spectrum, its fitted peak, and the
+    same-window SWA control. Applying the cardiac mask to those EEG-only
+    endpoints can split or remove otherwise valid 120-s EEG bouts. Coherence
+    and cross-correlation do require HR, so they use the strict subset.
     """
     keys = ("sigma_parietal", "swa_parietal", "hr_1")
     arrays = {
@@ -534,48 +530,102 @@ def _shared_3a_materializations(ieeg, scalp, profile):
             arrays[("scalp", "hr_1")],
             equal_nan=True):
         raise RuntimeError("paired 3A arms do not share the exact HR array")
-    shared = np.isfinite(arrays[("ieeg", "hr_1")])
+    eeg_common = np.ones(
+        next(iter(shapes)), dtype=bool)
     for arm in ("ieeg", "scalp"):
         for key in ("sigma_parietal", "swa_parietal"):
             values = arrays[(arm, key)]
-            shared &= np.isfinite(values) & (values > 0)
+            eeg_common &= np.isfinite(values) & (values > 0)
+    cardiac_common = (
+        eeg_common & np.isfinite(arrays[("ieeg", "hr_1")])
+    )
+    minimum_hr_coverage = float(profile["hr"]["minimum_coverage"])
+    if (
+        not np.isfinite(minimum_hr_coverage)
+        or not 0 <= minimum_hr_coverage <= 1
+    ):
+        raise RuntimeError(
+            "paired 3A profile has an invalid HR coverage threshold")
 
-    outputs = []
-    minimum_hr = float(profile["hr"]["minimum_coverage"])
+    outputs = {}
     for arm, source in (("ieeg", ieeg), ("scalp", scalp)):
-        result = dict(source)
-        for key in ("sigma_parietal", "swa_parietal", "hr_1"):
-            result[key] = np.where(shared, arrays[(arm, key)], np.nan)
-        # Keep the global aliases internally coherent for any future diagnostic
-        # consumer, even though analyse_3a currently reads the parietal arrays.
-        result["sigma_global"] = result["sigma_parietal"]
-        result["swa_global"] = result["swa_parietal"]
-        result["hr_coverage"] = float(np.isfinite(result["hr_1"]).mean())
-        result["hr_meets_profile"] = bool(
-            result["hr_coverage"] >= minimum_hr)
-        result["parietal_power_coverage"] = float(
-            np.isfinite(result["sigma_parietal"]).mean())
-        result["paired_3a_support_arm"] = arm
-        outputs.append(result)
+        endpoint_materializations = {}
+        for endpoint, support in (
+                ("eeg", eeg_common),
+                ("cardiac", cardiac_common)):
+            result = dict(source)
+            result["sigma_parietal"] = np.where(
+                support, arrays[(arm, "sigma_parietal")], np.nan)
+            result["swa_parietal"] = np.where(
+                support, arrays[(arm, "swa_parietal")], np.nan)
+            result["hr_1"] = (
+                np.asarray(arrays[(arm, "hr_1")], float).copy()
+                if endpoint == "eeg"
+                else np.where(
+                    support, arrays[(arm, "hr_1")], np.nan)
+            )
+            if endpoint == "eeg":
+                # analyse_3a currently combines EEG and cardiac endpoints.
+                # Disable its unused cardiac pass here; the assembled result
+                # receives those endpoints only from the cardiac-common pass.
+                result["hr_coverage"] = 0.0
+                result["hr_meets_profile"] = False
+            else:
+                shared_hr_coverage = float(
+                    np.isfinite(result["hr_1"]).mean())
+                result["hr_coverage"] = shared_hr_coverage
+                result["hr_meets_profile"] = bool(
+                    shared_hr_coverage >= minimum_hr_coverage)
+            # These aliases are not read by analyse_3a today, but keeping them
+            # coherent prevents a later diagnostic from silently switching
+            # back to an independently supported series.
+            result["sigma_global"] = result["sigma_parietal"]
+            result["swa_global"] = result["swa_parietal"]
+            result["parietal_power_coverage"] = float(support.mean())
+            result["paired_3a_support_arm"] = arm
+            result["paired_3a_support_endpoint"] = endpoint
+            endpoint_materializations[endpoint] = result
+        outputs[arm] = endpoint_materializations
 
     labels = np.asarray(ieeg["stage_lab"]).astype(str)
     nrem, analysis_window = lecci.core_study_nrem_mask(labels)
     second_nrem = np.repeat(nrem, int(lecci.EPOCH))
-    if len(second_nrem) != len(shared):
+    if len(second_nrem) != len(eeg_common):
         raise RuntimeError(
             "paired 3A second-level arrays do not align exactly with "
             "30-s stage labels")
-    return outputs[0], outputs[1], {
-        "rule": (
-            "finite positive iEEG sigma+SWA AND finite positive scalp "
-            "sigma+SWA AND finite shared HR; applied identically before 3A"),
-        "n_total_seconds": int(len(shared)),
-        "n_shared_seconds": int(shared.sum()),
-        "shared_fraction": float(shared.mean()),
-        "n_shared_seconds_in_core_nrem": int((shared & second_nrem).sum()),
-        "support_mask_sha256": _array_sha256(shared),
+    support = {
+        "rule": {
+            "eeg_common": (
+                "finite positive iEEG sigma+SWA AND finite positive scalp "
+                "sigma+SWA; used for spectra, peaks, and negative controls"),
+            "cardiac_common": (
+                "EEG-common support AND finite shared HR; used for fixed "
+                "0.02-Hz coherence and 120-s cross-correlation"),
+        },
+        "n_total_seconds": int(len(eeg_common)),
+        "eeg_common": {
+            "n_seconds": int(eeg_common.sum()),
+            "fraction": float(eeg_common.mean()),
+            "n_seconds_in_core_nrem": int(
+                (eeg_common & second_nrem).sum()),
+            "support_mask_sha256": _array_sha256(eeg_common),
+        },
+        "cardiac_common": {
+            "n_seconds": int(cardiac_common.sum()),
+            "fraction": float(cardiac_common.mean()),
+            "minimum_hr_coverage": minimum_hr_coverage,
+            "passes_hr_coverage_profile": bool(
+                cardiac_common.mean() >= minimum_hr_coverage),
+            "n_seconds_in_core_nrem": int(
+                (cardiac_common & second_nrem).sum()),
+            "support_mask_sha256": _array_sha256(cardiac_common),
+        },
+        "cardiac_common_is_subset_of_eeg_common": bool(
+            np.all(~cardiac_common | eeg_common)),
         "analysis_window": analysis_window,
     }
+    return outputs, support
 
 
 def _xcorr_retained_window_starts(materialized):
@@ -615,55 +665,124 @@ def _xcorr_retained_window_starts(materialized):
     return starts
 
 
+def _assemble_endpoint_local_3a_result(eeg_result, cardiac_result):
+    """Keep EEG-only outputs independent of the stricter cardiac support."""
+    result = copy.deepcopy(eeg_result)
+    eeg_support_reasons = [
+        reason for reason in eeg_result["support_reasons"]
+        if not str(reason).endswith("; cardiac endpoints only")
+    ]
+    result["support_reasons"] = eeg_support_reasons
+    result["hr_coverage"] = cardiac_result["hr_coverage"]
+    result["coherence"] = copy.deepcopy(cardiac_result["coherence"])
+    result["cross_correlation"] = copy.deepcopy(
+        cardiac_result["cross_correlation"])
+    result["endpoint_availability"] = {
+        "spectrum": bool(
+            eeg_result["endpoint_availability"]["spectrum"]),
+        "fixed_0p02_coherence": bool(
+            cardiac_result["endpoint_availability"][
+                "fixed_0p02_coherence"]),
+        "cross_correlation": bool(
+            cardiac_result["endpoint_availability"][
+                "cross_correlation"]),
+    }
+    result["endpoint_support_diagnostics"] = {
+        "spectrum_peak_negative_control": {
+            "aggregate_coverage": eeg_result["aggregate_coverage"],
+            "support_passes_profile": eeg_result[
+                "support_passes_profile"],
+            "n_bouts": eeg_result["n_bouts"],
+            "bout_seconds": eeg_result["bout_seconds"],
+            "support_reasons": copy.deepcopy(eeg_support_reasons),
+        },
+        "coherence_cross_correlation": {
+            "aggregate_coverage": cardiac_result["aggregate_coverage"],
+            "hr_coverage": cardiac_result["hr_coverage"],
+            "support_passes_profile": cardiac_result[
+                "support_passes_profile"],
+            "n_bouts": cardiac_result["n_bouts"],
+            "bout_seconds": cardiac_result["bout_seconds"],
+            "support_reasons": copy.deepcopy(
+                cardiac_result["support_reasons"]),
+        },
+    }
+    return result
+
+
 def _assert_matched_3a_geometry(
-        subject, ieeg_result, scalp_result,
-        ieeg_materialized, scalp_materialized):
-    """Fail if value-independent 3A support geometry diverges after masking."""
+        subject, ieeg_eeg_result, scalp_eeg_result,
+        ieeg_cardiac_result, scalp_cardiac_result,
+        ieeg_cardiac_materialized, scalp_cardiac_materialized):
+    """Fail if either endpoint-local paired support geometry diverges."""
     for key in ("n_bouts", "bout_seconds"):
-        if ieeg_result.get(key) != scalp_result.get(key):
+        if ieeg_eeg_result.get(key) != scalp_eeg_result.get(key):
             raise RuntimeError(
-                f"{subject} paired 3A shared support produced different {key}")
-    left_co = ieeg_result.get("coherence")
-    right_co = scalp_result.get("coherence")
+                f"{subject} paired 3A EEG-common support produced different "
+                f"spectrum {key}")
+    left_spectrum = ieeg_eeg_result[
+        "endpoint_availability"]["spectrum"]
+    right_spectrum = scalp_eeg_result[
+        "endpoint_availability"]["spectrum"]
+    if bool(left_spectrum) != bool(right_spectrum):
+        raise RuntimeError(
+            f"{subject} paired 3A spectrum availability differs on "
+            "EEG-common support")
+
+    left_co = ieeg_cardiac_result.get("coherence")
+    right_co = scalp_cardiac_result.get("coherence")
     if (left_co is None) != (right_co is None):
         raise RuntimeError(
-            f"{subject} paired 3A coherence availability differs on shared support")
+            f"{subject} paired 3A coherence availability differs on "
+            "cardiac-common support")
     if left_co is not None:
         for key in ("K", "n_valid", "analytic_threshold"):
             if not np.isclose(
                     float(left_co[key]), float(right_co[key]), rtol=0, atol=1e-12):
                 raise RuntimeError(
                     f"{subject} paired 3A coherence geometry differs at {key}")
-    left_xc = ieeg_result.get("cross_correlation")
-    right_xc = scalp_result.get("cross_correlation")
+    left_xc = ieeg_cardiac_result.get("cross_correlation")
+    right_xc = scalp_cardiac_result.get("cross_correlation")
     if (left_xc is None) != (right_xc is None):
         raise RuntimeError(
-            f"{subject} paired 3A xcorr availability differs on shared support")
+            f"{subject} paired 3A xcorr availability differs on "
+            "cardiac-common support")
     if (
         left_xc is not None
         and int(left_xc["n_intervals"]) != int(right_xc["n_intervals"])
     ):
         raise RuntimeError(
             f"{subject} paired 3A xcorr interval counts differ on shared support")
-    left_starts = _xcorr_retained_window_starts(ieeg_materialized)
-    right_starts = _xcorr_retained_window_starts(scalp_materialized)
+    left_starts = _xcorr_retained_window_starts(
+        ieeg_cardiac_materialized)
+    right_starts = _xcorr_retained_window_starts(
+        scalp_cardiac_materialized)
     if left_starts != right_starts:
         raise RuntimeError(
             f"{subject} paired 3A xcorr retained different 120-s windows")
     starts_hash = _array_sha256(np.asarray(left_starts, dtype=np.int64))
     return {
-        "status": "exact_shared_geometry",
-        "cross_correlation_retained_window_starts_sha256": starts_hash,
-        "cross_correlation_retained_window_count": len(left_starts),
-        "checked_fields": [
-            "n_bouts",
-            "bout_seconds",
-            "coherence.K",
-            "coherence.n_valid",
-            "coherence.analytic_threshold",
-            "cross_correlation.n_intervals",
-            "cross_correlation.retained_window_start_indices",
-        ],
+        "status": "exact_endpoint_local_geometry",
+        "spectrum_peak_negative_control": {
+            "status": "exact_shared_eeg_geometry",
+            "checked_fields": [
+                "endpoint_availability.spectrum",
+                "n_bouts",
+                "bout_seconds",
+            ],
+        },
+        "coherence_cross_correlation": {
+            "status": "exact_shared_cardiac_geometry",
+            "cross_correlation_retained_window_starts_sha256": starts_hash,
+            "cross_correlation_retained_window_count": len(left_starts),
+            "checked_fields": [
+                "coherence.K",
+                "coherence.n_valid",
+                "coherence.analytic_threshold",
+                "cross_correlation.n_intervals",
+                "cross_correlation.retained_window_start_indices",
+            ],
+        },
     }
 
 
@@ -728,7 +847,7 @@ def _analyse_scalp_3b(scalp, base, role, profile):
             "portal channel reference is undocumented; not known to be "
             "F3/A2, F4/A1, or linked mastoids"),
         "polarity_sensitivity": {
-            "status": "not_computable_from_sidecar_v1",
+            "status": POLARITY_SENSITIVITY_STATUS,
             "reason": (
                 "the outcome-neutral sidecar stores candidates detected in the "
                 "recorded polarity, not the filtered waveform or the complementary "
@@ -808,6 +927,122 @@ def _analyse_scalp_3b(scalp, base, role, profile):
     return result
 
 
+def _available_3b_stages(result):
+    """Return stages with a valid current 3B estimate in canonical order."""
+    stages = result.get("stages", {}) if isinstance(result, dict) else {}
+    return [
+        stage for stage in STAGES_3B
+        if bool(stages.get(stage, {}).get("available_under_profile"))
+    ]
+
+
+def _available_exploratory_scalp_stages(record, role):
+    """Return valid stages for one explicitly exploratory scalp role."""
+    if record is None:
+        return []
+    result = record.get("scalp", {}).get("result_3b", {}).get(role, {})
+    stages = result.get("stages", {}) if isinstance(result, dict) else {}
+    return [
+        stage for stage in STAGES_3B
+        if bool(
+            stages.get(stage, {}).get(
+                "available_under_exploratory_profile"
+            )
+        )
+    ]
+
+
+def _naji_method_scope():
+    """Describe the implemented 3B scope without implying exact transfer."""
+    return {
+        "exact_comparison_available": False,
+        "implemented_scalp_estimators": [
+            "unilateral F3 exploratory sensitivity",
+            "Fz exploratory sensitivity (not a Naji sensor)",
+        ],
+        "f4_status": (
+            "planned for a separate bilateral analysis; not analyzed here"
+        ),
+        "blocking_reasons": list(NAJI_EXACT_BLOCKING_REASONS),
+    }
+
+
+def _naji_label_inventory_status(subject, frozen_subjects, records):
+    """Separate channel-label inventory from the analyses actually performed.
+
+    A valid staged iEEG endpoint cannot make the scalp comparison exact. The
+    current scalp estimator analyzes unilateral F3 and non-Naji Fz only. F4 may
+    be present in a validated terminal sidecar for the separate bilateral
+    sensitivity, but it is not analyzed here and the portal references are
+    undocumented.
+    """
+    record_by_subject = {
+        record["subject"]: record
+        for record in records
+    }
+    record = record_by_subject.get(subject)
+    frozen_3b = frozen_subjects.get(subject, {}).get("result_3b", {})
+    acquired_roles = sorted(
+        record.get("lineage", {}).get("scalp_sidecar_roles", {})
+        if record is not None
+        else []
+    )
+    return {
+        "subject": subject,
+        "channel_label_inventory": {
+            "unique_f3_label_present": True,
+            "unique_f4_label_present": True,
+            "labels_establish_naji_reference_montage": False,
+        },
+        "locked_ieeg_3b_available_stages": _available_3b_stages(
+            frozen_3b
+        ),
+        "participant_in_current_paired_3a_intersection": record is not None,
+        "terminal_sidecar_roles_acquired": acquired_roles,
+        "current_exploratory_scalp_3b": {
+            "unilateral_f3": {
+                "analyzed": record is not None and "f3" in acquired_roles,
+                "available_stages": _available_exploratory_scalp_stages(
+                    record, "f3"
+                ),
+                "interpretation": (
+                    "unilateral/reference-incomplete sensitivity only"
+                ),
+            },
+            "fz": {
+                "analyzed": record is not None and "fz" in acquired_roles,
+                "available_stages": _available_exploratory_scalp_stages(
+                    record, "fz"
+                ),
+                "interpretation": (
+                    "exploratory sensitivity; Fz was not a Naji sensor"
+                ),
+            },
+            "f4": {
+                "acquired": "f4" in acquired_roles,
+                "analyzed": False,
+                "available_stages": [],
+                "interpretation": (
+                    (
+                        "validated terminal sidecar role reserved for the "
+                        "separate bilateral analysis; excluded from this "
+                        "estimator and group claims"
+                    )
+                    if "f4" in acquired_roles
+                    else (
+                        "channel plan/label inventory does not prove terminal "
+                        "acquisition; excluded from this estimator and claims"
+                    )
+                ),
+            },
+        },
+        "current_exact_naji_comparison_available": False,
+        "exact_naji_blocking_reasons": list(
+            NAJI_EXACT_BLOCKING_REASONS
+        ),
+    }
+
+
 def _raw_ieeg_power_summary(cache, materialized):
     sigma = _contact_power(cache, "sigma_fixed")
     swa = _contact_power(cache, "swa")
@@ -875,22 +1110,30 @@ def analyse_subject(subject, *, profile, exploratory_profile,
                     f"scalp 3A adapter changed shared input {key}")
         independent_result_3a_scalp = analyse_3a(
             scalp_materialized, profile)
-        (
-            ieeg_shared_materialized,
-            scalp_shared_materialized,
-            shared_3a_support,
-        ) = _shared_3a_materializations(
-            materialized, scalp_materialized, profile)
-        result_3a_ieeg = analyse_3a(
-            ieeg_shared_materialized, profile)
-        result_3a_scalp = analyse_3a(
-            scalp_shared_materialized, profile)
+        endpoint_materializations, shared_3a_support = (
+            _endpoint_local_3a_materializations(
+                materialized, scalp_materialized, profile)
+        )
+        ieeg_eeg_result = analyse_3a(
+            endpoint_materializations["ieeg"]["eeg"], profile)
+        scalp_eeg_result = analyse_3a(
+            endpoint_materializations["scalp"]["eeg"], profile)
+        ieeg_cardiac_result = analyse_3a(
+            endpoint_materializations["ieeg"]["cardiac"], profile)
+        scalp_cardiac_result = analyse_3a(
+            endpoint_materializations["scalp"]["cardiac"], profile)
+        result_3a_ieeg = _assemble_endpoint_local_3a_result(
+            ieeg_eeg_result, ieeg_cardiac_result)
+        result_3a_scalp = _assemble_endpoint_local_3a_result(
+            scalp_eeg_result, scalp_cardiac_result)
         shared_3a_geometry = _assert_matched_3a_geometry(
             subject,
-            result_3a_ieeg,
-            result_3a_scalp,
-            ieeg_shared_materialized,
-            scalp_shared_materialized,
+            ieeg_eeg_result,
+            scalp_eeg_result,
+            ieeg_cardiac_result,
+            scalp_cardiac_result,
+            endpoint_materializations["ieeg"]["cardiac"],
+            endpoint_materializations["scalp"]["cardiac"],
         )
         result_3b_scalp = {
             role: _analyse_scalp_3b(
@@ -906,13 +1149,14 @@ def analyse_subject(subject, *, profile, exploratory_profile,
             "n_stage_epochs": int(len(materialized["stage_lab"])),
             "n_hr_seconds": int(len(materialized["hr_1"])),
             "n_rr_4hz_samples": int(len(materialized["rr_4"])),
-            "paired_3a_common_support": shared_3a_support,
+            "paired_3a_endpoint_support": shared_3a_support,
             "paired_3a_geometry_verification": shared_3a_geometry,
             "statement": (
                 "identical ECG/RR and sleep labels are used for both arms; "
-                "3A additionally uses an identical finite positive EEG/HR "
-                "support mask; ECG was not redetected and sleep was not "
-                "restaged"),
+                "3A spectra/peaks/SWA controls use identical finite-positive "
+                "EEG support, while coherence/cross-correlation use its "
+                "finite-shared-HR subset; ECG was not redetected and sleep "
+                "was not restaged"),
         }
         raw_ratio = None
         if (
@@ -932,6 +1176,7 @@ def analyse_subject(subject, *, profile, exploratory_profile,
                 "scalp_cache_sha256": scalp_lineage["sha256"],
                 "scalp_cache_manifest_sha256": scalp_lineage[
                     "manifest_sha256"],
+                "scalp_sidecar_roles": dict(scalp_lineage["roles"]),
                 "night_s": pinned["night_s"],
                 "hours": pinned["hours"],
                 "sf": pinned["sf"],
@@ -974,10 +1219,7 @@ def analyse_subject(subject, *, profile, exploratory_profile,
 
 def _parse_subjects(value):
     if value is None or not str(value).strip():
-        return [
-            subject for subject in SCALP_CHANNEL_PLAN
-            if subject != "HUP182_phaseII"
-        ]
+        return None
     result = []
     for item in str(value).split(","):
         token = item.strip()
@@ -1007,7 +1249,8 @@ def main():
     parser.add_argument("--qc-grid", default=DEFAULT_QC_GRID)
     parser.add_argument("--output-dir", default=DEFAULT_RESULTS)
     args = parser.parse_args()
-    subjects = _parse_subjects(args.subjects)
+    release_provenance = require_clean_release_provenance(ROOT)
+    requested_subjects = _parse_subjects(args.subjects)
     output_dir = os.path.abspath(args.output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
@@ -1024,11 +1267,12 @@ def main():
         _load_frozen_profile_record(os.path.abspath(args.qc_grid)))
     scalp_inventory = _validate_scalp_inventory(
         args.scalp_inventory,
-        subjects,
+        requested_subjects,
         qc_grid_path=args.qc_grid,
         ieeg_cache_dir=args.ieeg_cache,
         scalp_cache_dir=args.scalp_cache,
     )
+    subjects = list(scalp_inventory["paired_3a_eligible_subjects"])
     records = []
     for subject in subjects:
         print(f"[{subject}] paired comparison", flush=True)
@@ -1041,37 +1285,19 @@ def main():
             scalp_cache_dir=os.path.abspath(args.scalp_cache),
         ))
     summary = _group_summary(records)
-    exact_naji_label_status = []
-    for subject in scalp_inventory[
-            "participants_with_unique_f3_and_f4_labels"]:
-        frozen_3b = frozen_subjects.get(subject, {}).get("result_3b", {})
-        stages = frozen_3b.get("stages", {})
-        available_stages = [
-            stage for stage in STAGES_3B
-            if bool(stages.get(stage, {}).get("available_under_profile"))
+    naji_label_status = [
+        _naji_label_inventory_status(subject, frozen_subjects, records)
+        for subject in scalp_inventory[
+            "participants_with_unique_f3_and_f4_labels"
         ]
-        exact_naji_label_status.append({
-            "subject": subject,
-            "unique_f3_and_f4_labels_present": True,
-            "frozen_3b_available_stages": available_stages,
-            "current_exact_naji_comparison_available": bool(available_stages),
-            "reason_if_unavailable": (
-                None if available_stages
-                else "no valid frozen staged 3B endpoint"
-            ),
-            "reference_status": (
-                "online reference is undocumented; F3/F4 labels alone do not "
-                "prove Naji's F3/A2 and F4/A1 montage"),
-        })
+    ]
     metadata = {
         "schema_version": RESULT_SCHEMA,
         "pipeline": PIPELINE,
         "analysis_version": ANALYSIS_VERSION,
         "cache_schema_version": CACHE_SCHEMA_VERSION,
         "generated_at_utc": utc_now(),
-        "code_revision": git_revision(ROOT),
-        "code_dirty": git_is_dirty(ROOT),
-        "source_tree_sha256": source_tree_sha256(ROOT),
+        **release_provenance,
         "runtime_versions": runtime_versions(),
         "requested_subjects": subjects,
         "completed_subjects": [value["subject"] for value in records],
@@ -1090,16 +1316,20 @@ def main():
         "frozen_qc_grid_cache_manifest_sha256": frozen_payload.get(
             "cache_manifest_sha256"),
         "scalp_inventory": scalp_inventory,
-        "exact_naji_label_inventory_status": exact_naji_label_status,
+        "naji_label_inventory_status": naji_label_status,
+        "naji_method_scope": _naji_method_scope(),
         "comparison_design": (
             "within-participant simultaneous EEG-arm comparison: same portal "
             "snapshot, frozen night, duration, sample rate, cached ECG/RR, "
-            "profile-materialized stage labels, and exact intersected finite "
-            "positive 3A EEG/HR support. The EEG arms differ jointly in "
-            "modality, location, reference, and contact aggregation, so this "
-            "does not isolate a pure modality effect"),
+            "and profile-materialized stage labels. Spectra, peaks, and SWA "
+            "controls use exact common finite-positive EEG support; coherence "
+            "and cross-correlation use its exact finite-shared-HR subset. The "
+            "EEG arms differ jointly in modality, location, reference, and "
+            "contact aggregation, so this does not isolate a pure modality "
+            "effect"),
         "3a_sensor": (
-            "single C3/C03 scalp channel, Lecci-aligned sensor location but "
+            "single C3/C03 scalp channel, Lecci-motivated location adaptation "
+            "but "
             "unknown online reference; compared with the frozen iEEG aggregate"),
         "3b_sensors": (
             "single F3 (unilateral/reference-incomplete) and Fz (not a Naji "
@@ -1131,6 +1361,7 @@ def main():
         "subjects": records,
         "group_summary": summary,
     }
+    require_release_source_unchanged(ROOT, release_provenance)
     atomic_json_dump(
         _json_safe(full),
         os.path.join(output_dir, "subject_results.json"),
@@ -1151,6 +1382,7 @@ def main():
     )
     _make_3a_figure(records, output_dir)
     _make_3b_figure(records, output_dir)
+    require_release_source_unchanged(ROOT, release_provenance)
     manifest = {
         **metadata,
         "run_state": "complete",

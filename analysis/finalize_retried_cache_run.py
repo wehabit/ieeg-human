@@ -7,8 +7,8 @@ This finalizer then:
 
 * preserves the exact failed manifest in ``recovery_manifests/``;
 * proves every retried file is new or differs from its recorded pre-run bytes;
-* requires a later generation time, exact acquisition counts, and empty fatal
-  acquisition/ECG arrays;
+* requires a later generation time, the prior run's exact configured duration,
+  exact acquisition counts, and empty fatal acquisition/ECG arrays;
 * proves every non-retried result is byte-identical to the failed manifest; and
 * writes one complete replacement manifest atomically, with recovery provenance
   included in that single write.
@@ -161,6 +161,57 @@ def _failed_retry_baselines(failed):
     return baselines
 
 
+def _prior_analysis_hours(prior, *, source):
+    """Return the run duration that every completed retry must preserve."""
+    try:
+        value = prior["config"]["hours"]
+        hours = float(value)
+    except (KeyError, TypeError, ValueError, OverflowError) as exc:
+        raise RuntimeError(
+            f"{source} lacks a finite positive config.hours") from exc
+    if (
+        not isinstance(value, (int, float))
+        or isinstance(value, bool)
+        or not np.isfinite(hours)
+        or hours <= 0
+        or hours * 3600.0 != round(hours * 3600.0)
+    ):
+        raise RuntimeError(
+            f"{source} lacks a finite positive whole-second config.hours")
+    return hours
+
+
+def _validate_ok_cache_acquisition(
+        cache, *, path, expected_hours):
+    """Bind an OK cache's internal ledger to the failed run's duration."""
+    try:
+        embedded_hours = float(np.asarray(cache["hours"]).item())
+    except (KeyError, TypeError, ValueError, OverflowError) as exc:
+        raise RuntimeError(f"{path} lacks a finite scalar hours field") from exc
+    if (
+        not np.isfinite(embedded_hours)
+        or embedded_hours != expected_hours
+    ):
+        raise RuntimeError(
+            f"{path} embedded hours {embedded_hours!r} does not exactly match "
+            f"prior manifest config.hours {expected_hours!r}")
+    acquisition = validate_full_interval_acquisition(
+        cache,
+        source=path,
+        core_purpose="analysis_core",
+        subrequest_purpose="analysis_subrequest",
+        core_chunk_s=CHUNK_S,
+        filter_edge_s=FILTER_EDGE_S,
+    )
+    expected_duration_s = expected_hours * 3600.0
+    if acquisition["duration_s"] != expected_duration_s:
+        raise RuntimeError(
+            f"{path} validated acquisition duration "
+            f"{acquisition['duration_s']!r} does not exactly match prior "
+            f"manifest config.hours ({expected_duration_s!r} s)")
+    return acquisition
+
+
 def finalize(cache_dir, retried_subjects):
     cache_dir = os.path.abspath(cache_dir)
     manifest_path = os.path.join(cache_dir, "RUN_MANIFEST.json")
@@ -188,6 +239,8 @@ def finalize(cache_dir, retried_subjects):
     ):
         raise RuntimeError(
             "prior manifest is not an exact current failed cache batch")
+    expected_hours = _prior_analysis_hours(
+        prior, source=manifest_path)
 
     requested, prior_completed, skipped, failed = _subject_partition(
         prior, retried_subjects)
@@ -229,6 +282,9 @@ def finalize(cache_dir, retried_subjects):
                 if expected_status == "ok":
                     validate_completed_cache_failures(
                         cache, source=path, require_ecg=True)
+                    _validate_ok_cache_acquisition(
+                        cache, path=path, expected_hours=expected_hours,
+                    )
             continue
 
         baseline = baselines[subject]
@@ -253,13 +309,8 @@ def finalize(cache_dir, retried_subjects):
             if generated_at <= prior_generated_at:
                 raise RuntimeError(
                     f"{subject} was not generated after the failed batch")
-            acquisition = validate_full_interval_acquisition(
-                cache,
-                source=path,
-                core_purpose="analysis_core",
-                subrequest_purpose="analysis_subrequest",
-                core_chunk_s=CHUNK_S,
-                filter_edge_s=FILTER_EDGE_S,
+            acquisition = _validate_ok_cache_acquisition(
+                cache, path=path, expected_hours=expected_hours,
             )
         retry_proof[subject] = {
             "pre_run_output_existed": baseline["existed"],
@@ -289,7 +340,8 @@ def finalize(cache_dir, retried_subjects):
         "retry_method": (
             "current cache producer rebuilt only the failed subjects; this "
             "finalizer proved changed/new bytes, later generation timestamps, "
-            "exact portal sample counts, and empty fatal failure arrays"),
+            "the prior run's exact configured duration, exact portal sample "
+            "counts, and empty fatal failure arrays"),
     }
     return write_run_manifest(
         cache_dir,

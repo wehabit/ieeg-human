@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import csv
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -60,6 +59,23 @@ from spectral_gapped import (  # noqa: E402
     coherence_gapped,
     welch_segments,
 )
+from participant_visual_provenance import (  # noqa: E402
+    VISUAL_RESULT_NAMES,
+    assert_visual_inputs_unchanged,
+    freeze_visual_inputs,
+    repository_relative,
+    validate_terminal_visual_manifest,
+    visual_manifest_base,
+    write_failed_manifest,
+    write_in_progress_manifest,
+    write_preflight_manifest,
+    write_terminal_manifest,
+)
+from participant_visual_narratives import (  # noqa: E402
+    render_resp0699_check,
+    render_visual_readme,
+)
+from pipeline_version import atomic_json_dump  # noqa: E402
 
 
 OUT = ROOT / "outputs" / "participant_result_visuals"
@@ -228,7 +244,7 @@ def make_3a(profile: dict) -> dict:
     fig.text(
         0.06,
         0.955,
-        "RESP0699 · final v8 endpoint-local profile · availability pass ≠ proof of the paper prediction",
+        "RESP0699 · current v9 locked endpoint-local profile · availability pass ≠ proof of the paper prediction",
         ha="left",
         fontsize=10.5,
         color=MUTED,
@@ -378,8 +394,8 @@ def make_3a(profile: dict) -> dict:
     png, svg = _save(fig, "3A_RESP0699_all_three_measurements")
     return {
         "subject": subject,
-        "png": str(png),
-        "svg": str(svg),
+        "png": repository_relative(png),
+        "svg": repository_relative(svg),
         "peak_hz": final["peak"]["peak_hz"],
         "coherence_0p02": target,
         "coherence_threshold": coherence_threshold,
@@ -637,8 +653,8 @@ def make_3a_threshold_explainer(profile: dict) -> dict:
     png, svg = _save(fig, "3A_RESP0699_coherence_threshold_explained")
     return {
         "subject": subject,
-        "png": str(png),
-        "svg": str(svg),
+        "png": repository_relative(png),
+        "svg": repository_relative(svg),
         "welch_window_starts_s": starts,
         "welch_window_seconds": int(lecci.NPERSEG),
         "welch_overlap_seconds": int(noverlap),
@@ -881,8 +897,8 @@ def make_3b(profile: dict) -> dict:
     png, svg = _save(fig, "3B_HUP160_event_locked_heart_rate")
     return {
         "subject": subject,
-        "png": str(png),
-        "svg": str(svg),
+        "png": repository_relative(png),
+        "svg": repository_relative(svg),
         "stages": {
             stage: {
                 "n_so_total": int(estimates[stage]["n_so_total"]),
@@ -1187,8 +1203,8 @@ def make_3b_respect_naji_check(profile: dict) -> dict:
     png, svg = _save(fig, "3B_RESP0699_naji_frontal_ecog_check")
     return {
         "subject": subject,
-        "png": str(png),
-        "svg": str(svg),
+        "png": repository_relative(png),
+        "svg": repository_relative(svg),
         "scalp_eeg_channel_count": int(metadata["EEGChannelCount"]),
         "has_F3": "F3" in scalp_labels,
         "has_F4": "F4" in scalp_labels,
@@ -1464,9 +1480,13 @@ def make_3d(profile: dict) -> dict:
     png, svg = _save(fig, "3D_HUP172_SO_spindle_phase")
     return {
         "subject": subject,
-        "png": str(png),
-        "svg": str(svg),
+        "png": repository_relative(png),
+        "svg": repository_relative(svg),
         "qualified_contacts": qualified,
+        "paired_events_by_contact": {
+            contact: int(len(phases))
+            for contact, phases in phases_by_contact.items()
+        },
         "n_paired_events": int(
             observed["n_paired_events_across_qualified_contacts"]
         ),
@@ -1479,28 +1499,81 @@ def make_3d(profile: dict) -> dict:
 
 
 def main() -> None:
-    profile = load_qc_profile(PROFILE_ID)
-    results = {
-        "profile_id": PROFILE_ID,
-        "figures": {
-            "3A": make_3a(profile),
-            "3A_threshold_explainer": make_3a_threshold_explainer(profile),
-            "3B": make_3b(profile),
-            "3B_RESP0699_Naji_check": make_3b_respect_naji_check(profile),
-            "3D": make_3d(profile),
-        },
-        "interpretation_contract": {
-            "figures_are_recomputed_from_current_neutral_caches": True,
-            "figures_are_synthetic": False,
-            "availability_pass_is_not_hypothesis_support": True,
-            "3b_inference_enabled": False,
-            "3d_inference_enabled": False,
-        },
-    }
-    OUT.mkdir(parents=True, exist_ok=True)
-    with (OUT / "figure_values.json").open("w") as handle:
-        json.dump(results, handle, indent=2, sort_keys=True, allow_nan=False)
-        handle.write("\n")
+    manifest_path, preflight = write_preflight_manifest(OUT)
+    try:
+        if preflight.get("code_dirty_at_start") is not False:
+            raise RuntimeError(
+                "visual generation requires clean code/config at run start; "
+                "changes under outputs/participant_result_visuals are ignored"
+            )
+        snapshot = freeze_visual_inputs(generator_path=Path(__file__))
+    except Exception as error:
+        write_failed_manifest(
+            manifest_path,
+            preflight,
+            validation_state="input_validation_failed",
+            error=error,
+        )
+        raise
+    manifest_base = visual_manifest_base(snapshot, preflight)
+    write_in_progress_manifest(OUT, manifest_base)
+
+    try:
+        profile = load_qc_profile(PROFILE_ID)
+        results = {
+            "analysis_version": manifest_base["analysis_version"],
+            "cache_schema_version": manifest_base["cache_schema_version"],
+            "profile_id": PROFILE_ID,
+            "profile_sha256": manifest_base["profile_sha256"],
+            "profile_file_sha256": manifest_base["profile_file_sha256"],
+            "figures": {
+                "3A": make_3a(profile),
+                "3A_threshold_explainer": make_3a_threshold_explainer(profile),
+                "3B": make_3b(profile),
+                "3B_RESP0699_Naji_check": make_3b_respect_naji_check(profile),
+                "3D": make_3d(profile),
+            },
+            "interpretation_contract": {
+                "figures_are_recomputed_from_current_neutral_caches": True,
+                "figures_are_synthetic": False,
+                "availability_pass_is_not_hypothesis_support": True,
+                "3b_inference_enabled": False,
+                "3d_inference_enabled": False,
+            },
+        }
+        OUT.mkdir(parents=True, exist_ok=True)
+        values_path = OUT / "figure_values.json"
+        atomic_json_dump(results, str(values_path))
+        (OUT / "README.md").write_text(
+            render_visual_readme(results),
+            encoding="utf-8",
+        )
+        (OUT / "RESP0699_THRESHOLD_AND_NAJI_CHECK.md").write_text(
+            render_resp0699_check(results),
+            encoding="utf-8",
+        )
+        result_paths = [
+            OUT / name for name in VISUAL_RESULT_NAMES
+        ]
+        assert_visual_inputs_unchanged(snapshot)
+        manifest_path = write_terminal_manifest(
+            OUT,
+            manifest_base,
+            result_paths,
+        )
+        assert_visual_inputs_unchanged(snapshot)
+        validate_terminal_visual_manifest(
+            manifest_path,
+            result_paths,
+        )
+    except Exception as error:
+        write_failed_manifest(
+            manifest_path,
+            manifest_base,
+            validation_state="terminal_validation_failed",
+            error=error,
+        )
+        raise
     print(json.dumps(results, indent=2, sort_keys=True, allow_nan=False))
 
 

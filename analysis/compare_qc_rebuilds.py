@@ -31,6 +31,24 @@ def _load(path):
     return payload
 
 
+def validate_rebuild_comparison_summary(
+        root=None, summary_path=None):
+    """Validate v3 by rebuilding it from the tracked snapshot and public v9."""
+    from rebuild_comparison_evidence import (
+        SUMMARY_RELATIVE,
+        validate_summary,
+    )
+
+    source_root = os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__)))
+    root = os.path.abspath(root if root is not None else source_root)
+    summary_path = os.path.abspath(
+        summary_path
+        if summary_path is not None
+        else os.path.join(root, *SUMMARY_RELATIVE.split("/")))
+    return validate_summary(root, summary_path)
+
+
 def _profile(payload, profile_id, *, source):
     matches = [
         value for value in payload.get("profiles", [])
@@ -229,11 +247,64 @@ def compare_profiles(before, after, *, profile_id=DEFAULT_PROFILE):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--before", required=True)
-    parser.add_argument("--after", required=True)
+    parser.add_argument("--before")
+    parser.add_argument("--after")
     parser.add_argument("--profile", default=DEFAULT_PROFILE)
     parser.add_argument("--output")
+    writer = parser.add_mutually_exclusive_group()
+    writer.add_argument(
+        "--capture-v8-snapshot",
+        nargs=2,
+        metavar=("HUP_GRID", "RESPECT_GRID"),
+    )
+    parser.add_argument("--legacy-summary")
+    writer.add_argument("--write-machine-summary", action="store_true")
+    parser.add_argument("--root")
     args = parser.parse_args()
+    source_root = os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__)))
+    root = os.path.abspath(args.root or source_root)
+    if args.capture_v8_snapshot:
+        if not args.legacy_summary:
+            parser.error(
+                "--legacy-summary is required with --capture-v8-snapshot")
+        if args.before or args.after:
+            parser.error(
+                "--before/--after cannot be combined with a writer mode")
+        from rebuild_comparison_evidence import (
+            SNAPSHOT_RELATIVE,
+            capture_v8_snapshot,
+            write_json,
+        )
+        output = args.output or os.path.join(
+            root, *SNAPSHOT_RELATIVE.split("/"))
+        write_json(capture_v8_snapshot(
+            *args.capture_v8_snapshot,
+            legacy_summary_path=args.legacy_summary,
+        ), output)
+        return
+    if args.write_machine_summary:
+        if args.before or args.after or args.legacy_summary:
+            parser.error(
+                "comparison/capture inputs cannot be combined with "
+                "--write-machine-summary")
+        from rebuild_comparison_evidence import (
+            SNAPSHOT_RELATIVE,
+            SUMMARY_RELATIVE,
+            build_summary,
+            write_json,
+        )
+        snapshot = os.path.join(root, *SNAPSHOT_RELATIVE.split("/"))
+        output = args.output or os.path.join(
+            root, *SUMMARY_RELATIVE.split("/"))
+        write_json(build_summary(root, snapshot), output)
+        return
+    if args.legacy_summary:
+        parser.error(
+            "--legacy-summary is only valid with --capture-v8-snapshot")
+    if not args.before or not args.after:
+        parser.error(
+            "--before and --after are required unless a writer mode is used")
     before_path = os.path.abspath(args.before)
     after_path = os.path.abspath(args.after)
     report = {

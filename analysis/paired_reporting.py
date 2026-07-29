@@ -41,7 +41,8 @@ _PAIRED_OBSERVATION_CSV_FIELDS = (
     "coherence_analytic_threshold",
     "coherence_above_threshold",
     "coherence_K",
-    "shared_support_fraction",
+    "shared_eeg_support_fraction",
+    "shared_cardiac_support_fraction",
     "sigma_peak_window_mean",
     "swa_same_window_mean",
     "sigma_to_swa_same_peak_window_ratio",
@@ -442,7 +443,8 @@ def _ieeg_3b_csv_row(record, stage, comparison_role):
         "coherence_analytic_threshold": None,
         "coherence_above_threshold": None,
         "coherence_K": None,
-        "shared_support_fraction": None,
+        "shared_eeg_support_fraction": None,
+        "shared_cardiac_support_fraction": None,
         "sigma_peak_window_mean": None,
         "swa_same_window_mean": None,
         "sigma_to_swa_same_peak_window_ratio": None,
@@ -503,9 +505,12 @@ def _role_pair_csv_rows(records):
                     if result.get("coherence") is None
                     else int(result["coherence"]["K"])
                 ),
-                "shared_support_fraction": record[
-                    "shared_inputs"]["paired_3a_common_support"][
-                        "shared_fraction"],
+                "shared_eeg_support_fraction": record[
+                    "shared_inputs"]["paired_3a_endpoint_support"][
+                        "eeg_common"]["fraction"],
+                "shared_cardiac_support_fraction": record[
+                    "shared_inputs"]["paired_3a_endpoint_support"][
+                        "cardiac_common"]["fraction"],
                 "sigma_peak_window_mean": _metric(
                     result, ("negative_control", "sigma_window_mean")),
                 "swa_same_window_mean": _metric(
@@ -550,7 +555,8 @@ def _role_pair_csv_rows(records):
                         "coherence_analytic_threshold": None,
                         "coherence_above_threshold": None,
                         "coherence_K": None,
-                        "shared_support_fraction": None,
+                        "shared_eeg_support_fraction": None,
+                        "shared_cardiac_support_fraction": None,
                         "sigma_peak_window_mean": None,
                         "swa_same_window_mean": None,
                         "sigma_to_swa_same_peak_window_ratio": None,
@@ -591,7 +597,8 @@ def _role_pair_csv_rows(records):
                     "coherence_analytic_threshold": None,
                     "coherence_above_threshold": None,
                     "coherence_K": None,
-                    "shared_support_fraction": None,
+                    "shared_eeg_support_fraction": None,
+                    "shared_cardiac_support_fraction": None,
                     "sigma_peak_window_mean": None,
                     "swa_same_window_mean": None,
                     "sigma_to_swa_same_peak_window_ratio": None,

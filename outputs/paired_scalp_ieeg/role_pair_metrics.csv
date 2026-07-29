@@ -58,14 +58,14 @@ HUP199_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,False,no uninterrupted 180-s st
 HUP199_phaseII,3B,fz,FZ,N2,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
 HUP199_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 event-supported contacts < 2,,0,,,,,,,,,,,,,,,True
 HUP199_phaseII,3B,fz,FZ,N3,scalp_FZ,True,False,no uninterrupted 180-s stage run; 0 finite stage samples < 100; 0 eligible SOs < 30,,0,,,,,,,,,,,,,,,True
-HUP199_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,2437,2464,,,,,,,,,,,,0.22196301216432968,2.5905059517753704,1.125,True
+HUP199_phaseII,3B,fz,iEEG aggregate,NREM,iEEG,True,True,,2439,2464,,,,,,,,,,,,0.22140583075644565,2.596348498941064,1.125,True
 HUP199_phaseII,3B,fz,FZ,NREM,scalp_FZ,True,True,,306,306,,,,,,,,,,,,0.08346315804696522,6.412962883738809,0.25,True
 HUP205_phaseII,3A,c3,iEEG aggregate,NREM first 210 min,iEEG,True,True,,3,,,0.026446692209345122,0.2384041903808527,False,12,0.9521825396825396,,,,0.019096594853254004,11.0,,,,True
 HUP205_phaseII,3A,c3,C3/C03,NREM first 210 min,scalp_C3,True,True,,3,,,0.1473605560222297,0.2384041903808527,False,12,0.9521825396825396,,,,0.0411680463098695,2.0,,,,True
 HUP205_phaseII,3B,f3,,N2,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
 HUP205_phaseII,3B,f3,,N3,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
 HUP205_phaseII,3B,f3,,NREM,scalp_F3,False,False,sensor absent,,,,,,,,,,,,,,,,,True
-HUP205_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,True,,576,607,,,,,,,,,,,,0.05713509800868704,0.9142632886601726,1.3,True
+HUP205_phaseII,3B,fz,iEEG aggregate,N2,iEEG,True,True,,577,607,,,,,,,,,,,,0.05734894999503373,0.9194335862170787,1.3,True
 HUP205_phaseII,3B,fz,FZ,N2,scalp_FZ,True,True,,86,87,,,,,,,,,,,,0.784706615557871,2.0671428093383266,4.75,True
 HUP205_phaseII,3B,fz,iEEG aggregate,N3,iEEG,True,True,,557,579,,,,,,,,,,,,0.35218486255213516,0.7303338321319102,1.1,True
 HUP205_phaseII,3B,fz,FZ,N3,scalp_FZ,True,True,,87,87,,,,,,,,,,,,0.5684048761057269,0.8186424166540063,1.25,True

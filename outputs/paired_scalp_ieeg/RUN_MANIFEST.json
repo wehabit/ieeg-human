@@ -1,8 +1,10 @@
 {
   "3a_sensor": "single C3/C03 scalp channel, Lecci-aligned sensor location but unknown online reference; compared with the frozen iEEG aggregate",
   "3b_sensors": "single F3 (unilateral/reference-incomplete) and Fz (not a Naji sensor), both exploratory one-channel profile clones",
-  "code_dirty": true,
-  "code_revision": "7592317c8d6149756e7791c5bf29e796f3fa2a8f",
+  "analysis_version": "2026-07-qc-sensitivity-v9",
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
+  "code_dirty": false,
+  "code_revision": "021a8739e9184c19b79b869600209173c9f06356",
   "comparison_design": "within-participant simultaneous EEG-arm comparison: same portal snapshot, frozen night, duration, sample rate, cached ECG/RR, profile-materialized stage labels, and exact intersected finite positive 3A EEG/HR support. The EEG arms differ jointly in modality, location, reference, and contact aggregation, so this does not isolate a pure modality effect",
   "completed_subjects": [
     "HUP160_phaseII",
@@ -79,14 +81,14 @@
     }
   },
   "exploratory_single_channel_profile_sha256": "513c368a2138b3bb4505d66342043a9c466c45677bb25278c41bedf6bd291ef1",
-  "frozen_qc_grid_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
-  "frozen_qc_grid_path_relative": "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json",
+  "frozen_qc_grid_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
+  "frozen_qc_grid_path_relative": "outputs/qc_grid_public/locked/overlap11_endpoint_local__hup.json",
   "frozen_qc_grid_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
-  "frozen_qc_grid_sha256": "f0876c2fd01da0b4efc18a1bf672daffed371d57d5b8630f84f00065c268a057",
-  "generated_at_utc": "2026-07-28T05:29:03.499040+00:00",
+  "frozen_qc_grid_sha256": "3f20c15c2cb41a9e066247291dc694b262793b55caac3c10af136d18adcfd261",
+  "generated_at_utc": "2026-07-29T18:56:14.569421+00:00",
   "lc_specificity": "none: these are downstream cortical/cardiac observables. Neither arm records LC neurons, norepinephrine, nor an independently validated LC signal, and neither selectively perturbs LC.",
   "pipeline": "paired_scalp_ieeg_comparison",
-  "profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+  "profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
   "profile_id": "overlap11_endpoint_local",
   "profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "requested_subjects": [
@@ -100,14 +102,14 @@
     "HUP212_phaseII"
   ],
   "result_files_sha256": {
-    "group_summary.json": "9541f03784cdda4d2965e52b4384762dffc988888ce5721ce689181309bf7191",
+    "group_summary.json": "1a2f068582cbadf3f800ccc08dcd3de40f81134470965665aeb20fc3df6135bf",
     "paired_3A_C3.png": "3f2a3911e7e4dfcb1299e3689a702eb561618638f721139583578c1b22c9bb6d",
-    "paired_3A_C3.svg": "4f51ecf2b1e0baac75413921c91124f878dd4a6f1f7b86980eae2cfd010348be",
-    "paired_3B_F3_Fz.png": "fc6c1b9d7b06dca2867f0914e254094640970539169f8389236c12c811c77877",
-    "paired_3B_F3_Fz.svg": "e567b662cc2f92d77dd73bd99bffcdadeda369778ed58fb99d5b95c90ce7d2a4",
-    "paired_metrics.csv": "87e3792a1643bef9362ec391d5f93fdf7c921bc346eba550ff4aee0061aa34ef",
-    "role_pair_metrics.csv": "224cb10384c3143dff3ced0ccfcca7f7651dd0e375428bf59e3d4583213d485b",
-    "subject_results.json": "15633f911908f0a7f1dd7b899e47ea6bab475b4a479d84a44b26c46a4223cc9a"
+    "paired_3A_C3.svg": "7c3839f031d378c13c7b9c3815c161ed9989fdd717931fac73f45400ffc694fa",
+    "paired_3B_F3_Fz.png": "14e2b7f2934c1c0d449be119332dd3263b5eea75d3da62080a00e3789a2c17f9",
+    "paired_3B_F3_Fz.svg": "cf657eff185c4188fe6f9be632caed2042e9aae2f767b44820aad1ea0dab00b7",
+    "paired_metrics.csv": "b961b00efefedf2fa7755adf2445db702996bb51b752af811ce7ab838d758205",
+    "role_pair_metrics.csv": "fb25dd7311cc659b42d930fba234858cf4e5a39460c103d882a5299b31ba113f",
+    "subject_results.json": "d13d8b651753101050f1133616eba35900141c6b33cdd0bd71ceeb1a914473b8"
   },
   "run_state": "complete",
   "runtime_versions": {
@@ -121,13 +123,13 @@
   },
   "scalp_inventory": {
     "classification_counts": {
-      "c3_present_but_frozen_3a_spectrum_unavailable": 2,
+      "c3_present_but_frozen_3a_spectrum_unavailable": 1,
       "no_c3_or_c03_label": 15,
-      "paired_3a_eligible": 8
+      "paired_3a_eligible": 8,
+      "requires_full_interval_activity_sidecar": 1
     },
     "classification_subjects": {
       "c3_present_but_frozen_3a_spectrum_unavailable": [
-        "HUP138_phaseII",
         "HUP182_phaseII"
       ],
       "no_c3_or_c03_label": [
@@ -156,10 +158,13 @@
         "HUP205_phaseII",
         "HUP211_phaseII",
         "HUP212_phaseII"
+      ],
+      "requires_full_interval_activity_sidecar": [
+        "HUP138_phaseII"
       ]
     },
     "manifest_path_relative": "outputs/paired_scalp_inventory/RUN_MANIFEST.json",
-    "manifest_sha256": "ec6c0fe28b4bdac826e43ef8eec107c057f738710f151b302010eb315ab00363",
+    "manifest_sha256": "609c51d1e37918aa09e1461744e704851abf8c7eb6ac83aa3334d5649a3aea28",
     "n_frozen_hup_participants": 25,
     "paired_3a_eligible_subjects": [
       "HUP160_phaseII",
@@ -177,9 +182,9 @@
     "path_relative": "outputs/paired_scalp_inventory/hup_scalp_channel_inventory.json",
     "reference_warning": "A channel label does not identify its online reference. Presence of A1/A2/M1/M2 also does not prove a reconstructable Naji montage.",
     "selection_was_blind_to_scalp_endpoint_values": true,
-    "sha256": "2e354b17a5753ffc1e9a790c06230cd73a4ca1d4b3b5c1da20ee8a3f43829028"
+    "sha256": "14488e0af2845b8f999faedf3078933ac2091da4554ac99d781c936c468a954f"
   },
-  "schema_version": "2026-07-paired-scalp-ieeg-results-v3-normalized-csv",
+  "schema_version": "2026-07-paired-scalp-ieeg-results-v4-versioned-evidence",
   "sleep_label_provenance": "HUP sleep labels are an iEEG-derived delta/SWA GMM proxy without independent visual PSG scoring or EOG/EMG. Holding the same labels fixed controls timing but makes this comparison asymmetric and does not validate a scalp-paper staging pipeline.",
-  "source_tree_sha256": "f09dc3c74944cbc393eaafc60f6d2bba02d85efd32f7f0825a08b527cffaaf28"
+  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7"
 }

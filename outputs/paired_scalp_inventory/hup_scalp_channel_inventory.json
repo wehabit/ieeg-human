@@ -1,13 +1,15 @@
 {
-  "audit_script_sha256": "d3fe0c1d7466d09e98ea4ba86be6f1e95a2d193c27030120d6291deb4689a33c",
+  "analysis_version": "2026-07-qc-sensitivity-v9",
+  "audit_script_sha256": "5eb20cabd79a38c46707caf0ad084a2983979d492add258627a1fe9dba65af62",
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "classification_counts": {
-    "c3_present_but_frozen_3a_spectrum_unavailable": 2,
+    "c3_present_but_frozen_3a_spectrum_unavailable": 1,
     "no_c3_or_c03_label": 15,
-    "paired_3a_eligible": 8
+    "paired_3a_eligible": 8,
+    "requires_full_interval_activity_sidecar": 1
   },
   "classification_subjects": {
     "c3_present_but_frozen_3a_spectrum_unavailable": [
-      "HUP138_phaseII",
       "HUP182_phaseII"
     ],
     "no_c3_or_c03_label": [
@@ -36,18 +38,21 @@
       "HUP205_phaseII",
       "HUP211_phaseII",
       "HUP212_phaseII"
+    ],
+    "requires_full_interval_activity_sidecar": [
+      "HUP138_phaseII"
     ]
   },
-  "code_dirty": true,
-  "code_revision": "7592317c8d6149756e7791c5bf29e796f3fa2a8f",
+  "code_dirty": false,
+  "code_revision": "14b28bf5e50b664932f2f3aed534a82a01ef322f",
   "current_locked_qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "frozen_cache_manifest_path_relative": "data/derived/lc_infraslow/RUN_MANIFEST.json",
-  "frozen_cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
-  "generated_at_utc": "2026-07-28T05:28:30.204186+00:00",
+  "frozen_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
+  "generated_at_utc": "2026-07-29T18:54:33.415060+00:00",
   "n_requested": 25,
   "pipeline": "audit_hup_scalp_inventory",
-  "qc_grid_path_relative": "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json",
-  "qc_grid_sha256": "f0876c2fd01da0b4efc18a1bf672daffed371d57d5b8630f84f00065c268a057",
+  "qc_grid_path_relative": "outputs/qc_grid_public/locked/overlap11_endpoint_local__hup.json",
+  "qc_grid_sha256": "3f20c15c2cb41a9e066247291dc694b262793b55caac3c10af136d18adcfd261",
   "qc_profile_id": "overlap11_endpoint_local",
   "qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "query_error_subjects": [],
@@ -89,14 +94,14 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "schema_version": "2026-07-hup-scalp-channel-inventory-v1",
+  "schema_version": "2026-07-hup-scalp-channel-inventory-v2-versioned",
   "selection_inputs": "exact frozen cohort membership; pinned portal snapshot and channel metadata; exact C3/C03 label and geometry; frozen 3A spectrum availability; prespecified numerical activity QC from full-interval sidecars",
   "selection_was_blind_to_scalp_endpoint_values": true,
   "sidecar_manifest_path_relative": "data/derived/paired_scalp/RUN_MANIFEST.json",
-  "sidecar_manifest_sha256": "9574036c05ebc50442628ebf77d1428319f94c975192ec21445206585c00871b",
+  "sidecar_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
   "source_pin_path_relative": "analysis/hup_ieeg_source_pin.json",
   "source_pin_sha256": "a3a08e6b69486b5ea9ea996aa4d975ba1e228ac68a72443b2bbed4f10991a123",
-  "source_tree_sha256": "f09dc3c74944cbc393eaafc60f6d2bba02d85efd32f7f0825a08b527cffaaf28",
+  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7",
   "subjects": [
     {
       "dataset_name": "HUP116_phaseII",
@@ -557,9 +562,9 @@
       "dataset_name": "HUP138_phaseII",
       "frozen_3a": {
         "coherence_available": false,
-        "cross_correlation_available": false,
+        "cross_correlation_available": true,
         "record_available": true,
-        "spectrum_available": false
+        "spectrum_available": true
       },
       "ordered_channel_labels": [
         "C3",
@@ -805,7 +810,7 @@
           "target_normalized_label": "M2"
         }
       },
-      "selection_classification": "c3_present_but_frozen_3a_spectrum_unavailable",
+      "selection_classification": "requires_full_interval_activity_sidecar",
       "sidecar": null,
       "snapshot_id": "bcf23cb4-0f18-4288-be52-017df125e000",
       "subject": "HUP138_phaseII"
@@ -2234,7 +2239,7 @@
           "f3": "F3",
           "fz": "FZ"
         },
-        "sha256": "fb22e6758e4d987125c71eecec666812a1e1bd09e7ef385b211ddd3f4eb9552f"
+        "sha256": "231ee289b16b2e9de3fbc7bd34e3fe80b5969213905f44c2f6e481eebb255e08"
       },
       "snapshot_id": "c93ccfda-873a-438c-a2a8-2916706b7c48",
       "subject": "HUP160_phaseII"
@@ -3902,7 +3907,20 @@
         }
       },
       "selection_classification": "c3_present_but_frozen_3a_spectrum_unavailable",
-      "sidecar": null,
+      "sidecar": {
+        "channels": {
+          "C3": {
+            "finite_sample_count": 12902400,
+            "numerically_nonflat_full_interval": true,
+            "raw_dynamic_range": 44676.583802362395
+          }
+        },
+        "path_relative": "data/derived/paired_scalp/HUP182_phaseII.npz",
+        "roles": {
+          "c3": "C3"
+        },
+        "sha256": "9bf98d45716199afc06ede0b067a172465377646ddb026e507f7b8175ff11702"
+      },
       "snapshot_id": "74eeaaf2-701f-498f-92b0-44b134d20818",
       "subject": "HUP182_phaseII"
     },
@@ -4153,7 +4171,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "0a56899a0ec7fa3675492c55493a124e02603e2b4964b31f5e1730670a3ffda8"
+        "sha256": "2a23c82501d338cfef36d8426c907a18794c3607e1d9562e6405d8e894e6e3fd"
       },
       "snapshot_id": "3fcbea55-342b-429d-8e5e-8cbd5f50c3db",
       "subject": "HUP185_phaseII"
@@ -4408,7 +4426,7 @@
           "f3": "F3",
           "fz": "FZ"
         },
-        "sha256": "626af5cd5aa82632010505ce2c051dd4029945a1fdcc6ae5e0a1be40f514055e"
+        "sha256": "49621df58ba4c2b33c2961f8148f0b8a51adcb818ba54bf6f2957048ecfc7d29"
       },
       "snapshot_id": "a06e2e34-1c7a-482a-8031-89e80808e6fe",
       "subject": "HUP187_phaseII"
@@ -4684,7 +4702,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "7143c219337c6cae080025ef0895622111fad5260ff13c38b87f171db5c171c0"
+        "sha256": "e3498682045da9da292e2b4b779010c2c012c29d0808030ca9912089274f66eb"
       },
       "snapshot_id": "e33bad75-2b0a-40d3-9a62-2fe867448125",
       "subject": "HUP191_phaseII"
@@ -4960,7 +4978,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "7090968ab6863402a26afa34dd90568dadf51c373e55d8faa83a804c7f3470ef"
+        "sha256": "d48f2c9b3af9f9de06fbd23d25dd38d276cee9c106d1717e44bfd8860f05368e"
       },
       "snapshot_id": "3a0d1211-c75a-4b15-a6d7-6761c378d208",
       "subject": "HUP199_phaseII"
@@ -5240,7 +5258,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "8e6a464fb687598c4ec8e8b4d5ed2e6c6244d497a04f7290eacd7ce64d9ef68c"
+        "sha256": "07738005f6af6db25b025958ce68742a1ac95ea4c0f1b76548395a2ed977d82b"
       },
       "snapshot_id": "15444ee1-2327-4a0a-a7bf-c46c95cd9133",
       "subject": "HUP205_phaseII"
@@ -5612,7 +5630,7 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "2a306fa3ead85a82e424d3aa5b793714ba06f20bce21faf3ef3b506a2543f7a1"
+        "sha256": "0a79560170d4a4608c4d8a0af10643d0cde00f3f8a5d4922f920aef92e282750"
       },
       "snapshot_id": "b4632b6a-d8a0-42da-a122-fcaf29ba823c",
       "subject": "HUP211_phaseII"
@@ -5860,7 +5878,7 @@
           "c3": "C03",
           "fz": "FZ"
         },
-        "sha256": "cf15c1aad1987686e03a55075e8da43e1650e3908088c71dcef9f5abc5f2ae5d"
+        "sha256": "583a312d7ba2afb2317557b091a9f8c5d5c099bc2070cd1cc6a2a06b6d9ab749"
       },
       "snapshot_id": "8deb9e32-6dce-429c-8900-09492a6af9ce",
       "subject": "HUP212_phaseII"

@@ -1,20 +1,19 @@
-# LC-proxy QC sensitivity results — v8
+# LC-motivated QC sensitivity results — v9
 
 ## Bottom line
 
-The v8 rerun changes the **availability** conclusion, but it does not establish a human
+The v9 rerun changes the **availability** conclusion, but it does not establish a human
 locus-coeruleus (LC) biomarker.
 
-This document describes the exact hash-pinned v8 baseline. Subsequent raw-channel selector and
-numerical flat-line fixes change the cache-builder digest, so the current code intentionally
-rejects these caches as reusable current-build artifacts. A complete HUP cache/grid rebuild is
-still required to measure how those fixes change the cohort-wide results.
+This document describes the exact hash-pinned v9 rebuild. The neutral caches, four complete
+sensitivity grids, compact public evidence, paired scalp–iEEG analysis, and strict artifact
+manifests were regenerated after the source/acquisition, event-boundary, and provenance fixes.
 
 - The former fixed-80% pipeline stacked several locally introduced coverage and count gates. It
   made every HUP endpoint unavailable even though the cited papers do not specify a 70%, 75%, 80%,
   or 90% recording-coverage cutoff.
 - A locked, outcome-blind endpoint-local sensitivity profile recovers subject-level estimates:
-  HUP has 19/14/15 usable 3A spectrum/coherence/cross-correlation records, 6/5/15 usable 3B
+  HUP has 20/14/16 usable 3A spectrum/coherence/cross-correlation records, 6/5/15 usable 3B
   N2-like/N3-like/pooled records, and 7 descriptive 3D records. RESPect has 3 usable 3A records,
   one N3 3B record, and two exploratory pooled-NREM 3B records.
 - RESPect still does not reach the default cohort minimum of five. HUP reaches the nominal
@@ -29,8 +28,8 @@ still required to measure how those fixes change the cohort-wide results.
 Current contract:
 
 ```text
-analysis_version = 2026-07-qc-sensitivity-v8
-cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v8
+analysis_version = 2026-07-qc-sensitivity-v9
+cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v9
 ```
 
 ## What SWA means
@@ -56,7 +55,7 @@ the recording that must survive QC. The former 80% rules entered this repository
 biological analyses and were neither prospective nor preregistered.
 
 It is therefore not defensible to say that 79% is scientifically invalid while 80% is valid.
-It is also not defensible to select 70% because it produces a preferred result. v8 handles this by:
+It is also not defensible to select 70% because it produces a preferred result. v9 handles this by:
 
 1. retaining reversible numerator/denominator and observation masks in neutral caches;
 2. defining profiles before inspecting the direction of the LC-proxy results;
@@ -109,7 +108,7 @@ calibration does not validate auxiliary channels.
 
 The calibration artifact is byte-pinned and records the exact calibration-code hashes, runtime,
 cache manifest, and per-cache hashes. Its current SHA-256 is
-`c6d4f1deccd3e0c7a03875185b2378116b1e33aab78323db91a39dc0b828af1f`.
+`a974c00b0982a9f9b68bd59864776ab76fd33a6efba70fda57b1cae165692ff3`.
 
 ## Endpoint availability
 
@@ -121,7 +120,7 @@ not mean that the hypothesis was supported.
 | RESPect `audit80` | 0 | 0 | 0 | 0 | 1 | 2 | N/A |
 | RESPect `overlap11_endpoint_local` | 3 | 3 | 3 | 0 | 1 | 2 | N/A |
 | HUP `audit80` | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| HUP `overlap11_endpoint_local` | 19 | 14 | 15 | 6 | 5 | 15 | 7 |
+| HUP `overlap11_endpoint_local` | 20 | 14 | 16 | 6 | 5 | 15 | 7 |
 
 HUP requested 25 participants. Twenty-four were analyzed and HUP116 was an explicit structured
 skip because it had no cortical-contact candidates. All 24 HUP records had enough neutral fields
@@ -156,11 +155,11 @@ RESPect availability is invariant across 1–14 valid iEEG Welch windows:
 |---:|---:|---:|---:|
 | 1 | 20/16/16 | 5/5/17 | 6 |
 | 4 | 20/16/16 | 7/7/17 | 6 |
-| 7 | 18/14/14 | 5/5/15 | 5 |
-| 9 | 19/14/15 | 8/8/15 | 7 |
-| 11 | 19/14/15 | 6/5/15 | 7 |
+| 7 | 19/15/15 | 5/5/16 | 5 |
+| 9 | 20/15/16 | 8/8/16 | 7 |
+| 11 | 20/14/16 | 6/5/15 | 7 |
 | 12 | 17/13/14 | 2/2/15 | 7 |
-| 14 | 11/7/11 | 3/2/11 | 7 |
+| 14 | 11/7/11 | 3/2/11 | 6 |
 
 The HUP stage-specific counts are nonmonotonic because the support rule changes the distribution
 used to fit proxy stages; it is not merely removing a nested subset. This is model-specification
@@ -170,10 +169,10 @@ The auxiliary 1–14-window grid is an expected endpoint-level negative control:
 
 - HUP has no EMG/EOG input, so auxiliary support is not applicable.
 - In RESPect, the threshold changes finite EMG/EOG intermediates and changes some proxy labels,
-  but author-constrained final labels remain identical. v8 now serializes finite auxiliary counts,
+  but author-constrained final labels remain identical. v9 serializes finite auxiliary counts,
   proxy-label counts, final-label counts, and their disagreement so this invariance is auditable.
 
-For 3B, HUP N2/N3 counts generally remain 5–6 and pooled remains 15 across the locked
+For 3B, HUP N2/N3 counts generally remain 5–6 and pooled ranges from 15–16 across the locked
 SO-count/contact/amplitude-percentile grid. RESPect N3 disappears at 50 SOs per contact or at the
 90th amplitude percentile. These are fragile subject-availability changes, not inferential
 results.
@@ -200,10 +199,10 @@ bracketing Lecci's approximately 0.019-Hz report. Only one of three fixed-0.02-H
 exceeds its individual analytic threshold. The Lecci-direction cross-correlation maxima are at
 0, 0, and 5 seconds, with median `r = 0.303`, but `n = 3` is below the cohort minimum.
 
-HUP has 19 spectra and 9 accepted peaks. Their median is 0.0166 Hz, but their range is broad
+HUP has 20 spectra and 10 accepted peaks. Their median is 0.0163 Hz, but their range is broad
 (0.0104–0.0325 Hz). Four of 14 fixed-0.02-Hz coherence values exceed their individual analytic
-thresholds. Fourteen of 15 Lecci-direction correlations are positive, but the median is only
-`r = 0.068`; lags span 0–15 seconds and are concentrated at zero rather than around five seconds.
+thresholds. Fifteen of 16 Lecci-direction correlations are positive, but the median is only
+`r = 0.067`; lags span 0–15 seconds and are concentrated at zero rather than around five seconds.
 
 **Interpretation:** there are individual infraslow sigma features, but the current artifacts do
 not contain a valid cohort test and do not show a clean, robust replication of the proposed
@@ -220,7 +219,7 @@ HUP descriptive local HR changes are:
 | Pooled NREM, exploratory | 15 | 14/15 | +0.245% | 2.0 s |
 
 RESPect contributes one N3 estimate (`+0.455%`, 2.35 s) and two pooled estimates
-(`+0.891%` and `+1.613%`, approximately 1.9 and 2.7 s).
+(`+0.895%` and `+1.613%`, approximately 1.9 and 2.7 s).
 
 Every saved 3B estimate has `p_upper = null`, `z = null`, and an explicit
 `inference_status` saying that whole-stage shifts do not preserve local nonstationary HR trends or
@@ -234,9 +233,9 @@ Naji replication, behavioral replication, or LC proxy validation.
 ### 3D — SO–spindle nesting
 
 Seven HUP participants pass the descriptive base support rules. Participant vector lengths range
-from 0.050 to 0.292, while preferred phases range from about −43° to 161°. A direct, unvalidated
-equal-participant arithmetic mean of the stored vectors has `R = 0.087` and phase approximately
-0.08°, illustrating weak common direction; it is not a stored inferential result.
+from 0.049 to 0.269, while preferred phases range from about −42.1° to 162.8°. A direct,
+unvalidated equal-participant arithmetic mean of the stored vectors has `R = 0.0867` and phase
+approximately −0.36°, illustrating weak common direction; it is not a stored inferential result.
 
 Every record sets `inference_enabled = false` and `inferential_p_value = null`. The nearest-event
 pairing step is known to induce common phase under independence unless a complete-train
@@ -247,13 +246,27 @@ phase, not an LC proxy and not a valid positive or null cohort result.
 
 ## Did the fixes change the results?
 
-Yes, materially:
+Yes:
 
-- **Before v8:** the documentation said all HUP and nearly all RESPect endpoints were unavailable.
-- **After v8:** endpoint-local materialization recovers many HUP estimates and three RESPect 3A
-  estimates. The previous all-unavailable conclusion was partly an engineering artifact.
-- **What did not change:** there is still no proof of LC specificity, no valid 3B or 3D inference,
-  no expert validation of HUP stages/anatomy, and no clean cohort-level 3A replication claim.
+- The earlier endpoint-local v8 run already showed that the original all-unavailable conclusion
+  was partly an engineering artifact.
+- The v9 acquisition/event fixes add HUP138 to 3A spectrum and cross-correlation availability,
+  changing HUP 3A from 19/14/15 to 20/14/16. HUP138's new accepted spectrum peak is
+  0.014314 Hz; its Lecci-direction maximum is at +2 s with `r = 0.0226`. Coherence remains
+  unavailable: the coherence estimator did not return a supported estimate (it requires at least
+  three qualifying Welch segments and positive autospectral support).
+- Across the complete locked HUP records, the deterministic
+  [v8-to-v9 ledger](../outputs/rebuild_comparison/V8_TO_V9_SUMMARY.json) emits all 42 changed
+  selected fields. Corrected SO/spindle extents change some individual 3B descriptive
+  values/support and 3D event counts, vector lengths, and phases even though the base 3B
+  availability counts (6/5/15) and 3D descriptive count (7) stay the same. RESPect availability
+  is unchanged.
+- In the simultaneous scalp comparison, separating EEG-only spectral support from cardiac-common
+  support changes HUP187's iEEG peak from accepted to `no_local_excess`; the both-accepted paired
+  peak sample falls from 3 to 2. The paired coherence/cross-correlation values and every paired
+  3B result are unchanged relative to the immediately preceding paired output.
+- There is still no proof of LC specificity, no valid 3B or 3D inference, no expert validation of
+  HUP stages/anatomy, and no clean cohort-level 3A replication claim.
 
 The defensible conclusion is therefore not “the data are all disqualified,” and it is not “the LC
 proxy is proven.” It is:
@@ -285,9 +298,9 @@ proxy is proven.” It is:
 | A96 | Grid outputs did not fully validate pipeline/runtime/exact hash keys | Adversarial manifest tests | Validate and record pipeline, runtime, manifest, cache, profile, and source hashes |
 | A97 | 3A peak/control diagnostics could remain populated when profile support failed | Below-support regression | Withhold spectra, peaks, controls, coherence, and cross-correlation |
 | A98 | Transient portal failures could be retried without preserving the failed-run trail | Real HUP retry audit | Add a finalizer that verifies retry bytes and records recovery provenance |
-| A99 | Release validation demanded obsolete v7 directories masquerade as current | Audit-script failure on quarantined outputs | Validate v8 QC artifacts and require explicit legacy markers for old directories |
+| A99 | Release validation demanded obsolete v7 directories masquerade as current | Audit-script failure on quarantined outputs | Validate current v9 QC artifacts and require explicit legacy markers for old directories |
 | A100 | An invariant auxiliary grid looked indistinguishable from an inactive code path | Real-cache intermediate audit | Serialize finite auxiliary, proxy-stage, final-stage, and disagreement diagnostics |
-| A101 | The real-cache coherence test read obsolete raw stage aggregates and tested no v8 subject | `--require-real-cache` failed while endpoint-local records existed | Materialize the exact v8 3A profile; HUP133/HUP139 real gap geometries passed calibrated FPR checks on the frozen run; report later stale cache lineage as pending by default while keeping publication mode fail-closed |
+| A101 | The real-cache coherence test read obsolete raw stage aggregates and tested no current subject | `--require-real-cache` failed while endpoint-local records existed | Materialize the exact v9 3A profile; HUP133/HUP139 real gap geometries pass calibrated FPR checks; stale lineage is reported in default mode while publication mode remains fail-closed |
 
 ## Remaining real blockers
 
@@ -317,7 +330,7 @@ proxy is proven.” It is:
 - `outputs/qc_grid_public/event_count_oat_v1/` — compact
   event/contact/cohort-count sensitivity evidence
 - `outputs/qc_grid_public/locked/overlap11_endpoint_local__hup.json` — complete
-  frozen locked-profile subject records required by the paired exact-match
+  v9 locked-profile subject records required by the paired exact-match
   analysis
 
 The full numeric grids are deterministic ignored products under

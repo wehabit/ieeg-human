@@ -1,13 +1,12 @@
-# ds003848 RESPect — historical v8 sensitivity; v9 rebuild pending
+# ds003848 RESPect — current v9 sensitivity
 
-> **HISTORICAL V8 RESULT:** the complete six-subject neutral cache and sensitivity grids passed exact
-> cache-code, input-identity, calibration, profile, result-file, and runtime checks. The
+> **CURRENT V9 RESULT:** the complete six-subject neutral cache and sensitivity grids pass exact
+> cache-code, input-identity, acquisition, calibration, profile, result-file, and runtime checks. The
 > endpoint-local sensitivity recovers individual 3A and 3B estimates, but no endpoint reaches the
 > default cohort minimum of five. This is limited availability, not positive or negative evidence
-> for an LC proxy. V9 changes the cache contract and event boundaries; these
-> numbers are not regenerated v9 results.
+> for an LC proxy.
 
-## Historical v8 result
+## Current v9 result
 
 - Cache: 6 completed, 0 skipped, 0 failed. Each subject uses seven files pinned to OpenNeuro
   snapshot 1.0.3 by S3 version ID, byte size, and SHA-256.
@@ -17,7 +16,8 @@
 - Endpoint-local 3B: N2 0/6, N3 1/6, and exploratory pooled NREM 2/6. RESP0699 N3 has a
   descriptive local HR change of +0.455% at a mean-channel latency of 2.35 s.
 - Historical `audit80`: 3A remains 0/6 because several locally introduced gates stack; 3B is
-  0/1/2 because v8 no longer lets a global power gate suppress endpoint-local cardiac estimates.
+  0/1/2 because the current endpoint-local design no longer lets a global power gate suppress
+  endpoint-local cardiac estimates.
 - None reaches the default cohort minimum of five. No 3B p/z value is produced.
 
 The fixed 80% gate was neither a paper requirement nor preregistered. RESP0521 had approximately
@@ -36,7 +36,7 @@ The audit found three additional reasons the old values cannot be interpreted:
   contacts into endpoints; and
 - 3B did not enforce Naji's uninterrupted 3-minute stable-stage rule.
 
-Frozen v8 made author annotations primary, left author-unknown sleep unclassified,
+V9 makes author annotations primary, leaves author-unknown sleep unclassified,
 excludes annotated disturbances, filters documented pathological/non-cortical contacts, and
 intersects motivated parietal/frontal Destrieux ROIs. These corrections can sharply reduce the
 number of estimable participants. They do not provide expert AASM/R&K N2/N3 scoring, validate the
@@ -44,9 +44,9 @@ iEEG ROIs as homologues of the cited scalp sensors, remove possible postictal ef
 LC directly.
 
 Everything from “Historical cohort and staging” through the old numerical sections is retained only
-to document what was withdrawn; it is not the v8 result.
+to document what was withdrawn; it is not the v9 result.
 
-The separate v8 HUP regeneration has 24 completed caches and one explicit skip, with many
+The separate v9 HUP regeneration has 24 completed caches and one explicit skip, with many
 endpoint-local subject estimates but unresolved staging/anatomy/inference limitations. Historical
 HUP comparisons below remain withdrawn.
 
@@ -105,7 +105,7 @@ into short runs, leaving very few bouts ≥120 s and a low Welch segment count:
   |r| = 0.066; per-subject signed peak r vs 0: p = 0.09, and the trend is *negative* if anything).
 
 The superseded analysis was previously interpreted as agreeing with a “negative” HUP result and as
-showing that REM/wake exclusion did not rescue a rhythm. That interpretation is withdrawn: frozen v8
+showing that REM/wake exclusion did not rescue a rhythm. That interpretation is withdrawn: v9
 recovers individual 3A estimates but does not provide a powered RESPect cohort result.
 
 ## Historical 3B — withdrawn
@@ -120,7 +120,7 @@ thousands of SOs. Its values are retained below only as withdrawn provenance:
 | N2 ≫ N3? | no (p=0.63) | no (p=0.57) | 3.6× |
 
 The legacy write-up contrasted these values with a nominally significant HUP result and speculated
-about power or wake/arousal contamination. Frozen v8 recovered descriptive 3B estimates but disabled
+about power or wake/arousal contamination. V9 recovers descriptive 3B estimates but disables
 inference, so that legacy numerical contrast and its p-value interpretation remain withdrawn.
 
 ## What this replication does and does not establish

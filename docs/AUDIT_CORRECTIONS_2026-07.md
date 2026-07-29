@@ -2,19 +2,19 @@
 
 ## Status
 
-Legacy numerical cohort results and the frozen v8 endpoint-local results are
-historical artifacts. Current readers require
+Legacy numerical cohort results and the frozen v8 endpoint-local results are historical
+artifacts. The regenerated current evidence requires
 `analysis_version = 2026-07-qc-sensitivity-v9` and
 `cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v9`.
 The former v7 fixed-80 result is retained only as historical `audit80`. Under the outcome-blind
 endpoint-local base, RESPect has 3/3/3 available 3A records and 0/1/2 available 3B N2/N3/pooled
-records; HUP has 19/14/15 available 3A records, 6/5/15 available 3B records, and 7 descriptive 3D
+records; HUP has 20/14/16 available 3A records, 6/5/15 available 3B records, and 7 descriptive 3D
 records among 24 completed caches plus one explicit skip. Availability is not hypothesis support;
 RESPect remains below the default cohort minimum and all 3B/3D inference remains disabled. See
 [QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md).
-These are frozen v8 counts, not regenerated v9 results. The exact rebuild state
-and order are documented in [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md)
-and [ARTIFACT_POLICY.md](ARTIFACT_POLICY.md).
+These are publication-validated v9 counts. The exact rebuild record and future-data order are
+documented in [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md) and
+[ARTIFACT_POLICY.md](ARTIFACT_POLICY.md).
 
 In this document, **FIXED** means that the corresponding implementation change is present in the
 working tree; the issue register gives its executable regression where available and otherwise a
@@ -90,8 +90,9 @@ and is not an LC measurement.
 - Evaluates the paired SWA negative control in the accepted sigma peak window rather than selecting
   a different SWA peak/window, but keeps the sigma-selected comparison descriptive because an
   ordinary paired p value would condition on the selection.
-- Uses subject-matched scale-free surrogates. Reports cohort peak clustering as a tightness-only
-  statistic, not evidence that peaks are near Lecci's 0.019 Hz.
+- Uses subject-matched scale-free surrogates for participant diagnostics. The cohort
+  peak-clustering statistic survives only in the legacy/unshipped summarizer; current artifacts do
+  not report it.
 - Separates the prespecified positive 0–15 s Lecci-direction cross-correlation test (sigma follows
   HR) from signed max-absolute and opposite-sign sensitivity summaries.
 - Removes invalid independent-frequency-bin and independently selected-lag inference.
@@ -106,11 +107,11 @@ and is not an LC measurement.
 - Computes the stage baseline in RR space and converts once to HR, matching the participant curve
   and avoiding `60/mean(RR)` versus `mean(60/RR)` denominator mixing.
 - Preserves multichannel event dependence with one shared circular shift in eligible stage-time.
-- Uses stage-specific clean SO amplitude thresholds and 1,000 diagnostic shifts.
-- Requires an uninterrupted 180 s run of the same stage, matching Naji's stable-bin rule.
-- Restricts events to the cache's fixed coverage-qualified contact set, plus the RESPect frontal
-  intersection when available, and requires at least two contacts to retain ≥30 complete finite
-  in-stage RR windows after final window eligibility.
+- Uses stage-specific clean SO amplitude thresholds and 199 diagnostic shifts.
+- Requires an uninterrupted 180 s run of the same stage, adapting Naji's duration but not its
+  visually scored R&K bins.
+- Starts from activity-qualified/nonflat frontal candidates and then applies stage-local SO and
+  complete-RR-window gates; at least two contacts must retain ≥30 complete finite in-stage windows.
 - Disables 3B inferential p/z reporting because whole-stage shifts do not preserve local
   nonstationary HR trends or event-density clustering; raw/local magnitudes remain descriptive.
 
@@ -150,6 +151,8 @@ and is not an LC measurement.
   lineage-mismatched, failed, or manifest-free runs.
 - Validates and reports 3A and 3B independently; failing one analysis's sample-size gate cannot
   suppress a valid endpoint from the other.
+- Separates 3A EEG-common spectral support from cardiac-common coherence/cross-correlation
+  support, recording both exact mask hashes. Missing HR can no longer erase a valid spectrum.
 - Describes the HUP selector accurately as a sparse-probe high-delta candidate. It searches the
   complete record, preserves failed probes in physical time, includes the last legal window, and
   requires enough remaining recording for the requested duration.
@@ -183,7 +186,7 @@ and is not an LC measurement.
 - Pins the direct scientific dependencies and iEEG client revision; adds CI synthetic tests.
 - Redacts the portal account identifier/history from setup documentation.
 
-## Required rerun
+## Rebuild recipe
 
 ```bash
 python -m venv .venv
@@ -205,10 +208,10 @@ done
 .venv/bin/python analysis/compact_qc_grid_artifacts.py
 ```
 
-The former standalone 3A, 3B, 3D, and RESPect-replication writers are
-withdrawn because they created divergent artifact contracts. Then run all
-synthetic checks and `analysis/test_coherence_calibration.py
---require-real-cache`.
+This sequence produced the current v9 artifacts. The former standalone 3A, 3B, 3D, and
+RESPect-replication writers are withdrawn because they created divergent artifact contracts.
+After any future input or source change, run all synthetic checks and
+`analysis/test_coherence_calibration.py --require-real-cache`.
 
 ## Human/raw-data blockers
 
@@ -226,7 +229,7 @@ synthetic checks and `analysis/test_coherence_calibration.py
   repeats event pairing/contact aggregation; no 3D p value is currently valid. A stage contrast
   additionally requires matched contacts and event-count control.
 - Verified HUP lights-off/sleep-onset timing; sparse high-delta probes do not establish either.
-- New or longer appropriately staged, anatomically validated data for robust inference. The v8
+- New or longer appropriately staged, anatomically validated data for robust inference. The v9
   grids recover estimates but show substantial profile/staging sensitivity; do not select a
   profile after seeing the biological direction.
 - An independent LC/NE-sensitive measurement or intervention for any LC-specific claim.

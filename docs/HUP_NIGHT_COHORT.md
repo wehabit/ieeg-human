@@ -2,12 +2,12 @@
 
 > **WITHDRAWN LEGACY RESULT — DO NOT CITE AS CURRENT LC-PROXY EVIDENCE.** These intervals were
 > not verified nights, contacts were not independent participants, SOZ/pathology was not excluded,
-> and the estimates do not pass the current v8 provenance, raw-QC, or inference gates. See
+> and the estimates do not pass the current v9 provenance, raw-QC, or inference gates. See
 > [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md).
 >
-> **CURRENT V8 STATUS:** the neutral cache accounts for all 25 requested participants as 24
+> **CURRENT V9 STATUS:** the neutral cache accounts for all 25 requested participants as 24
 > completed plus one structured skip. Endpoint-local estimates are available, but HUP staging and
-> anatomy remain unvalidated and 3B/3D inference is disabled. See the v8 report; the legacy values
+> anatomy remain unvalidated and 3B/3D inference is disabled. See the v9 report; the legacy values
 > below remain withdrawn and do not prove LC tracking.
 
 Extends the single-subject full-night result (HUP165) to additional continuous full nights pulled

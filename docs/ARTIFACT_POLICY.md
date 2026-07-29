@@ -4,9 +4,9 @@ This repository separates source code, private derived data, and public result
 evidence.  The goal is a clean checkout that is small enough to review but still
 fails closed when a claimed result file is missing, modified, or stale.
 
-The checked-in numerical evidence remains the frozen v8 baseline until the
-ordered v9 rebuild below completes. Current v9 readers must reject those bytes
-rather than relabeling them.
+The checked-in numerical evidence is the completed v9 rebuild. The tracked v8
+snapshot exists only to reproduce the change ledger; current readers reject it
+as a current result rather than relabeling historical bytes.
 
 ## What belongs in Git
 
@@ -76,9 +76,11 @@ done
 # Simultaneous scalp sidecars, all-cohort inventory, and paired results.
 .venv/bin/python analysis/cache_paired_scalp.py --force
 .venv/bin/python analysis/audit_hup_scalp_inventory.py
-# Replace the placeholder with the inventory's exact ordered paired_3a_eligible list.
-.venv/bin/python analysis/paired_scalp_ieeg_comparison.py \
-  --subjects PAIRED_3A_ELIGIBLE_COMMA_LIST
+.venv/bin/python analysis/paired_scalp_ieeg_comparison.py
+.venv/bin/python analysis/scalp_f3_f4_exploratory.py
+
+# Deterministic participant explanations and figures.
+.venv/bin/python visualization/make_participant_result_visuals.py
 ```
 
 The calibration pin update changes provenance only; it does not tune a QC
@@ -106,6 +108,10 @@ manifests:
 ```bash
 .venv/bin/python analysis/test_paired_scalp.py \
   --artifact-validation publication
+.venv/bin/python analysis/scalp_f3_f4_artifact_validation.py \
+  --artifact-validation publication
+.venv/bin/python visualization/participant_visual_provenance.py \
+  --artifact-validation publication
 .venv/bin/python analysis/test_coherence_calibration.py --require-real-cache
 ```
 
@@ -113,6 +119,10 @@ Clean-checkout CI uses:
 
 ```bash
 .venv/bin/python analysis/test_paired_scalp.py \
+  --artifact-validation offline
+.venv/bin/python analysis/scalp_f3_f4_artifact_validation.py \
+  --artifact-validation offline
+.venv/bin/python visualization/participant_visual_provenance.py \
   --artifact-validation offline
 ```
 
@@ -137,4 +147,5 @@ used, the summaries, locked snapshot, and terminal manifest all remain under
 that path; a validation/test build cannot overwrite the repository default.
 
 Publication mode adds exact validation of the live cache and paired-sidecar
-manifests.  It must remain red while a required current-data rebuild is pending.
+manifests. The current v9 release passes; after any source/input change it must
+remain red until every dependent artifact is regenerated.

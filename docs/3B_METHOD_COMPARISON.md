@@ -44,8 +44,8 @@ actual code, contact the Mednick lab (UC Irvine Sleep & Cognition Lab).
 - [`analysis/test_3B_null.py`](../analysis/test_3B_null.py) — regression test for the null fix.
 - [`analysis/scalp_f3_f4_exploratory.py`](../analysis/scalp_f3_f4_exploratory.py) —
   a separate HUP138-only bilateral scalp sensitivity. It is not imported into
-  paired/group reporting and cannot run until a current terminal sidecar proves
-  both F3 and F4.
+  paired/group reporting; the published artifact records that both F3 and F4
+  are exactly flat and the endpoint is unavailable.
 - [`analysis/scalp_f3_f4_artifact_validation.py`](../analysis/scalp_f3_f4_artifact_validation.py) —
   clean-checkout validation of any published bilateral bytes; publication mode
   additionally requires and recomputes from the ignored private sidecar.
@@ -127,23 +127,25 @@ performance improvement, and cross-visit correlations were poor.
 ### Bounded HUP138 F3/F4 scalp-only sensitivity
 
 HUP138 is the only audited HUP participant with unique, geometry-matched F3 and
-F4 labels. Its acquisition plan now includes both channels, but no current
-terminal sidecar or bilateral result is implied by the plan alone. Once the
-private sidecar is regenerated, the separate runner applies the locked 3B gates
-to F3 and F4 independently and calls `subject_so_triggered` once with both event
+F4 labels. Its terminal v3 sidecar contains 25,804,800 finite samples for each
+channel, but both signals are exactly constant (raw minimum equals raw maximum;
+dynamic range 0). The separate runner applies the locked 3B gates to F3 and F4
+independently and calls `subject_so_triggered` once with both event
 sets in the RR domain (`minimum_channels=2`). It does **not** average two
 unilateral scalar results: magnitude comes from the mean F3/F4 RR curve, while
 `peak_lag_s` is the mean of the two electrode-specific RR-minimum/HR-maximum
 lags.
 
-N2 and N3 remain unavailable whenever there is no uninterrupted 180-s proxy
-stage support. Pooled NREM is labeled a non-Naji sensitivity. All z/p fields
-remain null; the shared stage shift is diagnostic only. The artifact is one
-participant, scalp-only, and cannot support a paired iEEG, group, equivalence,
-behavioural, or LC claim. Unknown online references, automated ECG without
-visual adjudication, PCHIP rather than the paper's spline, repository-specific
-duration and percentile gates, and trough-only candidate artifact QC also
-prevent an exact-method claim.
+The observed result is unavailable in N2, N3, and pooled NREM. N2/N3 also lack
+an uninterrupted 180-s proxy-stage run, but the decisive sensor failure in all
+three analyses is zero variation and therefore zero eligible F3/F4 SOs. This is
+not a 70%, 75%, or 80% coverage decision. Pooled NREM is labeled a non-Naji
+sensitivity. All z/p fields remain null; the shared stage shift is diagnostic
+only. The artifact is one participant, scalp-only, and cannot support a paired
+iEEG, group, equivalence, behavioural, or LC claim. Unknown online references,
+automated ECG without visual adjudication, PCHIP rather than the paper's spline,
+and repository-specific duration and percentile gates also prevent an
+exact-method claim.
 
 The runner writes deterministic JSON/CSV/PNG/SVG plus a byte-exact terminal
 manifest under `outputs/scalp_f3_f4_exploratory/`. It hard-stops on dirty source
@@ -169,10 +171,10 @@ from the pinned private inputs. Source tests do not generate those artifacts:
 | **Naji 2019 (scalp, healthy)** | **+12.09%** | **+3.35%** | — | yes (3.6×) |
 
 The legacy write-up called HUP coupling weak/heterogeneous, RESPect null, and
-3A absent. Those biological verdicts are withdrawn. The historical v8
+3A absent. Those biological verdicts are withdrawn. The current v9
 endpoint-local grid recovered descriptive 3B estimates for 6/5/15 HUP
 participants and 0/1/2 RESPect participants in N2/N3/pooled NREM,
 respectively; inference remained disabled and RESPect remained below the
-default cohort minimum. These are not regenerated v9 results. See
+default cohort minimum. See
 [QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md) and
 [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md).

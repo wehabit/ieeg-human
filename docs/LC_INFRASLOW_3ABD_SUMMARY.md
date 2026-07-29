@@ -3,7 +3,7 @@
 > **QUARANTINED DOCUMENT.** Earlier versions of this page contained current-looking numerical
 > results and statements that 3A was negative, 3B was weak or present, 3D was positive, staging was
 > “real,” and the analyses were validated or faithfully corrected. Those statements are withdrawn.
-> They came from superseded caches and estimators. This archive must not be used for the v8
+> They came from superseded caches and estimators. This archive must not be used for the v9
 > availability counts or estimates; see
 > [QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md).
 
@@ -33,10 +33,10 @@ snippets and partial quotations could otherwise present them as current.
 
 | Former claim category | Current status |
 |---|---|
-| Numerical 3A cohort verdicts, spectral peaks, coherence, cross-correlation, and p-values | **LEGACY VALUES WITHDRAWN.** V8 recovers individual estimates, but the former cohort claims/p-values are not current. |
-| Numerical 3B effect sizes, stage contrasts, significant-subject counts, and p-values | **LEGACY VALUES WITHDRAWN.** V8 reports descriptive estimates with inference explicitly disabled. |
+| Numerical 3A cohort verdicts, spectral peaks, coherence, cross-correlation, and p-values | **LEGACY VALUES WITHDRAWN.** V9 recovers individual estimates, but the former cohort claims/p-values are not current. |
+| Numerical 3B effect sizes, stage contrasts, significant-subject counts, and p-values | **LEGACY VALUES WITHDRAWN.** V9 reports descriptive estimates with inference explicitly disabled. |
 | Numerical 3D Rayleigh fractions, vector lengths, participant counts, and p-values | **WITHDRAWN.** Per-contact/event results are diagnostic, not cohort inference. |
-| “Positive,” “negative,” “weak,” “present,” “confirmed,” or “reproduced” biological verdicts | **WITHDRAWN.** V8 availability and descriptive direction are not a validated cohort or LC result. |
+| “Positive,” “negative,” “weak,” “present,” “confirmed,” or “reproduced” biological verdicts | **WITHDRAWN.** V9 availability and descriptive direction are not a validated cohort or LC result. |
 | “Validated implementation,” “faithful method,” or proof based only on synthetic helper tests | **WITHDRAWN.** Tests establish bounded code behavior, not end-to-end biological validity. |
 | HUP N2/N3 labels | **PROXY ONLY.** Use N2-like/N3-like and disclose that they are not expert-scored stages. |
 | RESPect “real staging” or validated wake/REM exclusion | **WITHDRAWN.** Author annotations are now primary but are coarse/incomplete and do not provide expert AASM/R&K N2/N3 validation. |
@@ -61,9 +61,9 @@ scalp-to-iEEG source homology, blinded raw detector and acquisition-gap QC, post
 respiratory confounding, cohort generalizability, profile sensitivity, and valid endpoint-specific
 inference.
 
-## Conditions for a future results summary
+## Acceptance principles retained for current and future summaries
 
-A replacement results document must:
+The current replacement results document, and any future rebuild, must:
 
 1. use the analysis and cache versions required by the current README;
 2. account for every requested participant in a terminal manifest and reject an interrupted
@@ -76,6 +76,6 @@ A replacement results document must:
    time-shift/block null, with an additional matched-contact gate for stage contrasts; and
 8. distinguish a null or positive sleep-physiology result from evidence about LC specificity.
 
-V8 materially changes availability but not the construct-validity conclusion: it recovers
+V9 materially changes availability but not the construct-validity conclusion: it recovers
 subject-level estimates, most consistently SO-linked cardiac acceleration, while 3A is
 heterogeneous and 3D remains descriptive. Neither cohort proves human LC tracking.

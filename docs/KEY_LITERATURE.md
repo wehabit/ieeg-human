@@ -2,9 +2,9 @@
 
 > **SCOPE NOTE.** Literature descriptions remain useful, but legacy
 > repository-output numbers on this page are not the audited endpoint-local
-> results or evidence of LC tracking. The frozen v8 QC-sensitivity evidence is
-> historical; v9 regeneration is pending. See the
-> [v8 QC-sensitivity report](QC_SENSITIVITY_RESULTS_2026-07.md) and
+> results or evidence of LC tracking. The v9 QC-sensitivity evidence is
+> current and publication-validated. See the
+> [v9 QC-sensitivity report](QC_SENSITIVITY_RESULTS_2026-07.md) and
 > [issue register](ISSUE_REGISTER_2026-07.md).
 
 The primary papers do **not** provide a 70%, 74%, 75%, 80%, or 90% recording-coverage
@@ -116,10 +116,9 @@ SWS/REM-selection intervals, while `electrodes.tsv` contains atlas and pathology
 
 **Why it matters here.** Those sidecars are analysis inputs, not optional descriptions. The legacy
 RESPect cache ignored both and therefore could misclassify author REM, retain author-marked
-disturbances, and include pathological/non-cortical contacts. The frozen v8 analysis consumed them
+disturbances, and include pathological/non-cortical contacts. The v9 analysis consumes them
 conservatively, while leaving author-unknown sleep unclassified and treating parietal/frontal iEEG
-ROIs as motivated scalp-source adaptations rather than direct LC measurements. V9 regeneration
-remains pending.
+ROIs as motivated scalp-source adaptations rather than direct LC measurements.
 
 ---
 
@@ -128,19 +127,21 @@ remains pending.
 None of the Pattnaik, Falach, or Zurich holdings is a continuous full night: Pattnaik is clips,
 Falach is ~3 min/patient, and Zurich is 5-min runs. The RESPect sleep runs used here are
 approximately one hour and may provide too little strictly annotated continuous data for a cohort
-endpoint. The historical HUP analyses used longer continuous high-delta candidate intervals, but
-those intervals have not been verified as lights-off-to-wake nights. The frozen v8 analysis
-recovered subject-level endpoint-local estimates but retained unvalidated staging/anatomy and
-disabled 3B/3D inference; availability is not a biological result, and v9 regeneration is pending.
+endpoint. HUP uses longer continuous high-delta candidate intervals, but those intervals have not
+been verified as lights-off-to-wake nights. The v9 analysis recovers subject-level endpoint-local
+estimates but retains unvalidated staging/anatomy and disables 3B/3D inference; availability is not
+a biological result.
 
-An all-25 snapshot-pinned inventory proves that eight HUP records form the frozen
-3A-eligible C3/C03 intersection. The paired analysis fixes participant, interval, ECG/RR,
+An all-25 snapshot-pinned inventory proves that eight HUP records form the current
+activity-audited 3A-eligible C3/C03 intersection. The paired analysis fixes participant, interval, ECG/RR,
 iEEG-derived stage labels, and exact finite sample/window support, but does not fix electrode
 location, reference, spatial scale, or aggregation across arms. HUP160 is the sole
 above-threshold 0.02-Hz coherence participant in both arms; the corrected median coherence is
 0.0287 iEEG versus 0.0762 scalp, which is exploratory and not an equivalence result. HUP138 alone
-has both F3 and F4 electrode labels, but no valid frozen staged endpoint and no documented A2/A1
-references, so exact Naji F3/A2 and F4/A1 transfer remains unavailable. See
+has geometry-matched F3 and F4 electrode labels, but both streamed signals have exactly zero
+dynamic range and yield zero eligible SOs; the portal references are also undocumented. Its
+bilateral endpoint is therefore unavailable, and exact Naji F3/A2 and F4/A1 transfer remains
+untested. See
 [the paired scalp–iEEG report](PAIRED_SCALP_IEEG_RESULTS_2026-07.md).
 
 **License summary:** Falach = CC BY 4.0 (commercial OK) · Zurich ds003498 = CC0 (public domain) ·

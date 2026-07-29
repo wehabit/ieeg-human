@@ -1,7 +1,7 @@
 # WITHDRAWN HUP165 N2/N3 breakdown — superseded single-subject output
 
 > **LEGACY / WITHDRAWN NUMBERS.** This worked example used the quarantined combined estimator.
-> Do not cite it as current evidence. V8 recovers endpoint-local estimates, but this quarantined
+> Do not cite it as current evidence. V9 recovers endpoint-local estimates, but this quarantined
 > single-subject table is not one of them and is not a substitute for the locked grids.
 
 Every result computed for this subject, split by sleep stage. HUP165 is the worked example

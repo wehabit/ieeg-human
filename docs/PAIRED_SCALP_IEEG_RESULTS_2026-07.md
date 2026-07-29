@@ -1,22 +1,19 @@
 # Simultaneous scalp EEG–iEEG comparison — July 2026
 
-> **Historical v8 result; v9 rebuild pending.** The numerical values below are
-> the exact hash-pinned v8 paired analysis. V9 corrects portal sample-count
-> validation and SO/event boundaries and removes the legacy activity adapter.
-> Do not relabel these values as v9 or publication-current. Regenerate the HUP
-> caches, QC grids/public snapshot, scalp sidecars, inventory, and paired
-> outputs in the order documented in
-> [ARTIFACT_POLICY.md](ARTIFACT_POLICY.md).
+> **Current v9 result.** The numerical values below are regenerated,
+> hash-pinned, and publication-validated. The v8 artifact is historical and is
+> used only in the explicit v8-to-v9 change ledger.
 
 ## Bottom line
 
-The corrected comparison contains the exact eight-person intersection supported by the frozen
+The corrected comparison contains the exact eight-person intersection supported by the current
 HUP analysis and simultaneous C3/C03 scalp EEG. A snapshot-pinned audit of all 25 HUP
 participants found:
 
 - 15 with no C3/C03 label;
-- HUP138 and HUP182 with C3 but no valid frozen 3A spectrum; and
-- exactly eight with C3/C03, a valid frozen 3A endpoint, and a numerically active full-interval
+- HUP182 with C3 but no valid v9 3A spectrum;
+- HUP138 with a valid iEEG spectrum but a numerically flat C3 sidecar; and
+- exactly eight with C3/C03, a valid v9 3A endpoint, and a numerically active full-interval
   scalp sidecar: HUP160, HUP185, HUP187, HUP191, HUP199, HUP205, HUP211, and HUP212.
 
 The primary 3A comparison now uses exactly the same valid seconds and 120-second windows in both
@@ -37,8 +34,8 @@ reliable modality difference, equivalence, or a hidden consistent scalp-only 0.0
 
 The current 3B result is not a Naji replication. Among these eight participants, only HUP160 and
 HUP187 have F3, and neither has F4. The full-cohort audit found that HUP138 alone has both F3 and
-F4 labels, but HUP138 has no valid frozen staged 3B endpoint and its online reference is
-undocumented. The exact Naji montage and endpoint are therefore unavailable.
+F4 labels. Both streamed channels are exactly flat and yield zero eligible SOs; its online
+reference is also undocumented. The exact Naji montage and endpoint are therefore unavailable.
 
 Most importantly, neither arm measures LC. These data can test an **LC-compatible downstream
 pattern**, but they cannot identify LC activity as its cause.
@@ -67,9 +64,12 @@ support.
 | Target-compatible accepted peaks | same 2 in both | 2 in both + HUP211 iEEG-only |
 | Above analytic threshold | HUP160 in both | HUP160 in both |
 
-This correction materially changes the descriptive 3A effect estimate and peak accounting, but
-not the threshold-pass conclusion. It does not change 3B, whose event analysis does not use this
-3A common-support comparison.
+This correction materially changed the descriptive 3A coherence estimate, but not the
+threshold-pass conclusion. The later v9 endpoint-local split changed the spectral result:
+HUP187's iEEG peak changed from accepted at 0.02694 Hz to `no_local_excess`, while its scalp peak
+changed to 0.00963 Hz and remained accepted. The both-accepted peak sample therefore fell from
+three to two. Cardiac 3A values and all 3B values are byte-identical to the preceding
+shared-cardiac-support output.
 
 ### Flat-file export correction
 
@@ -79,7 +79,7 @@ the file without `comparison_role` over-weighted those two participants. It did 
 `group_summary.json`, the figures, or any headline value because those artifacts are calculated
 directly from one participant record at a time.
 
-In v3, `paired_metrics.csv` is normalized to one observation per
+In the current v5 artifact, `paired_metrics.csv` is normalized to one observation per
 subject/question/stage/modality. The separate `role_pair_metrics.csv` retains explicit F3/Fz
 pair membership and intentionally repeats a shared iEEG comparator when it contributes to both
 roles; that table must not be pooled across roles.
@@ -89,14 +89,14 @@ roles; that table must not be pooled across roles.
 For each participant, both EEG arms use:
 
 - the same immutable iEEG.org snapshot and simultaneous time base;
-- the same frozen seven-hour interval and sample rate;
+- the same pinned seven-hour interval and sample rate;
 - the same cached ECG, RR series, and one-second HR series;
 - the same sleep labels; and
 - the same 3A estimator and endpoint-local profile.
 
 The comparison hashes these inputs, verifies both cache manifests and every cache file, and
 requires the recomputed independent-support iEEG 3A and 3B objects to exactly reproduce the
-frozen QC grid. All eight exact checks passed.
+locked v9 QC grid. All eight exact checks passed.
 
 The phrase “same sleep labels” needs an important qualification: HUP labels are generated from
 iEEG delta/SWA with a GMM, without independent visual PSG scoring or EOG/EMG. Holding them fixed
@@ -110,24 +110,30 @@ is compared with an aggregate of selected intracranial contacts.
 ## Why 74%, 75%, or 80% is not a magic qualification boundary
 
 No participant was removed from this paired result for failing an arbitrary 80% rule. The
-actual shared fractions were:
+actual endpoint-local fractions were:
 
-| Participant | Shared finite EEG/HR fraction | Welch segments \(K\) | 0.02-Hz threshold |
-|---|---:|---:|---:|
-| HUP160 | 89.0% | 18 | 0.162 |
-| HUP185 | 78.8% | 5 | 0.527 |
-| HUP187 | 84.0% | 8 | 0.348 |
-| HUP191 | 87.9% | 25 | 0.117 |
-| HUP199 | 82.1% | 22 | 0.133 |
-| HUP205 | 95.2% | 12 | 0.238 |
-| HUP211 | 44.0% | 36 | 0.082 |
-| HUP212 | 61.8% | 17 | 0.171 |
+| Participant | EEG-common spectrum support | Cardiac-common support | Welch \(K\) | 0.02-Hz threshold |
+|---|---:|---:|---:|---:|
+| HUP160 | 93.0% | 89.0% | 18 | 0.162 |
+| HUP185 | 78.8% | 78.8% | 5 | 0.527 |
+| HUP187 | 88.8% | 84.0% | 8 | 0.348 |
+| HUP191 | 87.9% | 87.9% | 25 | 0.117 |
+| HUP199 | 82.1% | 82.1% | 22 | 0.133 |
+| HUP205 | 95.2% | 95.2% | 12 | 0.238 |
+| HUP211 | 72.2% | 44.0% | 36 | 0.082 |
+| HUP212 | 62.8% | 61.8% | 17 | 0.171 |
 
 HUP185, HUP211, and HUP212 remain analyzed even though their whole-record common support is below
 80%. The locked endpoint-local profile does not pretend that 79.9% is bad while 80.0% is good.
 Instead, the estimator uses the actual valid NREM segments, and each participant's coherence
 threshold reflects the resulting \(K\). Less support usually means less precision; it is not an
 automatic biological disqualification.
+
+The analytic magnitude-squared-coherence threshold is
+\(1-\alpha^{1/(K-1)}\), with \(\alpha=0.05\). Thus HUP185's threshold is high
+because only five independent Welch segments survived. A threshold near 0.632
+is what this formula gives at \(K=4\); 75% or 80% recording coverage is not an
+input to the formula.
 
 ## 3A: infraslow sigma–heart-rate coordination
 
@@ -146,14 +152,15 @@ threshold defined by Lecci.
 |---|---:|---:|---|
 | HUP160 | 0.01773 Hz | 0.02101 Hz | target-compatible in both |
 | HUP185 | none | none | neither |
-| HUP187 | 0.02694 Hz | 0.02817 Hz | accepted in both, above target band |
+| HUP187 | none | 0.00963 Hz | scalp-only, near 0.01 Hz |
 | HUP191 | none | 0.00980 Hz | scalp-only, near 0.01 Hz |
 | HUP199 | none | 0.01399 Hz | scalp-only, below target band |
 | HUP205 | none | none | neither on shared support |
 | HUP211 | 0.01769 Hz | none | target-compatible iEEG-only |
 | HUP212 | 0.02324 Hz | 0.02017 Hz | target-compatible in both |
 
-Counting every accepted peak gives 4/8 iEEG arms and 5/8 scalp arms. Restricting the description
+Counting every accepted peak gives 3/8 iEEG arms and 5/8 scalp arms; two participants have
+accepted peaks in both arms. Restricting the description
 to the prespecified target-compatible neighborhood gives 3/8 iEEG and 2/8 scalp. Neither count
 is a hypothesis test.
 
@@ -179,6 +186,7 @@ within-signal spectral peak and between-signal coherence answer different questi
 
 | Endpoint | n | iEEG median | Scalp median | Median scalp − iEEG | Mean difference | Exact sign-flip p |
 |---|---:|---:|---:|---:|---:|---:|
+| Accepted peak frequency (both-accepted subset) | 2 | 0.02048 Hz | 0.02059 Hz | +0.00011 Hz | +0.00011 Hz | 1.000 |
 | Coherence at 0.02 Hz | 8 | 0.0287 | 0.0762 | +0.0235 | +0.0269 | 0.102 |
 | Lecci-direction HR→sigma peak \(r\) | 8 | 0.0735 | 0.0834 | −0.0047 | +0.0032 | 0.695 |
 | Lecci-direction peak lag | 8 | 0 s | 0 s | 0 s | −1.5 s | 0.500 |
@@ -196,8 +204,9 @@ the target-compatible cases:
 - HUP211: 1.76 in its iEEG-only accepted peak; and
 - HUP212: 1.26 iEEG and 1.32 scalp.
 
-HUP187's off-target 0.027–0.028-Hz peaks had ratios below one in both arms. This is a descriptive
-frequency-specificity check, not a significance test.
+Only HUP160 and HUP212 have accepted peaks in both arms, so only they enter the paired
+frequency-specificity summary: median sigma/SWA is 1.278 iEEG versus 1.361 scalp, with exact
+sign-flip \(p=0.5\). This is a descriptive check, not a significance test.
 
 ![Corrected paired 3A scalp–iEEG comparison](../outputs/paired_scalp_ieeg/paired_3A_C3.png)
 
@@ -212,12 +221,13 @@ Naji derived an SO-triggered cardiac curve separately for referenced F3/A2 and F
 electrode's HR-maximum/RR-minimum time, and then averaged those electrode-specific times. The
 full 25-person inventory found:
 
-- HUP138 has unique F3 and F4 labels, but no valid frozen N2, N3, or pooled-NREM 3B endpoint;
+- HUP138 has unique geometry-matched F3 and F4 labels, but both are numerically flat and have zero
+  eligible SOs;
 - HUP160 and HUP187 have F3 but no F4; and
 - the online references are undocumented, and no A1/A2/M1/M2 label proves how F3/F4 was
   recorded.
 
-Therefore HUP138 is the closest label match but cannot currently produce a staged result.
+Therefore HUP138 is the closest label match but cannot produce a signal-bearing staged result.
 HUP160/HUP187 provide only a unilateral, reference-incomplete sensitivity analysis.
 
 ### Available unilateral F3 result
@@ -309,20 +319,19 @@ power ratios ([Petroff et al. 2016](https://pubmed.ncbi.nlm.nih.gov/26386645/)).
 The scientifically interpretable comparison is therefore normalized temporal structure,
 coherence, and event timing—not raw recorded-unit amplitude.
 
-## Why a v9 rebuild is required
+## V9 rebuild result
 
-The saved paired analysis preserves the exact frozen v8 iEEG results for
-lineage. Those caches did not store the v9 exact acquisition-count and complete
-event-boundary fields. Their raw-voltage flat-line extrema also cannot be
-reconstructed retrospectively. The v9 paired path no longer patches a legacy
-activity mask in memory: it requires the current cache’s stored activity QC and
-fails closed otherwise. A full all-HUP cache/QC-grid/sidecar rebuild is
-therefore required to learn whether the corrected inputs change 3A/3B/3D
-results.
+The full HUP cache, QC-grid, scalp-sidecar, inventory, and paired sequence was
+regenerated. The machine comparison records every selected v8-to-v9 field
+change. For this paired analysis, the result-changing correction is the
+EEG-common versus cardiac-common 3A support split described above: HUP187 loses
+its accepted iEEG peak, reducing both-accepted peak pairs from three to two.
+Paired cardiac 3A metrics and all 3B values are unchanged.
 
-This matters especially for HUP138: the old frozen staging has no valid sleep endpoint, while the
-source pin previously admitted F8 as an intracranial candidate. The selector is fixed, but the
-current paired result must not claim what a clean HUP138 rebuild will show.
+HUP138 was re-streamed with C3, F3, F4, and Fz. Every channel contains
+25,804,800 finite samples, but each has exactly zero dynamic range. This proves
+why HUP138 cannot supply a scalp comparison; it does not justify a biological
+null or say that an informative F3/F4 recording would have failed.
 
 ## Files and reproducibility
 
@@ -339,6 +348,8 @@ current paired result must not claim what a clean HUP138 rebuild will show.
 - [Sidecar builder](../analysis/cache_paired_scalp.py)
 - [Comparison program](../analysis/paired_scalp_ieeg_comparison.py)
 - [Regression checks](../analysis/test_paired_scalp.py)
+- [HUP138 bilateral result](../outputs/scalp_f3_f4_exploratory/HUP138_phaseII_bilateral_3B.json)
+- [HUP138 bilateral figure](../outputs/scalp_f3_f4_exploratory/HUP138_phaseII_bilateral_3B.png)
 
 The scalp NPZ sidecars are ignored derived data. Their terminal local manifest pins the exact
-eight files used for the checked-in, hash-manifested inventory and result artifacts.
+ten sidecars used for the checked-in, hash-manifested inventory and result artifacts.

@@ -2,7 +2,7 @@
 
 > **QUARANTINED / NOT AUDITED.** This guide presents withdrawn legacy figures and numerical claims
 > as completed findings. It predates the LC-proxy audit and must not be cited or used to select
-> current outputs. See `QC_SENSITIVITY_RESULTS_2026-07.md`; v8 recovers endpoint-local estimates,
+> current outputs. See `QC_SENSITIVITY_RESULTS_2026-07.md`; v9 recovers endpoint-local estimates,
 > but none of the legacy figures below is a current LC-proxy result.
 
 You are testing **one question**: *does the human brain show the Kipnis NREM slow-wave

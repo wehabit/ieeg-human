@@ -4,10 +4,10 @@
 
 These are the v9 methods for the neutral-cache QC-sensitivity analyses. The
 prior v8 fixed-80 and endpoint-local runs remain historical evidence, but they
-are not treated as current v9 results or as paper-derived/preregistered
-qualification rules. The historical numerical report is
+are not treated as current results or as paper-derived/preregistered
+qualification rules. The current numerical report is
 [QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md); the
-current fix/rebuild state is in
+fix and validation record is in
 [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md).
 
 3A is an LC-motivated candidate signature. 3B is a cortical–autonomic timing measure. 3D is generic
@@ -17,20 +17,19 @@ an independent LC/NE-sensitive signal or intervention.
 The current contract is `analysis_version = 2026-07-qc-sensitivity-v9` and
 `cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v9`.
 
-The historical complete six-subject RESPect cache and 25-request HUP v8 cache passed exact cache-code,
-input-identity, result-file, and runtime checks. HUP has 24 completed neutral caches and one
+The complete six-subject RESPect cache and 25-request HUP v9 cache passed exact cache-code,
+input-identity, acquisition-ledger, result-file, and runtime checks. HUP has 24 completed neutral caches and one
 structured skip (HUP116, no cortical-contact candidates). Under the outcome-blind endpoint-local
 base sensitivity, RESPect has 3/3/3 available 3A spectrum/coherence/cross-correlation records and
-0/1/2 available 3B N2/N3/pooled records. HUP has 19/14/15 available 3A records, 6/5/15 available
+0/1/2 available 3B N2/N3/pooled records. HUP has 20/14/16 available 3A records, 6/5/15 available
 3B records, and 7 descriptive 3D records. These are availability counts, not effect support.
 RESPect remains below the default cohort minimum; 3B and 3D inference is disabled.
-V9 changes acquisition/event fields and mandatory provenance, so these counts
-must not be labeled current until the rebuild sequence in
-[ARTIFACT_POLICY.md](ARTIFACT_POLICY.md) completes.
 
 ## Data
 
-- HUP phaseII: multi-day clinical iEEG and ECG, no scalp PSG/EOG/EMG.
+- HUP phaseII: multi-day clinical iEEG and ECG. Scalp-labeled C3/F3/F4/Fz channels exist only in
+  a subset and have undocumented online references; they do not constitute uniformly available,
+  validated PSG/EOG/EMG.
 - OpenNeuro ds003848 RESPect: iEEG, ECG, EMG, and EOG; approximately one-hour sleep runs.
 
 HUP contacts are currently lateral-contact candidates selected from contact numbering. That is not
@@ -182,6 +181,12 @@ that core, for every proxy-NREM run at least 120 s:
    because the window was selected for high/accepted sigma, an ordinary sigma>SWA p value is
    circular unless peak selection is repeated inside a joint null.
 
+In the simultaneous scalp–iEEG comparison, spectra, peak fitting, and the SWA control use
+endpoint-local shared finite EEG support. Coherence and cross-correlation use a separate
+cardiac-common mask that additionally requires finite HR. The paired output records both mask
+hashes and support counts. This prevents missing cardiac samples from silently removing valid
+EEG-only spectral support while keeping paired cardiac estimates on exact shared support.
+
 Scale-free surrogates preserve each participant’s bout/gap pattern and are retained as
 participant-level diagnostics. The current QC-grid path produces participant spectral summaries,
 accepted/no-peak outcomes, cardiac summaries, and endpoint availability; compact public artifacts
@@ -233,9 +238,9 @@ This is still an iEEG adaptation: Naji used scalp PSG derivations F3/A2 and F4/A
 R&K-scored uninterrupted 3-min bins, absolute Dang-Vu criteria, Pan–Tompkins R-wave detection with
 visual confirmation, a 4 Hz piecewise-cubic-spline RR series, and a behavioral timing endpoint that
 is absent here. Naji did not measure LC.
-For RESPect, the production adaptation intersects the cache's fixed coverage-qualified contacts
-with the conservative Destrieux frontal ROI and requires at least two contacts to retain 30
-complete finite in-stage RR windows after final window eligibility. Intracranial voltage polarity
+For RESPect, the production adaptation starts from activity-qualified/nonflat contacts in the
+conservative Destrieux frontal ROI, then requires at least two contacts to retain 30 complete
+finite in-stage RR windows after stage-local SO and final window eligibility. Intracranial voltage polarity
 is not yet oriented to Naji's negative scalp downstate, so downstate timing remains a
 source-transfer limitation rather than a validated homologous marker.
 
@@ -323,9 +328,10 @@ within-participant stage/block null before it can be reported.
 
 ## Open scientific and validation limitations
 
-The implementation defects above are fixed in the working tree. Expert/validated N2/N3 staging,
+The implementation defects above are fixed and the v9 evidence has been regenerated.
+Expert/validated N2/N3 staging,
 HUP anatomy/pathology review, blinded ECG/SO/spindle/artifact and missing-boundary QC, the Lecci
-reference-implementation benchmark, and verified HUP sleep timing remain open. The v8 endpoint
+reference-implementation benchmark, and verified HUP sleep timing remain open. The v9 endpoint
 counts are highly profile-sensitive: endpoint-local materialization recovers many HUP estimates
 and three RESPect 3A estimates, whereas the historical fixed-80 stack does not. That sensitivity
 must be reported rather than bypassed or described as a biological finding. The

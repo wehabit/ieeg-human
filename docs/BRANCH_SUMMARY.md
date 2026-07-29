@@ -1,68 +1,55 @@
-# Branch summary — v9 code, v8 historical sensitivity
+# Branch summary — current v9 evidence
 
-> **QUARANTINED DOCUMENT.** Earlier versions of this page described numerical 3A, 3B, and 3D
-> results as corrected, validated, negative, weak, or positive. Those descriptions were based on
-> superseded caches and estimators and have been removed. Do not recover or cite them as findings.
-> V8 superseded the former all-unavailable verdict, but v9 implementation and
-> provenance fixes now require a new scientific-artifact rebuild.
+This branch tests three distinct pieces of human sleep physiology. They are motivated by LC/NE
+work, but none measures the locus coeruleus (LC) or norepinephrine directly.
 
-The authoritative current status is the
-[issue register](ISSUE_REGISTER_2026-07.md). The
-[v8 QC-sensitivity report](QC_SENSITIVITY_RESULTS_2026-07.md) is the
-hash-pinned historical baseline. The current analysis contract is in
-[METHODS.md](METHODS.md), and the distinction between code corrections and unresolved scientific
-validation is in [AUDIT_CORRECTIONS_2026-07.md](AUDIT_CORRECTIONS_2026-07.md).
-
-## Historical purpose of the branch
-
-This branch was created to examine three LC-motivated sleep-physiology questions:
-
-| Label | Question | Permitted interpretation |
+| Label | Question | Current interpretation |
 |---|---|---|
-| 3A | Do infraslow sigma-power dynamics covary with RR/heart-rate dynamics? | Candidate sigma–cardiac physiology; not a human LC measurement |
-| 3B | Does RR/heart rate change around cortical slow-oscillation down-states? | CNS–autonomic timing; not LC-specific |
-| 3D | At what slow-oscillation phase do spindle events occur? | Generic SO–spindle nesting and a physiology/QC endpoint; not an LC proxy |
+| 3A | Do infraslow sigma-power dynamics covary with cardiac dynamics? | Individual candidate features exist, but the cohort pattern is heterogeneous; not an LC biomarker |
+| 3B | Does RR/heart rate change around cortical slow-oscillation troughs? | A small descriptive acceleration is the most consistent observation; inference is disabled and the effect is not LC-specific |
+| 3D | At what SO phase do spindle events occur? | Generic descriptive SO–spindle nesting/QC; inference is disabled and this is not an LC proxy |
 
-The papers motivate these questions, but only the animal work directly measures or manipulates LC
-or noradrenergic mechanisms. Human iEEG, sigma, SWA, SO events, spindles, RR, and heart rate do not
-by themselves establish LC specificity.
+## Current v9 availability
 
-## Why the former methods and results are not retained here
+Availability means that the endpoint could be computed under the locked
+`overlap11_endpoint_local` profile. It does not mean that its hypothesis was supported.
 
-The audit identified defects affecting preprocessing, missing-data eligibility, cache lineage,
-stage-proxy assignment, cardiac interpolation and normalization, endpoint accounting, and the
-inferential unit for 3D. It also identified unresolved anatomy, staging, raw-QC, and construct
-validity limitations. The specific failure mechanisms, executable counterexamples, fixes, and open
-acceptance criteria are recorded in the [issue register](ISSUE_REGISTER_2026-07.md).
+| Cohort | Requested/analyzed | 3A spectrum/coherence/xcorr | 3B N2/N3/pooled | 3D descriptive |
+|---|---:|---:|---:|---:|
+| HUP | 25/24; HUP116 structured skip | 20/14/16 | 6/5/15 | 7 |
+| RESPect | 6/6 | 3/3/3 | 0/1/2 | outside scope |
 
-A banner alone would not prevent old search snippets from presenting withdrawn numbers as current,
-so the obsolete result tables and method-verification claims were deliberately removed from this
-file.
+RESPect does not reach the default five-participant reporting gate. HUP reaches that availability
+gate, but the tracked artifacts do not contain a valid cohort inferential test for 3A and
+explicitly disable 3B and 3D inference.
 
-## Current status
+## What changed during the final rebuild
 
-- Legacy cohort numbers are historical artifacts and must not be interpreted.
-- The six-subject RESPect endpoint-local base yields 3/3/3 available 3A records and 0/1/2
-  available 3B N2/N3/pooled records; none reaches the default cohort minimum of five.
-- The HUP neutral cache accounts for 25/25 requested participants as 24 completed and one
-  structured skip. The endpoint-local base yields 3A=19/14/15, 3B=6/5/15, and descriptive 3D=7.
-  Availability is not support; 3B and 3D inference is disabled.
-- HUP N2-like/N3-like values are algorithmic proxies, not expert-scored sleep stages.
-- RESPect author annotations are now primary but remain coarse/incomplete and do not provide
-  expert AASM/R&K N2/N3 scoring; author-unknown sleep stays unclassified.
-- RESPect sidecars now support conservative pathology exclusions and parietal/frontal Destrieux
-  intersections, but those iEEG ROIs are adaptations of the cited scalp sources—not validated
-  homologues and not LC measurements. HUP anatomy remains unverified.
-- Exact author-marked seizure intervals are excluded; possible longer postictal cardiac/sleep
-  effects remain an open sensitivity analysis.
-- Per-contact Rayleigh results and pooled participant vectors are descriptive only. The former
-  rotation null is invalid because the finite pairing window creates phase alignment under
-  independent event trains; all 3D inference is disabled pending a pairing-aware null.
-- The N2-like versus N3-like 3D comparison additionally needs matched-contact, count-controlled
-  participant-level validation.
-- Blinded detector/raw-boundary QC and the remaining publication acceptance checks in the issue
-  register are still required.
+- Endpoint-local 3A now uses shared finite EEG support for spectra and a separate EEG-plus-HR mask
+  for cardiac endpoints. HUP availability changed from 19/14/15 to 20/14/16 because HUP138 gained
+  a valid spectrum and cross-correlation, while coherence remained unavailable.
+- In the paired scalp–iEEG comparison, this correction removed HUP187's accepted iEEG spectral
+  peak. The both-accepted paired peak sample changed from three to two (HUP160 and HUP212).
+  Paired coherence, cross-correlation, and all paired 3B estimates were unchanged.
+- The flat export no longer double-counts iEEG 3B rows for F3-present participants. The separate
+  role-pair table intentionally retains one comparator per role.
+- HUP138 is the only participant with geometry-matched F3 and F4 labels, but both streamed signals
+  are exactly flat. An exact bilateral Naji-style participant check is therefore unavailable for
+  an objective signal-quality reason.
 
-The corrected reruns materially withdraw the former numerical conclusions because none survives as
-an estimable current endpoint. They do not show that the biological effects are absent, and they do
-not validate or refute heart rate as an LC proxy.
+## What remains unresolved
+
+- HUP N2-like/N3-like values are unvalidated algorithmic proxies, not expert stages.
+- HUP contacts need coordinate, tissue, region, pathology/SOZ, and clinical review.
+- RESPect and HUP iEEG sensors are adaptations of scalp sources, not validated homologues.
+- ECG, SO, spindle, artifact, and missing-boundary detectors need blinded raw-data validation.
+- HUP intervals are sparse-probe high-delta candidates, not verified sleep onset.
+- 3B needs a local-trend/dependence-preserving null; 3D needs a pairing-aware complete-train null.
+- No current signal validates LC specificity. That requires an independent LC/NE-sensitive
+  measurement or intervention.
+
+The authoritative numerical interpretation is
+[QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md). Detailed methods are in
+[METHODS.md](METHODS.md), the simultaneous sensor comparison is in
+[PAIRED_SCALP_IEEG_RESULTS_2026-07.md](PAIRED_SCALP_IEEG_RESULTS_2026-07.md), and every confirmed
+defect/open concern is tracked in [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md).

@@ -27,6 +27,8 @@ truth_normalized = truth / np.median(truth)
 check(
     "median-polish aggregation removes stable contact gain",
     details["n_components"] == 1
+    and details["fit_required"] is True
+    and details["support_passes_fit_convergence"] is True
     and np.max(np.abs(aggregate - truth_normalized)) < 1e-8,
 )
 
@@ -98,6 +100,8 @@ ep_dr, ep_swa, ep_clean, staging_details = overlap_connected_staging(
 check(
     "joint overlap-connected staging returns aligned finite features",
     staging_details["n_components"] == 1
+    and staging_details["fit_required"] is True
+    and staging_details["support_passes_fit_convergence"] is True
     and np.array_equal(np.isfinite(ep_dr), np.isfinite(ep_swa))
     and np.isfinite(ep_clean).all()
     and np.corrcoef(ep_swa, truth_normalized)[0, 1] > 0.999,

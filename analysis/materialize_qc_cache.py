@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import warnings
 
 import numpy as np
 
@@ -47,14 +48,31 @@ def _required(cache, key):
 
 def _fixed_power(values, eligible, profile):
     power = profile["power"]
-    return _aggregate_full_night_power(
-        values,
-        eligible_channels=eligible,
-        min_contact_coverage=power["minimum_contact_coverage"],
-        min_contacts=power["minimum_contacts"],
-        min_contact_fraction_per_bin=power["minimum_contact_fraction_per_bin"],
-        return_details=True,
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message="All-NaN slice encountered",
+            category=RuntimeWarning,
+        )
+        aggregate, details = _aggregate_full_night_power(
+            values,
+            eligible_channels=eligible,
+            min_contact_coverage=power["minimum_contact_coverage"],
+            min_contacts=power["minimum_contacts"],
+            min_contact_fraction_per_bin=power[
+                "minimum_contact_fraction_per_bin"],
+            return_details=True,
+        )
+    # The historical fixed-contact mean is a direct calculation, not an
+    # iterative fit.  Mark convergence as not applicable/satisfied so the
+    # fail-closed gate reserved for median polish does not withhold it merely
+    # because the fixed estimator has no ``fit`` object.
+    details.update(
+        fit_required=False,
+        support_passes_fit_convergence=True,
+        fit_convergence_status="not_applicable_closed_form",
     )
+    return aggregate, details
 
 
 def _power_contact_values(cache, band, profile):
@@ -175,6 +193,11 @@ def _materialize_staging(cache, candidate_contacts, profile):
                 "minimum_contact_fraction_per_epoch"],
             valid_window_count_by_contact=window_count,
             min_valid_windows=staging["minimum_valid_welch_windows"],
+        )
+        details.update(
+            fit_required=False,
+            support_passes_fit_convergence=True,
+            fit_convergence_status="not_applicable_closed_form",
         )
     else:
         ep_dr, ep_swa, ep_clean, details = overlap_connected_staging(

@@ -257,6 +257,7 @@ def overlap_connected_aggregate(values, *, eligible_contacts=None, observation_m
         "contact_count": component_mask.sum(axis=0),
         "per_contact_observations": component_mask.sum(axis=1),
         "aggregate_coverage": float(np.isfinite(aggregate).mean()),
+        "fit_required": True,
         "support_passes_fit_convergence": fit_converged,
         "aggregation": "largest overlap-connected component with robust median polish",
     }
@@ -312,6 +313,7 @@ def overlap_connected_staging(
         "minimum_contacts": int(minimum_contacts),
         "n_selected_contacts": n_selected_contacts,
         "support_passes_minimum_contacts": support_passes_minimum_contacts,
+        "fit_required": True,
         "support_passes_fit_convergence": support_passes_fit_convergence,
         "support_passes": support_passes,
         "aggregate_coverage": float(

@@ -225,6 +225,21 @@ check(
     and np.isfinite(endpoint_materialized["ep_dr"]).all(),
 )
 
+audit80_materialized = materialize(endpoint_cache, audit80)
+check(
+    "closed-form fixed-contact estimators are not failed by the iterative convergence gate",
+    audit80_materialized["global_power_qc"]["sigma"]["fit_required"] is False
+    and audit80_materialized["global_power_qc"]["sigma"][
+        "support_passes_fit_convergence"] is True
+    and audit80_materialized["global_power_qc"]["sigma"][
+        "fit_convergence_status"] == "not_applicable_closed_form"
+    and audit80_materialized["staging_qc"]["fit_required"] is False
+    and audit80_materialized["staging_qc"][
+        "support_passes_fit_convergence"] is True
+    and audit80_materialized["staging_qc"][
+        "fit_convergence_status"] == "not_applicable_closed_form",
+)
+
 legacy_v8_values = copy.deepcopy(endpoint_cache.values)
 legacy_v8_values["cache_schema_version"] = np.asarray(
     "2026-07-neutral-per-contact-gap-aware-source-pin-v8")

@@ -76,8 +76,8 @@
     }
   ],
   "full_grid_path_relative": "outputs/qc_grid/coverage_oat_v1/hup_qc_grid.json",
-  "full_grid_sha256": "58e63e1d972c1d77414cefb93eb5ef77762534eede1e3ea350b45e0dc2e45b6c",
-  "generated_at_utc": "2026-07-29T07:19:04.904102+00:00",
+  "full_grid_sha256": "95a2aa7c8d8d92f01676b90d4531283bffaa8c31b39d486622fbd3bb649b5be3",
+  "generated_at_utc": "2026-07-29T22:26:36.127646+00:00",
   "grid_id": "coverage_oat_v1",
   "grid_role": "post-audit sensitivity; no result-based profile selection",
   "limitations": [
@@ -14776,7 +14776,7 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7",
+  "source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7",
   "staging_calibration_application_to_this_cache": "unvalidated transport sensitivity; not a calibrated HUP rule",
   "staging_calibration_provenance": {
     "analysis_version": "2026-07-qc-sensitivity-v9",

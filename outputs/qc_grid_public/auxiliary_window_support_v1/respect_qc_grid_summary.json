@@ -34,8 +34,8 @@
   "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "explicitly_skipped_subjects": [],
   "full_grid_path_relative": "outputs/qc_grid/auxiliary_window_support_v1/respect_qc_grid.json",
-  "full_grid_sha256": "a0b5a5ed75df61ee250a25abbe5e0aaf0acfb7b77e52fcf388617e77d8ab9483",
-  "generated_at_utc": "2026-07-29T07:21:13.094610+00:00",
+  "full_grid_sha256": "a75381e3a1bace628f8dbbff1fd10b5ac20692e6a2472a6423468efcd459f997",
+  "generated_at_utc": "2026-07-29T22:36:12.123564+00:00",
   "grid_id": "auxiliary_window_support_v1",
   "grid_role": "post-audit sensitivity; no result-based profile selection",
   "limitations": [
@@ -2331,7 +2331,7 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7",
+  "source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7",
   "staging_calibration_application_to_this_cache": "same RESPect cache cohort used for outcome-blind calibration",
   "staging_calibration_provenance": {
     "analysis_version": "2026-07-qc-sensitivity-v9",

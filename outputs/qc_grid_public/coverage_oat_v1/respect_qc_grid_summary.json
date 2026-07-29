@@ -34,8 +34,8 @@
   "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "explicitly_skipped_subjects": [],
   "full_grid_path_relative": "outputs/qc_grid/coverage_oat_v1/respect_qc_grid.json",
-  "full_grid_sha256": "9ced15eb49bfdc485bbb3230ea61c76554822518272576602aa68e4fcbd7d887",
-  "generated_at_utc": "2026-07-29T07:17:48.376702+00:00",
+  "full_grid_sha256": "795d959ad4fb780880d7177ca8585bf30fa3224f0f5c269553a1084524842e13",
+  "generated_at_utc": "2026-07-29T22:26:55.572885+00:00",
   "grid_id": "coverage_oat_v1",
   "grid_role": "post-audit sensitivity; no result-based profile selection",
   "limitations": [
@@ -6057,7 +6057,7 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7",
+  "source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7",
   "staging_calibration_application_to_this_cache": "same RESPect cache cohort used for outcome-blind calibration",
   "staging_calibration_provenance": {
     "analysis_version": "2026-07-qc-sensitivity-v9",

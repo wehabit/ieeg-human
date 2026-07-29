@@ -1,6 +1,6 @@
 {
   "artifact_role": "reproducible machine comparison of compact historical v8 evidence with current validated public v9 artifacts",
-  "artifact_schema_version": "2026-07-v8-v9-comparison-summary-v2",
+  "artifact_schema_version": "2026-07-v8-v9-comparison-summary-v3",
   "cohorts": {
     "hup": {
       "availability_changes": [
@@ -44,7 +44,308 @@
         "3a_spectrum": 1
       },
       "selected_numeric_or_support_comparison": {
+        "changed_field_ledger": [
+          {
+            "after": 0.07952932854909629,
+            "before": 0.07927777951529101,
+            "direction": "increased",
+            "field": "metric.3d_participant_R",
+            "subject": "HUP133_phaseII"
+          },
+          {
+            "after": 162.78767237312576,
+            "before": 160.96065017352427,
+            "direction": "increased",
+            "field": "metric.3d_participant_phase_deg",
+            "subject": "HUP133_phaseII"
+          },
+          {
+            "after": 2529,
+            "before": 2606,
+            "direction": "decreased",
+            "field": "support.3d_paired_events",
+            "subject": "HUP133_phaseII"
+          },
+          {
+            "after": 2.0,
+            "before": null,
+            "direction": "null_to_value",
+            "field": "metric.3a_cross_correlation_peak_lag_s",
+            "subject": "HUP138_phaseII"
+          },
+          {
+            "after": 0.0225780463573926,
+            "before": null,
+            "direction": "null_to_value",
+            "field": "metric.3a_cross_correlation_peak_r",
+            "subject": "HUP138_phaseII"
+          },
+          {
+            "after": true,
+            "before": false,
+            "direction": "false_to_true",
+            "field": "metric.3a_peak_accepted",
+            "subject": "HUP138_phaseII"
+          },
+          {
+            "after": 0.014314262348145257,
+            "before": null,
+            "direction": "null_to_value",
+            "field": "metric.3a_peak_hz",
+            "subject": "HUP138_phaseII"
+          },
+          {
+            "after": 899.0,
+            "before": 0.0,
+            "direction": "increased",
+            "field": "support.3a_bout_seconds",
+            "subject": "HUP138_phaseII"
+          },
+          {
+            "after": 35,
+            "before": 0,
+            "direction": "increased",
+            "field": "support.3a_nrem_epochs",
+            "subject": "HUP138_phaseII"
+          },
+          {
+            "after": 2,
+            "before": 3,
+            "direction": "decreased",
+            "field": "support.3a_selected_contacts",
+            "subject": "HUP138_phaseII"
+          },
+          {
+            "after": 930,
+            "before": 0,
+            "direction": "increased",
+            "field": "support.3b_NREM_stable_seconds",
+            "subject": "HUP138_phaseII"
+          },
+          {
+            "after": 0.2690786411071741,
+            "before": 0.2921851277665809,
+            "direction": "decreased",
+            "field": "metric.3d_participant_R",
+            "subject": "HUP160_phaseII"
+          },
+          {
+            "after": -42.10665687195453,
+            "before": -42.895340001297015,
+            "direction": "increased",
+            "field": "metric.3d_participant_phase_deg",
+            "subject": "HUP160_phaseII"
+          },
+          {
+            "after": 610,
+            "before": 624,
+            "direction": "decreased",
+            "field": "support.3d_paired_events",
+            "subject": "HUP160_phaseII"
+          },
+          {
+            "after": 0.2450454760583776,
+            "before": 0.244988053879893,
+            "direction": "increased",
+            "field": "metric.3b_NREM_local_change_pct",
+            "subject": "HUP165_phaseII"
+          },
+          {
+            "after": 0.44079798907555906,
+            "before": 0.4375339527501099,
+            "direction": "increased",
+            "field": "metric.3b_NREM_pct_above_stage_mean",
+            "subject": "HUP165_phaseII"
+          },
+          {
+            "after": 1.8333333333333333,
+            "before": 1.7916666666666667,
+            "direction": "increased",
+            "field": "metric.3b_NREM_peak_lag_s",
+            "subject": "HUP165_phaseII"
+          },
+          {
+            "after": 4765,
+            "before": 4763,
+            "direction": "increased",
+            "field": "support.3b_NREM_n_so",
+            "subject": "HUP165_phaseII"
+          },
+          {
+            "after": 0.1925234092157241,
+            "before": 0.19194004096615816,
+            "direction": "increased",
+            "field": "metric.3d_participant_R",
+            "subject": "HUP172_phaseII"
+          },
+          {
+            "after": 48.458009021724344,
+            "before": 49.72038955001265,
+            "direction": "decreased",
+            "field": "metric.3d_participant_phase_deg",
+            "subject": "HUP172_phaseII"
+          },
+          {
+            "after": 2319,
+            "before": 2421,
+            "direction": "decreased",
+            "field": "support.3d_paired_events",
+            "subject": "HUP172_phaseII"
+          },
+          {
+            "after": 1.0882204602929415,
+            "before": 1.0917204983825353,
+            "direction": "decreased",
+            "field": "metric.3b_NREM_local_change_pct",
+            "subject": "HUP173_phaseII"
+          },
+          {
+            "after": 1.5027425514775843,
+            "before": 1.501482433081562,
+            "direction": "increased",
+            "field": "metric.3b_NREM_pct_above_stage_mean",
+            "subject": "HUP173_phaseII"
+          },
+          {
+            "after": 0.1457426767458159,
+            "before": 0.1417040860162002,
+            "direction": "increased",
+            "field": "metric.3d_participant_R",
+            "subject": "HUP173_phaseII"
+          },
+          {
+            "after": -20.823308826829454,
+            "before": -20.052958603154096,
+            "direction": "decreased",
+            "field": "metric.3d_participant_phase_deg",
+            "subject": "HUP173_phaseII"
+          },
+          {
+            "after": 2958,
+            "before": 2955,
+            "direction": "increased",
+            "field": "support.3b_NREM_n_so",
+            "subject": "HUP173_phaseII"
+          },
+          {
+            "after": 1283,
+            "before": 1310,
+            "direction": "decreased",
+            "field": "support.3d_paired_events",
+            "subject": "HUP173_phaseII"
+          },
+          {
+            "after": 0.10466693467821261,
+            "before": 0.10634344032257513,
+            "direction": "decreased",
+            "field": "metric.3d_participant_R",
+            "subject": "HUP185_phaseII"
+          },
+          {
+            "after": 23.286512468073933,
+            "before": 31.121415097685897,
+            "direction": "decreased",
+            "field": "metric.3d_participant_phase_deg",
+            "subject": "HUP185_phaseII"
+          },
+          {
+            "after": 494,
+            "before": 508,
+            "direction": "decreased",
+            "field": "support.3d_paired_events",
+            "subject": "HUP185_phaseII"
+          },
+          {
+            "after": 0.22140583075644565,
+            "before": 0.22196301216432968,
+            "direction": "decreased",
+            "field": "metric.3b_NREM_local_change_pct",
+            "subject": "HUP199_phaseII"
+          },
+          {
+            "after": 2.596348498941064,
+            "before": 2.5905059517753704,
+            "direction": "increased",
+            "field": "metric.3b_NREM_pct_above_stage_mean",
+            "subject": "HUP199_phaseII"
+          },
+          {
+            "after": 2439,
+            "before": 2437,
+            "direction": "increased",
+            "field": "support.3b_NREM_n_so",
+            "subject": "HUP199_phaseII"
+          },
+          {
+            "after": 0.05734894999503373,
+            "before": 0.05713509800868704,
+            "direction": "increased",
+            "field": "metric.3b_N2_local_change_pct",
+            "subject": "HUP205_phaseII"
+          },
+          {
+            "after": 0.9194335862170787,
+            "before": 0.9142632886601726,
+            "direction": "increased",
+            "field": "metric.3b_N2_pct_above_stage_mean",
+            "subject": "HUP205_phaseII"
+          },
+          {
+            "after": 0.08676016997685293,
+            "before": 0.08305627769291697,
+            "direction": "increased",
+            "field": "metric.3d_participant_R",
+            "subject": "HUP205_phaseII"
+          },
+          {
+            "after": -8.388660830088506,
+            "before": -6.887864774584706,
+            "direction": "decreased",
+            "field": "metric.3d_participant_phase_deg",
+            "subject": "HUP205_phaseII"
+          },
+          {
+            "after": 577,
+            "before": 576,
+            "direction": "increased",
+            "field": "support.3b_N2_n_so",
+            "subject": "HUP205_phaseII"
+          },
+          {
+            "after": 330,
+            "before": 331,
+            "direction": "decreased",
+            "field": "support.3d_paired_events",
+            "subject": "HUP205_phaseII"
+          },
+          {
+            "after": 0.049000572234483314,
+            "before": 0.0503275354072941,
+            "direction": "decreased",
+            "field": "metric.3d_participant_R",
+            "subject": "HUP212_phaseII"
+          },
+          {
+            "after": 40.84416129162544,
+            "before": 38.11906367436175,
+            "direction": "increased",
+            "field": "metric.3d_participant_phase_deg",
+            "subject": "HUP212_phaseII"
+          },
+          {
+            "after": 466,
+            "before": 483,
+            "direction": "decreased",
+            "field": "support.3d_paired_events",
+            "subject": "HUP212_phaseII"
+          }
+        ],
+        "changed_field_ledger_limit": 100,
+        "changed_field_ledger_order": "subject_then_field",
         "evidence_status": "recomputed from the tracked v8 snapshot and current public v9 locked-profile subject records",
+        "full_changed_field_ledger_sha256": "4838ee909b720a544d6127dd2276651f7a1c955827e84fd62dae9d5c79c4a156",
+        "n_changed_field_ledger_entries_emitted": 42,
+        "n_changed_field_ledger_entries_omitted": 0,
         "n_changed_selected_numeric_or_support_fields": 42,
         "n_unchanged_selected_numeric_or_support_fields": 606
       },
@@ -203,15 +504,15 @@
     "v9_event_count_sources": {
       "hup": {
         "logical_source": "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json",
-        "source_sha256": "500fd869686b97d8109a5a55b015d5561efa47d452b437c7488944cea1dc249e"
+        "source_sha256": "57385fe116233765d04e1aa49fa4b8d0bae692498b8460103cf4c78b9d5c38c6"
       },
       "respect": {
         "logical_source": "outputs/qc_grid/event_count_oat_v1/respect_qc_grid.json",
-        "source_sha256": "2764a243b1c133c98cbf153323aed96e6de41c1d5cab493b8aaaf1c6da92237c"
+        "source_sha256": "a65744532e585647cee5d43ccacb539950bd893a9622c31c25ee761af1562e55"
       }
     },
     "v9_public_manifest_path_relative": "outputs/qc_grid_public/RUN_MANIFEST.json",
-    "v9_public_manifest_sha256": "5e0468b878232acd894a921d23ad2041a8e10e1c5e995305b6c19570816bc28f"
+    "v9_public_manifest_sha256": "61bef7fa48882ed7137f2a29fdec8771672745d8fcfe9c83ffdbce108b4bc001"
   },
   "profile_id": "overlap11_endpoint_local"
 }

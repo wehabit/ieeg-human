@@ -2,22 +2,22 @@
   "analysis_version": "2026-07-qc-sensitivity-v9",
   "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "code_dirty_at_start": false,
-  "code_revision": "ecd293aaa0097844c8d5643f9104c2c92fc22fec",
-  "generated_at_utc": "2026-07-29T07:33:48.876315+00:00",
+  "code_revision": "461f01edd8a9172bfb46bd04129d9ae09927fcd2",
+  "generated_at_utc": "2026-07-29T22:36:37.232187+00:00",
   "pipeline": "compact_qc_grid_artifacts",
   "profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
   "result_files_sha256": {
-    "auxiliary_window_support_v1/hup_qc_grid_summary.json": "63b2d74ee4a5d8c915c21d579527c52653575dfde8757962feb00a9bc1b53f8c",
-    "auxiliary_window_support_v1/respect_qc_grid_summary.json": "267ce79c8de0ad0b6e4e12788fc1880a490c4bfc871426845d4e53dae1a35464",
-    "coverage_oat_v1/hup_qc_grid_summary.json": "c67e3b6e547b83f5df961bcbba94df14c1c5d95253bb3e44f5b55d988fbfba7d",
-    "coverage_oat_v1/respect_qc_grid_summary.json": "92a3d3166a4b6e6d31667e247a504ccff4b68c911bd2da2b77e78c5c848a14e1",
-    "event_count_oat_v1/hup_qc_grid_summary.json": "b93027444f9de8a73e6169d0c0d8093e2882cda73f2bc8a4b420d232a50c4302",
-    "event_count_oat_v1/respect_qc_grid_summary.json": "865b7152a0fb9dbdb1d5a7389b07c13bedfee3e209fb3236463b04b7ad7d036f",
-    "locked/overlap11_endpoint_local__hup.json": "3f20c15c2cb41a9e066247291dc694b262793b55caac3c10af136d18adcfd261",
-    "staging_window_support_v1/hup_qc_grid_summary.json": "b838ff59533b54afad84baf9d48dc6944844160ec48aa09031d3bb51ce2a3542",
-    "staging_window_support_v1/respect_qc_grid_summary.json": "a4e6a7d2e8c9c4e1d50c5eb10320b7771b21823156f5ab2968697071e4ede5be"
+    "auxiliary_window_support_v1/hup_qc_grid_summary.json": "79ba919c63780e2b75b7e660b6839713efcbc0f5b75e7afe13c3936b9fb05175",
+    "auxiliary_window_support_v1/respect_qc_grid_summary.json": "eea52333d2835b382788bfcce3e2d44cd1faa16b28827807c08040eff220e23e",
+    "coverage_oat_v1/hup_qc_grid_summary.json": "a1b2af16dd938be6be262d05255268ac098523649a91166f1459f02aa2e9a68e",
+    "coverage_oat_v1/respect_qc_grid_summary.json": "0a74739d82e4053f495c60c2b0e17613d16c7880c140f118a075899600ce8a34",
+    "event_count_oat_v1/hup_qc_grid_summary.json": "fc6c09728d78a295d40583a896761e74b161c65c3e2f525fcb383913eea50891",
+    "event_count_oat_v1/respect_qc_grid_summary.json": "04f1d424d0d8bead1f3aa0e283672bc4f1f4b5e84029ca573f49135b14ffcd58",
+    "locked/overlap11_endpoint_local__hup.json": "c95fd41ac2c96a9ddc322aaaff9d686cd1a9abf7c8079c4600332b72407e21fa",
+    "staging_window_support_v1/hup_qc_grid_summary.json": "1e0843af7426ceb6f477348a280bd537007a3f800edd673c93f7005a62303e3a",
+    "staging_window_support_v1/respect_qc_grid_summary.json": "9f7f466f583c3a6ad29b190307a48ab63c746fc913f439edb95e95dba507c51b"
   },
-  "run_id": "e49e572a-2695-4e00-8ae2-fe881090ad28",
+  "run_id": "14230703-4524-426b-bd7f-1110432411d5",
   "run_state": "complete",
   "runtime_versions": {
     "ieeg": "1.6",
@@ -30,14 +30,14 @@
   },
   "schema_version": "2026-07-qc-grid-public-manifest-v1",
   "source_full_grid_sha256": {
-    "outputs/qc_grid/auxiliary_window_support_v1/hup_qc_grid.json": "7fc28ae10dfba28fbf76496ae1120bab47107ff699f6f176193fab0d66b3a31a",
-    "outputs/qc_grid/auxiliary_window_support_v1/respect_qc_grid.json": "a0b5a5ed75df61ee250a25abbe5e0aaf0acfb7b77e52fcf388617e77d8ab9483",
-    "outputs/qc_grid/coverage_oat_v1/hup_qc_grid.json": "58e63e1d972c1d77414cefb93eb5ef77762534eede1e3ea350b45e0dc2e45b6c",
-    "outputs/qc_grid/coverage_oat_v1/respect_qc_grid.json": "9ced15eb49bfdc485bbb3230ea61c76554822518272576602aa68e4fcbd7d887",
-    "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json": "500fd869686b97d8109a5a55b015d5561efa47d452b437c7488944cea1dc249e",
-    "outputs/qc_grid/event_count_oat_v1/respect_qc_grid.json": "2764a243b1c133c98cbf153323aed96e6de41c1d5cab493b8aaaf1c6da92237c",
-    "outputs/qc_grid/staging_window_support_v1/hup_qc_grid.json": "1fbd8b0fe2fe7bdbeb03ae1b5a61a77212863558f83864265fe23232bc8815fd",
-    "outputs/qc_grid/staging_window_support_v1/respect_qc_grid.json": "13c99fe878378a1c1a78c12b25071a346449084ca8815aa53a527168ec834950"
+    "outputs/qc_grid/auxiliary_window_support_v1/hup_qc_grid.json": "b7ef31c51906f64fbd38722094a2de2070aed5de0a60a1e304c9b44a3c5983c2",
+    "outputs/qc_grid/auxiliary_window_support_v1/respect_qc_grid.json": "a75381e3a1bace628f8dbbff1fd10b5ac20692e6a2472a6423468efcd459f997",
+    "outputs/qc_grid/coverage_oat_v1/hup_qc_grid.json": "95a2aa7c8d8d92f01676b90d4531283bffaa8c31b39d486622fbd3bb649b5be3",
+    "outputs/qc_grid/coverage_oat_v1/respect_qc_grid.json": "795d959ad4fb780880d7177ca8585bf30fa3224f0f5c269553a1084524842e13",
+    "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json": "57385fe116233765d04e1aa49fa4b8d0bae692498b8460103cf4c78b9d5c38c6",
+    "outputs/qc_grid/event_count_oat_v1/respect_qc_grid.json": "a65744532e585647cee5d43ccacb539950bd893a9622c31c25ee761af1562e55",
+    "outputs/qc_grid/staging_window_support_v1/hup_qc_grid.json": "c4771607e81613c7827936d50248974034fe026f0d2f3470f9feb29c1858e3eb",
+    "outputs/qc_grid/staging_window_support_v1/respect_qc_grid.json": "a9e462ba2bda27f2bdbfaee49918ad8325ef7c1541fa25076c4ab21e064be961"
   },
-  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7"
+  "source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7"
 }

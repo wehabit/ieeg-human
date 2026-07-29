@@ -76,8 +76,8 @@
     }
   ],
   "full_grid_path_relative": "outputs/qc_grid/event_count_oat_v1/hup_qc_grid.json",
-  "full_grid_sha256": "500fd869686b97d8109a5a55b015d5561efa47d452b437c7488944cea1dc249e",
-  "generated_at_utc": "2026-07-29T07:21:49.183271+00:00",
+  "full_grid_sha256": "57385fe116233765d04e1aa49fa4b8d0bae692498b8460103cf4c78b9d5c38c6",
+  "generated_at_utc": "2026-07-29T22:30:24.124672+00:00",
   "grid_id": "event_count_oat_v1",
   "grid_role": "post-audit sensitivity; no result-based profile selection",
   "limitations": [
@@ -10024,7 +10024,7 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7",
+  "source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7",
   "staging_calibration_application_to_this_cache": "unvalidated transport sensitivity; not a calibrated HUP rule",
   "staging_calibration_provenance": {
     "analysis_version": "2026-07-qc-sensitivity-v9",

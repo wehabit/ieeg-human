@@ -50,11 +50,11 @@ from cache_lc_series import (
     empty_channel_activity_extrema,
     finalize_channel_activity_qc,
     prepare_continuous_signal,
+    require_complete_acquisition,
     update_channel_activity_extrema,
 )
 from hup_portal import (
-    expected_portal_sample_count,
-    expected_portal_sample_offset,
+    portal_core_sample_geometry,
     pull_continuous_exact,
     same_series_geometry,
 )
@@ -705,9 +705,8 @@ def build_subject(subject, *, cache_dir=DEFAULT_IEEG_CACHE,
                 if data.ndim != 2 or data.shape[1] != n_channels:
                     raise RuntimeError(
                         f"portal returned unexpected block shape {data.shape}")
-                core_start = expected_portal_sample_offset(
-                    t - pull_start, sf)
-                requested_core = expected_portal_sample_count(duration, sf)
+                core_start, requested_core = portal_core_sample_geometry(
+                    t, pull_start, duration, sf)
                 returned_core = max(
                     0, min(len(data), core_start + requested_core) - core_start)
                 acquisition_sample_counts.append({
@@ -726,12 +725,13 @@ def build_subject(subject, *, cache_dir=DEFAULT_IEEG_CACHE,
                         f"portal returned {returned_core} core samples; "
                         f"expected {requested_core} at t={t:g}")
             except Exception as exc:
-                failed_chunks.append({
+                failure = {
                     "start_s": float(t),
                     "duration_s": float(duration),
                     "error": f"{type(exc).__name__}: {exc}",
-                })
-                raise
+                }
+                failed_chunks.append(failure)
+                require_complete_acquisition(failed_chunks)
 
             core_count = requested_core
             core_stop = core_start + core_count
@@ -799,9 +799,7 @@ def build_subject(subject, *, cache_dir=DEFAULT_IEEG_CACHE,
             t += duration
 
         activity_qc = finalize_channel_activity_qc(activity)
-        if failed_chunks:
-            raise RuntimeError(
-                f"{subject} has {len(failed_chunks)} failed acquisition chunks")
+        require_complete_acquisition(failed_chunks)
         payload = {
             "status": "ok",
             "cache_schema_version": SCALP_CACHE_SCHEMA,

@@ -68,9 +68,27 @@ def expected_portal_sample_offset(offset_s, sample_rate_hz):
 def expected_portal_sample_count(duration_s, sample_rate_hz):
     """Return the positive integer sample count for one portal request."""
     duration_s = float(duration_s)
-    if not np.isfinite(duration_s) or duration_s <= 0:
-        raise ValueError("portal request duration must be finite and positive")
-    return expected_portal_sample_offset(duration_s, sample_rate_hz)
+    sample_rate_hz = float(sample_rate_hz)
+    if (
+        not np.isfinite([duration_s, sample_rate_hz]).all()
+        or duration_s <= 0
+        or sample_rate_hz <= 0
+    ):
+        raise ValueError(
+            "portal request duration and sample rate must be finite and positive")
+    count = int(round(duration_s * sample_rate_hz))
+    if count <= 0:
+        raise ValueError("portal request duration resolves to zero samples")
+    return count
+
+
+def portal_core_sample_geometry(
+        analysis_start_s, pull_start_s, duration_s, sample_rate_hz):
+    """Return the padded-pull offset and positive sample count for one core."""
+    offset = expected_portal_sample_offset(
+        float(analysis_start_s) - float(pull_start_s), sample_rate_hz)
+    count = expected_portal_sample_count(duration_s, sample_rate_hz)
+    return offset, count
 
 
 def pull_continuous_exact(

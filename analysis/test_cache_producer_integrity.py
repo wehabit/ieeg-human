@@ -32,6 +32,7 @@ from hup_portal import (
     expected_portal_sample_count,
     expected_portal_sample_offset,
     find_night,
+    portal_core_sample_geometry,
     pull_continuous_exact,
     validate_hup_series_geometry,
 )
@@ -69,6 +70,11 @@ check(
     "a first-chunk zero offset maps to sample zero without becoming a zero-duration request",
     expected_portal_sample_offset(0.0, 1024.0) == 0,
 )
+check(
+    "both portal cache producers share first-chunk core geometry",
+    portal_core_sample_geometry(0.0, 0.0, 600.0, 1024.0)
+    == (0, 614_400),
+)
 try:
     expected_portal_sample_count(0.0, 1024.0)
 except ValueError:
@@ -78,6 +84,16 @@ else:
 check(
     "a zero-duration portal request remains invalid",
     zero_request_rejected,
+)
+try:
+    expected_portal_sample_count(1e-12, 1.0)
+except ValueError:
+    sub_sample_request_rejected = True
+else:
+    sub_sample_request_rejected = False
+check(
+    "a positive duration that rounds to zero samples remains invalid",
+    sub_sample_request_rejected,
 )
 
 check(

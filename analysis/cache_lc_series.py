@@ -53,8 +53,8 @@ from event_3d_estimators import (
 )
 from hup_portal import (
     COHORT, HUP_SOURCE_PIN_SCHEMA_VERSION, NIGHT_PROBE_WORKERS, cortical_channels,
-    delta_ratio, expected_portal_sample_count, expected_portal_sample_offset, find_night,
-    pull_continuous_exact, validate_hup_series_geometry,
+    delta_ratio, find_night, portal_core_sample_geometry, pull_continuous_exact,
+    validate_hup_series_geometry,
     verify_hup_source_identity,
 )
 from staging_helpers import band_sos, EPOCH, CHUNK_S, SWA_BAND
@@ -946,8 +946,8 @@ def _pull_analysis_chunk(source, buffers, t, dur):
             records=buffers.acquisition_sample_counts,
             purpose="analysis_subrequest",
         )
-        core_a = expected_portal_sample_offset(t - pull_start, source.sf)
-        requested_core = expected_portal_sample_count(dur, source.sf)
+        core_a, requested_core = portal_core_sample_geometry(
+            t, pull_start, dur, source.sf)
         returned_core = max(
             0, min(len(data), core_a + requested_core) - core_a)
         core_record = {

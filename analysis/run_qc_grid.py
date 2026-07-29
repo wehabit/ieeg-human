@@ -257,6 +257,9 @@ def analyse_3a(materialized, profile):
             f"RR coverage {materialized['hr_coverage']:.3f} < "
             f"{profile['hr']['minimum_coverage']:.3f}; cardiac endpoints only")
     return dict(
+        inference_enabled=False,
+        inferential_p_value=None,
+        inference_status="descriptive_only_no_cohort_null",
         n_selected_contacts=n_contacts,
         selected_contact_ids=[
             str(contact)

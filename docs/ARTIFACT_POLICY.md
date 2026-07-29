@@ -23,7 +23,15 @@ Do not commit:
 
 - raw EEG, portal downloads, credentials, or derived NPZ caches under `data/`;
 - full profile-grid JSON under `outputs/qc_grid/`;
-- temporary logs, interrupted-run files, or local plotting caches.
+- temporary logs, interrupted-run files, local plotting caches, or obsolete
+  free-text summaries from withdrawn writers.
+
+Legacy `.txt` cohort summaries are not an authoritative result format. A
+current claim must resolve to a terminal manifest and its hashed structured
+participant/group tables or figures; narrative explanation belongs in the
+versioned documentation. Historical text output can be recovered from Git
+history when needed and must not be retained merely because an old script once
+generated it.
 
 The eight former full QC grids repeated spectra and event diagnostics for every
 profile and occupied about 58.5 MB (1.35 million lines).  The tracked public
@@ -63,10 +71,11 @@ done
 .venv/bin/python analysis/compact_qc_grid_artifacts.py
 
 # Simultaneous scalp sidecars, all-cohort inventory, and paired results.
-.venv/bin/python analysis/cache_paired_scalp.py \
-  --subjects 160,185,187,191,199,205,211,212 --force
+.venv/bin/python analysis/cache_paired_scalp.py --force
 .venv/bin/python analysis/audit_hup_scalp_inventory.py
-.venv/bin/python analysis/paired_scalp_ieeg_comparison.py
+# Replace the placeholder with the inventory's exact ordered paired_3a_eligible list.
+.venv/bin/python analysis/paired_scalp_ieeg_comparison.py \
+  --subjects PAIRED_3A_ELIGIBLE_COMMA_LIST
 ```
 
 The calibration pin update changes provenance only; it does not tune a QC
@@ -79,11 +88,12 @@ Do not run the withdrawn standalone `lecci_faithful_3A.py`,
 `run_ds003848_replication.py` writers. They intentionally exit. The two neutral
 cache builders plus `run_qc_grid.py` are the single production path.
 
-Do not manually replace a stored digest after changing code.  A
-`source_tree_sha256` mismatch means the dependent artifacts must be regenerated
-from the current source.  When a cache-producing change requires portal data,
-the honest interim state is **rebuild pending**, not a relabeled historical
-artifact.
+Do not manually replace a stored digest after changing code. A
+`cache_code_sha256` mismatch requires the neutral caches to be regenerated. A
+downstream-only edit does not invalidate those expensive cache bytes, but its
+dependent grid/result artifacts must be regenerated with the new
+`source_tree_sha256`. When a cache-producing change requires portal data, the
+honest interim state is **rebuild pending**, not a relabeled historical artifact.
 
 ## Validation modes
 

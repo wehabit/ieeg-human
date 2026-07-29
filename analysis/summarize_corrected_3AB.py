@@ -1,28 +1,14 @@
-"""Cohort summary of corrected 3A (Lecci-aligned approximation) and 3B results.
+"""Withdrawn legacy test-only summary of historical corrected 3A/3B outputs.
 
-Reads the 3A and 3B per-subject JSON dirs (default HUP; pass --a-dir/--b-dir for ds003848).
+This script is retained only to exercise fail-closed integrity checks for the old
+per-endpoint artifacts. It is not a production reporting path. Normal invocation
+is rejected unless the explicit ``--legacy-test-only`` acknowledgement is given.
 
-    .venv/bin/python analysis/summarize_corrected_3AB.py
     .venv/bin/python analysis/summarize_corrected_3AB.py \
+        --legacy-test-only \
         --a-dir outputs/ds003848_3A --b-dir outputs/ds003848_3B --label "ds003848 replication"
 """
 import argparse, glob, hashlib, json, os
-import numpy as np
-from scipy import stats
-from pipeline_version import (
-    ANALYSIS_VERSION,
-    CACHE_SCHEMA_VERSION,
-    cache_code_sha256,
-    file_sha256,
-    runtime_versions,
-    source_tree_sha256,
-)
-from lecci_faithful_3A import (
-    cache_lineage_entry,
-    LECCI_XCORR_LAG_WINDOW_S,
-    peak_location_null_is_adequate,
-    verify_cache_lineage,
-)
 
 EXACT_SIGN_FLIP_MAX_N = 15
 MONTE_CARLO_SIGN_FLIP_DRAWS = 20_000
@@ -41,7 +27,20 @@ def endpoint_rng(endpoint_name):
     return np.random.RandomState(endpoint_seed(endpoint_name))
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_ap = argparse.ArgumentParser()
+_ap = argparse.ArgumentParser(
+    description=(
+        "WITHDRAWN legacy test-only integrity reporter for historical 3A/3B "
+        "artifacts; this is not a production analysis or reporting command."
+    )
+)
+_ap.add_argument(
+    "--legacy-test-only",
+    action="store_true",
+    help=(
+        "explicitly acknowledge that this withdrawn command is being run only "
+        "for legacy integrity testing"
+    ),
+)
 _ap.add_argument("--a-dir", default=os.path.join(ROOT, "outputs", "lecci_faithful_3A"))
 _ap.add_argument("--b-dir", default=os.path.join(ROOT, "outputs", "event_3B_cached"))
 _ap.add_argument("--label", default="HUP phaseII")
@@ -50,8 +49,34 @@ _ap.add_argument(
     help="comma-separated exact subject IDs; inferred for the standard HUP/RESPect directories")
 _ap.add_argument(
     "--min-completed", type=int, default=5,
-    help="minimum estimable participants required for a cohort summary (default: 5)")
+    help="minimum estimable participants required for the legacy summary (default: 5)")
 _args = _ap.parse_args()
+if not _args.legacy_test_only:
+    raise SystemExit(
+        "WITHDRAWN: summarize_corrected_3AB.py is retained only for legacy "
+        "integrity tests. It is not a production reporting path. Pass "
+        "--legacy-test-only only when deliberately exercising those tests."
+    )
+
+# Keep normal invocation cheap and quiet: expensive scientific imports occur only
+# after the caller explicitly acknowledges this withdrawn test-only path.
+import numpy as np
+from scipy import stats
+from pipeline_version import (
+    ANALYSIS_VERSION,
+    CACHE_SCHEMA_VERSION,
+    cache_code_sha256,
+    file_sha256,
+    runtime_versions,
+    source_tree_sha256,
+)
+from lecci_faithful_3A import (
+    cache_lineage_entry,
+    LECCI_XCORR_LAG_WINDOW_S,
+    peak_location_null_is_adequate,
+    verify_cache_lineage,
+)
+
 A_DIR = _args.a_dir if os.path.isabs(_args.a_dir) else os.path.join(ROOT, _args.a_dir)
 B_DIR = _args.b_dir if os.path.isabs(_args.b_dir) else os.path.join(ROOT, _args.b_dir)
 HUP_IDS = {
@@ -71,7 +96,10 @@ elif os.path.basename(A_DIR) == "lecci_faithful_3A":
     EXPECTED = HUP_IDS
 else:
     raise SystemExit("--expected-subjects is required for nonstandard output directories")
-print(f"COHORT: {_args.label}   (3A: {A_DIR}, 3B: {B_DIR})")
+print(
+    "LEGACY TEST-ONLY REPORT (WITHDRAWN; NOT PRODUCTION)\n"
+    f"COHORT: {_args.label}   (3A: {A_DIR}, 3B: {B_DIR})"
+)
 
 # Distinct quantities in Lecci: main-text values are mean +/- SEM, whereas Fig. 1G's 0.008 Hz is
 # the within-spectrum Gaussian width. It is not the across-participant SD of fitted locations.

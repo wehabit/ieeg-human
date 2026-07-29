@@ -1,9 +1,8 @@
-# WITHDRAWN 3B comparison — superseded implementation vs Naji 2019
+# 3B method comparison — current descriptive adaptation vs Naji 2019
 
-> **LEGACY / WITHDRAWN NUMBERS.** This comparison predates the RR-domain v8 descriptive
-> estimator. Whole-stage shifts are now diagnostic only and no 3B event-locking p/z claim is
-> available. The direct legacy entry point is hard-stopped. Frozen v8 recovered subject-level N2-like,
-> N3-like, and pooled estimates, but inference remains explicitly disabled.
+> The method comparison below describes the current RR-domain adaptation. Only the numerical
+> section at the end is legacy/withdrawn. Whole-stage shifts are diagnostic only, no 3B
+> event-locking p/z claim is available, and the direct legacy entry point is hard-stopped.
 
 **Purpose.** A step-by-step comparison of how we implemented the slow-oscillation → heart-rate
 coupling test against the method it follows. Written because the coupling was cited to the wrong
@@ -58,22 +57,24 @@ The analyzed scalp derivations were F3/A2 and F4/A1.
 | Filter band | zero-phase bandpass **0.15–4 Hz** | notch + `sosfiltfilt` **0.15–4 Hz** | ⚠️ same SO band, additional notch |
 | Where detected | **2 frontal scalp derivations**, F3/A2 and F4/A1 | conservative frontal iEEG ROI, per contact | ❌ modality/region/reference |
 | Wave definition | full SO event (down-state **and** up-state) | complete negative/down and positive/up half-waves | ✅ structural definition aligned |
-| Duration gate | duration of **down- and up-states** | negative-to-positive 0.3–1.5 s, then positive-to-negative <1.0 s | ✅ cited Dang-Vu timing |
-| Amplitude gate | **absolute µV** (peak-to-peak + up-state amplitude) | up-state amp **≥ 75th pct** AND peak-to-peak **≥ 75th pct**, within channel | ❌ relative, not absolute |
-| Up-state amplitude | explicit criterion | positive up-state and peak-to-peak amplitudes are percentile-gated separately | ⚠️ relative adaptation |
-| Staging | R&K visual scoring, uninterrupted 3-min N2 / N3 bins (Naji's paper labels N3 "SWS") | GMM-on-slow-wave proxy (HUP) or annotation-constrained proxy (ds003848) | ❌ not R&K |
+| Duration gate | duration of down- and up-states is named, but Naji does not report numerical limits | negative-to-positive 0.3–1.5 s, then positive-to-negative <1.0 s | ❌ implementation-specific; exact paper match cannot be claimed |
+| Amplitude gate | peak-to-peak and up-state amplitude criteria are named, but Naji does not report their numerical cutoffs; the cited Dang-Vu scalp method uses µV criteria | up-state amp **≥ 75th pct** AND peak-to-peak **≥ 75th pct**, within channel | ❌ relative iEEG adaptation |
+| Up-state amplitude | criterion named but not numerically specified in Naji | positive up-state and peak-to-peak amplitudes are percentile-gated separately | ⚠️ unverified adaptation |
+| Staging | R&K visual scoring; continuous, undisturbed 3-min **Stage 2 or SWS** bins | GMM N2-like/N3-like proxy (HUP) or annotation-constrained labels (ds003848) | ❌ not R&K Stage 2/SWS |
 
 **Why the deviations, and what they do:**
 
 - **Sensor/reference transfer (F3/A2 and F4/A1 scalp → frontal iEEG)** is a major difference.
   The withdrawn numerical gap cannot be assigned uniquely to modality, region, reference, spatial
   scale, or channel aggregation.
-- **Absolute µV → 75th-percentile threshold** is forced: intracranial amplitudes do not map to scalp
-  µV, so a fixed Dang-Vu µV bar is meaningless on depth contacts. Both up-state and peak-to-peak
-  amplitudes must clear their within-channel percentile; retention is therefore relative and can
-  be smaller than 25%, rather than being set by an absolute scalp amplitude.
-- **Complete half-wave timing is retained in the current estimator**, but code-level morphology
-  alignment does not validate iEEG polarity or scalp-event homology.
+- **Paper amplitude criteria → 75th-percentile threshold** is an explicit analysis choice, not a
+  paper-derived rule. Scalp µV criteria do not transfer directly to depth-contact scale/reference,
+  but other iEEG calibration strategies are possible. Both up-state and peak-to-peak amplitudes
+  must clear their within-channel percentile; retention is therefore relative and can be smaller
+  than 25%.
+- **Complete half-wave timing is enforced in the current estimator**, but Naji does not publish the
+  numerical duration limits needed to call it an exact match. Code-level morphology alignment also
+  does not validate iEEG polarity or scalp-event homology.
 
 ---
 
@@ -81,12 +82,12 @@ The analyzed scalp derivations were F3/A2 and F4/A1.
 
 This is the biggest conceptual difference and the one most relevant to the "validated" claim.
 
-**What Naji actually tests.** Naji reports the HR peak as **% above the stage mean** — **12.09 ± 1.48%**
-(N2), **3.35 ± 1.01%** (N3) — as a **descriptive** measurement (mean ± SEM across subjects). They
-**do not test the coupling against a null**; the coupling is taken as given (their Fig 1). Their actual
-*statistical* claim is a **Pearson correlation between the SO→HR timing (ΔT ≈ 2.1–2.2 s) and
-texture-discrimination speed** — i.e. the *timing* predicts behaviour, and even that was **negative for
-memory consolidation** (hence the paper's title).
+**What Naji actually reports and tests.** Naji reports the HR peak as **% above the stage mean** —
+**12.09 ± 1.48%** in Stage 2 and **3.35 ± 1.01%** in SWS — as a descriptive measurement
+(mean ± SEM across subjects). The paper does not report a null test for whether the event-locked
+curve itself differs from chance. Its inferential claim is a **Pearson correlation between SO–HR
+timing (ΔT ≈ 2.1–2.2 s) and texture-discrimination speed**. Timing was not associated with offline
+performance improvement, and cross-visit correlations were poor.
 
 **What the current descriptive estimator computes.** `subject_so_triggered`:
 
@@ -95,10 +96,10 @@ memory consolidation** (hence the paper's title).
 | R peaks | Pan–Tompkins detector followed by visual confirmation | NeuroKit automated detector; no visual validation | ❌ detector/validation transfer |
 | RR series | RR → **4 Hz piecewise cubic spline** | **4 Hz PCHIP** inside continuous beat runs, followed by explicit long-gap re-masking | ⚠️ intentionally different |
 | Window | 10 s centered on the trough (−5 to +5 s) | ±5 s (`HALF_WIN=5`) | ✅ |
-| Effect statistic | **peak** of mean HR curve, % above stage mean | minimum of the participant-average RR curve, converted once to HR and % above the stage baseline | ⚠️ same conceptual peak, explicit RR-domain ordering |
+| Effect statistic | HR peak after SO, reported as % above average Stage 2/SWS HR; conversion/aggregation order is not fully specified | minimum of the participant-average RR curve, converted once to HR and % above the stage baseline | ⚠️ related quantity, implementation order is repository-specific |
 | SO→HR timing (ΔT) | trough → HR peak | `peak_lag_s` | ✅ same |
 | **Significance test** | **none** for the descriptive coupling curve | no exposed event-locking p/z; a shared stage shift is retained as a diagnostic only | ✅ no inferential coupling claim |
-| Aggregation | average F3/A2 and F4/A1 derivation results, then across subjects | average contact RR curves before one participant magnitude; average contact-specific timings | ⚠️ estimator order aligned, sensors are not |
+| Aggregation | average the F3 and F4 **HR-maximum times** for ΔT; the paper does not fully specify the two-derivation magnitude aggregation | average contact RR curves before one participant magnitude; average contact-specific timings | ⚠️ timing concept aligned, magnitude order and sensors are not |
 | Behavioural endpoint | **ΔT ↔ TDT speed** (Pearson) — their headline | **not tested** (no behaviour in iEEG) | ❌ we cannot do their actual claim |
 
 **Three things this means:**
@@ -112,9 +113,9 @@ memory consolidation** (hence the paper's title).
    baseline, but interpolation, staging, SO criteria, sensor location,
    reference, and channel aggregation differ. The withdrawn numerical gap
    cannot be attributed uniquely to scalp-versus-iEEG region or spatial scale.
-3. **We did not test Naji's actual finding.** Their result is that SO→HR *timing predicts perceptual
-   speed*. We have no behavioural task, so we cannot replicate that — we only measured the coupling
-   itself.
+3. **We did not test Naji's actual finding.** Their result is a visit-specific Pearson association
+   between SO→HR timing and perceptual speed. We have no behavioural task, so we cannot replicate
+   that — we only measured the coupling itself.
 
 ---
 

@@ -182,19 +182,23 @@ that core, for every proxy-NREM run at least 120 s:
    because the window was selected for high/accepted sigma, an ordinary sigma>SWA p value is
    circular unless peak selection is repeated inside a joint null.
 
-Scale-free surrogates preserve each participant’s bout/gap pattern. Cohort peak clustering uses one
-matched surrogate peak per participant per iteration. This statistic tests only whether accepted
-peaks are unusually tight; it does not test whether their location is compatible with Lecci's
-0.019 Hz. Any accepted-subset location interval is explicitly conditional.
+Scale-free surrogates preserve each participant’s bout/gap pattern and are retained as
+participant-level diagnostics. The current QC-grid path produces participant spectral summaries,
+accepted/no-peak outcomes, cardiac summaries, and endpoint availability; compact public artifacts
+retain availability plus the prescribed locked subject snapshot. Neither path publishes a cohort
+peak-tightness p value or an accepted-subset confidence interval. The peak-clustering calculation
+retained in `summarize_corrected_3AB.py` belongs to the legacy, unshipped summary path and is not
+current 3A evidence. Accepted peak locations are therefore descriptive participant-level
+observations.
 
 For cardiac coupling, 120 s intervals are z-scored and cross-correlated with HR as the source wave.
-The primary paper-direction summary is the maximum positive group correlation at 0–15 s, where
-positive lag means sigma follows HR; it is tested with a one-sided sign-flip maximum statistic in
-that window. Signed max-absolute correlation across all lags is an omnibus sensitivity, and the
-opposite-sign extremum is reported separately so a reversal cannot count as paper-aligned support.
-Gap-aware coherence at 0.02 Hz and at an accepted personal peak is a secondary analysis. Coherence
-is unavailable when either autospectrum lacks positive non-DC support or the target-bin value is
-nonfinite.
+Positive lag means sigma follows HR. The current production path records each participant’s
+paper-direction maximum positive correlation at 0–15 s, signed max-absolute sensitivity, and
+opposite-sign extremum; these are descriptive summaries. The one-sided group sign-flip maximum
+calculation retained in `summarize_corrected_3AB.py` is also legacy and unshipped, not current
+inference. Gap-aware coherence at 0.02 Hz and at an accepted personal peak is a secondary
+participant-level analysis. Coherence is unavailable when either autospectrum lacks positive
+non-DC support or the target-bin value is nonfinite.
 
 This remains an approximation: the cached 1 Hz Hilbert/Butterworth series is not Lecci’s 0.1 s
 FieldTrip Morlet series and must be benchmarked on identical raw input.
@@ -235,20 +239,33 @@ complete finite in-stage RR windows after final window eligibility. Intracranial
 is not yet oriented to Naji's negative scalp downstate, so downstate timing remains a
 source-transfer limitation rather than a validated homologous marker.
 
-## 3D: independent-SO spindle phase
+## 3D: descriptive SO–spindle event-phase hybrid
 
-Staresina and Helfrich provide SO–spindle event-detection and phase-coupling methods in
-artifact-free NREM; neither paper measures or validates LC activity.
+Staresina and Helfrich provide related SO/spindle event-detection and phase-coupling methods in
+artifact-free NREM; neither paper measures or validates LC activity. The current endpoint combines
+pieces of those methods with repository-specific pairing and QC rules. It is a novel descriptive
+hybrid, not a faithful reproduction of either paper.
 
 Per contact:
 
 - SO detection: 0.16–1.25 Hz, complete 0.8–2.0 s cycles, top-quartile amplitude.
-- Spindle detection: fixed 12–16 Hz, 200 ms RMS, 75th-percentile threshold, 0.5–3.0 s duration.
+- Spindle detection: fixed 12–16 Hz, 200 ms RMS, 75th-percentile threshold, and an **inclusive**
+  0.5–3.0 s duration rule. Staresina specifies more than 0.5 s and less than 3 s, while Helfrich
+  reports the nominal 0.5–3 s range; the branch therefore differs at least at Staresina's exact
+  duration boundaries. The papers also use their duration-qualified events inside their own
+  event-locked/cross-frequency workflows, so a similar nominal range does not make the downstream
+  estimator identical.
 - Thresholds use one artifact-free pooled-NREM channel-night distribution.
 - IED/artifact samples are expanded by ±2.5 s; SO troughs and spindle RMS/event samples inside
   that expanded mask are ineligible.
-- Each spindle is assigned to its nearest SO; at most the maximum-amplitude spindle is retained for
-  one SO epoch.
+- The branch first detects separate spindle events, assigns each spindle peak to its nearest
+  detected SO trough within ±2 s, and retains at most the maximum-amplitude spindle for one SO.
+  This nearest-event assignment/de-duplication rule is repository-specific and is not specified by
+  Staresina or Helfrich.
+- The SO phase is read at the retained spindle peak. The cited phase/up-state conventions are not
+  calibrated to this branch's iEEG references: a reference or sign inversion rotates the reported
+  phase by π. Preferred phase therefore cannot yet be compared physiologically with the source
+  results.
 
 Per-contact phase nonuniformity and its finite-sample Rayleigh probability are retained only as
 diagnostics under an independence assumption. They are not used to declare significant contacts or
@@ -293,12 +310,16 @@ within-participant stage/block null before it can be reported.
   configurations, result-byte hash mismatches, mixed schema/code-lineage versions, unclassified
   endpoints, and legacy files.
 - Publication summaries apply a minimum of five estimable participants separately to each
-  inferential endpoint/stage by default; a correctly accounted all-unavailable run cannot exit
-  successfully as an `n=0` cohort result.
-- The combined 3A/3B summary validates and reports the two analyses independently. Failure of the
-  3A sample-size gate cannot prevent inspection of a valid 3B endpoint, and vice versa.
+  endpoint/stage by default as an **availability and reporting gate**. It prevents a correctly
+  accounted all-unavailable run from being presented as an `n=0` cohort result; it does not make
+  five participants an inferentially adequate sample, convert a descriptive endpoint into a
+  hypothesis test, or imply effect support.
+- The production grid validates and reports 3A, 3B, and 3D endpoint counts independently. A false
+  reporting gate for one endpoint does not disqualify a supported endpoint for another question.
 - Withdrawn 3A/3B/3D command-line generators, figures, follow-ups, and combined scripts are
-  hard-stopped; corrected modules may still import explicitly retained helper functions.
+  hard-stopped. The historical combined 3A/3B summarizer additionally requires an explicit
+  `--legacy-test-only` acknowledgement; corrected modules may still import explicitly retained
+  helper functions.
 
 ## Open scientific and validation limitations
 

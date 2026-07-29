@@ -18,6 +18,7 @@ from qc_profiles import (
 )
 from run_qc_grid import (
     _stage_material_state_key,
+    analyse_3a,
     analyse_3b,
     materialization_diagnostics,
 )
@@ -328,6 +329,34 @@ check(
     and core_window["start_epoch"] == 10
     and core_window["stop_epoch"] == 430
     and not core_nrem[430:].any(),
+)
+
+descriptive_3a_materialized = {
+    "sigma_parietal": np.linspace(0.0, 1.0, 150),
+    "swa_parietal": np.linspace(1.0, 0.0, 150),
+    "hr_1": np.full(150, np.nan),
+    "stage_lab": np.asarray(["NREM"] * 5),
+    "parietal_power_qc": {
+        "sigma": {
+            "support_passes_fit_convergence": True,
+            "selected_mask": [True],
+            "selected_contact_mask": [True],
+        },
+    },
+    "contacts": np.asarray(["synthetic-contact"]),
+    "hr_meets_profile": False,
+    "hr_coverage": 0.0,
+}
+descriptive_3a = analyse_3a(
+    descriptive_3a_materialized, overlap11)
+check(
+    "production QC-grid 3A output explicitly disables inference",
+    descriptive_3a["support_passes_profile"] is True
+    and descriptive_3a["spectrum_available_under_profile"] is True
+    and descriptive_3a["inference_enabled"] is False
+    and descriptive_3a["inferential_p_value"] is None
+    and descriptive_3a["inference_status"]
+    == "descriptive_only_no_cohort_null",
 )
 
 # Pooled exploratory NREM is the physiological union, including transitions

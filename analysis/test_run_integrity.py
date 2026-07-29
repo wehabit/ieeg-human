@@ -283,10 +283,32 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
     os.makedirs(b_dir)
     os.makedirs(d_dir)
 
+    withdrawn_legacy_summary = subprocess.run(
+        [
+            sys.executable,
+            os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+        ],
+        text=True,
+        capture_output=True,
+    )
+    check(
+        "withdrawn legacy 3A/3B summary fails closed without explicit test-only opt-in",
+        withdrawn_legacy_summary.returncode != 0
+        and "WITHDRAWN" in (
+            withdrawn_legacy_summary.stdout
+            + withdrawn_legacy_summary.stderr
+        )
+        and "--legacy-test-only" in (
+            withdrawn_legacy_summary.stdout
+            + withdrawn_legacy_summary.stderr
+        ),
+    )
+
     no_manifest_3ab = subprocess.run(
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", a_dir,
             "--b-dir", b_dir,
             "--expected-subjects", "synthetic-subject",
@@ -327,6 +349,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", a_dir,
             "--b-dir", b_dir,
             "--expected-subjects", "synthetic-subject",
@@ -373,6 +396,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", a_dir,
             "--b-dir", b_dir,
             "--expected-subjects", "synthetic-subject",
@@ -393,6 +417,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", a_dir,
             "--b-dir", b_dir,
             "--expected-subjects", "synthetic-subject",
@@ -423,6 +448,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", a_dir,
             "--b-dir", b_dir,
             "--expected-subjects", "synthetic-subject",
@@ -449,6 +475,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", a_dir,
             "--b-dir", b_dir,
             "--expected-subjects", "synthetic-subject",
@@ -580,6 +607,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", dup_a,
             "--b-dir", dup_b,
             "--expected-subjects", "synthetic-subject",
@@ -728,6 +756,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", endpoint_a,
             "--b-dir", endpoint_b,
             "--expected-subjects", ",".join(subjects),
@@ -766,6 +795,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", endpoint_a,
             "--b-dir", endpoint_b,
             "--expected-subjects", ",".join(subjects),
@@ -800,6 +830,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", endpoint_a,
             "--b-dir", endpoint_b,
             "--expected-subjects", ",".join(subjects),
@@ -830,6 +861,7 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
         [
             sys.executable,
             os.path.join(ROOT, "analysis", "summarize_corrected_3AB.py"),
+            "--legacy-test-only",
             "--a-dir", endpoint_a,
             "--b-dir", endpoint_b,
             "--expected-subjects", ",".join(subjects),

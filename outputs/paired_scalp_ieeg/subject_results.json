@@ -1,11 +1,11 @@
 {
-  "3a_sensor": "single C3/C03 scalp channel, Lecci-aligned sensor location but unknown online reference; compared with the frozen iEEG aggregate",
+  "3a_sensor": "single C3/C03 scalp channel, Lecci-motivated location adaptation but unknown online reference; compared with the frozen iEEG aggregate",
   "3b_sensors": "single F3 (unilateral/reference-incomplete) and Fz (not a Naji sensor), both exploratory one-channel profile clones",
   "analysis_version": "2026-07-qc-sensitivity-v9",
   "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "code_dirty": false,
-  "code_revision": "021a8739e9184c19b79b869600209173c9f06356",
-  "comparison_design": "within-participant simultaneous EEG-arm comparison: same portal snapshot, frozen night, duration, sample rate, cached ECG/RR, profile-materialized stage labels, and exact intersected finite positive 3A EEG/HR support. The EEG arms differ jointly in modality, location, reference, and contact aggregation, so this does not isolate a pure modality effect",
+  "code_revision": "fa61c86bd1ca605c2ea5e9a9cc70929b90ac1a76",
+  "comparison_design": "within-participant simultaneous EEG-arm comparison: same portal snapshot, frozen night, duration, sample rate, cached ECG/RR, and profile-materialized stage labels. Spectra, peaks, and SWA controls use exact common finite-positive EEG support; coherence and cross-correlation use its exact finite-shared-HR subset. The EEG arms differ jointly in modality, location, reference, and contact aggregation, so this does not isolate a pure modality effect",
   "completed_subjects": [
     "HUP160_phaseII",
     "HUP185_phaseII",
@@ -20,16 +20,6 @@
     "paired_metrics.csv": "normalized observations; unique by subject/question/stage/modality, including exactly one iEEG row per participant-stage for 3B",
     "role_pair_metrics.csv": "explicit scalp-role pairs; a 3B iEEG observation is intentionally repeated under F3 and Fz when it contributes to both contrasts, so do not pool this table across roles"
   },
-  "exact_naji_label_inventory_status": [
-    {
-      "current_exact_naji_comparison_available": false,
-      "frozen_3b_available_stages": [],
-      "reason_if_unavailable": "no valid frozen staged 3B endpoint",
-      "reference_status": "online reference is undocumented; F3/F4 labels alone do not prove Naji's F3/A2 and F4/A1 montage",
-      "subject": "HUP138_phaseII",
-      "unique_f3_and_f4_labels_present": true
-    }
-  ],
   "exploratory_single_channel_profile": {
     "cohort": {
       "minimum_participants": 5
@@ -84,33 +74,31 @@
   "frozen_qc_grid_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
   "frozen_qc_grid_path_relative": "outputs/qc_grid_public/locked/overlap11_endpoint_local__hup.json",
   "frozen_qc_grid_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
-  "frozen_qc_grid_sha256": "3f20c15c2cb41a9e066247291dc694b262793b55caac3c10af136d18adcfd261",
-  "generated_at_utc": "2026-07-29T18:56:14.569421+00:00",
+  "frozen_qc_grid_sha256": "c95fd41ac2c96a9ddc322aaaff9d686cd1a9abf7c8079c4600332b72407e21fa",
+  "generated_at_utc": "2026-07-29T22:40:19.441750+00:00",
   "group_summary": {
     "3A_C3": {
       "accepted_peak_hz": {
-        "exploratory_exact_signflip_p": 0.75,
-        "exploratory_signflip_p": 0.75,
-        "exploratory_wilcoxon_p": 0.75,
-        "ieeg_mean": 0.02263650668065476,
-        "ieeg_median": 0.02324190287056788,
+        "exploratory_exact_signflip_p": 1.0,
+        "exploratory_signflip_p": 1.0,
+        "exploratory_wilcoxon_p": 1.0,
+        "ieeg_mean": 0.02048372508062281,
+        "ieeg_median": 0.02048372508062281,
         "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
-        "n_pairs": 3,
+        "n_pairs": 2,
         "participants": [
           "HUP160_phaseII",
-          "HUP187_phaseII",
           "HUP212_phaseII"
         ],
-        "scalp_mean": 0.023119888171302463,
-        "scalp_median": 0.021013545597458834,
-        "scalp_minus_ieeg_mean": 0.0004833814906477045,
-        "scalp_minus_ieeg_median": 0.0012310237844135909,
+        "scalp_mean": 0.02059328542438757,
+        "scalp_median": 0.02059328542438757,
+        "scalp_minus_ieeg_mean": 0.00010956034376476131,
+        "scalp_minus_ieeg_median": 0.00010956034376476131,
         "scalp_minus_ieeg_values": [
           0.003287998306781094,
-          0.0012310237844135909,
           -0.0030688776192515713
         ],
-        "signflip_draws": 8,
+        "signflip_draws": 4,
         "signflip_method": "exact enumeration",
         "signflip_seed": null,
         "signflip_statistic": "absolute mean paired difference"
@@ -155,17 +143,17 @@
       "endpoint_counts": {
         "accepted_peak_both_subjects": [
           "HUP160_phaseII",
-          "HUP187_phaseII",
           "HUP212_phaseII"
         ],
         "accepted_peak_ieeg_only_subjects": [
           "HUP211_phaseII"
         ],
         "accepted_peak_scalp_only_subjects": [
+          "HUP187_phaseII",
           "HUP191_phaseII",
           "HUP199_phaseII"
         ],
-        "both_accepted_peaks": 3,
+        "both_accepted_peaks": 2,
         "coherence_above_threshold_both_subjects": [
           "HUP160_phaseII"
         ],
@@ -173,7 +161,6 @@
         "coherence_above_threshold_scalp_only_subjects": [],
         "ieeg_accepted_peak_subjects": [
           "HUP160_phaseII",
-          "HUP187_phaseII",
           "HUP211_phaseII",
           "HUP212_phaseII"
         ],
@@ -292,29 +279,27 @@
         "signflip_statistic": "absolute mean paired difference"
       },
       "sigma_to_swa_same_peak_window_ratio": {
-        "exploratory_exact_signflip_p": 0.25,
-        "exploratory_signflip_p": 0.25,
-        "exploratory_wilcoxon_p": 0.25,
-        "ieeg_mean": 1.151364389026119,
-        "ieeg_median": 1.2632713402891078,
+        "exploratory_exact_signflip_p": 0.5,
+        "exploratory_signflip_p": 0.5,
+        "exploratory_wilcoxon_p": 0.5,
+        "ieeg_mean": 1.2775575448061425,
+        "ieeg_median": 1.2775575448061425,
         "inference_warning": "post-audit exploratory, uncorrected, small-n comparison; a non-significant difference is not evidence of equivalence",
         "interpretation": "descriptive frequency-specificity control at each arm's fitted sigma-peak window; ratio >1 means normalized sigma-window power exceeded normalized SWA power, not a significance test",
-        "n_pairs": 3,
+        "n_pairs": 2,
         "participants": [
           "HUP160_phaseII",
-          "HUP187_phaseII",
           "HUP212_phaseII"
         ],
-        "scalp_mean": 1.21745792167715,
-        "scalp_median": 1.3227785761550503,
-        "scalp_minus_ieeg_mean": 0.06609353265103095,
-        "scalp_minus_ieeg_median": 0.05950723586594253,
+        "scalp_mean": 1.3610248161266538,
+        "scalp_median": 1.3610248161266538,
+        "scalp_minus_ieeg_mean": 0.08346727132051146,
+        "scalp_minus_ieeg_median": 0.08346727132051146,
         "scalp_minus_ieeg_values": [
           0.10742730677508039,
-          0.03134605531206991,
           0.05950723586594253
         ],
-        "signflip_draws": 8,
+        "signflip_draws": 4,
         "signflip_method": "exact enumeration",
         "signflip_seed": null,
         "signflip_statistic": "absolute mean paired difference"
@@ -910,6 +895,56 @@
     "interpretation_guardrail": "These compare downstream cortical/cardiac observables. Agreement between scalp and iEEG does not identify LC as their cause."
   },
   "lc_specificity": "none: these are downstream cortical/cardiac observables. Neither arm records LC neurons, norepinephrine, nor an independently validated LC signal, and neither selectively perturbs LC.",
+  "naji_label_inventory_status": [
+    {
+      "channel_label_inventory": {
+        "labels_establish_naji_reference_montage": false,
+        "unique_f3_label_present": true,
+        "unique_f4_label_present": true
+      },
+      "current_exact_naji_comparison_available": false,
+      "current_exploratory_scalp_3b": {
+        "f4": {
+          "acquired": false,
+          "analyzed": false,
+          "available_stages": [],
+          "interpretation": "channel plan/label inventory does not prove terminal acquisition; excluded from this estimator and claims"
+        },
+        "fz": {
+          "analyzed": false,
+          "available_stages": [],
+          "interpretation": "exploratory sensitivity; Fz was not a Naji sensor"
+        },
+        "unilateral_f3": {
+          "analyzed": false,
+          "available_stages": [],
+          "interpretation": "unilateral/reference-incomplete sensitivity only"
+        }
+      },
+      "exact_naji_blocking_reasons": [
+        "F4 is not analyzed and electrode-specific F3/F4 cardiac curves are not combined as in Naji",
+        "online reference is undocumented, so F3/F4 labels do not establish Naji's F3/A2 and F4/A1 derivations",
+        "sleep stages are held-fixed iEEG-derived proxy labels, not independently visually scored scalp PSG bins"
+      ],
+      "locked_ieeg_3b_available_stages": [],
+      "participant_in_current_paired_3a_intersection": false,
+      "subject": "HUP138_phaseII",
+      "terminal_sidecar_roles_acquired": []
+    }
+  ],
+  "naji_method_scope": {
+    "blocking_reasons": [
+      "F4 is not analyzed and electrode-specific F3/F4 cardiac curves are not combined as in Naji",
+      "online reference is undocumented, so F3/F4 labels do not establish Naji's F3/A2 and F4/A1 derivations",
+      "sleep stages are held-fixed iEEG-derived proxy labels, not independently visually scored scalp PSG bins"
+    ],
+    "exact_comparison_available": false,
+    "f4_status": "planned for a separate bilateral analysis; not analyzed here",
+    "implemented_scalp_estimators": [
+      "unilateral F3 exploratory sensitivity",
+      "Fz exploratory sensitivity (not a Naji sensor)"
+    ]
+  },
   "pipeline": "paired_scalp_ieeg_comparison",
   "profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
   "profile_id": "overlap11_endpoint_local",
@@ -935,12 +970,15 @@
   },
   "scalp_inventory": {
     "classification_counts": {
+      "c3_numerically_flat": 1,
       "c3_present_but_frozen_3a_spectrum_unavailable": 1,
       "no_c3_or_c03_label": 15,
-      "paired_3a_eligible": 8,
-      "requires_full_interval_activity_sidecar": 1
+      "paired_3a_eligible": 8
     },
     "classification_subjects": {
+      "c3_numerically_flat": [
+        "HUP138_phaseII"
+      ],
       "c3_present_but_frozen_3a_spectrum_unavailable": [
         "HUP182_phaseII"
       ],
@@ -970,13 +1008,10 @@
         "HUP205_phaseII",
         "HUP211_phaseII",
         "HUP212_phaseII"
-      ],
-      "requires_full_interval_activity_sidecar": [
-        "HUP138_phaseII"
       ]
     },
     "manifest_path_relative": "outputs/paired_scalp_inventory/RUN_MANIFEST.json",
-    "manifest_sha256": "609c51d1e37918aa09e1461744e704851abf8c7eb6ac83aa3334d5649a3aea28",
+    "manifest_sha256": "1166109b430fc9c15208991483fdb0a0b2e5e0dadf4983ba220f7dc2f880a53d",
     "n_frozen_hup_participants": 25,
     "paired_3a_eligible_subjects": [
       "HUP160_phaseII",
@@ -994,11 +1029,11 @@
     "path_relative": "outputs/paired_scalp_inventory/hup_scalp_channel_inventory.json",
     "reference_warning": "A channel label does not identify its online reference. Presence of A1/A2/M1/M2 also does not prove a reconstructable Naji montage.",
     "selection_was_blind_to_scalp_endpoint_values": true,
-    "sha256": "14488e0af2845b8f999faedf3078933ac2091da4554ac99d781c936c468a954f"
+    "sha256": "f4eae85e175a7e78bf8bba7f554621e6f5ab77c004fbd300994e23ad4fbe5b37"
   },
-  "schema_version": "2026-07-paired-scalp-ieeg-results-v4-versioned-evidence",
+  "schema_version": "2026-07-paired-scalp-ieeg-results-v5-endpoint-local-support",
   "sleep_label_provenance": "HUP sleep labels are an iEEG-derived delta/SWA GMM proxy without independent visual PSG scoring or EOG/EMG. Holding the same labels fixed controls timing but makes this comparison asymmetric and does not validate a scalp-paper staging pipeline.",
-  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7",
+  "source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7",
   "subjects": [
     {
       "frozen_ieeg_verification": {
@@ -1116,7 +1151,7 @@
           ]
         },
         "result_3a": {
-          "aggregate_coverage": 0.8898809523809523,
+          "aggregate_coverage": 0.9303571428571429,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -1151,6 +1186,23 @@
             "cross_correlation": true,
             "fixed_0p02_coherence": true,
             "spectrum": true
+          },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.8898809523809523,
+              "bout_seconds": 4440.0,
+              "hr_coverage": 0.8898809523809523,
+              "n_bouts": 13,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.9303571428571429,
+              "bout_seconds": 4440.0,
+              "n_bouts": 13,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
           },
           "hr_coverage": 0.8898809523809523,
           "inference_enabled": false,
@@ -1426,8 +1478,13 @@
         "ieeg_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
         "ieeg_cache_sha256": "e1479f5fc261f7faa5553fb61d7f14e106462d8af42c856608063be22f893273",
         "night_s": 896400.0,
-        "scalp_cache_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
-        "scalp_cache_sha256": "231ee289b16b2e9de3fbc7bd34e3fe80b5969213905f44c2f6e481eebb255e08",
+        "scalp_cache_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
+        "scalp_cache_sha256": "46b8ef41fe9a8eb627e36b46bdf2a1e75ed1413fbb701e0c4657abf444c41d81",
+        "scalp_sidecar_roles": {
+          "c3": "C3",
+          "f3": "F3",
+          "fz": "FZ"
+        },
         "sf": 1024.0
       },
       "scalp": {
@@ -1512,7 +1569,7 @@
           "scalp_to_ieeg_median_sigma_power_ratio": 0.5460356153640348
         },
         "result_3a": {
-          "aggregate_coverage": 0.8898809523809523,
+          "aggregate_coverage": 0.9303571428571429,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -1547,6 +1604,23 @@
             "cross_correlation": true,
             "fixed_0p02_coherence": true,
             "spectrum": true
+          },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.8898809523809523,
+              "bout_seconds": 4440.0,
+              "hr_coverage": 0.8898809523809523,
+              "n_bouts": 13,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.9303571428571429,
+              "bout_seconds": 4440.0,
+              "n_bouts": 13,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
           },
           "hr_coverage": 0.8898809523809523,
           "inference_enabled": false,
@@ -1592,7 +1666,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -2105,7 +2179,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -2616,7 +2690,7 @@
         "n_hr_seconds": 25200,
         "n_rr_4hz_samples": 100800,
         "n_stage_epochs": 840,
-        "paired_3a_common_support": {
+        "paired_3a_endpoint_support": {
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -2626,30 +2700,53 @@
             "stop_epoch": 423,
             "stop_second": 12690.0
           },
-          "n_shared_seconds": 22425,
-          "n_shared_seconds_in_core_nrem": 4839,
+          "cardiac_common": {
+            "fraction": 0.8898809523809523,
+            "minimum_hr_coverage": 0.0,
+            "n_seconds": 22425,
+            "n_seconds_in_core_nrem": 4839,
+            "passes_hr_coverage_profile": true,
+            "support_mask_sha256": "fc9c849954f702b610162ff6f636f9edb8095f06c51e6b1dde507eb02cef78b2"
+          },
+          "cardiac_common_is_subset_of_eeg_common": true,
+          "eeg_common": {
+            "fraction": 0.9303571428571429,
+            "n_seconds": 23445,
+            "n_seconds_in_core_nrem": 4867,
+            "support_mask_sha256": "d31a8a9f70efe68ad9747dd81e785a4bfdaafc000bd6b4367cc4d3a768f2e30c"
+          },
           "n_total_seconds": 25200,
-          "rule": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA AND finite shared HR; applied identically before 3A",
-          "shared_fraction": 0.8898809523809523,
-          "support_mask_sha256": "fc9c849954f702b610162ff6f636f9edb8095f06c51e6b1dde507eb02cef78b2"
+          "rule": {
+            "cardiac_common": "EEG-common support AND finite shared HR; used for fixed 0.02-Hz coherence and 120-s cross-correlation",
+            "eeg_common": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA; used for spectra, peaks, and negative controls"
+          }
         },
         "paired_3a_geometry_verification": {
-          "checked_fields": [
-            "n_bouts",
-            "bout_seconds",
-            "coherence.K",
-            "coherence.n_valid",
-            "coherence.analytic_threshold",
-            "cross_correlation.n_intervals",
-            "cross_correlation.retained_window_start_indices"
-          ],
-          "cross_correlation_retained_window_count": 32,
-          "cross_correlation_retained_window_starts_sha256": "a0c10b290bead16d4199fc97237f3823c42040edbf36db258566b49cffe38b8f",
-          "status": "exact_shared_geometry"
+          "coherence_cross_correlation": {
+            "checked_fields": [
+              "coherence.K",
+              "coherence.n_valid",
+              "coherence.analytic_threshold",
+              "cross_correlation.n_intervals",
+              "cross_correlation.retained_window_start_indices"
+            ],
+            "cross_correlation_retained_window_count": 32,
+            "cross_correlation_retained_window_starts_sha256": "a0c10b290bead16d4199fc97237f3823c42040edbf36db258566b49cffe38b8f",
+            "status": "exact_shared_cardiac_geometry"
+          },
+          "spectrum_peak_negative_control": {
+            "checked_fields": [
+              "endpoint_availability.spectrum",
+              "n_bouts",
+              "bout_seconds"
+            ],
+            "status": "exact_shared_eeg_geometry"
+          },
+          "status": "exact_endpoint_local_geometry"
         },
         "rr_4_sha256": "e27ddc38dbd1f30eb515a427a84264ee8c6bc41f8b6669b090e62447dd010b05",
         "stage_lab_sha256": "0664e930f3fb8e5dcd9b51be5f2bdfdd72eb6fc393376c6afe53c5e1473b151c",
-        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A additionally uses an identical finite positive EEG/HR support mask; ECG was not redetected and sleep was not restaged"
+        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A spectra/peaks/SWA controls use identical finite-positive EEG support, while coherence/cross-correlation use its finite-shared-HR subset; ECG was not redetected and sleep was not restaged"
       },
       "subject": "HUP160_phaseII"
     },
@@ -2759,7 +2856,7 @@
           ]
         },
         "result_3a": {
-          "aggregate_coverage": 0.7878968253968254,
+          "aggregate_coverage": 0.7879761904761905,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -2794,6 +2891,23 @@
             "cross_correlation": true,
             "fixed_0p02_coherence": true,
             "spectrum": true
+          },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.7878968253968254,
+              "bout_seconds": 3990.0,
+              "hr_coverage": 0.7878968253968254,
+              "n_bouts": 22,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.7879761904761905,
+              "bout_seconds": 3990.0,
+              "n_bouts": 22,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
           },
           "hr_coverage": 0.7878968253968254,
           "inference_enabled": false,
@@ -2979,8 +3093,12 @@
         "ieeg_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
         "ieeg_cache_sha256": "cfd12d94c30192634459cb579933726030f639241d0f450b366e27c41cd5a239",
         "night_s": 25200.0,
-        "scalp_cache_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
-        "scalp_cache_sha256": "2a23c82501d338cfef36d8426c907a18794c3607e1d9562e6405d8e894e6e3fd",
+        "scalp_cache_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
+        "scalp_cache_sha256": "c543be5c13cd0feceec989a17fbca18fb2041e363773371c1f89ca387612be38",
+        "scalp_sidecar_roles": {
+          "c3": "C3",
+          "fz": "FZ"
+        },
         "sf": 512.0
       },
       "scalp": {
@@ -3055,7 +3173,7 @@
           "scalp_to_ieeg_median_sigma_power_ratio": 0.9305457276934118
         },
         "result_3a": {
-          "aggregate_coverage": 0.7878968253968254,
+          "aggregate_coverage": 0.7879761904761905,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -3090,6 +3208,23 @@
             "cross_correlation": true,
             "fixed_0p02_coherence": true,
             "spectrum": true
+          },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.7878968253968254,
+              "bout_seconds": 3990.0,
+              "hr_coverage": 0.7878968253968254,
+              "n_bouts": 22,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.7879761904761905,
+              "bout_seconds": 3990.0,
+              "n_bouts": 22,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
           },
           "hr_coverage": 0.7878968253968254,
           "inference_enabled": false,
@@ -3132,7 +3267,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -3345,7 +3480,7 @@
         "n_hr_seconds": 25200,
         "n_rr_4hz_samples": 100800,
         "n_stage_epochs": 840,
-        "paired_3a_common_support": {
+        "paired_3a_endpoint_support": {
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -3355,30 +3490,53 @@
             "stop_epoch": 430,
             "stop_second": 12900.0
           },
-          "n_shared_seconds": 19855,
-          "n_shared_seconds_in_core_nrem": 5226,
+          "cardiac_common": {
+            "fraction": 0.7878968253968254,
+            "minimum_hr_coverage": 0.0,
+            "n_seconds": 19855,
+            "n_seconds_in_core_nrem": 5226,
+            "passes_hr_coverage_profile": true,
+            "support_mask_sha256": "85caffb67a44f4d6734c4f96662b8b5c3e451ad7be5beda31fff8de9726e4b61"
+          },
+          "cardiac_common_is_subset_of_eeg_common": true,
+          "eeg_common": {
+            "fraction": 0.7879761904761905,
+            "n_seconds": 19857,
+            "n_seconds_in_core_nrem": 5226,
+            "support_mask_sha256": "25c7946949dc3c6e44a449c638e9f2f4d157acf773332e6d46372a3004b14fcd"
+          },
           "n_total_seconds": 25200,
-          "rule": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA AND finite shared HR; applied identically before 3A",
-          "shared_fraction": 0.7878968253968254,
-          "support_mask_sha256": "85caffb67a44f4d6734c4f96662b8b5c3e451ad7be5beda31fff8de9726e4b61"
+          "rule": {
+            "cardiac_common": "EEG-common support AND finite shared HR; used for fixed 0.02-Hz coherence and 120-s cross-correlation",
+            "eeg_common": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA; used for spectra, peaks, and negative controls"
+          }
         },
         "paired_3a_geometry_verification": {
-          "checked_fields": [
-            "n_bouts",
-            "bout_seconds",
-            "coherence.K",
-            "coherence.n_valid",
-            "coherence.analytic_threshold",
-            "cross_correlation.n_intervals",
-            "cross_correlation.retained_window_start_indices"
-          ],
-          "cross_correlation_retained_window_count": 28,
-          "cross_correlation_retained_window_starts_sha256": "1cdda2fa5dbfccc0ea5e6cce45e38d63fe940c6a965fd49832e6bcd9da3b7e9c",
-          "status": "exact_shared_geometry"
+          "coherence_cross_correlation": {
+            "checked_fields": [
+              "coherence.K",
+              "coherence.n_valid",
+              "coherence.analytic_threshold",
+              "cross_correlation.n_intervals",
+              "cross_correlation.retained_window_start_indices"
+            ],
+            "cross_correlation_retained_window_count": 28,
+            "cross_correlation_retained_window_starts_sha256": "1cdda2fa5dbfccc0ea5e6cce45e38d63fe940c6a965fd49832e6bcd9da3b7e9c",
+            "status": "exact_shared_cardiac_geometry"
+          },
+          "spectrum_peak_negative_control": {
+            "checked_fields": [
+              "endpoint_availability.spectrum",
+              "n_bouts",
+              "bout_seconds"
+            ],
+            "status": "exact_shared_eeg_geometry"
+          },
+          "status": "exact_endpoint_local_geometry"
         },
         "rr_4_sha256": "b01b9325382a5b1d2306a6eeefcea07f272b823f49858ddaee661b3478855f77",
         "stage_lab_sha256": "5b9fd7b8f66cb0c53bd3d25afa53dc2ae8931951e21249e2c23c9984377f05f4",
-        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A additionally uses an identical finite positive EEG/HR support mask; ECG was not redetected and sleep was not restaged"
+        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A spectra/peaks/SWA controls use identical finite-positive EEG support, while coherence/cross-correlation use its finite-shared-HR subset; ECG was not redetected and sleep was not restaged"
       },
       "subject": "HUP185_phaseII"
     },
@@ -3488,7 +3646,7 @@
           ]
         },
         "result_3a": {
-          "aggregate_coverage": 0.8401587301587301,
+          "aggregate_coverage": 0.8877777777777778,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -3498,7 +3656,7 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "bout_seconds": 4363.0,
+          "bout_seconds": 4780.0,
           "coherence": {
             "K": 8,
             "above_analytic_threshold": false,
@@ -3524,30 +3682,37 @@
             "fixed_0p02_coherence": true,
             "spectrum": true
           },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.8401587301587301,
+              "bout_seconds": 4363.0,
+              "hr_coverage": 0.8401587301587301,
+              "n_bouts": 19,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.8877777777777778,
+              "bout_seconds": 4780.0,
+              "n_bouts": 21,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
+          },
           "hr_coverage": 0.8401587301587301,
           "inference_enabled": false,
           "inference_status": "descriptive_only_no_cohort_null",
           "inferential_p_value": null,
-          "n_bouts": 19,
+          "n_bouts": 21,
           "n_nrem_epochs": 202,
           "n_selected_contacts": 6,
-          "negative_control": {
-            "centre_hz": 0.026942069880718657,
-            "half_width_hz": 0.011429544414331015,
-            "sigma_window_mean": 1.279783450748591,
-            "swa_same_window_mean": 1.4235980640995012
-          },
+          "negative_control": null,
           "peak": {
-            "accepted": true,
-            "detrended_peak_hz": 0.031,
-            "fit_r2": 0.9835473453028214,
-            "gaussian_amplitude": 0.9331513187223525,
-            "method": "gauss3_validated",
-            "peak_hz": 0.026942069880718657,
-            "peak_window_mean": 1.279783450748591,
-            "prominence_over_background": 2.5593584086804855,
-            "slope_1_over_f": -0.2880400722212188,
-            "spectral_sd_hz": 0.02285908882866203
+            "accepted": false,
+            "method": "no_local_excess",
+            "peak_hz": null,
+            "prominence_over_background": 16.559644029540554,
+            "slope_1_over_f": -0.28589117042191325
           },
           "power_fit_converged": true,
           "selected_contact_ids": [
@@ -3798,8 +3963,13 @@
         "ieeg_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
         "ieeg_cache_sha256": "6a8a28490b1a1999e24bfaa3cd3516dc8c5c4df1344134c4931db9a47974ff7d",
         "night_s": 142200.0,
-        "scalp_cache_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
-        "scalp_cache_sha256": "49621df58ba4c2b33c2961f8148f0b8a51adcb818ba54bf6f2957048ecfc7d29",
+        "scalp_cache_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
+        "scalp_cache_sha256": "927f3478949458dc738f9ce9613c30c3915712b38efc4e902bcfab3019cd5719",
+        "scalp_sidecar_roles": {
+          "c3": "C3",
+          "f3": "F3",
+          "fz": "FZ"
+        },
         "sf": 512.0
       },
       "scalp": {
@@ -3884,7 +4054,7 @@
           "scalp_to_ieeg_median_sigma_power_ratio": 1.0246769564268259
         },
         "result_3a": {
-          "aggregate_coverage": 0.8401587301587301,
+          "aggregate_coverage": 0.8877777777777778,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -3894,7 +4064,7 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "bout_seconds": 4363.0,
+          "bout_seconds": 4780.0,
           "coherence": {
             "K": 8,
             "above_analytic_threshold": false,
@@ -3920,30 +4090,47 @@
             "fixed_0p02_coherence": true,
             "spectrum": true
           },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.8401587301587301,
+              "bout_seconds": 4363.0,
+              "hr_coverage": 0.8401587301587301,
+              "n_bouts": 19,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.8877777777777778,
+              "bout_seconds": 4780.0,
+              "n_bouts": 21,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
+          },
           "hr_coverage": 0.8401587301587301,
           "inference_enabled": false,
           "inference_status": "descriptive_only_no_cohort_null",
           "inferential_p_value": null,
-          "n_bouts": 19,
+          "n_bouts": 21,
           "n_nrem_epochs": 202,
           "n_selected_contacts": 1,
           "negative_control": {
-            "centre_hz": 0.028173093665132248,
-            "half_width_hz": 0.011462286833461512,
-            "sigma_window_mean": 1.3182144501137771,
-            "swa_same_window_mean": 1.4169410463182486
+            "centre_hz": 0.009627925022176709,
+            "half_width_hz": 0.0018814928355072459,
+            "sigma_window_mean": 2.337114125062266,
+            "swa_same_window_mean": 1.0989222051702714
           },
           "peak": {
             "accepted": true,
-            "detrended_peak_hz": 0.032,
-            "fit_r2": 0.9833395694245605,
-            "gaussian_amplitude": 1.020386340919018,
+            "detrended_peak_hz": 0.01,
+            "fit_r2": 0.9785974506612786,
+            "gaussian_amplitude": 1.4427934506607576,
             "method": "gauss3_validated",
-            "peak_hz": 0.028173093665132248,
-            "peak_window_mean": 1.3182144501137771,
-            "prominence_over_background": 3.8311449087547125,
-            "slope_1_over_f": -0.31255766306061744,
-            "spectral_sd_hz": 0.022924573666923024
+            "peak_hz": 0.009627925022176709,
+            "peak_window_mean": 2.337114125062266,
+            "prominence_over_background": 3.819803994232265,
+            "slope_1_over_f": -0.3116206157065748,
+            "spectral_sd_hz": 0.0037629856710144917
           },
           "power_fit_converged": true,
           "selected_contact_ids": [
@@ -3964,7 +4151,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -4477,7 +4664,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -4988,7 +5175,7 @@
         "n_hr_seconds": 25200,
         "n_rr_4hz_samples": 100800,
         "n_stage_epochs": 840,
-        "paired_3a_common_support": {
+        "paired_3a_endpoint_support": {
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -4998,30 +5185,53 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "n_shared_seconds": 21172,
-          "n_shared_seconds_in_core_nrem": 5453,
+          "cardiac_common": {
+            "fraction": 0.8401587301587301,
+            "minimum_hr_coverage": 0.0,
+            "n_seconds": 21172,
+            "n_seconds_in_core_nrem": 5453,
+            "passes_hr_coverage_profile": true,
+            "support_mask_sha256": "53c4651ba82322839dadc2ee58c5b2354f29c4b286d01de95b39b745c5fdcccb"
+          },
+          "cardiac_common_is_subset_of_eeg_common": true,
+          "eeg_common": {
+            "fraction": 0.8877777777777778,
+            "n_seconds": 22372,
+            "n_seconds_in_core_nrem": 5582,
+            "support_mask_sha256": "86146ba388a14f7483a7638662e9b77307f6bfbec519484404faca148756e138"
+          },
           "n_total_seconds": 25200,
-          "rule": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA AND finite shared HR; applied identically before 3A",
-          "shared_fraction": 0.8401587301587301,
-          "support_mask_sha256": "53c4651ba82322839dadc2ee58c5b2354f29c4b286d01de95b39b745c5fdcccb"
+          "rule": {
+            "cardiac_common": "EEG-common support AND finite shared HR; used for fixed 0.02-Hz coherence and 120-s cross-correlation",
+            "eeg_common": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA; used for spectra, peaks, and negative controls"
+          }
         },
         "paired_3a_geometry_verification": {
-          "checked_fields": [
-            "n_bouts",
-            "bout_seconds",
-            "coherence.K",
-            "coherence.n_valid",
-            "coherence.analytic_threshold",
-            "cross_correlation.n_intervals",
-            "cross_correlation.retained_window_start_indices"
-          ],
-          "cross_correlation_retained_window_count": 28,
-          "cross_correlation_retained_window_starts_sha256": "3847e0147cbc2d9979c0f96f7fb2fd34e038945d26c61cf264369ec179632ad5",
-          "status": "exact_shared_geometry"
+          "coherence_cross_correlation": {
+            "checked_fields": [
+              "coherence.K",
+              "coherence.n_valid",
+              "coherence.analytic_threshold",
+              "cross_correlation.n_intervals",
+              "cross_correlation.retained_window_start_indices"
+            ],
+            "cross_correlation_retained_window_count": 28,
+            "cross_correlation_retained_window_starts_sha256": "3847e0147cbc2d9979c0f96f7fb2fd34e038945d26c61cf264369ec179632ad5",
+            "status": "exact_shared_cardiac_geometry"
+          },
+          "spectrum_peak_negative_control": {
+            "checked_fields": [
+              "endpoint_availability.spectrum",
+              "n_bouts",
+              "bout_seconds"
+            ],
+            "status": "exact_shared_eeg_geometry"
+          },
+          "status": "exact_endpoint_local_geometry"
         },
         "rr_4_sha256": "f06125324f7bf27b01ed1bddc3779f4da29d5da6ed7fc5b242da6baa84d99507",
         "stage_lab_sha256": "454607c68327197c6253d63a0039fb4b1324ffa8d46540afe06ade8a209fe10c",
-        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A additionally uses an identical finite positive EEG/HR support mask; ECG was not redetected and sleep was not restaged"
+        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A spectra/peaks/SWA controls use identical finite-positive EEG support, while coherence/cross-correlation use its finite-shared-HR subset; ECG was not redetected and sleep was not restaged"
       },
       "subject": "HUP187_phaseII"
     },
@@ -5166,6 +5376,23 @@
             "cross_correlation": true,
             "fixed_0p02_coherence": true,
             "spectrum": true
+          },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.8792857142857143,
+              "bout_seconds": 4138.0,
+              "hr_coverage": 0.8792857142857143,
+              "n_bouts": 5,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.8792857142857143,
+              "bout_seconds": 4138.0,
+              "n_bouts": 5,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
           },
           "hr_coverage": 0.8792857142857143,
           "inference_enabled": false,
@@ -5351,8 +5578,12 @@
         "ieeg_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
         "ieeg_cache_sha256": "300a04d42d595ffed031f47ae254e7ee90e8d017f06389b5e0e197350f101c8e",
         "night_s": 658800.0,
-        "scalp_cache_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
-        "scalp_cache_sha256": "e3498682045da9da292e2b4b779010c2c012c29d0808030ca9912089274f66eb",
+        "scalp_cache_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
+        "scalp_cache_sha256": "1b1f8856c94f88aacf12872eec97af14db30d750a25adf25edd15fba3e2ce853",
+        "scalp_sidecar_roles": {
+          "c3": "C3",
+          "fz": "FZ"
+        },
         "sf": 512.0
       },
       "scalp": {
@@ -5473,6 +5704,23 @@
             "fixed_0p02_coherence": true,
             "spectrum": true
           },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.8792857142857143,
+              "bout_seconds": 4138.0,
+              "hr_coverage": 0.8792857142857143,
+              "n_bouts": 5,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.8792857142857143,
+              "bout_seconds": 4138.0,
+              "n_bouts": 5,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
+          },
           "hr_coverage": 0.8792857142857143,
           "inference_enabled": false,
           "inference_status": "descriptive_only_no_cohort_null",
@@ -5524,7 +5772,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -5737,7 +5985,7 @@
         "n_hr_seconds": 25200,
         "n_rr_4hz_samples": 100800,
         "n_stage_epochs": 840,
-        "paired_3a_common_support": {
+        "paired_3a_endpoint_support": {
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -5747,30 +5995,53 @@
             "stop_epoch": 469,
             "stop_second": 14070.0
           },
-          "n_shared_seconds": 22158,
-          "n_shared_seconds_in_core_nrem": 3867,
+          "cardiac_common": {
+            "fraction": 0.8792857142857143,
+            "minimum_hr_coverage": 0.0,
+            "n_seconds": 22158,
+            "n_seconds_in_core_nrem": 3867,
+            "passes_hr_coverage_profile": true,
+            "support_mask_sha256": "3c44ae04391604359621f06d352da5c3eb2dbbce392a4544f79868359ad56184"
+          },
+          "cardiac_common_is_subset_of_eeg_common": true,
+          "eeg_common": {
+            "fraction": 0.8792857142857143,
+            "n_seconds": 22158,
+            "n_seconds_in_core_nrem": 3867,
+            "support_mask_sha256": "3c44ae04391604359621f06d352da5c3eb2dbbce392a4544f79868359ad56184"
+          },
           "n_total_seconds": 25200,
-          "rule": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA AND finite shared HR; applied identically before 3A",
-          "shared_fraction": 0.8792857142857143,
-          "support_mask_sha256": "3c44ae04391604359621f06d352da5c3eb2dbbce392a4544f79868359ad56184"
+          "rule": {
+            "cardiac_common": "EEG-common support AND finite shared HR; used for fixed 0.02-Hz coherence and 120-s cross-correlation",
+            "eeg_common": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA; used for spectra, peaks, and negative controls"
+          }
         },
         "paired_3a_geometry_verification": {
-          "checked_fields": [
-            "n_bouts",
-            "bout_seconds",
-            "coherence.K",
-            "coherence.n_valid",
-            "coherence.analytic_threshold",
-            "cross_correlation.n_intervals",
-            "cross_correlation.retained_window_start_indices"
-          ],
-          "cross_correlation_retained_window_count": 32,
-          "cross_correlation_retained_window_starts_sha256": "9bd3f34b93d536360f814e02b3afeb5dbbc3f788f32a0bf8a5e6854746d6dd9b",
-          "status": "exact_shared_geometry"
+          "coherence_cross_correlation": {
+            "checked_fields": [
+              "coherence.K",
+              "coherence.n_valid",
+              "coherence.analytic_threshold",
+              "cross_correlation.n_intervals",
+              "cross_correlation.retained_window_start_indices"
+            ],
+            "cross_correlation_retained_window_count": 32,
+            "cross_correlation_retained_window_starts_sha256": "9bd3f34b93d536360f814e02b3afeb5dbbc3f788f32a0bf8a5e6854746d6dd9b",
+            "status": "exact_shared_cardiac_geometry"
+          },
+          "spectrum_peak_negative_control": {
+            "checked_fields": [
+              "endpoint_availability.spectrum",
+              "n_bouts",
+              "bout_seconds"
+            ],
+            "status": "exact_shared_eeg_geometry"
+          },
+          "status": "exact_endpoint_local_geometry"
         },
         "rr_4_sha256": "8e069c8296cdd080b45e01563dfc12982c1a49ffd9b5229b7d5d5ed3ad80735c",
         "stage_lab_sha256": "63e3878e971a0192992b6dafaba502bb29340ca69f7fbcaac5402098be74871b",
-        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A additionally uses an identical finite positive EEG/HR support mask; ECG was not redetected and sleep was not restaged"
+        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A spectra/peaks/SWA controls use identical finite-positive EEG support, while coherence/cross-correlation use its finite-shared-HR subset; ECG was not redetected and sleep was not restaged"
       },
       "subject": "HUP191_phaseII"
     },
@@ -5880,7 +6151,7 @@
           ]
         },
         "result_3a": {
-          "aggregate_coverage": 0.8205555555555556,
+          "aggregate_coverage": 0.8206349206349206,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -5890,7 +6161,7 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "bout_seconds": 8375.0,
+          "bout_seconds": 8377.0,
           "coherence": {
             "K": 22,
             "above_analytic_threshold": false,
@@ -5916,6 +6187,23 @@
             "fixed_0p02_coherence": true,
             "spectrum": true
           },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.8205555555555556,
+              "bout_seconds": 8375.0,
+              "hr_coverage": 0.8205555555555556,
+              "n_bouts": 32,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.8206349206349206,
+              "bout_seconds": 8377.0,
+              "n_bouts": 32,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
+          },
           "hr_coverage": 0.8205555555555556,
           "inference_enabled": false,
           "inference_status": "descriptive_only_no_cohort_null",
@@ -5928,8 +6216,8 @@
             "accepted": false,
             "method": "no_local_excess",
             "peak_hz": null,
-            "prominence_over_background": 2.400421994792714,
-            "slope_1_over_f": -0.37107628095704515
+            "prominence_over_background": 2.4009500670187234,
+            "slope_1_over_f": -0.37106129026458096
           },
           "power_fit_converged": true,
           "selected_contact_ids": [
@@ -6100,8 +6388,12 @@
         "ieeg_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
         "ieeg_cache_sha256": "d68e1cd61a7014ef0e842fd9ce08fd580c1b4dfe28537ec95eb3c2067abb394a",
         "night_s": 379800.0,
-        "scalp_cache_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
-        "scalp_cache_sha256": "d48f2c9b3af9f9de06fbd23d25dd38d276cee9c106d1717e44bfd8860f05368e",
+        "scalp_cache_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
+        "scalp_cache_sha256": "fd5f2cdab408195ce73621ce7323709211a4f03cd380bd8d664f6d01224be504",
+        "scalp_sidecar_roles": {
+          "c3": "C3",
+          "fz": "FZ"
+        },
         "sf": 512.0
       },
       "scalp": {
@@ -6186,7 +6478,7 @@
           "scalp_to_ieeg_median_sigma_power_ratio": 2.6230983380690236
         },
         "result_3a": {
-          "aggregate_coverage": 0.8205555555555556,
+          "aggregate_coverage": 0.8206349206349206,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -6196,7 +6488,7 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "bout_seconds": 8375.0,
+          "bout_seconds": 8377.0,
           "coherence": {
             "K": 22,
             "above_analytic_threshold": false,
@@ -6222,6 +6514,23 @@
             "fixed_0p02_coherence": true,
             "spectrum": true
           },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.8205555555555556,
+              "bout_seconds": 8375.0,
+              "hr_coverage": 0.8205555555555556,
+              "n_bouts": 32,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.8206349206349206,
+              "bout_seconds": 8377.0,
+              "n_bouts": 32,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
+          },
           "hr_coverage": 0.8205555555555556,
           "inference_enabled": false,
           "inference_status": "descriptive_only_no_cohort_null",
@@ -6230,22 +6539,22 @@
           "n_nrem_epochs": 346,
           "n_selected_contacts": 1,
           "negative_control": {
-            "centre_hz": 0.013993514145424114,
-            "half_width_hz": 0.003265572778029135,
-            "sigma_window_mean": 2.669036291954228,
-            "swa_same_window_mean": 1.368324982843016
+            "centre_hz": 0.013995680305723446,
+            "half_width_hz": 0.003264036583585458,
+            "sigma_window_mean": 2.6690355841888938,
+            "swa_same_window_mean": 1.371326242859045
           },
           "peak": {
             "accepted": true,
             "detrended_peak_hz": 0.015,
-            "fit_r2": 0.9874437382838818,
-            "gaussian_amplitude": 1.758420267122085,
+            "fit_r2": 0.9874634156449266,
+            "gaussian_amplitude": 1.7578819666361136,
             "method": "gauss3_validated",
-            "peak_hz": 0.013993514145424114,
-            "peak_window_mean": 2.669036291954228,
-            "prominence_over_background": 17.775417802433164,
-            "slope_1_over_f": -0.5053488865670337,
-            "spectral_sd_hz": 0.00653114555605827
+            "peak_hz": 0.013995680305723446,
+            "peak_window_mean": 2.6690355841888938,
+            "prominence_over_background": 17.795478617223218,
+            "slope_1_over_f": -0.5053191639277248,
+            "spectral_sd_hz": 0.006528073167170916
           },
           "power_fit_converged": true,
           "selected_contact_ids": [
@@ -6273,7 +6582,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -6486,7 +6795,7 @@
         "n_hr_seconds": 25200,
         "n_rr_4hz_samples": 100800,
         "n_stage_epochs": 840,
-        "paired_3a_common_support": {
+        "paired_3a_endpoint_support": {
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -6496,30 +6805,53 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "n_shared_seconds": 20678,
-          "n_shared_seconds_in_core_nrem": 8675,
+          "cardiac_common": {
+            "fraction": 0.8205555555555556,
+            "minimum_hr_coverage": 0.0,
+            "n_seconds": 20678,
+            "n_seconds_in_core_nrem": 8675,
+            "passes_hr_coverage_profile": true,
+            "support_mask_sha256": "946284c126b46d3ea1b944c80841959b29e10986e32863b43b32b43a65f565d9"
+          },
+          "cardiac_common_is_subset_of_eeg_common": true,
+          "eeg_common": {
+            "fraction": 0.8206349206349206,
+            "n_seconds": 20680,
+            "n_seconds_in_core_nrem": 8677,
+            "support_mask_sha256": "6e5df92a6254d63dc4a930d8712587e6aa48436663759a54e0318cec9cbb5876"
+          },
           "n_total_seconds": 25200,
-          "rule": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA AND finite shared HR; applied identically before 3A",
-          "shared_fraction": 0.8205555555555556,
-          "support_mask_sha256": "946284c126b46d3ea1b944c80841959b29e10986e32863b43b32b43a65f565d9"
+          "rule": {
+            "cardiac_common": "EEG-common support AND finite shared HR; used for fixed 0.02-Hz coherence and 120-s cross-correlation",
+            "eeg_common": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA; used for spectra, peaks, and negative controls"
+          }
         },
         "paired_3a_geometry_verification": {
-          "checked_fields": [
-            "n_bouts",
-            "bout_seconds",
-            "coherence.K",
-            "coherence.n_valid",
-            "coherence.analytic_threshold",
-            "cross_correlation.n_intervals",
-            "cross_correlation.retained_window_start_indices"
-          ],
-          "cross_correlation_retained_window_count": 56,
-          "cross_correlation_retained_window_starts_sha256": "af6dcb1d68ee7ae9c375e67ab73f20ef3fc97c2d5144b1d3eea93fb01b880b40",
-          "status": "exact_shared_geometry"
+          "coherence_cross_correlation": {
+            "checked_fields": [
+              "coherence.K",
+              "coherence.n_valid",
+              "coherence.analytic_threshold",
+              "cross_correlation.n_intervals",
+              "cross_correlation.retained_window_start_indices"
+            ],
+            "cross_correlation_retained_window_count": 56,
+            "cross_correlation_retained_window_starts_sha256": "af6dcb1d68ee7ae9c375e67ab73f20ef3fc97c2d5144b1d3eea93fb01b880b40",
+            "status": "exact_shared_cardiac_geometry"
+          },
+          "spectrum_peak_negative_control": {
+            "checked_fields": [
+              "endpoint_availability.spectrum",
+              "n_bouts",
+              "bout_seconds"
+            ],
+            "status": "exact_shared_eeg_geometry"
+          },
+          "status": "exact_endpoint_local_geometry"
         },
         "rr_4_sha256": "1c65af5f180905c00cd54a1e3164d8e72ed25538d1e01a0d8c0c20d802c3c81a",
         "stage_lab_sha256": "0d5a586c0e0056ba57339487dfbdd33f3f8f790b40853c7fe2bcd904c8b842af",
-        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A additionally uses an identical finite positive EEG/HR support mask; ECG was not redetected and sleep was not restaged"
+        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A spectra/peaks/SWA controls use identical finite-positive EEG support, while coherence/cross-correlation use its finite-shared-HR subset; ECG was not redetected and sleep was not restaged"
       },
       "subject": "HUP199_phaseII"
     },
@@ -6639,7 +6971,7 @@
           ]
         },
         "result_3a": {
-          "aggregate_coverage": 0.9521825396825396,
+          "aggregate_coverage": 0.9522619047619048,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -6649,7 +6981,7 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "bout_seconds": 2068.0,
+          "bout_seconds": 2070.0,
           "coherence": {
             "K": 12,
             "above_analytic_threshold": false,
@@ -6675,6 +7007,23 @@
             "fixed_0p02_coherence": true,
             "spectrum": true
           },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.9521825396825396,
+              "bout_seconds": 2068.0,
+              "hr_coverage": 0.9521825396825396,
+              "n_bouts": 3,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.9522619047619048,
+              "bout_seconds": 2070.0,
+              "n_bouts": 3,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
+          },
           "hr_coverage": 0.9521825396825396,
           "inference_enabled": false,
           "inference_status": "descriptive_only_no_cohort_null",
@@ -6689,8 +7038,8 @@
             "fit_error": "ValueError",
             "method": "gauss3_failed",
             "peak_hz": null,
-            "prominence_over_background": 4.940253920246389,
-            "slope_1_over_f": -0.4648899192531354
+            "prominence_over_background": 4.843133066652455,
+            "slope_1_over_f": -0.46603241965450387
           },
           "power_fit_converged": true,
           "selected_contact_ids": [
@@ -6935,8 +7284,12 @@
         "ieeg_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
         "ieeg_cache_sha256": "8fed1a490ad78fb79cf26f450150f3135109f573a8ba352c439a6e8e179dbfa3",
         "night_s": 106200.0,
-        "scalp_cache_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
-        "scalp_cache_sha256": "07738005f6af6db25b025958ce68742a1ac95ea4c0f1b76548395a2ed977d82b",
+        "scalp_cache_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
+        "scalp_cache_sha256": "02c4d711ac5e12c6b0a2b2df2c516c15c2c20795e35ad78495d97ddaf0dd1a9e",
+        "scalp_sidecar_roles": {
+          "c3": "C3",
+          "fz": "FZ"
+        },
         "sf": 512.0
       },
       "scalp": {
@@ -7013,7 +7366,7 @@
           "scalp_to_ieeg_median_sigma_power_ratio": 0.8774603482478885
         },
         "result_3a": {
-          "aggregate_coverage": 0.9521825396825396,
+          "aggregate_coverage": 0.9522619047619048,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -7023,7 +7376,7 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "bout_seconds": 2068.0,
+          "bout_seconds": 2070.0,
           "coherence": {
             "K": 12,
             "above_analytic_threshold": false,
@@ -7049,6 +7402,23 @@
             "fixed_0p02_coherence": true,
             "spectrum": true
           },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.9521825396825396,
+              "bout_seconds": 2068.0,
+              "hr_coverage": 0.9521825396825396,
+              "n_bouts": 3,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.9522619047619048,
+              "bout_seconds": 2070.0,
+              "n_bouts": 3,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
+          },
           "hr_coverage": 0.9521825396825396,
           "inference_enabled": false,
           "inference_status": "descriptive_only_no_cohort_null",
@@ -7063,8 +7433,8 @@
             "fit_error": "ValueError",
             "method": "gauss3_failed",
             "peak_hz": null,
-            "prominence_over_background": 7.503050984841272,
-            "slope_1_over_f": -0.4858630407393048
+            "prominence_over_background": 7.667317883673501,
+            "slope_1_over_f": -0.4868377231662501
           },
           "power_fit_converged": true,
           "selected_contact_ids": [
@@ -7092,7 +7462,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -7603,7 +7973,7 @@
         "n_hr_seconds": 25200,
         "n_rr_4hz_samples": 100800,
         "n_stage_epochs": 840,
-        "paired_3a_common_support": {
+        "paired_3a_endpoint_support": {
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -7613,30 +7983,53 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "n_shared_seconds": 23995,
-          "n_shared_seconds_in_core_nrem": 1994,
+          "cardiac_common": {
+            "fraction": 0.9521825396825396,
+            "minimum_hr_coverage": 0.0,
+            "n_seconds": 23995,
+            "n_seconds_in_core_nrem": 1994,
+            "passes_hr_coverage_profile": true,
+            "support_mask_sha256": "c270bd1e13d382be558fc9b0d96d15c464e19d7c1ce14ef905f2e4d8ace4abd1"
+          },
+          "cardiac_common_is_subset_of_eeg_common": true,
+          "eeg_common": {
+            "fraction": 0.9522619047619048,
+            "n_seconds": 23997,
+            "n_seconds_in_core_nrem": 1996,
+            "support_mask_sha256": "a6e27cd5c81b10b7308829adf2afce3a1d4903089d50a84fe3f34ef72702ed80"
+          },
           "n_total_seconds": 25200,
-          "rule": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA AND finite shared HR; applied identically before 3A",
-          "shared_fraction": 0.9521825396825396,
-          "support_mask_sha256": "c270bd1e13d382be558fc9b0d96d15c464e19d7c1ce14ef905f2e4d8ace4abd1"
+          "rule": {
+            "cardiac_common": "EEG-common support AND finite shared HR; used for fixed 0.02-Hz coherence and 120-s cross-correlation",
+            "eeg_common": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA; used for spectra, peaks, and negative controls"
+          }
         },
         "paired_3a_geometry_verification": {
-          "checked_fields": [
-            "n_bouts",
-            "bout_seconds",
-            "coherence.K",
-            "coherence.n_valid",
-            "coherence.analytic_threshold",
-            "cross_correlation.n_intervals",
-            "cross_correlation.retained_window_start_indices"
-          ],
-          "cross_correlation_retained_window_count": 15,
-          "cross_correlation_retained_window_starts_sha256": "667992e5542e15075de40c5e8883ad1d75d4e3dd7b865a8e04d53a5cd9303af3",
-          "status": "exact_shared_geometry"
+          "coherence_cross_correlation": {
+            "checked_fields": [
+              "coherence.K",
+              "coherence.n_valid",
+              "coherence.analytic_threshold",
+              "cross_correlation.n_intervals",
+              "cross_correlation.retained_window_start_indices"
+            ],
+            "cross_correlation_retained_window_count": 15,
+            "cross_correlation_retained_window_starts_sha256": "667992e5542e15075de40c5e8883ad1d75d4e3dd7b865a8e04d53a5cd9303af3",
+            "status": "exact_shared_cardiac_geometry"
+          },
+          "spectrum_peak_negative_control": {
+            "checked_fields": [
+              "endpoint_availability.spectrum",
+              "n_bouts",
+              "bout_seconds"
+            ],
+            "status": "exact_shared_eeg_geometry"
+          },
+          "status": "exact_endpoint_local_geometry"
         },
         "rr_4_sha256": "0bcf5b5797b3b94f13e56444338128386812ed2ec8075441e732fe6f472bc80e",
         "stage_lab_sha256": "b6ba798b9f33f37887e0fa0611dacd2ec32a9f027e5ed221f3fb7a4612473143",
-        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A additionally uses an identical finite positive EEG/HR support mask; ECG was not redetected and sleep was not restaged"
+        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A spectra/peaks/SWA controls use identical finite-positive EEG support, while coherence/cross-correlation use its finite-shared-HR subset; ECG was not redetected and sleep was not restaged"
       },
       "subject": "HUP205_phaseII"
     },
@@ -7749,7 +8142,7 @@
           ]
         },
         "result_3a": {
-          "aggregate_coverage": 0.43976190476190474,
+          "aggregate_coverage": 0.7217063492063492,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -7784,6 +8177,23 @@
             "cross_correlation": true,
             "fixed_0p02_coherence": true,
             "spectrum": true
+          },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.43976190476190474,
+              "bout_seconds": 8766.0,
+              "hr_coverage": 0.43976190476190474,
+              "n_bouts": 21,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.7217063492063492,
+              "bout_seconds": 8766.0,
+              "n_bouts": 21,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
           },
           "hr_coverage": 0.43976190476190474,
           "inference_enabled": false,
@@ -8041,8 +8451,12 @@
         "ieeg_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
         "ieeg_cache_sha256": "08ed7b6ee2c43f02d669e93c94b60de16e4a688900b08b881935a9a0a37a3bd0",
         "night_s": 187200.0,
-        "scalp_cache_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
-        "scalp_cache_sha256": "0a79560170d4a4608c4d8a0af10643d0cde00f3f8a5d4922f920aef92e282750",
+        "scalp_cache_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
+        "scalp_cache_sha256": "619dc1003d8cd5d1f93c2f8f0a2decb3bae49f1785307f0c5afcffa3fbdaf5a0",
+        "scalp_sidecar_roles": {
+          "c3": "C3",
+          "fz": "FZ"
+        },
         "sf": 512.0
       },
       "scalp": {
@@ -8120,7 +8534,7 @@
           "scalp_to_ieeg_median_sigma_power_ratio": 2.343284245319947
         },
         "result_3a": {
-          "aggregate_coverage": 0.43976190476190474,
+          "aggregate_coverage": 0.7217063492063492,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -8155,6 +8569,23 @@
             "cross_correlation": true,
             "fixed_0p02_coherence": true,
             "spectrum": true
+          },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.43976190476190474,
+              "bout_seconds": 8766.0,
+              "hr_coverage": 0.43976190476190474,
+              "n_bouts": 21,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.7217063492063492,
+              "bout_seconds": 8766.0,
+              "n_bouts": 21,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
           },
           "hr_coverage": 0.43976190476190474,
           "inference_enabled": false,
@@ -8200,7 +8631,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -8711,7 +9142,7 @@
         "n_hr_seconds": 25200,
         "n_rr_4hz_samples": 100800,
         "n_stage_epochs": 840,
-        "paired_3a_common_support": {
+        "paired_3a_endpoint_support": {
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -8721,30 +9152,53 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "n_shared_seconds": 11082,
-          "n_shared_seconds_in_core_nrem": 8701,
+          "cardiac_common": {
+            "fraction": 0.43976190476190474,
+            "minimum_hr_coverage": 0.0,
+            "n_seconds": 11082,
+            "n_seconds_in_core_nrem": 8701,
+            "passes_hr_coverage_profile": true,
+            "support_mask_sha256": "ead1f9e5b440a7ba68de75818108cb3eb3046c661047c56542a3fdd9ad2839d4"
+          },
+          "cardiac_common_is_subset_of_eeg_common": true,
+          "eeg_common": {
+            "fraction": 0.7217063492063492,
+            "n_seconds": 18187,
+            "n_seconds_in_core_nrem": 8702,
+            "support_mask_sha256": "98a4099347d2bf4f7abc51374d02059bebc588ab03c4c604b2f4ed5e7babe15a"
+          },
           "n_total_seconds": 25200,
-          "rule": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA AND finite shared HR; applied identically before 3A",
-          "shared_fraction": 0.43976190476190474,
-          "support_mask_sha256": "ead1f9e5b440a7ba68de75818108cb3eb3046c661047c56542a3fdd9ad2839d4"
+          "rule": {
+            "cardiac_common": "EEG-common support AND finite shared HR; used for fixed 0.02-Hz coherence and 120-s cross-correlation",
+            "eeg_common": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA; used for spectra, peaks, and negative controls"
+          }
         },
         "paired_3a_geometry_verification": {
-          "checked_fields": [
-            "n_bouts",
-            "bout_seconds",
-            "coherence.K",
-            "coherence.n_valid",
-            "coherence.analytic_threshold",
-            "cross_correlation.n_intervals",
-            "cross_correlation.retained_window_start_indices"
-          ],
-          "cross_correlation_retained_window_count": 57,
-          "cross_correlation_retained_window_starts_sha256": "a0fa821e887484aca1ebabdcc5b4646d2375c0521a16184f2e1415c22e232f03",
-          "status": "exact_shared_geometry"
+          "coherence_cross_correlation": {
+            "checked_fields": [
+              "coherence.K",
+              "coherence.n_valid",
+              "coherence.analytic_threshold",
+              "cross_correlation.n_intervals",
+              "cross_correlation.retained_window_start_indices"
+            ],
+            "cross_correlation_retained_window_count": 57,
+            "cross_correlation_retained_window_starts_sha256": "a0fa821e887484aca1ebabdcc5b4646d2375c0521a16184f2e1415c22e232f03",
+            "status": "exact_shared_cardiac_geometry"
+          },
+          "spectrum_peak_negative_control": {
+            "checked_fields": [
+              "endpoint_availability.spectrum",
+              "n_bouts",
+              "bout_seconds"
+            ],
+            "status": "exact_shared_eeg_geometry"
+          },
+          "status": "exact_endpoint_local_geometry"
         },
         "rr_4_sha256": "0c4c54885e832e47a8acc9127f303cd12a3a4add32a1889769b287ad4b53e64b",
         "stage_lab_sha256": "b867b2871fab8dd5fa1e915e2c1202a8e406ff0382b9b26b04b4beb790c4fb6a",
-        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A additionally uses an identical finite positive EEG/HR support mask; ECG was not redetected and sleep was not restaged"
+        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A spectra/peaks/SWA controls use identical finite-positive EEG support, while coherence/cross-correlation use its finite-shared-HR subset; ECG was not redetected and sleep was not restaged"
       },
       "subject": "HUP211_phaseII"
     },
@@ -8864,7 +9318,7 @@
           ]
         },
         "result_3a": {
-          "aggregate_coverage": 0.6182539682539683,
+          "aggregate_coverage": 0.6279365079365079,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -8899,6 +9353,23 @@
             "cross_correlation": true,
             "fixed_0p02_coherence": true,
             "spectrum": true
+          },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.6182539682539683,
+              "bout_seconds": 3060.0,
+              "hr_coverage": 0.6182539682539683,
+              "n_bouts": 5,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.6279365079365079,
+              "bout_seconds": 3060.0,
+              "n_bouts": 5,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
           },
           "hr_coverage": 0.6182539682539683,
           "inference_enabled": false,
@@ -9094,8 +9565,12 @@
         "ieeg_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
         "ieeg_cache_sha256": "9e9c42a4b523d50eec4f42599a82d6dffbc32cb88743b3d092ec2771df9ca0db",
         "night_s": 628200.0,
-        "scalp_cache_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
-        "scalp_cache_sha256": "583a312d7ba2afb2317557b091a9f8c5d5c099bc2070cd1cc6a2a06b6d9ab749",
+        "scalp_cache_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
+        "scalp_cache_sha256": "66ef82a7d6950ec1831b788bbeee64bbed1672f740f52f340ef390a835bef24d",
+        "scalp_sidecar_roles": {
+          "c3": "C03",
+          "fz": "FZ"
+        },
         "sf": 1024.0
       },
       "scalp": {
@@ -9180,7 +9655,7 @@
           "scalp_to_ieeg_median_sigma_power_ratio": 1.4214797359789695
         },
         "result_3a": {
-          "aggregate_coverage": 0.6182539682539683,
+          "aggregate_coverage": 0.6279365079365079,
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -9215,6 +9690,23 @@
             "cross_correlation": true,
             "fixed_0p02_coherence": true,
             "spectrum": true
+          },
+          "endpoint_support_diagnostics": {
+            "coherence_cross_correlation": {
+              "aggregate_coverage": 0.6182539682539683,
+              "bout_seconds": 3060.0,
+              "hr_coverage": 0.6182539682539683,
+              "n_bouts": 5,
+              "support_passes_profile": true,
+              "support_reasons": []
+            },
+            "spectrum_peak_negative_control": {
+              "aggregate_coverage": 0.6279365079365079,
+              "bout_seconds": 3060.0,
+              "n_bouts": 5,
+              "support_passes_profile": true,
+              "support_reasons": []
+            }
           },
           "hr_coverage": 0.6182539682539683,
           "inference_enabled": false,
@@ -9267,7 +9759,7 @@
             "original_profile_minimum_contacts": 2,
             "polarity_sensitivity": {
               "reason": "the outcome-neutral sidecar stores candidates detected in the recorded polarity, not the filtered waveform or the complementary positive-to-negative half-wave candidate set; opposite-polarity detection requires a prespecified re-stream",
-              "status": "not_computable_from_sidecar_v1"
+              "status": "not_computable_from_outcome_neutral_sidecar"
             },
             "profile_id": "overlap11_endpoint_local__single_scalp_channel_exploratory",
             "reference_status": "portal channel reference is undocumented; not known to be F3/A2, F4/A1, or linked mastoids",
@@ -9480,7 +9972,7 @@
         "n_hr_seconds": 25200,
         "n_rr_4hz_samples": 100800,
         "n_stage_epochs": 840,
-        "paired_3a_common_support": {
+        "paired_3a_endpoint_support": {
           "analysis_window": {
             "available_window_seconds": 12600.0,
             "onset_proxy": "first available classified R/NREM/N2/N3 epoch; expert S1 followed by S2 is unavailable",
@@ -9490,30 +9982,53 @@
             "stop_epoch": 420,
             "stop_second": 12600.0
           },
-          "n_shared_seconds": 15580,
-          "n_shared_seconds_in_core_nrem": 3105,
+          "cardiac_common": {
+            "fraction": 0.6182539682539683,
+            "minimum_hr_coverage": 0.0,
+            "n_seconds": 15580,
+            "n_seconds_in_core_nrem": 3105,
+            "passes_hr_coverage_profile": true,
+            "support_mask_sha256": "b34944be37fc51c83edb069a6243043aadba11b1303dbfb5797719dac708bb96"
+          },
+          "cardiac_common_is_subset_of_eeg_common": true,
+          "eeg_common": {
+            "fraction": 0.6279365079365079,
+            "n_seconds": 15824,
+            "n_seconds_in_core_nrem": 3107,
+            "support_mask_sha256": "b1225f866e8abba74050e0f42922eac9c9f8a31fc24087a448948d1416d534ae"
+          },
           "n_total_seconds": 25200,
-          "rule": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA AND finite shared HR; applied identically before 3A",
-          "shared_fraction": 0.6182539682539683,
-          "support_mask_sha256": "b34944be37fc51c83edb069a6243043aadba11b1303dbfb5797719dac708bb96"
+          "rule": {
+            "cardiac_common": "EEG-common support AND finite shared HR; used for fixed 0.02-Hz coherence and 120-s cross-correlation",
+            "eeg_common": "finite positive iEEG sigma+SWA AND finite positive scalp sigma+SWA; used for spectra, peaks, and negative controls"
+          }
         },
         "paired_3a_geometry_verification": {
-          "checked_fields": [
-            "n_bouts",
-            "bout_seconds",
-            "coherence.K",
-            "coherence.n_valid",
-            "coherence.analytic_threshold",
-            "cross_correlation.n_intervals",
-            "cross_correlation.retained_window_start_indices"
-          ],
-          "cross_correlation_retained_window_count": 23,
-          "cross_correlation_retained_window_starts_sha256": "5bded13aff4b61d9f1d69acdf0767c1b20f5af5020aba66f9793122f75e45df5",
-          "status": "exact_shared_geometry"
+          "coherence_cross_correlation": {
+            "checked_fields": [
+              "coherence.K",
+              "coherence.n_valid",
+              "coherence.analytic_threshold",
+              "cross_correlation.n_intervals",
+              "cross_correlation.retained_window_start_indices"
+            ],
+            "cross_correlation_retained_window_count": 23,
+            "cross_correlation_retained_window_starts_sha256": "5bded13aff4b61d9f1d69acdf0767c1b20f5af5020aba66f9793122f75e45df5",
+            "status": "exact_shared_cardiac_geometry"
+          },
+          "spectrum_peak_negative_control": {
+            "checked_fields": [
+              "endpoint_availability.spectrum",
+              "n_bouts",
+              "bout_seconds"
+            ],
+            "status": "exact_shared_eeg_geometry"
+          },
+          "status": "exact_endpoint_local_geometry"
         },
         "rr_4_sha256": "4f6b978a9d57a322d78957296892e6358da9f01e0e5da887c487814d26c1bd24",
         "stage_lab_sha256": "aec0729b6a9ce15a98ee1ea636cba326a59239ee45adbdfc68091e69ddca0d7b",
-        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A additionally uses an identical finite positive EEG/HR support mask; ECG was not redetected and sleep was not restaged"
+        "statement": "identical ECG/RR and sleep labels are used for both arms; 3A spectra/peaks/SWA controls use identical finite-positive EEG support, while coherence/cross-correlation use its finite-shared-HR subset; ECG was not redetected and sleep was not restaged"
       },
       "subject": "HUP212_phaseII"
     }

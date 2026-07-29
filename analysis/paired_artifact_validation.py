@@ -30,8 +30,8 @@ from pipeline_version import (
     CACHE_SCHEMA_VERSION,
     file_sha256,
     source_tree_sha256,
-    validate_recorded_release_provenance,
 )
+from release_provenance import validate_recorded_release_provenance
 from qc_profiles import (
     load_qc_profile,
     profile_file_sha256,

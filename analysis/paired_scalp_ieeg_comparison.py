@@ -82,10 +82,12 @@ from pipeline_version import (
     atomic_json_dump,
     file_sha256,
     npz_scalar_text,
-    require_clean_release_provenance,
-    require_release_source_unchanged,
     runtime_versions,
     utc_now,
+)
+from release_provenance import (
+    require_clean_release_provenance,
+    require_release_source_unchanged,
     validate_recorded_release_provenance,
 )
 from qc_profiles import (

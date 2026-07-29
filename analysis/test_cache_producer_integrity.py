@@ -117,6 +117,10 @@ check(
     "cache digest includes the shared 3D estimator source",
     "analysis/event_3d_estimators.py" in _CACHE_SOURCE_FILES,
 )
+check(
+    "downstream release provenance cannot invalidate neutral cache bytes",
+    "analysis/release_provenance.py" not in _CACHE_SOURCE_FILES,
+)
 
 CANONICAL_HELPER_SOURCES = {
     "analysis/signal_qc.py",

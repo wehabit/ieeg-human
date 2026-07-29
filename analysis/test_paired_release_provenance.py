@@ -11,10 +11,10 @@ from unittest import mock
 
 import audit_hup_scalp_inventory as inventory_producer
 import paired_scalp_ieeg_comparison as paired_producer
-from pipeline_version import (
+from pipeline_version import source_tree_sha256
+from release_provenance import (
     require_clean_release_provenance,
     require_release_source_unchanged,
-    source_tree_sha256,
     source_tree_sha256_at_revision,
     validate_recorded_release_provenance,
 )

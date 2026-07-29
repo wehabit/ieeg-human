@@ -44,10 +44,12 @@ from pipeline_version import (
     CACHE_SCHEMA_VERSION,
     atomic_json_dump,
     file_sha256,
-    require_clean_release_provenance,
-    require_release_source_unchanged,
     runtime_versions,
     utc_now,
+)
+from release_provenance import (
+    require_clean_release_provenance,
+    require_release_source_unchanged,
 )
 from qc_profiles import load_qc_profile, qc_profile_sha256
 

@@ -1,7 +1,9 @@
 # Key Literature
 
-> **SCOPE NOTE.** Literature descriptions may remain useful, but historical repository-output
-> numbers on this page are not v8 3A/3B/3D results or evidence of LC tracking. See the
+> **SCOPE NOTE.** Literature descriptions remain useful, but legacy
+> repository-output numbers on this page are not the audited endpoint-local
+> results or evidence of LC tracking. The frozen v8 QC-sensitivity evidence is
+> historical; v9 regeneration is pending. See the
 > [v8 QC-sensitivity report](QC_SENSITIVITY_RESULTS_2026-07.md) and
 > [issue register](ISSUE_REGISTER_2026-07.md).
 
@@ -114,9 +116,10 @@ SWS/REM-selection intervals, while `electrodes.tsv` contains atlas and pathology
 
 **Why it matters here.** Those sidecars are analysis inputs, not optional descriptions. The legacy
 RESPect cache ignored both and therefore could misclassify author REM, retain author-marked
-disturbances, and include pathological/non-cortical contacts. V8 consumes them
+disturbances, and include pathological/non-cortical contacts. The frozen v8 analysis consumed them
 conservatively, while leaving author-unknown sleep unclassified and treating parietal/frontal iEEG
-ROIs as motivated scalp-source adaptations rather than direct LC measurements.
+ROIs as motivated scalp-source adaptations rather than direct LC measurements. V9 regeneration
+remains pending.
 
 ---
 
@@ -126,9 +129,9 @@ None of the Pattnaik, Falach, or Zurich holdings is a continuous full night: Pat
 Falach is ~3 min/patient, and Zurich is 5-min runs. The RESPect sleep runs used here are
 approximately one hour and may provide too little strictly annotated continuous data for a cohort
 endpoint. The historical HUP analyses used longer continuous high-delta candidate intervals, but
-those intervals have not been verified as lights-off-to-wake nights. V8 recovers subject-level
-endpoint-local estimates but retains unvalidated staging/anatomy and disabled 3B/3D inference;
-availability is not a biological result.
+those intervals have not been verified as lights-off-to-wake nights. The frozen v8 analysis
+recovered subject-level endpoint-local estimates but retained unvalidated staging/anatomy and
+disabled 3B/3D inference; availability is not a biological result, and v9 regeneration is pending.
 
 An all-25 snapshot-pinned inventory proves that eight HUP records form the frozen
 3A-eligible C3/C03 intersection. The paired analysis fixes participant, interval, ECG/RR,
@@ -136,8 +139,8 @@ iEEG-derived stage labels, and exact finite sample/window support, but does not 
 location, reference, spatial scale, or aggregation across arms. HUP160 is the sole
 above-threshold 0.02-Hz coherence participant in both arms; the corrected median coherence is
 0.0287 iEEG versus 0.0762 scalp, which is exploratory and not an equivalence result. HUP138 alone
-has both F3 and F4 labels, but no valid frozen staged endpoint, so exact Naji transfer remains
-unavailable. See
+has both F3 and F4 electrode labels, but no valid frozen staged endpoint and no documented A2/A1
+references, so exact Naji F3/A2 and F4/A1 transfer remains unavailable. See
 [the paired scalp–iEEG report](PAIRED_SCALP_IEEG_RESULTS_2026-07.md).
 
 **License summary:** Falach = CC BY 4.0 (commercial OK) · Zurich ds003498 = CC0 (public domain) ·
@@ -147,13 +150,20 @@ Pattnaik atlas = CC-BY-NC-SA-4.0 (non-commercial). Only one of the three is non-
 
 ## Part 2 — LC-proxy anchor literature (verified)
 
-- [Lecci et al. 2017](https://pubmed.ncbi.nlm.nih.gov/28246641/) establishes coordinated
-  approximately 0.02-Hz sigma-power and cardiac dynamics in human scalp EEG/ECG, evaluates SWA
-  as a comparison signal, and reports parallel mammalian observations. Its human arm does not
-  record LC or norepinephrine.
-- [Naji et al. 2019](https://escholarship.org/uc/item/5393b9zk) establishes human
-  slow-oscillation–heart-rate timing using scalp F3/F4 and ECG and relates timing to perceptual
-  speed. It is a central–autonomic study, not an LC assay.
+- [Lecci et al. 2017](https://pubmed.ncbi.nlm.nih.gov/28246641/) analyzes human scalp EEG/ECG
+  using 0.5–4 Hz SWA and 10–15 Hz sigma in artifact-free NREM bouts of at least 120 s from the
+  first 210 min after sleep onset. It reports coordinated approximately 0.02-Hz sigma-power and
+  cardiac dynamics and parallel mammalian observations, but its human arm does not record LC or
+  norepinephrine.
+- [Naji et al. 2019](https://escholarship.org/uc/item/5393b9zk) uses scalp PSG derivations F3/A2
+  and F4/A1 in uninterrupted 3-min bins. The 0.5–100 Hz ECG uses Pan–Tompkins R-wave detection
+  with visual confirmation, and RR is resampled to 4 Hz with a piecewise cubic spline.
+  SO-triggered RR/HR timing is related to a behavioral perceptual-speed endpoint. It is a
+  central–autonomic study, not an LC assay.
+- [Staresina et al. 2015](https://pmc.ncbi.nlm.nih.gov/articles/PMC4625581/) and
+  [Helfrich et al. 2018](https://pmc.ncbi.nlm.nih.gov/articles/PMC5754239/) provide the
+  artifact-free NREM SO–spindle event-detection and phase-coupling methods adapted by 3D. Neither
+  paper measures or validates LC activity.
 - [Osorio-Forero et al. 2021](https://pubmed.ncbi.nlm.nih.gov/34648731/) directly measures
   thalamic norepinephrine and manipulates LC in mice, providing causal biological support for
   LC/NE-linked spindle and heart-rate rhythms. It does not validate the human HUP endpoints as
@@ -176,7 +186,6 @@ human EEG/ECG association a direct or uniquely LC-driven measurement.
 - Dagum —
 - Murdock —
 - Miao —
-- Staresina —
 - Mander —
 - Zhang —
 - Mlinarič —

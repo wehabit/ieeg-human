@@ -6,7 +6,7 @@ Reads the 3A and 3B per-subject JSON dirs (default HUP; pass --a-dir/--b-dir for
     .venv/bin/python analysis/summarize_corrected_3AB.py \
         --a-dir outputs/ds003848_3A --b-dir outputs/ds003848_3B --label "ds003848 replication"
 """
-import argparse, glob, json, os
+import argparse, glob, hashlib, json, os
 import numpy as np
 from scipy import stats
 from pipeline_version import (
@@ -24,7 +24,21 @@ from lecci_faithful_3A import (
     verify_cache_lineage,
 )
 
-rng_np = np.random.RandomState(0)
+EXACT_SIGN_FLIP_MAX_N = 15
+MONTE_CARLO_SIGN_FLIP_DRAWS = 20_000
+
+
+def endpoint_seed(endpoint_name):
+    """Stable seed for one named summary endpoint."""
+    digest = hashlib.sha256(
+        f"summarize_corrected_3AB|{endpoint_name}|v1".encode("utf-8")
+    ).digest()
+    return int.from_bytes(digest[:4], byteorder="little")
+
+
+def endpoint_rng(endpoint_name):
+    """Stable, endpoint-local RNG so unrelated analyses cannot change a result."""
+    return np.random.RandomState(endpoint_seed(endpoint_name))
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _ap = argparse.ArgumentParser()
@@ -355,14 +369,19 @@ if A_spectrum:
         print("\n  PEAK-TIGHTNESS-ONLY CONTROL AGAINST SUBJECT-MATCHED SCALE-FREE SURROGATES:")
         print(f"    observed accepted-peak SD = {np.std(pk, ddof=1):.4f} Hz")
         if len(surrogate_by_subject) == len(accepted_records):
+            peak_endpoint = "3A_peak_tightness"
+            peak_tightness_rng = endpoint_rng(peak_endpoint)
             null_sd = np.array([
-                np.std([values[rng_np.randint(len(values))]
+                np.std([values[peak_tightness_rng.randint(len(values))]
                         for _, values in surrogate_by_subject], ddof=1)
                 for _ in range(10000)
             ])
             p_tight = float(
                 (1 + np.sum(null_sd <= np.std(pk, ddof=1))) / (1 + len(null_sd)))
             print(f"    matched Monte-Carlo p for tighter real clustering = {p_tight:.4f}")
+            print(
+                f"    Monte Carlo draws={len(null_sd):,}; "
+                f"endpoint-local seed={endpoint_seed(peak_endpoint)}")
             print("    This tests clustering anywhere in the accepted search band; it cannot show")
             print("    compatibility with Lecci's 0.019-Hz location. No equivalence margin was")
             print("    prespecified, so this p value is not evidence of Lecci-location replication.")
@@ -465,7 +484,7 @@ if xc:
         # selection over all lags.
         obs_directional = float(np.max(g[follows]))
         obs_omnibus = float(np.max(np.abs(g)))
-        if len(M) <= 15:
+        if len(M) <= EXACT_SIGN_FLIP_MAX_N:
             assignments = np.arange(1 << len(M), dtype=np.uint64)
             bit_positions = np.arange(len(M), dtype=np.uint64)
             sign_matrix = (
@@ -475,12 +494,19 @@ if xc:
             null_omnibus = np.max(np.abs(null_curves), axis=1)
             p_directional = float(np.mean(null_directional >= obs_directional))
             p_omnibus = float(np.mean(null_omnibus >= obs_omnibus))
-            inference_method = f"exact enumeration of {len(null_directional)} sign assignments"
+            inference_method = (
+                f"exact enumeration of {len(null_directional)} sign "
+                f"assignments (safe cap n<={EXACT_SIGN_FLIP_MAX_N})")
         else:
-            null_directional = np.empty(20000)
-            null_omnibus = np.empty(20000)
+            xcorr_seed = endpoint_seed(
+                "3A_cross_correlation_sign_flip")
+            xcorr_rng = endpoint_rng("3A_cross_correlation_sign_flip")
+            null_directional = np.empty(
+                MONTE_CARLO_SIGN_FLIP_DRAWS)
+            null_omnibus = np.empty(
+                MONTE_CARLO_SIGN_FLIP_DRAWS)
             for j in range(len(null_directional)):
-                signs = rng_np.choice((-1.0, 1.0), size=len(M))
+                signs = xcorr_rng.choice((-1.0, 1.0), size=len(M))
                 null_curve = (M * signs[:, None]).mean(0)
                 null_directional[j] = np.max(null_curve[follows])
                 null_omnibus[j] = np.max(np.abs(null_curve))
@@ -490,7 +516,9 @@ if xc:
             p_omnibus = float(
                 (1 + np.sum(null_omnibus >= obs_omnibus))
                 / (1 + len(null_omnibus)))
-            inference_method = "20,000 Monte Carlo sign assignments"
+            inference_method = (
+                f"{MONTE_CARLO_SIGN_FLIP_DRAWS:,} Monte Carlo sign "
+                f"assignments; endpoint-local seed={xcorr_seed}")
         print(f"    prespecified Lecci-direction max-positive-r sign-flip test "
               f"({LECCI_XCORR_LAG_WINDOW_S[0]:.0f} to "
               f"{LECCI_XCORR_LAG_WINDOW_S[1]:.0f} s): p = {p_directional:.4f}")

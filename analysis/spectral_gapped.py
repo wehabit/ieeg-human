@@ -108,6 +108,9 @@ def _prepare(x, y, fs, max_gap_s, highpass):
                 continue
             xf[s:e] = signal.sosfiltfilt(sos, xf[s:e] - xf[s:e].mean())
             yf[s:e] = signal.sosfiltfilt(sos, yf[s:e] - yf[s:e].mean())
+    # Interpolation inside a run later rejected by filtering is not analytic
+    # support and must not inflate the reported filled fraction.
+    filled &= valid
     return xf, yf, valid, filled
 
 

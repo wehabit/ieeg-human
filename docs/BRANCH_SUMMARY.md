@@ -1,13 +1,15 @@
-# Branch summary — v8 endpoint-local sensitivity
+# Branch summary — v9 code, v8 historical sensitivity
 
 > **QUARANTINED DOCUMENT.** Earlier versions of this page described numerical 3A, 3B, and 3D
 > results as corrected, validated, negative, weak, or positive. Those descriptions were based on
 > superseded caches and estimators and have been removed. Do not recover or cite them as findings.
-> V8 supersedes the former all-unavailable verdict; see the authoritative result report below.
+> V8 superseded the former all-unavailable verdict, but v9 implementation and
+> provenance fixes now require a new scientific-artifact rebuild.
 
 The authoritative current status is the
-[v8 QC-sensitivity report](QC_SENSITIVITY_RESULTS_2026-07.md) and
-[issue register](ISSUE_REGISTER_2026-07.md). The current analysis contract is in
+[issue register](ISSUE_REGISTER_2026-07.md). The
+[v8 QC-sensitivity report](QC_SENSITIVITY_RESULTS_2026-07.md) is the
+hash-pinned historical baseline. The current analysis contract is in
 [METHODS.md](METHODS.md), and the distinction between code corrections and unresolved scientific
 validation is in [AUDIT_CORRECTIONS_2026-07.md](AUDIT_CORRECTIONS_2026-07.md).
 

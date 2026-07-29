@@ -308,10 +308,21 @@ proxy is proven.” It is:
 
 - `analysis/qc_profiles_v1.json` — immutable profile definitions and grids
 - `outputs/qc_calibration/staging_window_calibration.json` — outcome-blind calibration
-- `outputs/qc_grid/coverage_oat_v1/` — one-axis 70/75/80/90 coverage grid
-- `outputs/qc_grid/staging_window_support_v1/` — 1–14 iEEG-window grid
-- `outputs/qc_grid/auxiliary_window_support_v1/` — 1–14 EMG/EOG-window control
-- `outputs/qc_grid/event_count_oat_v1/` — event/contact/cohort-count sensitivity
+- `outputs/qc_grid_public/coverage_oat_v1/` — every 70/75/80/90 profile,
+  cohort count, and participant endpoint-availability record
+- `outputs/qc_grid_public/staging_window_support_v1/` — compact 1–14
+  iEEG-window evidence
+- `outputs/qc_grid_public/auxiliary_window_support_v1/` — compact 1–14
+  EMG/EOG-window control evidence
+- `outputs/qc_grid_public/event_count_oat_v1/` — compact
+  event/contact/cohort-count sensitivity evidence
+- `outputs/qc_grid_public/locked/overlap11_endpoint_local__hup.json` — complete
+  frozen locked-profile subject records required by the paired exact-match
+  analysis
 
-All JSON is strict, all cache/result bytes are hash-pinned, and the old v7 endpoint folders remain
+The full numeric grids are deterministic ignored products under
+`outputs/qc_grid/`; regenerate them before the compact evidence with
+`analysis/compact_qc_grid_artifacts.py`. See
+[ARTIFACT_POLICY.md](ARTIFACT_POLICY.md). All committed JSON is strict, all
+cache/result bytes are hash-pinned, and the old v7 endpoint folders remain
 explicitly quarantined as legacy outputs.

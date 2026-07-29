@@ -10,14 +10,30 @@ import numpy as np
 from scipy import signal
 
 import cohort_3A_cortical as cortical_module
-from event_3B_mednick import subject_so_triggered, rr_baseline_hr, FS_RR
-from event_3B_cached import coverage_eligible_contacts, stable_stage_epoch_indices
-from event_3D_by_stage import (detect_so_events, detect_spindle_events, bh_fdr, rayleigh,
-                               pair_one_spindle_per_so, so_event_candidates, select_so_events,
-                               spindle_rms, spindle_events_from_rms,
-                               participant_rotation_test, same_stage_pair_mask,
-                               pooled_endpoint_passes_qc,
-                               PRODUCTION_3D_INFERENCE_ENABLED)
+import hup_portal as portal_module
+from event_3B_mednick import (
+    subject_so_triggered, so_triggered, rr_baseline_hr, FS_RR)
+from event_3B_cached import (
+    coverage_eligible_contacts,
+    stable_stage_epoch_indices,
+    stage_diagnostic_rng,
+)
+from event_3d_estimators import (
+    EVENT_FS,
+    PRODUCTION_3D_INFERENCE_ENABLED,
+    bh_fdr,
+    epoch_set_sample_mask,
+    intervals_wholly_inside,
+    pair_one_spindle_per_so,
+    participant_rotation_test,
+    pooled_endpoint_passes_qc,
+    rayleigh,
+    select_so_events,
+    so_event_candidates,
+    spindle_events_from_rms,
+    spindle_rms,
+    stage_event_pairs,
+)
 from cache_lc_series import (detect_so_candidates, threshold_so_candidates, sanitize_beats,
                              _write_multichannel_power, _aggregate_full_night_power,
                              aggregate_staging_features, interpolate_tachograms,
@@ -27,13 +43,13 @@ from cache_lc_series import (detect_so_candidates, threshold_so_candidates, sani
                              update_channel_activity_extrema,
                              finalize_channel_activity_qc,
                              finalize_ecg_cache_qc)
-from cohort_stages_3ABD import (
+from staging_helpers import (
     band_sos, fsp_from, nrem_mask_adaptive,
     reliable_two_state_split as mixture_high_tail_split, stage_epochs,
 )
 from cohort_3A_cortical import HUP_SOURCE_PINS, find_night, verify_hup_source_identity
 from infraslow_rr_sigma_coherence import configure_http_session
-from results_3A_tutorial_style import dilate_boolean_mask, ied_clean_mask
+from signal_qc import dilate_boolean_mask, ied_clean_mask
 from run_qc_grid import analyse_3b
 from qc_profiles import load_qc_profile
 from stage_ds003848 import (
@@ -53,6 +69,21 @@ def check(name, condition):
 
 
 rng = np.random.RandomState(7)
+
+
+stage_n3_first = stage_diagnostic_rng(
+    "HUPTEST_phaseII", "N3").rand(8)
+stage_diagnostic_rng(
+    "HUPTEST_phaseII", "N2").rand(1000)
+stage_n3_after_n2 = stage_diagnostic_rng(
+    "HUPTEST_phaseII", "N3").rand(8)
+stage_n2 = stage_diagnostic_rng(
+    "HUPTEST_phaseII", "N2").rand(8)
+check(
+    "3B diagnostic RNG is reproducible and isolated by subject/stage",
+    np.array_equal(stage_n3_first, stage_n3_after_n2)
+    and not np.array_equal(stage_n3_first, stage_n2),
+)
 
 
 low_coverage_warnings = finalize_ecg_cache_qc([], hr_coverage=0.25)
@@ -230,7 +261,7 @@ check("night-selection provenance records complete successful probe coverage",
       and night_diagnostics["n_finite_scores"] == 16
       and night_diagnostics["n_probe_failures"] == 0)
 
-original_probe_get = cortical_module.get
+original_probe_get = portal_module.get
 
 
 def _too_many_failed_probes(ds, idx, start_s, dur_s):
@@ -240,7 +271,7 @@ def _too_many_failed_probes(ds, idx, start_s, dur_s):
 
 
 try:
-    cortical_module.get = _too_many_failed_probes
+    portal_module.get = _too_many_failed_probes
     try:
         find_night(
             _SyntheticNightDataset(), {"CTX": 0}, "CTX", 100.0, total_h=8.0,
@@ -249,7 +280,7 @@ try:
     except RuntimeError:
         excessive_probe_failures_rejected = True
 finally:
-    cortical_module.get = original_probe_get
+    portal_module.get = original_probe_get
 check("night selection fails closed when more than 20% of probes fail",
       excessive_probe_failures_rejected)
 
@@ -323,6 +354,24 @@ post_window_qc = subject_so_triggered(
 check("3B minimum-contact gate is applied after complete-window eligibility",
       post_window_qc is None)
 
+right_edge_series = np.linspace(1.0, 1.2, 61)
+right_edge_result = subject_so_triggered(
+    right_edge_series,
+    [[(len(right_edge_series) - int(5 * FS_RR)) / FS_RR]],
+    60.0 / right_edge_series.mean(),
+    np.arange(len(right_edge_series)),
+    n_sur=2,
+    rng=np.random.RandomState(70),
+    domain="rr",
+    minimum_events_per_channel=1,
+    minimum_surrogate_pool_samples=1,
+)
+check(
+    "3B accepts a half-open event window ending exactly at the final sample",
+    right_edge_result is not None
+    and right_edge_result["n_so_total"] == 1,
+)
+
 
 class _SyntheticCacheContacts:
     files = ["sigma_selected_contact_mask"]
@@ -378,6 +427,18 @@ check("3B disables a nonstationarity-sensitive stage-shift false positive",
       and trend_result["p_upper"] is None
       and abs(trend_result["event_locked_local_change_pct"]) < 0.05)
 
+compatibility_result = so_triggered(
+    hr, troughs_a, float(hr.mean()), pool, n_sur=99,
+    rng=np.random.RandomState(82))
+check(
+    "withdrawn single-channel 3B helper routes to descriptive estimator with z/p disabled",
+    compatibility_result is not None
+    and compatibility_result["z"] is None
+    and compatibility_result["p_upper"] is None
+    and compatibility_result["inference_status"].startswith(
+        "descriptive only"),
+)
+
 # The RR-domain curve must use 60/mean(RR) as its baseline.  The arithmetic mean of instantaneous
 # HR is a different estimand (Jensen's inequality) and creates a nonzero "effect" with no event.
 heterogeneous_rr = np.tile([0.5, 1.5], 100)
@@ -404,8 +465,11 @@ sp = np.zeros_like(t)
 for centre in np.arange(5, 115, 5):
     win = np.abs(t - centre) <= 0.4
     sp[win] += 3.0 * np.sin(2 * np.pi * 13 * t[win]) * np.hanning(win.sum())
-so_events = detect_so_events(so, sf)
-sp_events = detect_spindle_events(sp + 0.02 * rng.randn(len(sp)), sf)
+so_events = select_so_events(so_event_candidates(so, sf))
+spindle_test_rms = spindle_rms(sp + 0.02 * rng.randn(len(sp)), sf)
+sp_events = spindle_events_from_rms(
+    spindle_test_rms, sf,
+    np.percentile(spindle_test_rms[np.isfinite(spindle_test_rms)], 75))
 check("3D detects complete SO events", len(so_events) > 20)
 check("3D spindle detector enforces event duration and finds bursts", len(sp_events) >= 15)
 
@@ -413,9 +477,55 @@ selected_sp, selected_so = pair_one_spindle_per_so(
     [100, 300], [90, 105, 110, 295, 305], [1, 5, 3, 2, 4], max_distance_samples=30)
 check("3D retains one maximum-amplitude spindle per independent SO",
       selected_sp.tolist() == [105, 305] and selected_so.tolist() == [100, 300])
-check("3D stage analyses reject SO-spindle pairs that cross a stage boundary",
-      not same_stage_pair_mask([1], [0], {1})[0]
-      and same_stage_pair_mask([1], [1], {1})[0])
+samples_per_epoch = int(EVENT_FS * 30)
+stage_one_mask = epoch_set_sample_mask(
+    {1}, 3 * samples_per_epoch, EVENT_FS)
+check(
+    "3D stage membership requires complete event extents, not only centres",
+    intervals_wholly_inside(
+        stage_one_mask,
+        [samples_per_epoch + 10, samples_per_epoch - 2],
+        [samples_per_epoch + 20, samples_per_epoch + 10],
+    ).tolist() == [True, False],
+)
+
+competition_record = {
+    "total_samples": 3 * samples_per_epoch,
+    "eligible_so_indices": np.asarray([samples_per_epoch + 50]),
+    "eligible_so_start_samples": np.asarray([samples_per_epoch + 20]),
+    "eligible_so_stop_samples_exclusive": np.asarray([
+        samples_per_epoch + 80]),
+    "eligible_spindle_indices": np.asarray([
+        samples_per_epoch + 40, samples_per_epoch + 60]),
+    "eligible_spindle_amplitudes": np.asarray([10.0, 5.0]),
+    "eligible_spindle_start_samples": np.asarray([
+        samples_per_epoch - 10, samples_per_epoch + 50]),
+    "eligible_spindle_stop_samples_exclusive": np.asarray([
+        samples_per_epoch + 50, samples_per_epoch + 70]),
+    "eligible_spindle_phases": np.asarray([0.1, 0.9]),
+}
+stage_specific_pairs = stage_event_pairs(competition_record, {1})
+check(
+    "3D repeats pairing after extent-based stage restriction",
+    stage_specific_pairs["indices"].tolist()
+    == [samples_per_epoch + 60]
+    and np.allclose(stage_specific_pairs["phases"], [0.9]),
+)
+
+bounded_rms = np.ones(100)
+bounded_rms[20:32] = 3.0
+bounded_peak, bounded_amplitude, bounded_start, bounded_stop = (
+    spindle_events_from_rms(
+        bounded_rms, 20.0, 2.0,
+        return_amplitudes=True, return_bounds=True,
+        require_complete_valid_extent=True))
+check(
+    "3D spindle detector returns exact half-open onset/offset bounds",
+    bounded_peak.tolist() == [20]
+    and bounded_amplitude.tolist() == [3.0]
+    and bounded_start.tolist() == [20]
+    and bounded_stop.tolist() == [32],
+)
 
 check("Rayleigh probability is bounded for perfect locking",
       0 < rayleigh(np.zeros(20))[1] <= 1)
@@ -733,7 +843,11 @@ so_art = signal.sosfiltfilt(band_sos((0.16, 1.25), sf, 3), x)
 sp_art = signal.sosfiltfilt(band_sos((12, 16), sf), x)
 candidates = so_event_candidates(so_art, sf)
 if len(candidates):
-    candidates = candidates[clean[candidates[:, 0].astype(int)]]
+    complete_clean = np.asarray([
+        clean[int(start):int(stop)].all()
+        for start, stop in candidates[:, 2:4]
+    ])
+    candidates = candidates[complete_clean]
 so_art_events = select_so_events(candidates)
 rms_art = spindle_rms(sp_art, sf)
 if clean.any():

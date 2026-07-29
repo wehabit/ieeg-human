@@ -1,6 +1,6 @@
 """Calibrate clean 4-s staging-window support without inspecting LC/HR outcomes.
 
-The neutral v8 cache stores the fourteen fixed Welch-window band powers for every contact/epoch.
+The neutral cache stores fourteen fixed Welch-window band powers for every contact/epoch.
 This script takes real artifact-window patterns and applies each pattern to a fully clean reference
 epoch from the same participant/contact.  It then measures how closely the partial-window SWA and
 delta ratio reproduce that reference epoch's all-window values.
@@ -28,6 +28,7 @@ from pipeline_version import (
     source_tree_sha256,
     utc_now,
 )
+from qc_profiles import PROFILE_PATH, PROFILE_SET_SCHEMA
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -51,6 +52,148 @@ CALIBRATION_SOURCE_FILES = (
     "analysis/calibrate_staging_windows.py",
     "analysis/pipeline_version.py",
 )
+
+
+def _reject_json_constant(value):
+    raise ValueError(f"non-standard JSON constant {value!r}")
+
+
+def _load_json_object(path, label):
+    with open(path, encoding="utf-8") as handle:
+        value = json.load(handle, parse_constant=_reject_json_constant)
+    if not isinstance(value, dict):
+        raise RuntimeError(f"{label} must contain one JSON object")
+    return value
+
+
+def update_staging_calibration_pin(
+    artifact_path,
+    profile_path=PROFILE_PATH,
+    *,
+    root=ROOT,
+    expected_recommendation=None,
+):
+    """Atomically pin one completed calibration without changing QC rules.
+
+    The recommendation is a method decision, not a value that this provenance
+    helper may silently tune. By default it must equal the recommendation
+    already locked in the profile set. A changed recommendation therefore
+    stops for explicit scientific review rather than rewriting thresholds.
+    """
+    root = os.path.abspath(root)
+    artifact_path = os.path.abspath(artifact_path)
+    profile_path = os.path.abspath(profile_path)
+    try:
+        artifact_relative = os.path.relpath(
+            artifact_path, root).replace(os.sep, "/")
+        if artifact_relative == ".." or artifact_relative.startswith("../"):
+            raise ValueError
+    except ValueError as error:
+        raise RuntimeError(
+            "calibration artifact must live inside the repository root"
+        ) from error
+
+    artifact = _load_json_object(
+        artifact_path, "staging calibration artifact")
+    profile_set = _load_json_object(profile_path, "QC profile set")
+    if profile_set.get("schema_version") != PROFILE_SET_SCHEMA:
+        raise RuntimeError("QC profile set schema is not current")
+    method_config = profile_set.get("method_config")
+    prior = (
+        method_config.get("staging_calibration")
+        if isinstance(method_config, dict)
+        else None
+    )
+    if not isinstance(prior, dict):
+        raise RuntimeError(
+            "QC profile set lacks a staging-calibration contract")
+    for key in ("calibration_scope", "hup_transport_status"):
+        if not isinstance(prior.get(key), str) or not prior[key]:
+            raise RuntimeError(
+                f"locked staging-calibration context lacks {key}")
+    if prior.get("not_a_paper_requirement") is not True:
+        raise RuntimeError(
+            "staging calibration must remain labeled non-paper-derived")
+
+    for key, expected in (
+        ("analysis_version", ANALYSIS_VERSION),
+        ("cache_schema_version", CACHE_SCHEMA_VERSION),
+    ):
+        if artifact.get(key) != expected:
+            raise RuntimeError(f"calibration artifact differs at {key}")
+    required = {
+        "cache_manifest_sha256",
+        "cache_pipeline",
+        "cache_run_id",
+        "recommended_minimum_valid_windows",
+        "support_results",
+    }
+    missing = sorted(required - set(artifact))
+    if missing:
+        raise RuntimeError(
+            f"calibration artifact lacks required fields: {missing}")
+    recommendation = artifact["recommended_minimum_valid_windows"]
+    if (
+        isinstance(recommendation, bool)
+        or not isinstance(recommendation, int)
+        or recommendation not in SUPPORT_LEVELS
+    ):
+        raise RuntimeError(
+            "calibration artifact has no valid exact-support recommendation")
+    locked_recommendation = (
+        prior.get("recommended_minimum_valid_windows")
+        if expected_recommendation is None
+        else expected_recommendation
+    )
+    if recommendation != locked_recommendation:
+        raise RuntimeError(
+            "calibration recommendation changed from the locked method; "
+            "review and update the QC method explicitly before pinning")
+    exact_row = next(
+        (
+            row for row in artifact["support_results"]
+            if row.get("minimum_valid_windows") == recommendation
+        ),
+        None,
+    )
+    if (
+        not isinstance(exact_row, dict)
+        or not exact_row.get("exact_support", {}).get(
+            "meets_calibration_targets")
+    ):
+        raise RuntimeError(
+            "recommended exact-support stratum does not meet calibration targets")
+    cache_manifest_sha = artifact.get("cache_manifest_sha256")
+    if (
+        not isinstance(cache_manifest_sha, str)
+        or len(cache_manifest_sha) != 64
+        or any(character not in "0123456789abcdef"
+               for character in cache_manifest_sha)
+    ):
+        raise RuntimeError(
+            "calibration artifact has invalid cache_manifest_sha256")
+    if (
+        not isinstance(artifact.get("cache_run_id"), str)
+        or not artifact["cache_run_id"]
+    ):
+        raise RuntimeError("calibration artifact has invalid cache_run_id")
+    if not isinstance(artifact.get("cache_pipeline"), str):
+        raise RuntimeError("calibration artifact has invalid cache_pipeline")
+
+    pin = {
+        **prior,
+        "analysis_version": artifact["analysis_version"],
+        "artifact_relative_path": artifact_relative,
+        "artifact_sha256": file_sha256(artifact_path),
+        "cache_manifest_sha256": artifact["cache_manifest_sha256"],
+        "cache_pipeline": artifact["cache_pipeline"],
+        "cache_run_id": artifact["cache_run_id"],
+        "cache_schema_version": artifact["cache_schema_version"],
+        "recommended_minimum_valid_windows": recommendation,
+    }
+    method_config["staging_calibration"] = pin
+    atomic_json_dump(profile_set, profile_path)
+    return pin
 
 
 def calibration_source_files_sha256():
@@ -344,6 +487,19 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cache-dir", default=DEFAULT_CACHE)
     parser.add_argument("--output", default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--update-profile-pin",
+        action="store_true",
+        help=(
+            "after writing the artifact, atomically update only its provenance "
+            "pin in the locked QC profile file; a changed recommendation fails"
+        ),
+    )
+    parser.add_argument(
+        "--profile-file",
+        default=PROFILE_PATH,
+        help="QC profile set to update with --update-profile-pin",
+    )
     args = parser.parse_args()
     cache_dir = os.path.abspath(args.cache_dir)
     subjects, manifest = _manifest_subjects(cache_dir)
@@ -383,7 +539,18 @@ def main():
             "reuses real window-mask geometry on fully clean epochs; it does not model undetected artifacts",
         ],
     )
-    atomic_json_dump(result, os.path.abspath(args.output))
+    output_path = os.path.abspath(args.output)
+    atomic_json_dump(result, output_path)
+    if args.update_profile_pin:
+        pin = update_staging_calibration_pin(
+            output_path,
+            os.path.abspath(args.profile_file),
+        )
+        print(
+            f"updated calibration pin in {args.profile_file}: "
+            f"sha256={pin['artifact_sha256']}",
+            flush=True,
+        )
     print(
         f"wrote {args.output}: {len(records)} records; "
         f"exact-support minimum={exact_recommended}; "

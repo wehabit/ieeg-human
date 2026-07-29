@@ -17,10 +17,11 @@ from __future__ import annotations
 
 import numpy as np
 
-from event_3D_by_stage import (
+from event_3d_estimators import (
     EVENT_FS,
     channel_night_events,
-    same_stage_pair_mask,
+    circular_summary,
+    stage_event_pairs,
 )
 
 
@@ -31,6 +32,8 @@ NEUTRAL_3D_REQUIRED_FIELDS = (
     "event_3d_so_candidate_contact_index",
     "event_3d_so_candidate_sample",
     "event_3d_so_candidate_amplitude",
+    "event_3d_so_candidate_cycle_start_sample",
+    "event_3d_so_candidate_cycle_stop_sample_exclusive",
     "event_3d_sampling_hz",
 )
 
@@ -70,23 +73,6 @@ def _profile_thresholds(profile):
     }
 
 
-def _circular_summary(phases):
-    """Return a descriptive complex mean without an iid-event p value."""
-    phases = np.asarray(phases, float)
-    phases = phases[np.isfinite(phases)]
-    if not len(phases):
-        return None
-    vector = complex(np.mean(np.exp(1j * phases)))
-    return {
-        "n_paired_events": int(len(phases)),
-        "vector_real": float(vector.real),
-        "vector_imag": float(vector.imag),
-        "R": float(abs(vector)),
-        "preferred_phase_rad": float(np.angle(vector)),
-        "preferred_phase_deg": float(np.degrees(np.angle(vector))),
-    }
-
-
 def _validated_neutral_payload(cache, n_contacts):
     """Load and shape-check neutral fields, returning errors instead of guessing."""
     files = _cache_files(cache)
@@ -111,6 +97,10 @@ def _validated_neutral_payload(cache, n_contacts):
     candidate_sample = np.asarray(cache["event_3d_so_candidate_sample"])
     candidate_amplitude = np.asarray(
         cache["event_3d_so_candidate_amplitude"], float)
+    candidate_start = np.asarray(
+        cache["event_3d_so_candidate_cycle_start_sample"])
+    candidate_stop = np.asarray(
+        cache["event_3d_so_candidate_cycle_stop_sample_exclusive"])
     sampling_hz_values = np.asarray(
         cache["event_3d_sampling_hz"], float).reshape(-1)
 
@@ -123,13 +113,19 @@ def _validated_neutral_payload(cache, n_contacts):
         contact_index.ndim != 1
         or candidate_sample.ndim != 1
         or candidate_amplitude.ndim != 1
+        or candidate_start.ndim != 1
+        or candidate_stop.ndim != 1
         or not (
             len(contact_index)
             == len(candidate_sample)
             == len(candidate_amplitude)
+            == len(candidate_start)
+            == len(candidate_stop)
         )
     ):
-        errors.append("SO candidate arrays must be aligned one-dimensional vectors")
+        errors.append(
+            "SO candidate identity, amplitude, and cycle-bound arrays must "
+            "be aligned one-dimensional vectors")
     if len(sampling_hz_values) != 1 or not np.isclose(
             sampling_hz_values[0], EVENT_FS):
         errors.append(
@@ -138,6 +134,8 @@ def _validated_neutral_payload(cache, n_contacts):
     if not errors:
         contact_index_float = np.asarray(contact_index, float)
         candidate_sample_float = np.asarray(candidate_sample, float)
+        candidate_start_float = np.asarray(candidate_start, float)
+        candidate_stop_float = np.asarray(candidate_stop, float)
         if (
             not np.isfinite(contact_index_float).all()
             or not np.equal(
@@ -150,12 +148,23 @@ def _validated_neutral_payload(cache, n_contacts):
                 candidate_sample_float, np.floor(candidate_sample_float)).all()
         ):
             errors.append("SO candidate samples must be finite integers")
+        if (
+            not np.isfinite(candidate_start_float).all()
+            or not np.equal(
+                candidate_start_float, np.floor(candidate_start_float)).all()
+            or not np.isfinite(candidate_stop_float).all()
+            or not np.equal(
+                candidate_stop_float, np.floor(candidate_stop_float)).all()
+        ):
+            errors.append("SO candidate cycle bounds must be finite integers")
         if not np.isfinite(candidate_amplitude).all():
             errors.append("SO candidate amplitudes must be finite")
 
     if not errors:
         contact_index = contact_index.astype(int)
         candidate_sample = candidate_sample.astype(int)
+        candidate_start = candidate_start.astype(int)
+        candidate_stop = candidate_stop.astype(int)
         if (
             (contact_index < 0).any()
             or (contact_index >= n_contacts).any()
@@ -166,6 +175,16 @@ def _validated_neutral_payload(cache, n_contacts):
             or (candidate_sample >= rms.shape[1]).any()
         ):
             errors.append("SO candidate sample is out of bounds")
+        if (
+            (candidate_start < 0).any()
+            or (candidate_stop > rms.shape[1]).any()
+            or (candidate_stop <= candidate_start).any()
+            or (candidate_sample < candidate_start).any()
+            or (candidate_sample >= candidate_stop).any()
+        ):
+            errors.append(
+                "SO candidate cycle bounds are invalid or do not contain "
+                "the trough")
 
     if errors:
         return None, missing, errors
@@ -180,13 +199,15 @@ def _validated_neutral_payload(cache, n_contacts):
         "candidate_contact_index": contact_index,
         "candidate_sample": candidate_sample,
         "candidate_amplitude": candidate_amplitude,
+        "candidate_start": candidate_start,
+        "candidate_stop": candidate_stop,
         "sampling_hz": float(sampling_hz_values[0]),
     }
     return payload, missing, errors
 
 
 def _staging_contact_support(cache, payload, n_contacts, n_epochs):
-    """Reproduce the direct estimator's outcome-blind staging-candidate support."""
+    """Reconstruct outcome-blind staging-candidate support."""
     files = _cache_files(cache)
     required = {
         "ep_clean_fraction_by_contact",
@@ -252,13 +273,9 @@ def _stage_summary(
     qualifying_event_count = 0
     for contact_index, contact in enumerate(contacts):
         record = events[contact_index]
-        pair_mask = same_stage_pair_mask(
-            np.asarray(record["epochs"], int),
-            np.asarray(record["so_epochs"], int),
-            keep_epochs,
-        )
-        phases = np.asarray(record["phases"], float)[pair_mask]
-        circular = _circular_summary(phases)
+        stage_pairs = stage_event_pairs(record, keep_epochs)
+        phases = np.asarray(stage_pairs["phases"], float)
+        circular = circular_summary(phases)
         n_events = int(len(phases))
         meets_events = (
             n_events >= thresholds["minimum_events_per_contact"])
@@ -333,7 +350,7 @@ def analyse_3d_cache_support(cache, materialized, profile):
     in_scope = cohort == "HUP"
     staging_fit_converged = bool(
         materialized.get("staging_qc", {}).get(
-            "support_passes_fit_convergence", True))
+            "support_passes_fit_convergence", False))
     payload, missing, validation_errors = _validated_neutral_payload(
         cache, len(contacts))
     observed, clean_fraction, staging_errors = _staging_contact_support(
@@ -348,7 +365,7 @@ def analyse_3d_cache_support(cache, materialized, profile):
     reasons = []
     if not in_scope:
         reasons.append(
-            "the corrected 3D direct-stream endpoint is defined for HUP; "
+            "the specified 3D endpoint is defined for HUP; "
             "RESPect has no neutral 3D event cache")
     if not staging_fit_converged:
         reasons.append(
@@ -428,19 +445,24 @@ def analyse_3d_cache_support(cache, materialized, profile):
     candidate_contact = payload["candidate_contact_index"]
     candidate_sample = payload["candidate_sample"]
     candidate_amplitude = payload["candidate_amplitude"]
+    candidate_start = payload["candidate_start"]
+    candidate_stop = payload["candidate_stop"]
     events = []
     for contact_index in range(len(contacts)):
         contact_candidates = candidate_contact == contact_index
         candidates = np.column_stack((
             candidate_sample[contact_candidates],
             candidate_amplitude[contact_candidates],
+            candidate_start[contact_candidates],
+            candidate_stop[contact_candidates],
         ))
-        events.append(channel_night_events(
+        record = channel_night_events(
             payload["rms"][contact_index],
             payload["phase"][contact_index],
             candidates,
             labels,
-        ))
+        )
+        events.append(record)
 
     contact_availability_pass = (
         (observed >= thresholds[

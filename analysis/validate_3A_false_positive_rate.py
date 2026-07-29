@@ -18,7 +18,7 @@ raise SystemExit(
 import numpy as np
 from scipy import signal
 
-from cohort_stages_3ABD import msc_block, FS_P, POOLED_3A_CAP_MIN
+from staging_helpers import msc_block, FS_P, POOLED_3A_CAP_MIN
 
 rng = np.random.RandomState(0)
 N_SIM = 2000

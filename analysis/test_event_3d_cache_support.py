@@ -18,7 +18,7 @@ from event_3d_cache_support import (
     NEUTRAL_3D_REQUIRED_FIELDS,
     analyse_3d_cache_support,
 )
-from event_3D_by_stage import (
+from event_3d_estimators import (
     EVENT_FS,
     IED_PAD_S,
     SO_BAND,
@@ -108,7 +108,7 @@ materialized_respect = {
 respect_result = analyse_3d_cache_support(
     current_power_cache, materialized_respect, profile)
 check(
-    "RESPect is labeled outside the specified direct-stream 3D cohort",
+    "RESPect is labeled outside the specified HUP 3D cohort",
     respect_result["status"] == "not_in_scope"
     and respect_result["cohort_in_scope"] is False,
 )
@@ -122,7 +122,7 @@ helper_t = np.arange(int(6 * helper_fs)) / helper_fs
 helper_so = np.cos(2 * np.pi * helper_t)
 helper_candidates = event_3d_so_candidates(helper_so, helper_fs)
 check(
-    "neutral cache constants match the direct-stream 3D estimator",
+    "neutral cache constants match the shared 3D estimator",
     EVENT_3D_SAMPLING_HZ == EVENT_FS
     and EVENT_3D_SO_BAND == SO_BAND
     and EVENT_3D_SPINDLE_BAND == SPINDLE_BAND
@@ -136,7 +136,7 @@ check(
         np.diff(helper_candidates[:, 0]) / helper_fs, 1.0, atol=0.02),
 )
 check(
-    "cache SO candidate producer matches the direct-stream 3D detector",
+    "cache SO candidate producer matches the shared 3D detector",
     np.array_equal(
         helper_candidates,
         so_event_candidates(helper_so, helper_fs),
@@ -149,7 +149,7 @@ check(
 )
 helper_spindle = np.sin(2 * np.pi * 13 * helper_t)
 check(
-    "cache spindle RMS producer matches the direct-stream 3D detector",
+    "cache spindle RMS producer matches the shared 3D detector",
     np.array_equal(
         event_3d_spindle_rms(helper_spindle, helper_fs),
         spindle_rms(helper_spindle, helper_fs),
@@ -186,6 +186,10 @@ synthetic_cache = {
         candidate_samples, n_contacts),
     "event_3d_so_candidate_amplitude": np.tile(
         candidate_amplitudes, n_contacts),
+    "event_3d_so_candidate_cycle_start_sample": np.tile(
+        candidate_samples - 10, n_contacts),
+    "event_3d_so_candidate_cycle_stop_sample_exclusive": np.tile(
+        candidate_samples + 10, n_contacts),
     "event_3d_sampling_hz": EVENT_3D_SAMPLING_HZ,
     "ep_clean_fraction_by_contact": np.ones((n_contacts, 6)),
     "ep_measured_fraction_by_contact": np.ones((n_contacts, 6)),
@@ -194,6 +198,7 @@ synthetic_materialized = {
     "cohort": "HUP",
     "contacts": np.asarray(["A1", "A2", "A3"]),
     "stage_lab": np.asarray(["N2", "N2", "N2", "N3", "N3", "N3"]),
+    "staging_qc": {"support_passes_fit_convergence": True},
 }
 synthetic_profile = copy.deepcopy(profile)
 synthetic_profile["endpoint_3d"].update({
@@ -254,6 +259,31 @@ check(
     malformed_result["status"] == "not_reconstructable"
     and malformed_result["support_passes_profile"] is None
     and malformed_result["neutral_event_cache_schema"]["validation_errors"],
+)
+
+missing_bounds_cache = dict(synthetic_cache)
+missing_bounds_cache.pop("event_3d_so_candidate_cycle_start_sample")
+missing_bounds_result = analyse_3d_cache_support(
+    missing_bounds_cache, synthetic_materialized, synthetic_profile)
+check(
+    "production 3D reconstruction fails closed without complete SO-cycle bounds",
+    missing_bounds_result["status"] == "not_reconstructable"
+    and "event_3d_so_candidate_cycle_start_sample"
+    in missing_bounds_result["neutral_event_cache_schema"]["missing_fields"],
+)
+
+missing_convergence_materialized = dict(synthetic_materialized)
+missing_convergence_materialized.pop("staging_qc")
+missing_convergence_result = analyse_3d_cache_support(
+    synthetic_cache, missing_convergence_materialized, synthetic_profile)
+check(
+    "missing staging convergence metadata fails closed",
+    missing_convergence_result["status"] == "not_reconstructable"
+    and missing_convergence_result["staging_fit_converged"] is False
+    and any(
+        "did not converge" in reason
+        for reason in missing_convergence_result["support_reasons"]
+    ),
 )
 
 fraction_cache = dict(synthetic_cache)

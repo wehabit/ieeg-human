@@ -573,6 +573,8 @@ with tempfile.TemporaryDirectory(prefix=".run-integrity-", dir=ROOT) as tmp:
             config={},
             run_id="duplicate-run",
             run_state="complete",
+            result_files_sha256=artifact_hashes(
+                directory, ["synthetic-subject"], ".json"),
         )
     duplicate_3ab = subprocess.run(
         [

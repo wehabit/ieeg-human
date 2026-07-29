@@ -19,5 +19,9 @@ data/
 *.log
 outputs/*.log
 
+# Full sensitivity grids are deterministic local build products.  Commit only
+# the compact evidence under outputs/qc_grid_public/.
+outputs/qc_grid/
+
 # ds003848 downloaded BrainVision (large, redistributable via OpenNeuro)
 data/ds003848_raw/

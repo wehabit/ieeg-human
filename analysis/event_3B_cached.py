@@ -1,4 +1,4 @@
-"""3B (Naji 2019 SO -> heart-rate coupling) across the WHOLE cohort, from the cached series.
+"""Reusable 3B estimators for Naji-aligned SO/heart-rate diagnostics.
 
 Two problems with the previous 3B are fixed here:
 
@@ -17,29 +17,48 @@ tachogram, one RR curve per channel over +/-5 s, and RR-minimum timing. HR conve
 to report percent change. ECG detection is NeuroKit's default, not Naji's Pan-Tompkins plus visual
 confirmation. This remains an adapted physiological comparison, not an LC assay.
 
-    .venv/bin/python analysis/event_3B_cached.py [--force]
+The standalone writer is withdrawn. Current endpoint execution and artifact
+materialization go through ``run_qc_grid.py``.
 """
-import argparse, json, os
+import hashlib
 import numpy as np
 
-from event_3B_mednick import subject_so_triggered, rr_baseline_hr, FS_RR
-from lecci_faithful_3A import (load, CACHE, stages_for, set_cache, cache_lineage,
-                               cache_lineage_entry, CacheSubjectSkipped, ANALYSIS_VERSION)
-from cohort_stages_3ABD import stage_epochs, EPOCH
-from cohort_3A_cortical import COHORT
+from event_3b_estimators import subject_so_triggered, rr_baseline_hr, FS_RR
+from lecci_faithful_3A import (
+    ANALYSIS_VERSION,
+    CacheSubjectSkipped,
+    cache_lineage,
+    load,
+    stages_for,
+)
+from staging_helpers import EPOCH
 from spectral_gapped import contiguous_runs
-from pipeline_version import (CACHE_SCHEMA_VERSION, atomic_json_dump, cache_code_sha256,
-                              file_sha256, finite_float_or_none, npz_scalar_text,
-                              source_tree_sha256, start_run_manifest,
-                              validated_complete_run_exists, write_run_manifest)
-
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "outputs", "event_3B_cached")
+from pipeline_version import (
+    CACHE_SCHEMA_VERSION,
+    finite_float_or_none,
+    npz_scalar_text,
+)
 
 NAJI = {"N2": 12.09, "N3": 3.35}          # % above stage mean HR, frontal scalp, healthy sleepers
 MIN_EVENT_CHANNELS = 2
 MIN_STABLE_STAGE_EPOCHS = 6                # Naji: uninterrupted 3-min bins at 30 s/epoch
 CONTACT_QC_METHOD = "cache stable >=80%-coverage plus optional Destrieux frontal ROI intersection"
+
+
+def stage_diagnostic_rng(subject, stage):
+    """Return a stable RNG isolated to one participant/stage diagnostic.
+
+    This prevents an unavailable or newly added earlier stage from changing
+    the later stage's circular-shift diagnostic merely by consuming a shared
+    pseudo-random stream.
+    """
+    key = (
+        f"event_3B_cached|{subject}|{stage}|"
+        "stage_shift_diagnostic|v1"
+    )
+    digest = hashlib.sha256(key.encode("utf-8")).digest()
+    seed = int.from_bytes(digest[:4], byteorder="little", signed=False)
+    return np.random.RandomState(seed)
 
 
 def stable_stage_epoch_indices(labels, stage, minimum_epochs=MIN_STABLE_STAGE_EPOCHS):
@@ -145,7 +164,6 @@ def analyse(subject):
                gmm_separation=finite_float_or_none(sep),
                whole_night_hr_from_mean_rr=finite_float_or_none(rr_baseline_hr(rr)),
                whole_night_arithmetic_mean_hr=finite_float_or_none(np.nanmean(hr)))
-    rng = np.random.RandomState(0)
     endpoint_reasons = {}
     for stage in ("N2", "N3"):
         eps = stable_epochs[stage]
@@ -183,7 +201,8 @@ def analyse(subject):
                 f"SOs (<{MIN_EVENT_CHANNELS})")
             continue
         result = subject_so_triggered(
-            rr, troughs_by_channel, stage_mean, pool, n_sur=1000, rng=rng, domain="rr",
+            rr, troughs_by_channel, stage_mean, pool, n_sur=1000,
+            rng=stage_diagnostic_rng(subject, stage), domain="rr",
             minimum_channels=MIN_EVENT_CHANNELS, channel_ids=event_contact_ids)
         if result is None:
             rec[stage] = None
@@ -216,88 +235,10 @@ def analyse(subject):
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--subjects", default=",".join(map(str, COHORT)))
-    ap.add_argument(
-        "--force", action="store_true",
-        help="replace results that are not an exact reusable completed run")
-    a = ap.parse_args()
-    os.makedirs(OUT, exist_ok=True)
-    requested_n = [int(x) for x in a.subjects.split(",") if x.strip()]
-    requested = [f"HUP{n}_phaseII" for n in requested_n]
-    config = dict(analysis_version=ANALYSIS_VERSION,
-                  cache_schema_version=CACHE_SCHEMA_VERSION,
-                  cache_code_sha256=cache_code_sha256(ROOT),
-                  tachogram_domain="rr",
-                  n_surrogates=1000,
-                  null_method="shared circular shift in eligible stage-time",
-                  contact_qc=CONTACT_QC_METHOD,
-                  minimum_event_channels=MIN_EVENT_CHANNELS,
-                  stable_stage_minimum_s=int(MIN_STABLE_STAGE_EPOCHS * EPOCH))
-    if not a.force and any(
-            os.path.exists(os.path.join(OUT, f"{subject}.json"))
-            for subject in requested):
-        expected_cache_inputs = {
-            subject: cache_lineage_entry(cache_lineage(subject))
-            for subject in requested
-        }
-        reusable_config = {**config, "cache_inputs": expected_cache_inputs}
-        if validated_complete_run_exists(
-                OUT, pipeline="event_3B_cached", requested=requested,
-                config=reusable_config, suffix=".json",
-                require_current_source_tree=True):
-            print(
-                f"validated existing complete 3B run ({len(requested)} subjects)",
-                flush=True)
-            return
-    run_id = start_run_manifest(
-        OUT, pipeline="event_3B_cached", requested=requested, config=config)
-    tree_digest = source_tree_sha256(ROOT)
-    completed, skipped, failed = [], [], []
-    cache_inputs = {}
-    for n in requested_n:
-        name = f"HUP{n}_phaseII"
-        try:
-            r = analyse(name)
-        except Exception as e:
-            print(f"[{name}] ERROR {type(e).__name__}: {e}", flush=True)
-            failed.append(dict(subject=name, error=f"{type(e).__name__}: {e}"))
-            continue
-        if r is None:
-            print(f"[{name}] no cache", flush=True)
-            failed.append(dict(subject=name, error="no cache"))
-            continue
-        r["run_id"] = run_id
-        r["source_tree_sha256"] = tree_digest
-        atomic_json_dump(r, os.path.join(OUT, f"{name}.json"))
-        cache_inputs[name] = cache_lineage_entry(r)
-        if r.get("status") != "ok":
-            reason = r.get("reason") or f"status={r.get('status')}"
-            print(f"[{name}] {reason}", flush=True)
-            skipped.append(dict(subject=name, reason=reason))
-            continue
-        completed.append(name)
-        parts = []
-        for st in ("N2", "N3"):
-            v = r.get(st)
-            parts.append(f"{st} n/a" if not v else
-                         f"{st} raw {v['pct_above_stage_mean']:+.2f}% "
-                         f"local Δ {v['event_locked_local_change_pct']:+.2f}% "
-                         f"(inference disabled) lag={v['peak_lag_s']:.1f}s "
-                         f"nSO={v['n_so_total']}")
-        print(f"[{name}] " + " | ".join(parts), flush=True)
-    write_run_manifest(
-        OUT, pipeline="event_3B_cached",
-        requested=requested, completed=completed,
-        skipped=skipped, failed=failed,
-        config={**config, "cache_inputs": cache_inputs}, run_id=run_id,
-        result_files_sha256={
-            subject: file_sha256(os.path.join(OUT, f"{subject}.json"))
-            for subject in completed + [value["subject"] for value in skipped]
-        })
-    print(f"\n{len(completed)} subjects -> {OUT}", flush=True)
-    if failed:
-        raise SystemExit(1)
+    raise SystemExit(
+        "WITHDRAWN standalone 3B writer: run "
+        "analysis/run_qc_grid.py to execute the profile-materialized "
+        "3B endpoint")
 
 
 if __name__ == "__main__":

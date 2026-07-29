@@ -134,5 +134,18 @@ undefined = coherence_gapped(
 check("constant input is rejected instead of reported as zero coherence",
       undefined is None)
 
+print("\n[6] filled_frac must count only support that survives per-run filtering")
+main = np.sin(2 * np.pi * 0.02 * np.arange(1000))
+short = np.asarray([1.0, 2.0, np.nan, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
+support_test = np.r_[main, np.full(100, np.nan), short]
+support_result = coherence_gapped(
+    support_test, support_test, fs=FS, nperseg=NPER, highpass=0.005)
+check(
+    "interpolation in a too-short rejected run does not inflate filled support",
+    support_result is not None
+    and support_result["filled_frac"] == 0.0,
+    f"filled={None if support_result is None else support_result['filled_frac']}",
+)
+
 print("\n" + ("ALL CHECKS PASSED" if not fails else f"{len(fails)} FAILURE(S): {fails}"))
 raise SystemExit(1 if fails else 0)

@@ -1,5 +1,13 @@
 # Simultaneous scalp EEG–iEEG comparison — July 2026
 
+> **Historical v8 result; v9 rebuild pending.** The numerical values below are
+> the exact hash-pinned v8 paired analysis. V9 corrects portal sample-count
+> validation and SO/event boundaries and removes the legacy activity adapter.
+> Do not relabel these values as v9 or publication-current. Regenerate the HUP
+> caches, QC grids/public snapshot, scalp sidecars, inventory, and paired
+> outputs in the order documented in
+> [ARTIFACT_POLICY.md](ARTIFACT_POLICY.md).
+
 ## Bottom line
 
 The corrected comparison contains the exact eight-person intersection supported by the frozen
@@ -298,13 +306,16 @@ power ratios ([Petroff et al. 2016](https://pubmed.ncbi.nlm.nih.gov/26386645/)).
 The scientifically interpretable comparison is therefore normalized temporal structure,
 coherence, and event timing—not raw recorded-unit amplitude.
 
-## Remaining limitation after the code fixes
+## Why a v9 rebuild is required
 
-The paired analysis intentionally preserves the exact frozen v8 iEEG results for lineage. Those
-legacy caches did not store raw-voltage flat-line extrema, so retrospective raw iEEG activity QC
-cannot be reconstructed. The current cache builder now excludes conventional scalp labels and
-numerically flat raw channels, but a full all-HUP cache/QC-grid rebuild is still required to know
-whether that changes cohort-wide 3A/3B results.
+The saved paired analysis preserves the exact frozen v8 iEEG results for
+lineage. Those caches did not store the v9 exact acquisition-count and complete
+event-boundary fields. Their raw-voltage flat-line extrema also cannot be
+reconstructed retrospectively. The v9 paired path no longer patches a legacy
+activity mask in memory: it requires the current cache’s stored activity QC and
+fails closed otherwise. A full all-HUP cache/QC-grid/sidecar rebuild is
+therefore required to learn whether the corrected inputs change 3A/3B/3D
+results.
 
 This matters especially for HUP138: the old frozen staging has no valid sleep endpoint, while the
 source pin previously admitted F8 as an intracranial candidate. The selector is fixed, but the

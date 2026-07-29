@@ -1,6 +1,6 @@
 """Create novice-friendly, data-grounded examples for questions 3A, 3B, and 3D.
 
-These figures are recomputed from the final v8 neutral caches under the locked
+These figures are recomputed from the current neutral caches under the locked
 ``overlap11_endpoint_local`` profile.  They are not synthetic illustrations and
 they are not new inferential analyses.
 
@@ -39,14 +39,14 @@ sys.path.insert(0, str(ANALYSIS))
 import lecci_faithful_3A as lecci  # noqa: E402
 import run_qc_grid as grid  # noqa: E402
 from event_3B_cached import stable_stage_epoch_indices, stage_so_times  # noqa: E402
-from event_3B_mednick import (  # noqa: E402
+from event_3b_estimators import (  # noqa: E402
     FS_RR,
     rr_baseline_hr,
     subject_so_triggered,
 )
-from event_3D_by_stage import (  # noqa: E402
+from event_3d_estimators import (  # noqa: E402
     channel_night_events,
-    same_stage_pair_mask,
+    stage_event_pairs,
 )
 from event_3d_cache_support import (  # noqa: E402
     _validated_neutral_payload,
@@ -64,6 +64,13 @@ from spectral_gapped import (  # noqa: E402
 
 OUT = ROOT / "outputs" / "participant_result_visuals"
 PROFILE_ID = "overlap11_endpoint_local"
+LOCKED_QC_ARTIFACT = (
+    ROOT
+    / "outputs"
+    / "qc_grid_public"
+    / "locked"
+    / "overlap11_endpoint_local__hup.json"
+)
 
 INK = "#172033"
 MUTED = "#687085"
@@ -701,14 +708,7 @@ def _compute_3b_stage(cache, mat: dict, profile: dict, stage_name: str) -> dict:
 def make_3b(profile: dict) -> dict:
     subject = "HUP160_phaseII"
     cache_path = ROOT / "data" / "derived" / "lc_infraslow" / f"{subject}.npz"
-    artifact_path = (
-        ROOT
-        / "outputs"
-        / "qc_grid"
-        / "staging_window_support_v1"
-        / "hup_qc_grid.json"
-    )
-    final = _final_subject(artifact_path, subject)["result_3b"]
+    final = _final_subject(LOCKED_QC_ARTIFACT, subject)["result_3b"]
     with np.load(cache_path, allow_pickle=False) as cache:
         mat = materialize(cache, profile)
         recomputed_summary = grid.analyse_3b(cache, mat, profile)
@@ -1215,14 +1215,7 @@ def make_3b_respect_naji_check(profile: dict) -> dict:
 def make_3d(profile: dict) -> dict:
     subject = "HUP172_phaseII"
     cache_path = ROOT / "data" / "derived" / "lc_infraslow" / f"{subject}.npz"
-    artifact_path = (
-        ROOT
-        / "outputs"
-        / "qc_grid"
-        / "staging_window_support_v1"
-        / "hup_qc_grid.json"
-    )
-    final = _final_subject(artifact_path, subject)["result_3d"]
+    final = _final_subject(LOCKED_QC_ARTIFACT, subject)["result_3d"]
     with np.load(cache_path, allow_pickle=False) as cache:
         mat = materialize(cache, profile)
         reconstructed = analyse_3d_cache_support(cache, mat, profile)
@@ -1238,6 +1231,8 @@ def make_3d(profile: dict) -> dict:
                 (
                     payload["candidate_sample"][keep],
                     payload["candidate_amplitude"][keep],
+                    payload["candidate_start"][keep],
+                    payload["candidate_stop"][keep],
                 )
             )
             events.append(
@@ -1274,28 +1269,24 @@ def make_3d(profile: dict) -> dict:
     for contact_index, (contact, event, record) in enumerate(
         zip(contacts, events, contact_records)
     ):
-        pair_mask = same_stage_pair_mask(
-            np.asarray(event["epochs"], int),
-            np.asarray(event["so_epochs"], int),
-            pooled_epochs,
-        )
-        phases = np.asarray(event["phases"], float)[pair_mask]
+        phases = np.asarray(
+            stage_event_pairs(event, pooled_epochs)["phases"], float)
         if record["qualifies_for_stage_vector"]:
             phases_by_contact[contact] = phases
             if len(phases) != record["n_paired_events"]:
                 raise RuntimeError(f"3D phase count mismatch for {contact}")
 
     qualified = list(phases_by_contact)
-    if qualified != ["LD12", "LJ12", "LM11"]:
-        raise RuntimeError(f"unexpected HUP172 qualified contacts: {qualified}")
-    if sum(map(len, phases_by_contact.values())) != 2421:
-        raise RuntimeError("unexpected HUP172 paired-event total")
+    paired_event_count = sum(map(len, phases_by_contact.values()))
+    if paired_event_count != observed[
+        "n_paired_events_across_qualified_contacts"
+    ]:
+        raise RuntimeError("3D plotted phase count differs from final artifact")
 
     colors = [SIGMA, SO, PURPLE, HR, GREEN, "#496f9b"]
     selected_colors = {
-        "LD12": SIGMA,
-        "LJ12": SO,
-        "LM11": PURPLE,
+        contact: colors[index % len(colors)]
+        for index, contact in enumerate(qualified)
     }
     fractions = [record["valid_pooled_nrem_fraction"] for record in contact_records]
     event_counts = [record["n_paired_events"] for record in contact_records]
@@ -1325,7 +1316,8 @@ def make_3d(profile: dict) -> dict:
     fig.text(
         0.05,
         0.925,
-        "HUP172 · 3 of 6 contacts qualify · 2,421 paired events · descriptive only",
+        f"HUP172 · {len(qualified)} of {len(contacts)} contacts qualify · "
+        f"{paired_event_count:,} paired events · descriptive only",
         ha="left",
         fontsize=10.5,
         color=MUTED,
@@ -1462,7 +1454,8 @@ def make_3d(profile: dict) -> dict:
     fig.text(
         0.05,
         0.035,
-        "Visual verdict: HUP172 has enough descriptive support and a modest participant vector (R=0.192). "
+        "Visual verdict: HUP172 has enough descriptive support and a "
+        f"participant vector with R={observed['participant_R']:.3f}. "
         "Inference remains disabled because nearest-event pairing can create apparent phase structure under independence.",
         color=INK,
         fontsize=10,
@@ -1497,7 +1490,7 @@ def main() -> None:
             "3D": make_3d(profile),
         },
         "interpretation_contract": {
-            "figures_are_recomputed_from_final_v8_neutral_caches": True,
+            "figures_are_recomputed_from_current_neutral_caches": True,
             "figures_are_synthetic": False,
             "availability_pass_is_not_hypothesis_support": True,
             "3b_inference_enabled": False,

@@ -11,7 +11,7 @@ a large positive z for one stage and a large negative z for the other.
 """
 import numpy as np
 
-from event_3B_mednick import subject_so_triggered, FS_RR, HALF_WIN
+from event_3b_estimators import subject_so_triggered, FS_RR, HALF_WIN
 
 rng = np.random.RandomState(0)
 EPOCH = 30.0

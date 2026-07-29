@@ -12,7 +12,7 @@ from cache_lc_series import (
     aggregate_staging_features,
     power_from_binned_support,
 )
-from cohort_stages_3ABD import stage_epochs
+from staging_helpers import stage_epochs
 from overlap_aggregate import (
     overlap_connected_aggregate,
     overlap_connected_staging,

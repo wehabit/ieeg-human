@@ -2,15 +2,19 @@
 
 ## Status
 
-Legacy numerical cohort results are historical artifacts. Current readers require
-`analysis_version = 2026-07-qc-sensitivity-v8` and
-`cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v8`.
+Legacy numerical cohort results and the frozen v8 endpoint-local results are
+historical artifacts. Current readers require
+`analysis_version = 2026-07-qc-sensitivity-v9` and
+`cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v9`.
 The former v7 fixed-80 result is retained only as historical `audit80`. Under the outcome-blind
 endpoint-local base, RESPect has 3/3/3 available 3A records and 0/1/2 available 3B N2/N3/pooled
 records; HUP has 19/14/15 available 3A records, 6/5/15 available 3B records, and 7 descriptive 3D
 records among 24 completed caches plus one explicit skip. Availability is not hypothesis support;
 RESPect remains below the default cohort minimum and all 3B/3D inference remains disabled. See
 [QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md).
+These are frozen v8 counts, not regenerated v9 results. The exact rebuild state
+and order are documented in [ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md)
+and [ARTIFACT_POLICY.md](ARTIFACT_POLICY.md).
 
 In this document, **FIXED** means that the corresponding implementation change is present in the
 working tree; the issue register gives its executable regression where available and otherwise a
@@ -156,6 +160,26 @@ and is not an LC measurement.
 - Scores HUP sparse night probes concurrently with four independent sessions while preserving
   deterministic probe-time result order. Records probe failures and fails closed when more than
   20% of probes fail.
+- Includes the shared portal helper in the cache-producer digest and requires
+  exact requested/returned sample and channel geometry for every probe and
+  analysis pull.
+- Requires retry records to cover the complete requested interval, archives the
+  prior failed manifest by verified SHA-256, and publishes recovery provenance
+  atomically.
+- Freezes the HUP base-manifest/cache identities across paired-scalp runs and
+  writes `in_progress` before a forced rebuild touches result files.
+- Uses one reusable 3B estimator and pure 3D estimator module. Standalone
+  endpoint writers are withdrawn; `run_qc_grid.py` is the sole
+  profile-materialized scientific runner for both cohorts.
+- Uses conservative floor/ceil conversion for complete 3D event extents,
+  accepts a valid terminal half-open 3B window, and gives each
+  participant/stage endpoint an independent deterministic RNG.
+- Caps exact sign-flip enumeration at 15 pairs and reports the deterministic
+  20,000-draw method/seed beyond that point.
+- Validates compact public profiles and paired artifacts semantically, including
+  exact regeneration of both checked-in CSVs from the authoritative subject
+  JSON. A calibration recomputation updates only its provenance pin and refuses
+  to auto-accept a changed recommendation.
 - Pins the direct scientific dependencies and iEEG client revision; adds CI synthetic tests.
 - Redacts the portal account identifier/history from setup documentation.
 
@@ -166,16 +190,25 @@ python -m venv .venv
 .venv/bin/python -m pip install -r env/requirements.txt
 
 .venv/bin/python analysis/cache_lc_series.py --force
-.venv/bin/python analysis/lecci_faithful_3A.py --force
-.venv/bin/python analysis/event_3B_cached.py --force
-.venv/bin/python analysis/event_3D_by_stage.py --force
-
 .venv/bin/python analysis/stage_ds003848.py --force
-.venv/bin/python analysis/run_ds003848_replication.py --force
+.venv/bin/python analysis/calibrate_staging_windows.py \
+  --update-profile-pin
+
+for grid in coverage_oat_v1 staging_window_support_v1 \
+            auxiliary_window_support_v1 event_count_oat_v1; do
+  .venv/bin/python analysis/run_qc_grid.py \
+    --cache-dir data/derived/lc_infraslow --grid "$grid"
+  .venv/bin/python analysis/run_qc_grid.py \
+    --cache-dir data/derived/ds003848 --grid "$grid"
+done
+
+.venv/bin/python analysis/compact_qc_grid_artifacts.py
 ```
 
-Then run all synthetic checks and
-`analysis/test_coherence_calibration.py --require-real-cache`.
+The former standalone 3A, 3B, 3D, and RESPect-replication writers are
+withdrawn because they created divergent artifact contracts. Then run all
+synthetic checks and `analysis/test_coherence_calibration.py
+--require-real-cache`.
 
 ## Human/raw-data blockers
 

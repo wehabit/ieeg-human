@@ -18,8 +18,9 @@ import os
 import numpy as np
 
 import lecci_faithful_3A as lecci
+from cache_lc_series import FILTER_EDGE_S
 from event_3B_cached import stable_stage_epoch_indices, stage_so_times
-from event_3B_mednick import subject_so_triggered, rr_baseline_hr, FS_RR
+from event_3b_estimators import subject_so_triggered, rr_baseline_hr, FS_RR
 from event_3d_cache_support import analyse_3d_cache_support
 from materialize_qc_cache import materialize
 from pipeline_version import (
@@ -32,6 +33,9 @@ from pipeline_version import (
     runtime_versions,
     source_tree_sha256,
     utc_now,
+    validate_completed_cache_failures,
+    validate_full_interval_acquisition,
+    validate_local_chunk_acquisition,
 )
 from qc_profiles import (
     expand_qc_grid,
@@ -39,6 +43,7 @@ from qc_profiles import (
     validated_staging_calibration,
 )
 from spectral_gapped import coherence_gapped, analytic_msc_threshold
+from staging_helpers import CHUNK_S
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -55,6 +60,24 @@ def _cache_key(*values):
     """Deterministic in-process memoization key for profile subsections."""
     return json.dumps(
         values, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+
+def _staging_fit_converged(materialized):
+    """Read the materialized staging-fit gate, failing closed if absent."""
+    return bool(
+        materialized.get("staging_qc", {}).get(
+            "support_passes_fit_convergence", False))
+
+
+def _stage_material_state_key(materialized):
+    """Identity of stage state consumed by memoized 3B/3D endpoints."""
+    labels_digest = hashlib.sha256(
+        np.asarray(materialized["stage_lab"], dtype="<U5").tobytes()
+    ).hexdigest()
+    return _cache_key(
+        labels_digest,
+        _staging_fit_converged(materialized),
+    )
 
 
 def _jsonable(value):
@@ -112,6 +135,7 @@ def materialization_diagnostics(materialized):
         minimum_valid_welch_windows=int(
             materialized["qc_profile"]["staging"][
                 "minimum_valid_welch_windows"]),
+        staging_fit_converged=_staging_fit_converged(materialized),
     )
 
 
@@ -123,7 +147,7 @@ def analyse_3a(materialized, profile):
     nrem, analysis_window = lecci.core_study_nrem_mask(lab)
     power_qc = materialized["parietal_power_qc"]["sigma"]
     power_fit_converged = bool(
-        power_qc.get("support_passes_fit_convergence", True))
+        power_qc.get("support_passes_fit_convergence", False))
     n_contacts = _selected_count(power_qc)
     aggregate_coverage = float(np.isfinite(sig).mean())
     min_nrem = int(profile["endpoint_3a"]["minimum_nrem_epochs"])
@@ -302,8 +326,7 @@ def analyse_3b(cache, materialized, profile):
         hr_meets_profile=bool(materialized["hr_meets_profile"]),
         n_finite_rr_samples=int(np.isfinite(rr).sum()),
         staging_fit_converged=bool(
-            materialized.get("staging_qc", {}).get(
-                "support_passes_fit_convergence", True)),
+            _staging_fit_converged(materialized)),
         stages={},
     )
     stages = ("N2", "N3", "NREM")
@@ -479,6 +502,24 @@ def _cache_manifest(cache_dir):
                 raise RuntimeError(f"{cache_path} has a stale cache schema")
             if npz_scalar_text(cache, "cache_code_sha256") != current_digest:
                 raise RuntimeError(f"{cache_path} has a stale cache builder digest")
+            if subject in completed:
+                validate_completed_cache_failures(
+                    cache, source=cache_path, require_ecg=True)
+                if manifest["pipeline"] == "cache_lc_series":
+                    validate_full_interval_acquisition(
+                        cache,
+                        source=cache_path,
+                        core_purpose="analysis_core",
+                        subrequest_purpose="analysis_subrequest",
+                        core_chunk_s=CHUNK_S,
+                        filter_edge_s=FILTER_EDGE_S,
+                    )
+                elif manifest["pipeline"] == "stage_ds003848":
+                    validate_local_chunk_acquisition(
+                        cache,
+                        source=cache_path,
+                        filter_edge_s=FILTER_EDGE_S,
+                    )
         verified_hashes[subject] = actual_hash
     return manifest, path, verified_hashes
 
@@ -535,12 +576,9 @@ def run_grid(cache_dir, grid_id):
                     result_3a_cache[key_3a] = analyse_3a(
                         materialized, profile)
 
-                stage_key = hashlib.sha256(
-                    np.asarray(
-                        materialized["stage_lab"], dtype="<U5"
-                    ).tobytes()
-                ).hexdigest()
+                stage_key = _stage_material_state_key(materialized)
                 key_3b = _cache_key(
+                    materialized_key,
                     stage_key,
                     bool(materialized["hr_meets_profile"]),
                     profile["endpoint_3b"],
@@ -548,7 +586,8 @@ def run_grid(cache_dir, grid_id):
                 if key_3b not in result_3b_cache:
                     result_3b_cache[key_3b] = analyse_3b(
                         cache, materialized, profile)
-                key_3d = _cache_key(stage_key, profile["endpoint_3d"])
+                key_3d = _cache_key(
+                    materialized_key, stage_key, profile["endpoint_3d"])
                 if key_3d not in result_3d_cache:
                     result_3d_cache[key_3d] = analyse_3d_cache_support(
                         cache, materialized, profile)

@@ -1,12 +1,13 @@
-# ds003848 RESPect v8 sensitivity — below cohort size, not all unavailable
+# ds003848 RESPect — historical v8 sensitivity; v9 rebuild pending
 
-> **CURRENT V8 RESULT:** the complete six-subject neutral cache and sensitivity grids pass exact
+> **HISTORICAL V8 RESULT:** the complete six-subject neutral cache and sensitivity grids passed exact
 > cache-code, input-identity, calibration, profile, result-file, and runtime checks. The
 > endpoint-local sensitivity recovers individual 3A and 3B estimates, but no endpoint reaches the
 > default cohort minimum of five. This is limited availability, not positive or negative evidence
-> for an LC proxy.
+> for an LC proxy. V9 changes the cache contract and event boundaries; these
+> numbers are not regenerated v9 results.
 
-## Current v8 result
+## Historical v8 result
 
 - Cache: 6 completed, 0 skipped, 0 failed. Each subject uses seven files pinned to OpenNeuro
   snapshot 1.0.3 by S3 version ID, byte size, and SHA-256.
@@ -35,7 +36,7 @@ The audit found three additional reasons the old values cannot be interpreted:
   contacts into endpoints; and
 - 3B did not enforce Naji's uninterrupted 3-minute stable-stage rule.
 
-V8 makes author annotations primary, leaves author-unknown sleep unclassified,
+Frozen v8 made author annotations primary, left author-unknown sleep unclassified,
 excludes annotated disturbances, filters documented pathological/non-cortical contacts, and
 intersects motivated parietal/frontal Destrieux ROIs. These corrections can sharply reduce the
 number of estimable participants. They do not provide expert AASM/R&K N2/N3 scoring, validate the
@@ -58,9 +59,9 @@ to consume the dataset's author annotations.
 
 Six patients, ~1 h continuous `task-[Ss]leep` @ 2048 Hz, 50 Hz line; **3 ECoG grid + 3 SEEG depth**.
 Every subject verified (from raw `channels.tsv`) to carry iEEG, ECG, EMG, EOG and (bad) respiration
-belts. Pipeline: `analysis/stage_ds003848.py` (MNE BrainVision reader → derived series identical to
-the HUP cache → EMG/EOG staging) then the **same** corrected code
-(`lecci_faithful_3A.py`, `event_3B_cached.py`) via a rule-based stage adapter.
+belts. Pipeline: `analysis/stage_ds003848.py` (MNE BrainVision reader → neutral
+cache plus EMG/EOG staging), followed by the authoritative profile-materialized
+3A/3B/3D path in `analysis/run_qc_grid.py`.
 
 **Staging is rule-based and not validated against expert labels.** True AASM scoring needs scalp EEG, which
 this dataset lacks; what EMG + EOG buy is REM/Wake exclusion. Per 30 s epoch: submental EMG RMS,
@@ -104,7 +105,7 @@ into short runs, leaving very few bouts ≥120 s and a low Welch segment count:
   |r| = 0.066; per-subject signed peak r vs 0: p = 0.09, and the trend is *negative* if anything).
 
 The superseded analysis was previously interpreted as agreeing with a “negative” HUP result and as
-showing that REM/wake exclusion did not rescue a rhythm. That interpretation is withdrawn: v8
+showing that REM/wake exclusion did not rescue a rhythm. That interpretation is withdrawn: frozen v8
 recovers individual 3A estimates but does not provide a powered RESPect cohort result.
 
 ## Historical 3B — withdrawn
@@ -119,7 +120,7 @@ thousands of SOs. Its values are retained below only as withdrawn provenance:
 | N2 ≫ N3? | no (p=0.63) | no (p=0.57) | 3.6× |
 
 The legacy write-up contrasted these values with a nominally significant HUP result and speculated
-about power or wake/arousal contamination. V8 recovers descriptive 3B estimates but disables
+about power or wake/arousal contamination. Frozen v8 recovered descriptive 3B estimates but disabled
 inference, so that legacy numerical contrast and its p-value interpretation remain withdrawn.
 
 ## What this replication does and does not establish
@@ -147,11 +148,19 @@ inference, so that legacy numerical contrast and its p-value interpretation rema
 
 ## Reproduce
 
+```bash
+.venv/bin/python analysis/stage_ds003848.py --force
+.venv/bin/python analysis/calibrate_staging_windows.py \
+  --update-profile-pin
+
+for grid in coverage_oat_v1 staging_window_support_v1 \
+            auxiliary_window_support_v1 event_count_oat_v1; do
+  .venv/bin/python analysis/run_qc_grid.py \
+    --cache-dir data/derived/ds003848 --grid "$grid"
+done
 ```
-.venv/bin/python analysis/stage_ds003848.py --force              # download → author-constrained cache; keeps raw by default
-.venv/bin/python analysis/run_ds003848_replication.py --force    # corrected 3A + 3B
-.venv/bin/python analysis/summarize_corrected_3AB.py \
-    --a-dir outputs/ds003848_3A --b-dir outputs/ds003848_3B --label "ds003848 replication"
-```
-The summarizer prints only validated endpoint-specific results and exits nonzero if neither 3A nor
-3B reaches its minimum estimable cohort. Cache: `data/derived/ds003848/` (gitignored).
+
+The withdrawn `run_ds003848_replication.py` and standalone endpoint writers
+exit without producing results. Full grid artifacts are written under the
+gitignored `outputs/qc_grid/`; the cache is
+`data/derived/ds003848/` (also gitignored).

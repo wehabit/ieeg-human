@@ -1,0 +1,5709 @@
+{
+  "analysed_subjects": [
+    "HUP130_phaseII",
+    "HUP133_phaseII",
+    "HUP138_phaseII",
+    "HUP139_phaseII",
+    "HUP141_phaseII",
+    "HUP143_phaseII",
+    "HUP150_phaseII",
+    "HUP151_phaseII",
+    "HUP157_phaseII",
+    "HUP160_phaseII",
+    "HUP165_phaseII",
+    "HUP171_phaseII",
+    "HUP172_phaseII",
+    "HUP173_phaseII",
+    "HUP177_phaseII",
+    "HUP178_phaseII",
+    "HUP182_phaseII",
+    "HUP185_phaseII",
+    "HUP187_phaseII",
+    "HUP191_phaseII",
+    "HUP199_phaseII",
+    "HUP205_phaseII",
+    "HUP211_phaseII",
+    "HUP212_phaseII"
+  ],
+  "analysis_version": "2026-07-qc-sensitivity-v8",
+  "artifact_role": "public QC sensitivity evidence: all profile definitions, cohort counts, and per-subject endpoint availability; numeric endpoint vectors remain in ignored regenerable full grids",
+  "artifact_schema_version": "2026-07-qc-grid-public-summary-v1",
+  "cache_directory_relative": "data/derived/lc_infraslow",
+  "cache_files_sha256": {
+    "HUP116_phaseII": "2479e8861c9f076e29f4b9535334c9b6690c6383570ac037423c8f0932cd4679",
+    "HUP130_phaseII": "0051165c6c765bcae0a87d4c19b26c78332429bf17f05cf855f85fd634cfe29b",
+    "HUP133_phaseII": "06f9d4f086ff64d54ecf80ace8e01f66c9bf7adbe6f3d30d65f6ba87475da680",
+    "HUP138_phaseII": "57816a4be00d724ba38a0cfdcb2cff9f32cb1b378564619f295229969b7708b0",
+    "HUP139_phaseII": "f6ad8b10dc104f2e28a8f1baaf1a8940501108b4f4165b855e4dc098fa7b2fa8",
+    "HUP141_phaseII": "682a65ff9c683b27c1f33724d86d806a4386995ffdc5e2899d30be7c5684bc24",
+    "HUP143_phaseII": "7b97a2a51488b71e32fdb0dde692f06ad6848e9e0c9e4c1bd0d26076aa589d60",
+    "HUP150_phaseII": "b2d588a414bb7f38def8bbe3491642711df388396c3943d66445123ceecf98f2",
+    "HUP151_phaseII": "2048ee7b7cbd3707a681fc40e1b9df18ca9f6770e8e16194a7e7b765509dc70d",
+    "HUP157_phaseII": "12057689c3f329fe15eab2e4c4fca445cf8139b40135fe05d8e05eebd657862a",
+    "HUP160_phaseII": "dd012b561540b4874a352da6f90198bf3d546267e848d45a0c53ca92741441aa",
+    "HUP165_phaseII": "25db1b21739c4f5c163681d2d21ba37d4ca69d1cb8ca495de35f17a6bb0dbbf9",
+    "HUP171_phaseII": "0beafd597f261c6e37f65cf4c86f0b22f30917b47c9d5a3479611bef43ea2f03",
+    "HUP172_phaseII": "dda8729126c5cd625c44e185be4e373bad70ebfc725a9d3dc517c07d74677a9a",
+    "HUP173_phaseII": "fac48cbf6d0421f0c394d012278e9040942200a07caa4e850dd3af0b5a16674d",
+    "HUP177_phaseII": "e295c4d7c81b793240b4e204391140292040656dbeb8d655f56d4b01ce84fb77",
+    "HUP178_phaseII": "2ce45c41a32d41ffec44b4688a8d6e7ea9a718a90d0d80bd9c626d64cef87027",
+    "HUP182_phaseII": "97e16a16719edb4f3b5e146500c8891354f992205fec21932f6a39209c03b4f7",
+    "HUP185_phaseII": "be0d304e53886758d2655c0232c15f7fda1d8413e3dca57afa24d1099d0df263",
+    "HUP187_phaseII": "cc661a488ec6505ad6fce06605c17f8a4cee52385cc042bdc5ea77078299dfd6",
+    "HUP191_phaseII": "2d9999c86866c4e9f2d089f06f0ba35eb84dafcb24958f4f6734e178e4744780",
+    "HUP199_phaseII": "ca7de8d4c44a8a6107d6f74859db93e0c4655a6b2fa285a0fdb8e52de5fb6984",
+    "HUP205_phaseII": "d76b95165f0f8db4b1a306cd5ce9fbc8336ccfdc9caf41577aa34778c3cc9671",
+    "HUP211_phaseII": "f3fbe193a38aa5685e669ae4285b33aecf6e1f70bbf4b610c9cf31bae5ccd1e8",
+    "HUP212_phaseII": "b59ed75d0a6854cf41cfe68a7680c85cf32d59fc689131b0a38c928b0f5da6e7"
+  },
+  "cache_manifest_run_id": "f06dc328-5097-4bdd-9fb7-096a59e54460",
+  "cache_manifest_sha256": "9fe79c2633246e000efd438aad9d54c33eb4a141a9fedb72288e591707a18866",
+  "cache_pipeline": "cache_lc_series",
+  "cache_runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v8",
+  "explicitly_skipped_subjects": [
+    {
+      "reason": "ekg=EKG1 n_cortical=0",
+      "subject": "HUP116_phaseII"
+    }
+  ],
+  "full_grid_path_relative": "outputs/qc_grid/staging_window_support_v1/hup_qc_grid.json",
+  "full_grid_sha256": "4b69b01fd51a87fe99bd076b51caa858f0869606128c9118f5501d240fbbfcc8",
+  "generated_at_utc": "2026-07-25T23:22:03.566298+00:00",
+  "grid_id": "staging_window_support_v1",
+  "grid_role": "post-audit sensitivity; no result-based profile selection",
+  "limitations": [
+    "3B NREM is an explicitly exploratory pooled-state endpoint, not Naji's N2/SWS contrast",
+    "HUP proxy stages are not PSG/expert validated",
+    "3D is a Staresina/Helfrich hybrid adaptation: it first detects a duration-qualified spindle and then retains at most one spindle within +/-2 s of each SO",
+    "RESPect is outside the specified 3D cohort; only HUP neutral caches contain the pre-threshold event fields",
+    "all 3D inference remains disabled; no 3D p value is produced",
+    "3A uses the first 210 minutes from the first available classified sleep epoch; expert S1-followed-by-S2 sleep onset is unavailable",
+    "the 3B iEEG amplitude percentile is an explicit adaptation/sensitivity choice, not Naji's fixed scalp-voltage criterion",
+    "profile grids are retrospective sensitivity analyses, not prospective preregistration"
+  ],
+  "profiles": [
+    {
+      "qc_profile": {
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "overlap11_endpoint_local",
+        "role": "post_audit_conservative_exact_support_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 11
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "overlap11_endpoint_local",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 14,
+        "n_3a_cross_correlation": 15,
+        "n_3a_spectrum": 19,
+        "n_3b_N2": 6,
+        "n_3b_N3": 5,
+        "n_3b_pooled_NREM_exploratory": 15,
+        "n_3d_descriptive_effect": 7,
+        "n_3d_support_evaluable": 24,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 1,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_1",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 1
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_1",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "8ae81e6bc508dd24046a7f493d5cf2f76ce58951e3d427e9502068fe9b76888c",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 16,
+        "n_3a_cross_correlation": 16,
+        "n_3a_spectrum": 20,
+        "n_3b_N2": 5,
+        "n_3b_N3": 5,
+        "n_3b_pooled_NREM_exploratory": 17,
+        "n_3d_descriptive_effect": 6,
+        "n_3d_support_evaluable": 24,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 2,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_2",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 2
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_2",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "c3ea09825b97246fa2bb3123f457126970f199f62a37f21452052b299b698076",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 16,
+        "n_3a_cross_correlation": 16,
+        "n_3a_spectrum": 19,
+        "n_3b_N2": 6,
+        "n_3b_N3": 6,
+        "n_3b_pooled_NREM_exploratory": 17,
+        "n_3d_descriptive_effect": 6,
+        "n_3d_support_evaluable": 23,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 3,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_3",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 3
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_3",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "045be6f314f68854e2f6689bb231f078f651c6771277245b1b917429483604f1",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 15,
+        "n_3a_cross_correlation": 15,
+        "n_3a_spectrum": 19,
+        "n_3b_N2": 7,
+        "n_3b_N3": 7,
+        "n_3b_pooled_NREM_exploratory": 16,
+        "n_3d_descriptive_effect": 5,
+        "n_3d_support_evaluable": 23,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 4,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_4",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 4
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_4",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "29a60472b2cfe3f4c5d62cc2af749e61a3ed9b6c56e55cb37b23d88e609d0cf5",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 16,
+        "n_3a_cross_correlation": 16,
+        "n_3a_spectrum": 20,
+        "n_3b_N2": 7,
+        "n_3b_N3": 7,
+        "n_3b_pooled_NREM_exploratory": 17,
+        "n_3d_descriptive_effect": 6,
+        "n_3d_support_evaluable": 24,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 5,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_5",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 5
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_5",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "84e300dd34a8b79f9e0285fd908d387b7394246c0eba959a6f533ab6f642a86b",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 15,
+        "n_3a_cross_correlation": 15,
+        "n_3a_spectrum": 19,
+        "n_3b_N2": 5,
+        "n_3b_N3": 5,
+        "n_3b_pooled_NREM_exploratory": 16,
+        "n_3d_descriptive_effect": 6,
+        "n_3d_support_evaluable": 24,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 6,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_6",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 6
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_6",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "2dc5f6f3e3ddbdbd04275f919959d7745c55c43325806f5c0c5650e509c9bf57",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": false,
+          "3b_N3": false,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 14,
+        "n_3a_cross_correlation": 14,
+        "n_3a_spectrum": 18,
+        "n_3b_N2": 4,
+        "n_3b_N3": 4,
+        "n_3b_pooled_NREM_exploratory": 15,
+        "n_3d_descriptive_effect": 6,
+        "n_3d_support_evaluable": 24,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 7,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_7",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 7
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_7",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "4843bd6bc599efe23bcda6af7acb86a74bb71f5bce9ebf96c462dcf965cdf76b",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 14,
+        "n_3a_cross_correlation": 14,
+        "n_3a_spectrum": 18,
+        "n_3b_N2": 5,
+        "n_3b_N3": 5,
+        "n_3b_pooled_NREM_exploratory": 15,
+        "n_3d_descriptive_effect": 5,
+        "n_3d_support_evaluable": 22,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 8,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_8",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 8
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_8",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "ed72a548bb1db32478710668664ba817834c68e2e9943026de2688fe7ee8aa8a",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 13,
+        "n_3a_cross_correlation": 14,
+        "n_3a_spectrum": 18,
+        "n_3b_N2": 6,
+        "n_3b_N3": 6,
+        "n_3b_pooled_NREM_exploratory": 15,
+        "n_3d_descriptive_effect": 6,
+        "n_3d_support_evaluable": 23,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 9,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_9",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 9
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_9",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "05dfae354e56c04d2847d07cb728504523be7e060f1b3917c387d2e60ba9aa01",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 14,
+        "n_3a_cross_correlation": 15,
+        "n_3a_spectrum": 19,
+        "n_3b_N2": 8,
+        "n_3b_N3": 8,
+        "n_3b_pooled_NREM_exploratory": 15,
+        "n_3d_descriptive_effect": 7,
+        "n_3d_support_evaluable": 23,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 10,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_10",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 10
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_10",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "2776179f7928df08976abf476e003d7cd9c2def69d8573861b602fc48c9fd171",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": true,
+          "3b_N3": true,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 13,
+        "n_3a_cross_correlation": 14,
+        "n_3a_spectrum": 18,
+        "n_3b_N2": 8,
+        "n_3b_N3": 8,
+        "n_3b_pooled_NREM_exploratory": 14,
+        "n_3d_descriptive_effect": 7,
+        "n_3d_support_evaluable": 22,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 12,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_12",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 12
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_12",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "2500822120d59dbc2b654554171520327e099fe473b8eb4bc3635ac21e30e172",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": false,
+          "3b_N3": false,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 13,
+        "n_3a_cross_correlation": 14,
+        "n_3a_spectrum": 17,
+        "n_3b_N2": 2,
+        "n_3b_N3": 2,
+        "n_3b_pooled_NREM_exploratory": 15,
+        "n_3d_descriptive_effect": 7,
+        "n_3d_support_evaluable": 24,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 13,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_13",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 13
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_13",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "3ff2c7128268db57ee0cb0113d429e74c17e079e06ced39f967c624ff1108ff7",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": false,
+          "3b_N3": false,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 9,
+        "n_3a_cross_correlation": 14,
+        "n_3a_spectrum": 16,
+        "n_3b_N2": 3,
+        "n_3b_N3": 3,
+        "n_3b_pooled_NREM_exploratory": 13,
+        "n_3d_descriptive_effect": 6,
+        "n_3d_support_evaluable": 24,
+        "n_subjects": 24
+      }
+    },
+    {
+      "qc_profile": {
+        "changed_axis": "staging_valid_welch_windows",
+        "changed_path": "staging.minimum_valid_welch_windows",
+        "changed_value": 14,
+        "cohort": {
+          "minimum_participants": 5
+        },
+        "endpoint_3a": {
+          "minimum_cross_correlation_windows": 1,
+          "minimum_nrem_epochs": 4
+        },
+        "endpoint_3b": {
+          "minimum_contacts": 2,
+          "minimum_finite_rr_samples": 1,
+          "minimum_finite_stage_samples": 100,
+          "minimum_so_per_contact": 30,
+          "so_amplitude_percentile": 75
+        },
+        "endpoint_3d": {
+          "minimum_contact_acquisition_fraction": 0.0,
+          "minimum_contact_event_valid_fraction": 0.0,
+          "minimum_contacts": 3,
+          "minimum_events_per_contact": 20,
+          "minimum_paired_events": 200,
+          "minimum_valid_nrem_fraction_per_contact": 0.8,
+          "minimum_valid_nrem_seconds_per_contact": 1200
+        },
+        "grid_id": "staging_window_support_v1",
+        "hr": {
+          "minimum_coverage": 0.0
+        },
+        "power": {
+          "aggregation": "overlap_connected_median_polish",
+          "minimum_aggregate_coverage": 0.0,
+          "minimum_clean_fraction_per_second": 0.5,
+          "minimum_contact_coverage": 0.0,
+          "minimum_contact_fraction_per_bin": 0.0,
+          "minimum_contacts": 1
+        },
+        "profile_id": "staging_valid_welch_windows_14",
+        "role": "post_audit_sensitivity",
+        "selection_blinded_to_endpoint_values": true,
+        "staging": {
+          "aggregation": "overlap_connected_median_polish",
+          "auxiliary_aggregation": "overlap_connected_median_polish",
+          "minimum_auxiliary_channel_coverage": 0.0,
+          "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+          "minimum_contact_feature_coverage": 0.0,
+          "minimum_contact_fraction_per_epoch": 0.0,
+          "minimum_contacts": 1,
+          "minimum_valid_auxiliary_windows": 14,
+          "minimum_valid_welch_windows": 14
+        }
+      },
+      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_id": "staging_valid_welch_windows_14",
+      "qc_profile_set_schema": "qc-profile-set-v1",
+      "qc_profile_sha256": "9563f6181d473134cbbe3cc903afcdfbe01b26e552e0a25f0f92b93ddd0a7ff3",
+      "subject_availability": [
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP130_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP133_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP139_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP141_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP143_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP150_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP151_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP157_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP160_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP165_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP171_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP172_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP173_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP177_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP178_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP182_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP185_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP187_phaseII"
+        },
+        {
+          "3d_support_evaluable": false,
+          "endpoint_available": {
+            "3a_cross_correlation": false,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": false,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": false,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP191_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": false,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP199_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP205_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": true,
+            "3b_N3": true,
+            "3b_NREM": true,
+            "3d_descriptive_effect": false
+          },
+          "subject": "HUP211_phaseII"
+        },
+        {
+          "3d_support_evaluable": true,
+          "endpoint_available": {
+            "3a_cross_correlation": true,
+            "3a_fixed_0p02_coherence": true,
+            "3a_spectrum": true,
+            "3b_N2": false,
+            "3b_N3": false,
+            "3b_NREM": true,
+            "3d_descriptive_effect": true
+          },
+          "subject": "HUP212_phaseII"
+        }
+      ],
+      "summary": {
+        "meets_minimum_participants": {
+          "3a_coherence": true,
+          "3a_cross_correlation": true,
+          "3a_spectrum": true,
+          "3b_N2": false,
+          "3b_N3": false,
+          "3b_pooled_NREM_exploratory": true,
+          "3d_descriptive_effect": true,
+          "3d_support_evaluable": true
+        },
+        "minimum_participants": 5,
+        "n_3a_coherence": 7,
+        "n_3a_cross_correlation": 11,
+        "n_3a_spectrum": 11,
+        "n_3b_N2": 3,
+        "n_3b_N3": 2,
+        "n_3b_pooled_NREM_exploratory": 11,
+        "n_3d_descriptive_effect": 7,
+        "n_3d_support_evaluable": 22,
+        "n_subjects": 24
+      }
+    }
+  ],
+  "requested_subjects": [
+    "HUP116_phaseII",
+    "HUP130_phaseII",
+    "HUP133_phaseII",
+    "HUP138_phaseII",
+    "HUP139_phaseII",
+    "HUP141_phaseII",
+    "HUP143_phaseII",
+    "HUP150_phaseII",
+    "HUP151_phaseII",
+    "HUP157_phaseII",
+    "HUP160_phaseII",
+    "HUP165_phaseII",
+    "HUP171_phaseII",
+    "HUP172_phaseII",
+    "HUP173_phaseII",
+    "HUP177_phaseII",
+    "HUP178_phaseII",
+    "HUP182_phaseII",
+    "HUP185_phaseII",
+    "HUP187_phaseII",
+    "HUP191_phaseII",
+    "HUP199_phaseII",
+    "HUP205_phaseII",
+    "HUP211_phaseII",
+    "HUP212_phaseII"
+  ],
+  "runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "source_tree_sha256": "b1056d65ef6cc9f885fc5de321cc2815b9318bd11fd3fda4b061fa1861ddf5df",
+  "staging_calibration_application_to_this_cache": "unvalidated transport sensitivity; not a calibrated HUP rule",
+  "staging_calibration_provenance": {
+    "analysis_version": "2026-07-qc-sensitivity-v8",
+    "artifact_relative_path": "outputs/qc_calibration/staging_window_calibration.json",
+    "artifact_sha256": "c6d4f1deccd3e0c7a03875185b2378116b1e33aab78323db91a39dc0b828af1f",
+    "cache_files_sha256": {
+      "sub-RESP0521": "ca240f6fd5deb4555e449159b6e17dd3a839a9b590057e1206c99d2fa52d80d1",
+      "sub-RESP0699": "882e2f77772bbc7e88718b604d10720acf5f737d665565d83d0c60c2de422681",
+      "sub-RESP0724": "540bf2153b2ae967967cb6e131d764313417ef055e01a9b9c40af4bbc11e50a8",
+      "sub-RESP0749": "036486bacacb75598770f4559d66a2696296e9cfef42205efbe58041887029a9",
+      "sub-RESP0779": "9ffbd84e993b0effdc132251adceded910eaa446635704fd3f6b955ac8b52c6b",
+      "sub-RESP0800": "8c643acf6c481de62107f87eb6b9d9d7ba28f1d4e021cd7292d6dd7e406ca87c"
+    },
+    "cache_manifest_sha256": "5eab2fbfb5bb65e0fd6ae39daa250352d4253683e6f7666b1cf0c854bdb78746",
+    "cache_pipeline": "stage_ds003848",
+    "cache_run_id": "75e8af2b-2ca9-4767-b080-d44a1c2ebf56",
+    "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v8",
+    "calibration_scope": "six RESPect ds003848 subjects; outcome-blind SWA/delta-ratio reconstruction only",
+    "calibration_source_files_sha256": {
+      "analysis/calibrate_staging_windows.py": "85a782591a79a36c5f0aa85966b946d7339edfe86331e76320f38d5453b4fb35",
+      "analysis/pipeline_version.py": "9353a5cb719ecf7e9ba9589d698e97d9b310417fd8dd3fcc3981fc0571693e49"
+    },
+    "hup_transport_status": "unvalidated transport sensitivity; not a calibrated HUP rule",
+    "n_calibration_records": 42075,
+    "not_a_paper_requirement": true,
+    "recommended_minimum_valid_windows": 11,
+    "runtime_versions": {
+      "ieeg": "1.6",
+      "mne": "1.12.1",
+      "neurokit2": "0.2.13",
+      "numpy": "2.5.1",
+      "python": "3.14.5",
+      "scikit_learn": "1.9.0",
+      "scipy": "1.18.0"
+    },
+    "selection_blinding": "calibrated only against all-window SWA/delta-ratio reconstruction; 0.02-Hz, HR, SO timing, and spindle-phase outcomes were not inputs"
+  }
+}

@@ -11,8 +11,8 @@ from scipy import interpolate, signal, stats
 from pipeline_version import ANALYSIS_VERSION, CACHE_SCHEMA_VERSION
 from cache_lc_series import aggregate_staging_features, staging_epoch_features
 from cohort_3A_cortical import delta_ratio
-from cohort_stages_3ABD import reliable_two_state_split, stage_epochs, SWA_BAND
-from event_3D_by_stage import (
+from staging_helpers import reliable_two_state_split, stage_epochs, SWA_BAND
+from event_3d_estimators import (
     pair_one_spindle_per_so,
     participant_rotation_test,
     pooled_endpoint_passes_qc,
@@ -94,7 +94,8 @@ for grid_id in (
         "event_count_oat_v1", "staging_window_support_v1"):
     for cohort in ("hup", "respect"):
         current_outputs.append(os.path.join(
-            ROOT, "outputs", "qc_grid", grid_id, f"{cohort}_qc_grid.json"))
+            ROOT, "outputs", "qc_grid_public", grid_id,
+            f"{cohort}_qc_grid_summary.json"))
 
 for path in current_outputs:
     with open(path, encoding="utf-8") as handle:

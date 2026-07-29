@@ -16,7 +16,11 @@ from qc_profiles import (
     validate_qc_profile,
     validated_staging_calibration,
 )
-from run_qc_grid import analyse_3b, materialization_diagnostics
+from run_qc_grid import (
+    _stage_material_state_key,
+    analyse_3b,
+    materialization_diagnostics,
+)
 
 
 def check(name, condition):
@@ -296,6 +300,24 @@ check(
     and diagnostic["n_finite_eog_epochs"] == 2
     and diagnostic["n_final_labels_different_from_proxy"] == 1
     and diagnostic["minimum_valid_auxiliary_windows"] == 11,
+)
+
+converged_stage_state = {
+    "stage_lab": np.asarray(["N2", "N3"]),
+    "staging_qc": {"support_passes_fit_convergence": True},
+}
+nonconverged_stage_state = copy.deepcopy(converged_stage_state)
+nonconverged_stage_state["staging_qc"][
+    "support_passes_fit_convergence"] = False
+missing_convergence_stage_state = {
+    "stage_lab": np.asarray(["N2", "N3"]),
+}
+check(
+    "3B/3D memoization identity includes staging convergence and fails missing state closed",
+    _stage_material_state_key(converged_stage_state)
+    != _stage_material_state_key(nonconverged_stage_state)
+    and _stage_material_state_key(nonconverged_stage_state)
+    == _stage_material_state_key(missing_convergence_stage_state),
 )
 
 long_labels = np.asarray(["W"] * 10 + ["NREM"] * 490)

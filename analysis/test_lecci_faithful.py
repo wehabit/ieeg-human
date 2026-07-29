@@ -5,9 +5,10 @@ quiet when there is none?
 """
 import numpy as np
 
+import lecci_faithful_3A as lecci_module
 from lecci_faithful_3A import (subject_spectrum, fit_peak, cross_correlation, morlet_spectrum,
                               peak_location_null_is_adequate)
-from cohort_stages_3ABD import EPOCH
+from staging_helpers import EPOCH
 
 rng = np.random.RandomState(0)
 FS = 1.0
@@ -123,6 +124,98 @@ _, constant_spectrum, _, _ = subject_spectrum(
     np.ones(600), np.ones(int(600 / EPOCH), bool))
 check("constant power is rejected before zero-spectrum normalization",
       constant_spectrum is None)
+
+
+print("\n[8] Standalone analysis must apply one serialized 210-minute mask to every endpoint")
+
+
+class SyntheticCache:
+    def __init__(self, values):
+        self.values = values
+        self.files = list(values)
+
+    def __getitem__(self, key):
+        return self.values[key]
+
+
+leading_rem_labels = np.asarray(["R"] * 20 + ["NREM"] * 500)
+normalized_labels, normalized_nrem, _ = lecci_module.stages_for(
+    SyntheticCache({"stage_lab": leading_rem_labels}))
+leading_rem_nrem, leading_rem_window = (
+    lecci_module.core_study_nrem_mask(normalized_labels))
+check(
+    "REM remains available to anchor the first-210-minute window without entering NREM",
+    np.array_equal(normalized_labels, leading_rem_labels)
+    and np.array_equal(normalized_nrem, leading_rem_labels == "NREM")
+    and leading_rem_window["start_epoch"] == 0
+    and leading_rem_window["stop_epoch"] == 420
+    and leading_rem_nrem.sum() == 400
+    and not leading_rem_nrem[:20].any()
+    and not leading_rem_nrem[420:].any(),
+)
+
+
+long_labels = np.asarray(["W"] * 10 + ["NREM"] * 490)
+long_seconds = int(len(long_labels) * EPOCH)
+fake_cache = SyntheticCache({
+    "sigma_n_selected_contacts": np.asarray(3),
+    "sigma_coverage": np.asarray(1.0),
+    "sigma_fixed": np.ones(long_seconds),
+    "swa": np.ones(long_seconds),
+    "hr_1": np.ones(long_seconds),
+    "anatomy_selection_method": np.asarray("synthetic"),
+})
+originals = {
+    name: getattr(lecci_module, name)
+    for name in (
+        "load", "cache_lineage", "stages_for", "subject_spectrum",
+        "coherence_gapped", "cross_correlation",
+    )
+}
+seen_masks = []
+seen_coherence_support = []
+
+
+def fake_subject_spectrum(signal_values, stage_mask, **kwargs):
+    seen_masks.append(np.asarray(stage_mask, bool).copy())
+    return np.arange(0.001, 0.121, 0.001), None, 0, 0.0
+
+
+try:
+    lecci_module.load = lambda subject: fake_cache
+    lecci_module.cache_lineage = lambda subject, cache=None: {}
+    lecci_module.stages_for = lambda cache: (
+        long_labels, long_labels == "NREM", None)
+    lecci_module.subject_spectrum = fake_subject_spectrum
+
+    def fake_coherence(first, second, **kwargs):
+        seen_coherence_support.append(
+            int((np.isfinite(first) & np.isfinite(second)).sum()))
+        return None
+
+    lecci_module.coherence_gapped = fake_coherence
+
+    def fake_cross_correlation(sig, hr, stage_mask, **kwargs):
+        seen_masks.append(np.asarray(stage_mask, bool).copy())
+        return None
+
+    lecci_module.cross_correlation = fake_cross_correlation
+    standalone = lecci_module.analyse("synthetic", n_sur=2)
+finally:
+    for name, value in originals.items():
+        setattr(lecci_module, name, value)
+
+check(
+    "standalone 3A applies the same first-210-minute support to spectrum, control, and coupling",
+    len(seen_masks) == 3
+    and all(mask.sum() == 420 for mask in seen_masks)
+    and all(not mask[430:].any() for mask in seen_masks)
+    and seen_coherence_support == [420 * EPOCH]
+    and standalone["n_nrem_epochs_full_record"] == 490
+    and standalone["n_nrem_epochs"] == 420
+    and standalone["core_study_window"]["start_epoch"] == 10
+    and standalone["core_study_window"]["stop_epoch"] == 430,
+)
 
 print("\n" + ("ALL CHECKS PASSED" if not fails else f"{len(fails)} FAILURE(S): {fails}"))
 raise SystemExit(1 if fails else 0)

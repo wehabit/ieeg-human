@@ -23,11 +23,11 @@ from scipy import signal
 import neurokit2 as nk
 
 from infraslow_rr_sigma_coherence import sess, pull_continuous, notch, ROOT
-from results_3A_tutorial_style import ied_clean_mask
+from signal_qc import ied_clean_mask
 from cohort_3A_cortical import COHORT, cortical_channels, delta_ratio, find_night
-from cohort_stages_3ABD import (fsp_from, band_sos, stage_epochs, dominant_block,
-                                EPOCH, FS_P, CHUNK_S, SWA_BAND, ALPHA,
-                                MIN_3A_MIN, POOLED_3A_CAP_MIN)
+from staging_helpers import (fsp_from, band_sos, stage_epochs, dominant_block,
+                             EPOCH, FS_P, CHUNK_S, SWA_BAND, ALPHA,
+                             MIN_3A_MIN, POOLED_3A_CAP_MIN)
 
 OUT = os.path.join(ROOT, "outputs", "freq_specificity_3A")
 

@@ -12,7 +12,7 @@ from pipeline_version import (
     runtime_versions,
     source_tree_sha256,
 )
-from event_3D_by_stage import (
+from event_3d_estimators import (
     EVENT_FS,
     EVENT_PERCENTILE,
     IED_PAD_S,
@@ -27,8 +27,8 @@ from event_3D_by_stage import (
     SPINDLE_BAND,
     SP_DUR,
     pooled_endpoint_passes_qc,
-    production_config,
 )
+from event_3D_by_stage import production_config
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 parser = argparse.ArgumentParser()

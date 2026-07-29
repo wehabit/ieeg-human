@@ -21,11 +21,12 @@ import traceback
 
 import numpy as np
 
+from artifact_contracts import SCALP_INVENTORY_SCHEMA
 from cache_paired_scalp import (
     DEFAULT_IEEG_CACHE,
     DEFAULT_OUTPUT as DEFAULT_SCALP_CACHE,
+    IEEG_CACHE_SCHEMA,
     SCALP_CACHE_SCHEMA,
-    LEGACY_IEEG_SCHEMA,
     _channel_identity,
     _normalize_scalp_label,
     _same_series_geometry,
@@ -34,6 +35,8 @@ from cache_paired_scalp import (
 )
 from infraslow_rr_sigma_coherence import sess
 from pipeline_version import (
+    ANALYSIS_VERSION,
+    CACHE_SCHEMA_VERSION,
     atomic_json_dump,
     file_sha256,
     git_is_dirty,
@@ -47,11 +50,12 @@ from qc_profiles import load_qc_profile, qc_profile_sha256
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_QC_GRID = os.path.join(
-    ROOT, "outputs", "qc_grid", "event_count_oat_v1", "hup_qc_grid.json")
+    ROOT, "outputs", "qc_grid_public", "locked",
+    "overlap11_endpoint_local__hup.json")
 DEFAULT_SOURCE_PIN = os.path.join(ROOT, "analysis", "hup_ieeg_source_pin.json")
 DEFAULT_OUTPUT = os.path.join(ROOT, "outputs", "paired_scalp_inventory")
 PROFILE_ID = "overlap11_endpoint_local"
-SCHEMA = "2026-07-hup-scalp-channel-inventory-v1"
+SCHEMA = SCALP_INVENTORY_SCHEMA
 PIPELINE = "audit_hup_scalp_inventory"
 
 # Exact normalized labels only.  This does not treat shaft names such as LC3 as
@@ -227,10 +231,10 @@ def build_inventory(
     if (
         cache_manifest.get("run_state") != "complete"
         or cache_manifest.get("pipeline") != "cache_lc_series"
-        or cache_manifest.get("cache_schema_version") != LEGACY_IEEG_SCHEMA
+        or cache_manifest.get("cache_schema_version") != IEEG_CACHE_SCHEMA
     ):
         raise RuntimeError(
-            "frozen HUP cache manifest is not a terminal legacy-v8 "
+            "HUP cache manifest is not a terminal current-schema "
             "cache_lc_series run")
     requested = [str(value) for value in cache_manifest.get("requested", [])]
     if len(requested) != len(set(requested)) or not requested:
@@ -368,6 +372,8 @@ def build_inventory(
         "schema_version": SCHEMA,
         "pipeline": PIPELINE,
         "run_state": "complete" if not errors else "failed",
+        "analysis_version": ANALYSIS_VERSION,
+        "cache_schema_version": CACHE_SCHEMA_VERSION,
         "generated_at_utc": utc_now(),
         "code_revision": git_revision(ROOT),
         "code_dirty": git_is_dirty(ROOT),
@@ -442,6 +448,8 @@ def main():
             "schema_version",
             "pipeline",
             "run_state",
+            "analysis_version",
+            "cache_schema_version",
             "generated_at_utc",
             "code_revision",
             "code_dirty",

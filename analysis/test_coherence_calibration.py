@@ -131,6 +131,7 @@ for s in subjects:
     except RuntimeError as exc:
         message = str(exc)
         stale_markers = (
+            "incomplete, internally inconsistent, or not a current production cache run",
             "produced by different cache-building source",
             "was produced by different cache-building source",
             "has cache schema",

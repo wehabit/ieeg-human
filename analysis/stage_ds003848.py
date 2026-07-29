@@ -34,12 +34,13 @@ disturbed epochs remain unclassified.
 import argparse, hashlib, json, os, time, urllib.request
 import numpy as np
 import csv, io
+from types import SimpleNamespace
 from scipy import signal
 import neurokit2 as nk
 import mne
 
 from infraslow_rr_sigma_coherence import ROOT
-from cohort_stages_3ABD import (fsp_from, band_sos, EPOCH, SWA_BAND, CHUNK_S)
+from staging_helpers import (fsp_from, band_sos, EPOCH, SWA_BAND, CHUNK_S)
 from cache_lc_series import (detect_so_candidates, threshold_so_candidates, SIGMA_FIXED,
                              SWA_BAND_L, SO_BAND_NAJI,
                              SO_NEGATIVE_HALF_DURATION_S,
@@ -55,11 +56,22 @@ from cache_lc_series import (detect_so_candidates, threshold_so_candidates, SIGM
                              finalize_ecg_cache_qc,
                              STAGING_REFERENCE_MIN_VALID_WINDOWS,
                              STAGING_WELCH_WINDOW_S, STAGING_WELCH_OVERLAP_S)
-from results_3A_tutorial_style import ied_clean_mask
-from pipeline_version import (CACHE_SCHEMA_VERSION, atomic_savez, cache_code_sha256, git_is_dirty,
-                              git_revision, npz_scalar_text, runtime_versions,
-                              source_tree_sha256, utc_now, start_run_manifest,
-                              validated_complete_run_exists, write_run_manifest)
+from signal_qc import ied_clean_mask
+from pipeline_version import (
+    CACHE_SCHEMA_VERSION,
+    atomic_savez,
+    cache_code_sha256,
+    git_is_dirty,
+    git_revision,
+    npz_scalar_text,
+    require_integer_sample_rate,
+    runtime_versions,
+    source_tree_sha256,
+    start_run_manifest,
+    utc_now,
+    validated_complete_run_exists,
+    write_run_manifest,
+)
 
 mne.set_log_level("ERROR")
 MIN_NREM_DELTA_RATIO = 0.20
@@ -754,14 +766,17 @@ def score_stages(ep_swa, ep_emg, ep_eog, ep_dr, ep_clean):
 
 
 # ---------------------------------------------------------------- main derive
-def run(subject, delete_raw=False, force=False):
-    fp = os.path.join(OUT, f"{subject}.npz")
-    current_cache_digest = cache_code_sha256(ROOT)
-    if os.path.exists(fp) and not force:
-        raise RuntimeError(
-            f"{fp} cannot be reused outside a validated complete run; rerun with --force")
+def _save_skip_cache(fp, subject, current_cache_digest, reason):
+    atomic_savez(
+        fp, subject=subject, status="skip",
+        cache_schema_version=CACHE_SCHEMA_VERSION,
+        cache_code_sha256=current_cache_digest, reason=reason)
+    print(f"[{subject}] SKIP {reason}", flush=True)
+
+
+def _load_subject_source(subject, fp, current_cache_digest):
+    """Fetch and validate one subject's pinned source files and channel metadata."""
     ses, base = SUBJECTS[subject]
-    t0 = time.time()
     print(f"[{subject}] fetching {base} ...", flush=True)
     paths = ensure_files(subject, ses, base)
     source_snapshot_identities = {
@@ -772,11 +787,8 @@ def run(subject, delete_raw=False, force=False):
     if not roles["ieeg"] or not roles["ecg"]:
         reason = (f"extraction inputs missing: iEEG={bool(roles['ieeg'])}, "
                   f"ECG={bool(roles['ecg'])}; EMG/EOG are retained as optional modalities")
-        atomic_savez(fp, subject=subject, status="skip",
-                     cache_schema_version=CACHE_SCHEMA_VERSION,
-                     cache_code_sha256=current_cache_digest, reason=reason)
-        print(f"[{subject}] SKIP {reason}", flush=True)
-        return "skip"
+        _save_skip_cache(fp, subject, current_cache_digest, reason)
+        return None
 
     raw = mne.io.read_raw_brainvision(paths["_ieeg.vhdr"], preload=False, verbose="ERROR")
     raw_sf = float(raw.info["sfreq"])
@@ -786,6 +798,8 @@ def run(subject, delete_raw=False, force=False):
     if not np.isfinite(sf) or sf <= 0 or abs(raw_sf - sf) / sf > 1e-5:
         raise RuntimeError(
             f"BrainVision/BIDS sampling-frequency mismatch: {raw_sf} vs {sf}")
+    sf = float(require_integer_sample_rate(
+        sf, source=f"{subject} BIDS SamplingFrequency"))
     n_samp = raw.n_times
     if len(raw.ch_names) != roles["n_rows"]:
         raise RuntimeError(
@@ -810,12 +824,8 @@ def run(subject, delete_raw=False, force=False):
     if len(ie) == 0:
         reason = (
             "no non-SOZ, non-resected, non-edge cortical gray-matter contacts")
-        atomic_savez(
-            fp, subject=subject, status="skip",
-            cache_schema_version=CACHE_SCHEMA_VERSION,
-            cache_code_sha256=current_cache_digest, reason=reason)
-        print(f"[{subject}] SKIP {reason}", flush=True)
-        return "skip"
+        _save_skip_cache(fp, subject, current_cache_digest, reason)
+        return None
     retained_positions = np.where(anatomy_qc["selected_mask"])[0]
     frontal_contact_mask = anatomy_qc["frontal_mask"][retained_positions]
     parietal_contact_mask = anatomy_qc["parietal_mask"][retained_positions]
@@ -839,44 +849,204 @@ def run(subject, delete_raw=False, force=False):
         f"anatomy-eligible iEEG, ECG@{ecg_i}, EMG@{emg_indices}, EOG@{eog_indices}, "
         f"FSP {fsp:.2f} Hz, {total_s} s", flush=True)
 
-    sig_fixed_ch = np.full((len(ie), total_s), np.nan)
-    sig_fsp_ch = np.full((len(ie), total_s), np.nan)
-    swa_ch = np.full((len(ie), total_s), np.nan)
-    sig_fixed_num_ch = np.full((len(ie), total_s), np.nan)
-    sig_fsp_num_ch = np.full((len(ie), total_s), np.nan)
-    swa_num_ch = np.full((len(ie), total_s), np.nan)
-    sig_fixed_den_ch = np.zeros((len(ie), total_s), dtype=np.uint32)
-    sig_fsp_den_ch = np.zeros((len(ie), total_s), dtype=np.uint32)
-    swa_den_ch = np.zeros((len(ie), total_s), dtype=np.uint32)
-    ep_dr_ch = np.full((len(ie), n_ep), np.nan)
-    ep_swa_ch = np.full((len(ie), n_ep), np.nan)
-    ep_clean_ch = np.full((len(ie), n_ep), np.nan)
-    ep_measured_ch = np.full((len(ie), n_ep), np.nan)
+    return SimpleNamespace(
+        paths=paths,
+        source_snapshot_identities=source_snapshot_identities,
+        raw=raw,
+        raw_sf=raw_sf,
+        sf=sf,
+        n_samp=n_samp,
+        names=names,
+        all_good_ie=all_good_ie,
+        anatomy_qc=anatomy_qc,
+        ie=ie,
+        frontal_contact_mask=frontal_contact_mask,
+        parietal_contact_mask=parietal_contact_mask,
+        destrieux_labels=destrieux_labels,
+        ecg_i=ecg_i,
+        emg_indices=emg_indices,
+        eog_indices=eog_indices,
+        ctx=ctx,
+        total_s=total_s,
+        n_ep=n_ep,
+        annotations=annotations,
+        fsp=fsp,
+        fsp_real=fsp_real,
+    )
+
+
+def _allocate_processing_state(source):
+    """Allocate the per-contact/channel arrays populated by chunk processing."""
+    n_ieeg = len(source.ie)
+    n_emg = len(source.emg_indices)
+    n_eog = len(source.eog_indices)
+    total_s = source.total_s
+    n_ep = source.n_ep
+    sig_fixed_ch = np.full((n_ieeg, total_s), np.nan)
+    sig_fsp_ch = np.full((n_ieeg, total_s), np.nan)
+    swa_ch = np.full((n_ieeg, total_s), np.nan)
+    sig_fixed_num_ch = np.full((n_ieeg, total_s), np.nan)
+    sig_fsp_num_ch = np.full((n_ieeg, total_s), np.nan)
+    swa_num_ch = np.full((n_ieeg, total_s), np.nan)
+    sig_fixed_den_ch = np.zeros((n_ieeg, total_s), dtype=np.uint32)
+    sig_fsp_den_ch = np.zeros((n_ieeg, total_s), dtype=np.uint32)
+    swa_den_ch = np.zeros((n_ieeg, total_s), dtype=np.uint32)
+    ep_dr_ch = np.full((n_ieeg, n_ep), np.nan)
+    ep_swa_ch = np.full((n_ieeg, n_ep), np.nan)
+    ep_clean_ch = np.full((n_ieeg, n_ep), np.nan)
+    ep_measured_ch = np.full((n_ieeg, n_ep), np.nan)
     ep_valid_window_ch = np.zeros(
-        (len(ie), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
+        (n_ieeg, n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
     ep_window_swa_ch = np.full(
-        (len(ie), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), np.nan, dtype=np.float32)
+        (n_ieeg, n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), np.nan, dtype=np.float32)
     ep_window_total_ch = np.full(
-        (len(ie), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), np.nan, dtype=np.float32)
-    ep_longest_clean_run_ch = np.zeros((len(ie), n_ep), dtype=np.float32)
-    ep_valid_window_span_ch = np.zeros((len(ie), n_ep), dtype=np.float32)
-    ep_emg_ch = np.full((len(emg_indices), n_ep), np.nan)
-    ep_eog_ch = np.full((len(eog_indices), n_ep), np.nan)
+        (n_ieeg, n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), np.nan, dtype=np.float32)
+    ep_longest_clean_run_ch = np.zeros((n_ieeg, n_ep), dtype=np.float32)
+    ep_valid_window_span_ch = np.zeros((n_ieeg, n_ep), dtype=np.float32)
+    ep_emg_ch = np.full((n_emg, n_ep), np.nan)
+    ep_eog_ch = np.full((n_eog, n_ep), np.nan)
     ep_emg_valid_window_ch = np.zeros(
-        (len(emg_indices), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
+        (n_emg, n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
     ep_eog_valid_window_ch = np.zeros(
-        (len(eog_indices), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
+        (n_eog, n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS), dtype=np.uint8)
     ep_emg_window_power_ch = np.full(
-        (len(emg_indices), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS),
+        (n_emg, n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS),
         np.nan, dtype=np.float32)
     ep_eog_window_power_ch = np.full(
-        (len(eog_indices), n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS),
+        (n_eog, n_ep, STAGING_REFERENCE_MIN_VALID_WINDOWS),
         np.nan, dtype=np.float32)
-    beats = []
-    so_candidates = {c: [] for c in ctx}
-    failed_chunks = []
-    ecg_failures = []
-    channel_activity_state = empty_channel_activity_extrema(len(ctx))
+    return SimpleNamespace(
+        sig_fixed_ch=sig_fixed_ch,
+        sig_fsp_ch=sig_fsp_ch,
+        swa_ch=swa_ch,
+        sig_fixed_num_ch=sig_fixed_num_ch,
+        sig_fsp_num_ch=sig_fsp_num_ch,
+        swa_num_ch=swa_num_ch,
+        sig_fixed_den_ch=sig_fixed_den_ch,
+        sig_fsp_den_ch=sig_fsp_den_ch,
+        swa_den_ch=swa_den_ch,
+        ep_dr_ch=ep_dr_ch,
+        ep_swa_ch=ep_swa_ch,
+        ep_clean_ch=ep_clean_ch,
+        ep_measured_ch=ep_measured_ch,
+        ep_valid_window_ch=ep_valid_window_ch,
+        ep_window_swa_ch=ep_window_swa_ch,
+        ep_window_total_ch=ep_window_total_ch,
+        ep_longest_clean_run_ch=ep_longest_clean_run_ch,
+        ep_valid_window_span_ch=ep_valid_window_span_ch,
+        ep_emg_ch=ep_emg_ch,
+        ep_eog_ch=ep_eog_ch,
+        ep_emg_valid_window_ch=ep_emg_valid_window_ch,
+        ep_eog_valid_window_ch=ep_eog_valid_window_ch,
+        ep_emg_window_power_ch=ep_emg_window_power_ch,
+        ep_eog_window_power_ch=ep_eog_window_power_ch,
+        beats=[],
+        so_candidates={channel: [] for channel in source.ctx},
+        failed_chunks=[],
+        acquisition_chunk_sample_counts=[],
+        ecg_failures=[],
+        channel_activity_state=empty_channel_activity_extrema(n_ieeg),
+    )
+
+
+def _acquire_source_chunk(source, state, picks_all, t, dur):
+    """Read one exact source interval and record fail-closed sample-count provenance."""
+    pull_start = max(0.0, t - FILTER_EDGE_S)
+    pull_stop = min(float(source.total_s), t + dur + FILTER_EDGE_S)
+    a = int(round(pull_start * source.sf))
+    b = min(int(round(pull_stop * source.sf)), source.n_samp)
+    expected_pull_samples = b - a
+    try:
+        d = source.raw.get_data(
+            picks=picks_all, start=a, stop=b) * 1e6  # (n_pick, n), uV
+    except Exception as exc:
+        state.failed_chunks.append(dict(
+            start_s=float(t), duration_s=float(dur),
+            error=f"{type(exc).__name__}: {exc}"))
+        state.acquisition_chunk_sample_counts.append(dict(
+            start_s=float(t),
+            duration_s=float(dur),
+            requested_pull_samples=int(expected_pull_samples),
+            returned_pull_samples=None,
+        ))
+        return None
+    state.acquisition_chunk_sample_counts.append(dict(
+        start_s=float(t),
+        duration_s=float(dur),
+        requested_pull_samples=int(expected_pull_samples),
+        returned_pull_samples=int(d.shape[1]),
+    ))
+    if d.shape[1] != expected_pull_samples:
+        state.failed_chunks.append(dict(
+            start_s=float(t),
+            duration_s=float(dur),
+            error=(
+                "local source returned an incomplete chunk: "
+                f"{d.shape[1]} of {expected_pull_samples} requested samples"),
+        ))
+        return None
+    off = int(t)
+    core_a = int(round((t - pull_start) * source.sf))
+    core_n = int(round(dur * source.sf))
+    if core_a < 0 or core_a + core_n > d.shape[1]:
+        state.failed_chunks.append(dict(
+            start_s=float(t),
+            duration_s=float(dur),
+            error=(
+                "complete requested core is unavailable inside the local chunk: "
+                f"offset={core_a}, core={core_n}, returned={d.shape[1]}"),
+        ))
+        return None
+    return SimpleNamespace(
+        data=d,
+        pull_start=pull_start,
+        off=off,
+        core_a=core_a,
+        core_n=core_n,
+        core_b=core_a + core_n,
+    )
+
+
+def _process_recording_chunks(source, state):
+    """Stream source data and populate per-channel scientific feature arrays."""
+    sf = source.sf
+    fsp = source.fsp
+    total_s = source.total_s
+    ie = source.ie
+    ecg_i = source.ecg_i
+    emg_indices = source.emg_indices
+    eog_indices = source.eog_indices
+    ctx = source.ctx
+    annotations = source.annotations
+    n_ep = source.n_ep
+    sig_fixed_ch = state.sig_fixed_ch
+    sig_fsp_ch = state.sig_fsp_ch
+    swa_ch = state.swa_ch
+    sig_fixed_num_ch = state.sig_fixed_num_ch
+    sig_fsp_num_ch = state.sig_fsp_num_ch
+    swa_num_ch = state.swa_num_ch
+    sig_fixed_den_ch = state.sig_fixed_den_ch
+    sig_fsp_den_ch = state.sig_fsp_den_ch
+    swa_den_ch = state.swa_den_ch
+    ep_dr_ch = state.ep_dr_ch
+    ep_swa_ch = state.ep_swa_ch
+    ep_clean_ch = state.ep_clean_ch
+    ep_measured_ch = state.ep_measured_ch
+    ep_valid_window_ch = state.ep_valid_window_ch
+    ep_window_swa_ch = state.ep_window_swa_ch
+    ep_window_total_ch = state.ep_window_total_ch
+    ep_longest_clean_run_ch = state.ep_longest_clean_run_ch
+    ep_valid_window_span_ch = state.ep_valid_window_span_ch
+    ep_emg_ch = state.ep_emg_ch
+    ep_eog_ch = state.ep_eog_ch
+    ep_emg_valid_window_ch = state.ep_emg_valid_window_ch
+    ep_eog_valid_window_ch = state.ep_eog_valid_window_ch
+    ep_emg_window_power_ch = state.ep_emg_window_power_ch
+    ep_eog_window_power_ch = state.ep_eog_window_power_ch
+    beats = state.beats
+    so_candidates = state.so_candidates
+    ecg_failures = state.ecg_failures
+    channel_activity_state = state.channel_activity_state
 
     sos_fixed = band_sos(SIGMA_FIXED, sf)
     sos_fsp = band_sos((fsp - 1, fsp + 1), sf)
@@ -897,21 +1067,16 @@ def run(subject, delete_raw=False, force=False):
     t = 0.0
     while t < total_s:
         dur = min(CHUNK_S, total_s - t)
-        pull_start = max(0.0, t - FILTER_EDGE_S)
-        pull_stop = min(float(total_s), t + dur + FILTER_EDGE_S)
-        a = int(round(pull_start * sf))
-        b = min(int(round(pull_stop * sf)), n_samp)
-        try:
-            d = raw.get_data(picks=picks_all, start=a, stop=b) * 1e6  # (n_pick, n), uV
-        except Exception as exc:
-            failed_chunks.append(dict(start_s=float(t), duration_s=float(dur),
-                                      error=f"{type(exc).__name__}: {exc}"))
+        chunk = _acquire_source_chunk(source, state, picks_all, t, dur)
+        if chunk is None:
             t += dur
             continue
-        off = int(t)
-        core_a = int(round((t - pull_start) * sf))
-        core_n = min(int(round(dur * sf)), max(0, d.shape[1] - core_a))
-        core_b = core_a + core_n
+        d = chunk.data
+        pull_start = chunk.pull_start
+        off = chunk.off
+        core_a = chunk.core_a
+        core_n = chunk.core_n
+        core_b = chunk.core_b
         x_ie = d[:len(ie)]
         x_ecg = d[len(ie)]
         update_channel_activity_extrema(
@@ -1045,7 +1210,31 @@ def run(subject, delete_raw=False, force=False):
                 ep_eog_window_power_ch[channel, gi] = details["window_power"]
         t += dur
 
-    channel_activity_qc = finalize_channel_activity_qc(channel_activity_state)
+
+def _aggregate_processing_state(source, state):
+    """Aggregate per-channel features and derive annotation-constrained stages."""
+    parietal_contact_mask = source.parietal_contact_mask
+    total_s = source.total_s
+    ctx = source.ctx
+    emg_indices = source.emg_indices
+    eog_indices = source.eog_indices
+    annotations = source.annotations
+    n_ep = source.n_ep
+    sig_fixed_ch = state.sig_fixed_ch
+    sig_fsp_ch = state.sig_fsp_ch
+    swa_ch = state.swa_ch
+    ep_dr_ch = state.ep_dr_ch
+    ep_swa_ch = state.ep_swa_ch
+    ep_clean_ch = state.ep_clean_ch
+    ep_valid_window_ch = state.ep_valid_window_ch
+    ep_emg_ch = state.ep_emg_ch
+    ep_eog_ch = state.ep_eog_ch
+    ep_emg_valid_window_ch = state.ep_emg_valid_window_ch
+    ep_eog_valid_window_ch = state.ep_eog_valid_window_ch
+    failed_chunks = state.failed_chunks
+    ecg_failures = state.ecg_failures
+
+    channel_activity_qc = finalize_channel_activity_qc(state.channel_activity_state)
     nonflat_contacts = channel_activity_qc["nonflat_mask"]
     sig_fixed, sigma_contact_qc = _aggregate_full_night_power(
         sig_fixed_ch, eligible_channels=nonflat_contacts,
@@ -1093,7 +1282,7 @@ def run(subject, delete_raw=False, force=False):
         min_valid_windows=STAGING_REFERENCE_MIN_VALID_WINDOWS)
 
     # heart rate grids
-    beats = sanitize_beats(beats)
+    beats = sanitize_beats(state.beats)
     rr_1, rr_4, hr_1, hr_4 = interpolate_tachograms(beats, total_s)
 
     sigma_coverage = float(np.isfinite(sig_fixed).mean())
@@ -1125,6 +1314,126 @@ def run(subject, delete_raw=False, force=False):
     }
     stage_counts["final_annotation_constrained_counts"] = final_stage_counts
 
+    return SimpleNamespace(
+        channel_activity_qc=channel_activity_qc,
+        nonflat_contacts=nonflat_contacts,
+        sig_fixed=sig_fixed,
+        sigma_contact_qc=sigma_contact_qc,
+        sig_fixed_parietal=sig_fixed_parietal,
+        parietal_contact_qc=parietal_contact_qc,
+        staging_contact_qc=staging_contact_qc,
+        sig_fsp=sig_fsp,
+        sig_fsp_parietal=sig_fsp_parietal,
+        swa_1=swa_1,
+        swa_parietal=swa_parietal,
+        ep_dr=ep_dr,
+        ep_swa=ep_swa,
+        ep_clean=ep_clean,
+        ep_emg=ep_emg,
+        emg_contact_qc=emg_contact_qc,
+        ep_eog=ep_eog,
+        eog_contact_qc=eog_contact_qc,
+        beats=beats,
+        rr_1=rr_1,
+        rr_4=rr_4,
+        hr_1=hr_1,
+        hr_4=hr_4,
+        sigma_coverage=sigma_coverage,
+        hr_coverage=hr_coverage,
+        qc_warnings=qc_warnings,
+        proxy_lab=proxy_lab,
+        stage_counts=stage_counts,
+        annotation_lab=annotation_lab,
+        stage_lab=stage_lab,
+        stage_sources=stage_sources,
+        stage_lab_proxy_sensitivity=stage_lab_proxy_sensitivity,
+        annotation_masks=annotation_masks,
+        final_stage_counts=final_stage_counts,
+    )
+
+
+def _build_cache_payload(subject, current_cache_digest, source, state, result):
+    """Assemble the v9 cache contract from provenance, raw features, and aggregates."""
+    paths = source.paths
+    source_snapshot_identities = source.source_snapshot_identities
+    raw_sf = source.raw_sf
+    sf = source.sf
+    names = source.names
+    all_good_ie = source.all_good_ie
+    anatomy_qc = source.anatomy_qc
+    frontal_contact_mask = source.frontal_contact_mask
+    parietal_contact_mask = source.parietal_contact_mask
+    destrieux_labels = source.destrieux_labels
+    ecg_i = source.ecg_i
+    emg_indices = source.emg_indices
+    eog_indices = source.eog_indices
+    ctx = source.ctx
+    total_s = source.total_s
+    annotations = source.annotations
+    fsp = source.fsp
+    fsp_real = source.fsp_real
+    sig_fixed_ch = state.sig_fixed_ch
+    sig_fsp_ch = state.sig_fsp_ch
+    swa_ch = state.swa_ch
+    sig_fixed_num_ch = state.sig_fixed_num_ch
+    sig_fsp_num_ch = state.sig_fsp_num_ch
+    swa_num_ch = state.swa_num_ch
+    sig_fixed_den_ch = state.sig_fixed_den_ch
+    sig_fsp_den_ch = state.sig_fsp_den_ch
+    swa_den_ch = state.swa_den_ch
+    ep_dr_ch = state.ep_dr_ch
+    ep_swa_ch = state.ep_swa_ch
+    ep_clean_ch = state.ep_clean_ch
+    ep_measured_ch = state.ep_measured_ch
+    ep_valid_window_ch = state.ep_valid_window_ch
+    ep_window_swa_ch = state.ep_window_swa_ch
+    ep_window_total_ch = state.ep_window_total_ch
+    ep_longest_clean_run_ch = state.ep_longest_clean_run_ch
+    ep_valid_window_span_ch = state.ep_valid_window_span_ch
+    ep_emg_ch = state.ep_emg_ch
+    ep_eog_ch = state.ep_eog_ch
+    ep_emg_valid_window_ch = state.ep_emg_valid_window_ch
+    ep_eog_valid_window_ch = state.ep_eog_valid_window_ch
+    ep_emg_window_power_ch = state.ep_emg_window_power_ch
+    ep_eog_window_power_ch = state.ep_eog_window_power_ch
+    failed_chunks = state.failed_chunks
+    acquisition_chunk_sample_counts = state.acquisition_chunk_sample_counts
+    ecg_failures = state.ecg_failures
+    so_candidates = state.so_candidates
+    channel_activity_qc = result.channel_activity_qc
+    nonflat_contacts = result.nonflat_contacts
+    sig_fixed = result.sig_fixed
+    sigma_contact_qc = result.sigma_contact_qc
+    sig_fixed_parietal = result.sig_fixed_parietal
+    parietal_contact_qc = result.parietal_contact_qc
+    staging_contact_qc = result.staging_contact_qc
+    sig_fsp = result.sig_fsp
+    sig_fsp_parietal = result.sig_fsp_parietal
+    swa_1 = result.swa_1
+    swa_parietal = result.swa_parietal
+    ep_dr = result.ep_dr
+    ep_swa = result.ep_swa
+    ep_clean = result.ep_clean
+    ep_emg = result.ep_emg
+    emg_contact_qc = result.emg_contact_qc
+    ep_eog = result.ep_eog
+    eog_contact_qc = result.eog_contact_qc
+    beats = result.beats
+    rr_1 = result.rr_1
+    rr_4 = result.rr_4
+    hr_1 = result.hr_1
+    hr_4 = result.hr_4
+    sigma_coverage = result.sigma_coverage
+    hr_coverage = result.hr_coverage
+    qc_warnings = result.qc_warnings
+    proxy_lab = result.proxy_lab
+    stage_counts = result.stage_counts
+    annotation_lab = result.annotation_lab
+    stage_lab = result.stage_lab
+    stage_sources = result.stage_sources
+    stage_lab_proxy_sensitivity = result.stage_lab_proxy_sensitivity
+    annotation_masks = result.annotation_masks
+
     os.makedirs(OUT, exist_ok=True)
     source_hashes = {os.path.basename(path): file_sha256(path) for path in paths.values()}
     payload = dict(status="ok", cache_schema_version=CACHE_SCHEMA_VERSION,
@@ -1137,6 +1446,8 @@ def run(subject, delete_raw=False, force=False):
                    source_files_snapshot_identity_json=json.dumps(
                        source_snapshot_identities, sort_keys=True),
                    failed_chunks_json=json.dumps(failed_chunks, sort_keys=True),
+                   acquisition_chunk_sample_counts_json=json.dumps(
+                       acquisition_chunk_sample_counts, sort_keys=True),
                    ecg_failures_json=json.dumps(ecg_failures, sort_keys=True),
                    qc_warnings_json=json.dumps(qc_warnings, sort_keys=True),
                    ecg_processing_method=(
@@ -1288,16 +1599,37 @@ def run(subject, delete_raw=False, force=False):
         payload[f"so_candidate_down_{c}"] = values[:, 1]
         payload[f"so_candidate_up_{c}"] = values[:, 2]
         payload[f"so_candidate_p2p_{c}"] = values[:, 3]
+    return payload
+
+
+def run(subject, delete_raw=False, force=False):
+    fp = os.path.join(OUT, f"{subject}.npz")
+    current_cache_digest = cache_code_sha256(ROOT)
+    if os.path.exists(fp) and not force:
+        raise RuntimeError(
+            f"{fp} cannot be reused outside a validated complete run; rerun with --force")
+    t0 = time.time()
+    source = _load_subject_source(subject, fp, current_cache_digest)
+    if source is None:
+        return "skip"
+
+    state = _allocate_processing_state(source)
+    _process_recording_chunks(source, state)
+    result = _aggregate_processing_state(source, state)
+    payload = _build_cache_payload(
+        subject, current_cache_digest, source, state, result)
     atomic_savez(fp, **payload)
-    frac = float(np.isfinite(sig_fixed).mean())
-    print(f"[{subject}] cached {time.time()-t0:.0f}s | sigma_cov {frac:.0%} | {len(beats)} beats | "
+    frac = float(np.isfinite(result.sig_fixed).mean())
+    final_stage_counts = result.final_stage_counts
+    print(f"[{subject}] cached {time.time()-t0:.0f}s | sigma_cov {frac:.0%} | "
+          f"{len(result.beats)} beats | "
           f"annotation-constrained W/R/NREM/N2/N3 = "
           f"{final_stage_counts['W']}/{final_stage_counts['R']}/"
           f"{final_stage_counts['NREM']}/{final_stage_counts['N2']}/"
-          f"{final_stage_counts['N3']} of {n_ep} ep", flush=True)
+          f"{final_stage_counts['N3']} of {source.n_ep} ep", flush=True)
     if delete_raw:
         try:
-            os.remove(paths["_ieeg.eeg"])
+            os.remove(source.paths["_ieeg.eeg"])
             print(f"[{subject}] removed raw .eeg after checksum was stored", flush=True)
         except OSError:
             pass
@@ -1349,6 +1681,7 @@ def main():
         OUT, pipeline="stage_ds003848", requested=requested, completed=completed,
         skipped=skipped, failed=failed,
         config=config, run_id=run_id,
+        run_state="failed" if failed else "complete",
         result_files_sha256={
             subject: file_sha256(os.path.join(OUT, f"{subject}.npz"))
             for subject in completed + [value["subject"] for value in skipped]

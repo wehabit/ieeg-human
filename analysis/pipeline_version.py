@@ -16,23 +16,25 @@ import scipy
 
 
 # Increment both values whenever an estimator or a cached derived signal changes materially.
-ANALYSIS_VERSION = "2026-07-qc-sensitivity-v8"
+ANALYSIS_VERSION = "2026-07-qc-sensitivity-v9"
 CACHE_SCHEMA_VERSION = (
-    "2026-07-neutral-per-contact-gap-aware-source-pin-v8")
+    "2026-07-neutral-per-contact-gap-aware-source-pin-v9")
 
 # Only files that can change cache values or cache metadata belong here.  The broader
 # ``source_tree_sha256`` intentionally includes downstream analyses and tests, which would make a
 # harmless summary-script edit invalidate many hours of derived data.
 _CACHE_SOURCE_FILES = (
     "analysis/cache_lc_series.py",
+    "analysis/event_3d_estimators.py",
     "analysis/stage_ds003848.py",
     "analysis/ds003848_snapshot_1.0.3_files.json",
     "analysis/hup_ieeg_source_pin.json",
+    "analysis/hup_portal.py",
     "analysis/cohort_3A_cortical.py",
-    "analysis/cohort_stages_3ABD.py",
     "analysis/infraslow_rr_sigma_coherence.py",
-    "analysis/results_3A_tutorial_style.py",
+    "analysis/signal_qc.py",
     "analysis/spectral_gapped.py",
+    "analysis/staging_helpers.py",
     "analysis/pipeline_version.py",
     "env/requirements.txt",
     "env/PYTHON_VERSION",
@@ -169,17 +171,503 @@ def finite_float_or_none(value):
     return value if np.isfinite(value) else None
 
 
-def cache_is_current(path, root=None):
+def require_integer_sample_rate(value, *, source):
+    """Return a positive integer sampling rate or fail before sample binning.
+
+    The cache format stores one-second power bins whose current implementation
+    requires an integral number of source samples per second.  Silently
+    truncating a fractional rate with ``int(sf)`` would shift those bins.
+    """
+    try:
+        sample_rate = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise RuntimeError(
+            f"{source} sampling rate is not a finite positive integer") from exc
+    if not np.isfinite(sample_rate) or sample_rate <= 0:
+        raise RuntimeError(
+            f"{source} sampling rate is not a finite positive integer")
+    integer_rate = int(round(sample_rate))
+    tolerance = max(
+        1e-9,
+        64.0 * np.finfo(float).eps * max(1.0, abs(sample_rate)),
+    )
+    if abs(sample_rate - integer_rate) > tolerance:
+        raise RuntimeError(
+            f"{source} sampling rate {sample_rate!r} is fractional; current "
+            "one-second cache bins require an integer rate")
+    return integer_rate
+
+
+def cache_is_current(path, root):
+    """Return whether an OK cache matches the current schema and producer bytes.
+
+    ``root`` is deliberately required.  Schema equality alone is not sufficient
+    provenance because scientific code can change without changing a label.
+    """
     if not os.path.exists(path):
         return False
     try:
         with np.load(path, allow_pickle=False) as d:
             schema_ok = npz_scalar_text(d, "cache_schema_version") == CACHE_SCHEMA_VERSION
             digest = npz_scalar_text(d, "cache_code_sha256")
-            digest_ok = root is None or digest == cache_code_sha256(root)
+            digest_ok = digest == cache_code_sha256(root)
             return npz_scalar_text(d, "status") == "ok" and schema_ok and digest_ok
     except Exception:
         return False
+
+
+def json_list_field(d, key, *, source, required=True):
+    """Decode a required JSON-list field from an NPZ cache.
+
+    Cache failure metadata is part of the scientific completion contract, not
+    an optional diagnostic.  Missing, malformed, or non-list values therefore
+    fail closed for current-schema publication consumers.
+    """
+    if key not in getattr(d, "files", []):
+        if required:
+            raise RuntimeError(f"{source} lacks required cache field {key!r}")
+        return []
+    try:
+        value = json.loads(npz_scalar_text(d, key))
+    except (TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"{source} has malformed JSON in {key!r}") from exc
+    if not isinstance(value, list):
+        raise RuntimeError(f"{source} field {key!r} must contain a JSON list")
+    return value
+
+
+def validate_completed_cache_failures(d, *, source, require_ecg):
+    """Require empty fatal-failure arrays in a completed scientific cache."""
+    failed_chunks = json_list_field(
+        d, "failed_chunks_json", source=source, required=True)
+    if failed_chunks:
+        raise RuntimeError(
+            f"{source} contains {len(failed_chunks)} failed acquisition chunks")
+    ecg_failures = json_list_field(
+        d, "ecg_failures_json", source=source, required=require_ecg)
+    if ecg_failures:
+        raise RuntimeError(
+            f"{source} contains {len(ecg_failures)} failed ECG-detector chunks")
+    return {
+        "failed_chunks": failed_chunks,
+        "ecg_failures": ecg_failures,
+    }
+
+
+def _manifest_record_subjects(records, *, label, source, detail_field):
+    if not isinstance(records, list):
+        raise RuntimeError(f"{source} manifest field {label!r} must be a list")
+    subjects = []
+    for index, record in enumerate(records):
+        if (
+            not isinstance(record, dict)
+            or not isinstance(record.get("subject"), str)
+            or not record["subject"]
+            or not isinstance(record.get(detail_field), str)
+            or not record[detail_field]
+        ):
+            raise RuntimeError(
+                f"{source} manifest {label}[{index}] must contain nonempty "
+                f"subject/{detail_field} strings")
+        subjects.append(record["subject"])
+    if len(subjects) != len(set(subjects)):
+        raise RuntimeError(
+            f"{source} manifest {label} contains duplicate subject identifiers")
+    return subjects
+
+
+def validate_terminal_run_manifest(manifest, *, source):
+    """Validate the standard cache-producer terminal partition and hash map."""
+    if not isinstance(manifest, dict):
+        raise RuntimeError(f"{source} manifest must be a JSON object")
+    state = manifest.get("run_state")
+    if state not in {"complete", "failed"}:
+        raise RuntimeError(f"{source} manifest is not terminal")
+    requested = manifest.get("requested")
+    completed = manifest.get("completed")
+    if (
+        not isinstance(requested, list)
+        or not all(isinstance(value, str) and value for value in requested)
+        or len(requested) != len(set(requested))
+        or not isinstance(completed, list)
+        or not all(isinstance(value, str) and value for value in completed)
+        or len(completed) != len(set(completed))
+    ):
+        raise RuntimeError(
+            f"{source} manifest requested/completed subjects are malformed")
+    skipped = _manifest_record_subjects(
+        manifest.get("skipped"), label="skipped", source=source,
+        detail_field="reason")
+    failed = _manifest_record_subjects(
+        manifest.get("failed"), label="failed", source=source,
+        detail_field="error")
+    partitions = (set(completed), set(skipped), set(failed))
+    if (
+        any(
+            partitions[left] & partitions[right]
+            for left, right in ((0, 1), (0, 2), (1, 2))
+        )
+        or set.union(*partitions) != set(requested)
+        or (state == "complete" and failed)
+        or (state == "failed" and not failed)
+    ):
+        raise RuntimeError(
+            f"{source} manifest terminal subject partition is inconsistent")
+    hashes = manifest.get("result_files_sha256")
+    expected_hashes = set(completed) | set(skipped)
+    if (
+        not isinstance(hashes, dict)
+        or set(hashes) != expected_hashes
+        or any(
+            not isinstance(value, str)
+            or len(value) != 64
+            or any(character not in "0123456789abcdef" for character in value)
+            for value in hashes.values()
+        )
+    ):
+        raise RuntimeError(
+            f"{source} manifest result hashes do not match its terminal outputs")
+    return {
+        "run_state": state,
+        "requested": list(requested),
+        "completed": list(completed),
+        "skipped": skipped,
+        "failed": failed,
+        "result_files_sha256": dict(hashes),
+    }
+
+
+def _npz_scalar_float(d, key, *, source):
+    if key not in getattr(d, "files", []):
+        raise RuntimeError(f"{source} lacks required cache field {key!r}")
+    try:
+        value = float(np.asarray(d[key]).item())
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise RuntimeError(
+            f"{source} cache field {key!r} is not a finite scalar") from exc
+    if not np.isfinite(value):
+        raise RuntimeError(
+            f"{source} cache field {key!r} is not a finite scalar")
+    return value
+
+
+def validate_full_interval_acquisition(
+        d, *, source, core_purpose, subrequest_purpose, core_chunk_s,
+        filter_edge_s):
+    """Prove portal responses match the producer's exact padded chunk geometry.
+
+    Records must alternate one or more bounded subrequests with the
+    non-overlapping analysis core they cover.  Every core must be the next
+    ``core_chunk_s`` block (or the final remainder), and its subrequests must
+    exactly tile the sample-aligned, ``filter_edge_s``-padded pull clipped to
+    the cached interval.
+    """
+    records = json_list_field(
+        d, "acquisition_sample_counts_json", source=source, required=True)
+    hours = _npz_scalar_float(d, "hours", source=source)
+    night_s = _npz_scalar_float(d, "night_s", source=source)
+    sample_rate = require_integer_sample_rate(
+        _npz_scalar_float(d, "sf", source=source), source=source)
+    try:
+        core_chunk_s = float(core_chunk_s)
+        filter_edge_s = float(filter_edge_s)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise RuntimeError(
+            f"{source} portal chunk/filter geometry is invalid") from exc
+    if (
+        not np.isfinite([core_chunk_s, filter_edge_s]).all()
+        or core_chunk_s <= 0
+        or filter_edge_s < 0
+        or night_s < 0
+    ):
+        raise RuntimeError(
+            f"{source} portal chunk/filter geometry is invalid")
+
+    total_duration_s = hours * 3600.0
+    rounded_duration_s = round(total_duration_s)
+    tolerance_s = 1e-7
+    if (
+        hours <= 0
+        or abs(total_duration_s - rounded_duration_s) > tolerance_s
+    ):
+        raise RuntimeError(
+            f"{source} cache duration must be a positive whole number of seconds")
+    total_duration_s = float(rounded_duration_s)
+
+    def sample_index(value, *, label):
+        scaled = float(value) * sample_rate
+        if not np.isfinite(scaled):
+            raise RuntimeError(
+                f"{source} {label} is not sample-aligned")
+        rounded = int(round(scaled))
+        tolerance_samples = max(
+            tolerance_s * sample_rate,
+            64.0 * np.finfo(float).eps * max(1.0, abs(scaled)),
+        )
+        if abs(scaled - rounded) > tolerance_samples:
+            raise RuntimeError(
+                f"{source} {label} is not sample-aligned")
+        return rounded
+
+    total_samples = sample_index(
+        total_duration_s, label="cache duration")
+    night_sample = sample_index(night_s, label="night start")
+    core_chunk_samples = sample_index(
+        core_chunk_s, label="core chunk duration")
+    filter_edge_samples = sample_index(
+        filter_edge_s, label="filter edge duration")
+    if core_chunk_samples <= 0 or filter_edge_samples < 0:
+        raise RuntimeError(
+            f"{source} portal chunk/filter geometry is invalid")
+
+    core_cursor_sample = 0
+    core_count = 0
+    subrequest_count = 0
+    expected_channel_count = None
+    pending_subrequests = []
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            raise RuntimeError(
+                f"{source} acquisition record {index} is not an object")
+        purpose = record.get("purpose")
+        requested = record.get("requested_sample_count")
+        returned = record.get("returned_sample_count")
+        if (
+            record.get("status") != "ok"
+            or not isinstance(requested, int)
+            or isinstance(requested, bool)
+            or requested <= 0
+            or not isinstance(returned, int)
+            or isinstance(returned, bool)
+            or returned != requested
+        ):
+            raise RuntimeError(
+                f"{source} acquisition record {index} is not an exact "
+                "successful request/core")
+
+        if purpose == subrequest_purpose:
+            try:
+                request_start = float(record["request_start_s"])
+                request_duration = float(record["request_duration_s"])
+            except (KeyError, TypeError, ValueError, OverflowError) as exc:
+                raise RuntimeError(
+                    f"{source} subrequest record {index} has invalid geometry") from exc
+            channel_count = record.get("requested_channel_count")
+            returned_channel_count = record.get("returned_channel_count")
+            request_start_sample = sample_index(
+                request_start, label=f"subrequest {index} start")
+            request_sample_count = sample_index(
+                request_duration, label=f"subrequest {index} duration")
+            if (
+                not np.isfinite([request_start, request_duration]).all()
+                or request_start < 0
+                or request_duration <= 0
+                or request_sample_count <= 0
+                or requested != request_sample_count
+                or not isinstance(channel_count, int)
+                or isinstance(channel_count, bool)
+                or channel_count <= 0
+                or not isinstance(returned_channel_count, int)
+                or isinstance(returned_channel_count, bool)
+                or returned_channel_count != channel_count
+            ):
+                raise RuntimeError(
+                    f"{source} subrequest record {index} has inconsistent geometry")
+            if expected_channel_count is None:
+                expected_channel_count = channel_count
+            elif channel_count != expected_channel_count:
+                raise RuntimeError(
+                    f"{source} portal subrequests change channel count")
+            if pending_subrequests:
+                previous = pending_subrequests[-1]
+                previous_stop_sample = (
+                    previous["request_start_sample"]
+                    + previous["request_sample_count"]
+                )
+                if request_start_sample != previous_stop_sample:
+                    raise RuntimeError(
+                        f"{source} bounded subrequests are not contiguous")
+            pending_subrequests.append({
+                "request_start_s": request_start,
+                "request_duration_s": request_duration,
+                "request_start_sample": request_start_sample,
+                "request_sample_count": request_sample_count,
+            })
+            subrequest_count += 1
+            continue
+
+        if purpose != core_purpose:
+            raise RuntimeError(
+                f"{source} acquisition record {index} has unknown purpose "
+                f"{purpose!r}")
+        if not pending_subrequests:
+            raise RuntimeError(
+                f"{source} analysis core {core_count} has no proven subrequest")
+        try:
+            core_start = float(record["analysis_start_s"])
+            core_duration = float(record["analysis_duration_s"])
+        except (KeyError, TypeError, ValueError, OverflowError) as exc:
+            raise RuntimeError(
+                f"{source} analysis core {core_count} has invalid geometry") from exc
+        core_start_sample = sample_index(
+            core_start, label=f"analysis core {core_count} start")
+        core_duration_sample_count = sample_index(
+            core_duration, label=f"analysis core {core_count} duration")
+        expected_core_sample_count = min(
+            core_chunk_samples, total_samples - core_cursor_sample)
+        if (
+            not np.isfinite([core_start, core_duration]).all()
+            or core_duration <= 0
+            or core_start_sample != core_cursor_sample
+            or core_duration_sample_count != expected_core_sample_count
+            or requested != expected_core_sample_count
+        ):
+            raise RuntimeError(
+                f"{source} analysis cores do not match the exact ordered "
+                "producer chunk partition")
+
+        expected_pull_start_sample = (
+            night_sample
+            + max(0, core_cursor_sample - filter_edge_samples)
+        )
+        expected_pull_stop_sample = (
+            night_sample
+            + min(
+                total_samples,
+                core_cursor_sample
+                + expected_core_sample_count
+                + filter_edge_samples,
+            )
+        )
+        pull_cursor_sample = expected_pull_start_sample
+        for subrequest in pending_subrequests:
+            if subrequest["request_start_sample"] != pull_cursor_sample:
+                raise RuntimeError(
+                    f"{source} analysis core {core_count} subrequests do not "
+                    "start at and exactly tile its intended padded pull")
+            pull_cursor_sample += subrequest["request_sample_count"]
+            if pull_cursor_sample > expected_pull_stop_sample:
+                raise RuntimeError(
+                    f"{source} analysis core {core_count} subrequests extend "
+                    "beyond its intended padded pull")
+        if pull_cursor_sample != expected_pull_stop_sample:
+            raise RuntimeError(
+                f"{source} analysis core {core_count} subrequests do not "
+                "exactly tile its intended padded pull")
+
+        core_cursor_sample += expected_core_sample_count
+        core_count += 1
+        pending_subrequests = []
+
+    if pending_subrequests:
+        raise RuntimeError(
+            f"{source} has bounded subrequests without a matching analysis core")
+    if core_count == 0 or core_cursor_sample != total_samples:
+        raise RuntimeError(
+            f"{source} acquisition cores do not cover the complete cached interval")
+    return {
+        "records": records,
+        "core_count": core_count,
+        "subrequest_count": subrequest_count,
+        "duration_s": total_duration_s,
+        "sample_rate_hz": sample_rate,
+        "channel_count": expected_channel_count,
+        "core_chunk_s": core_chunk_s,
+        "filter_edge_s": filter_edge_s,
+    }
+
+
+def validate_local_chunk_acquisition(d, *, source, filter_edge_s):
+    """Prove local padded reads exactly cover one complete cached interval."""
+    records = json_list_field(
+        d, "acquisition_chunk_sample_counts_json",
+        source=source, required=True)
+    hours = _npz_scalar_float(d, "hours", source=source)
+    sample_rate = require_integer_sample_rate(
+        _npz_scalar_float(d, "sf", source=source), source=source)
+    try:
+        filter_edge_s = float(filter_edge_s)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise RuntimeError(
+            f"{source} local acquisition filter padding is invalid") from exc
+    if not np.isfinite(filter_edge_s) or filter_edge_s < 0:
+        raise RuntimeError(
+            f"{source} local acquisition filter padding is invalid")
+
+    total_duration_s = hours * 3600.0
+    rounded_duration_s = round(total_duration_s)
+    tolerance_s = 1e-7
+    if (
+        hours <= 0
+        or abs(total_duration_s - rounded_duration_s) > tolerance_s
+    ):
+        raise RuntimeError(
+            f"{source} cache duration must be a positive whole number of seconds")
+    total_duration_s = float(rounded_duration_s)
+
+    cursor_s = 0.0
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            raise RuntimeError(
+                f"{source} local acquisition record {index} is not an object")
+        try:
+            start_s = float(record["start_s"])
+            duration_s = float(record["duration_s"])
+        except (KeyError, TypeError, ValueError, OverflowError) as exc:
+            raise RuntimeError(
+                f"{source} local acquisition record {index} has invalid "
+                "core geometry") from exc
+        requested = record.get("requested_pull_samples")
+        returned = record.get("returned_pull_samples")
+        if (
+            not np.isfinite([start_s, duration_s]).all()
+            or duration_s <= 0
+            or abs(start_s - cursor_s) > tolerance_s
+            or abs(start_s * sample_rate - round(start_s * sample_rate))
+                > tolerance_s
+            or abs(duration_s * sample_rate - round(duration_s * sample_rate))
+                > tolerance_s
+        ):
+            raise RuntimeError(
+                f"{source} local acquisition cores are not an ordered "
+                "gap-free sample-aligned partition")
+        core_stop_s = start_s + duration_s
+        if core_stop_s > total_duration_s + tolerance_s:
+            raise RuntimeError(
+                f"{source} local acquisition core extends beyond the "
+                "cached interval")
+        pull_start_s = max(0.0, start_s - filter_edge_s)
+        pull_stop_s = min(
+            total_duration_s, core_stop_s + filter_edge_s)
+        expected_pull_samples = (
+            int(round(pull_stop_s * sample_rate))
+            - int(round(pull_start_s * sample_rate))
+        )
+        if (
+            not isinstance(requested, int)
+            or isinstance(requested, bool)
+            or not isinstance(returned, int)
+            or isinstance(returned, bool)
+            or requested <= 0
+            or returned != requested
+            or requested != expected_pull_samples
+        ):
+            raise RuntimeError(
+                f"{source} local acquisition record {index} does not prove "
+                "the exact padded pull sample count")
+        cursor_s = core_stop_s
+
+    if not records or abs(cursor_s - total_duration_s) > tolerance_s:
+        raise RuntimeError(
+            f"{source} local acquisition cores do not cover the complete "
+            "cached interval")
+    return {
+        "records": records,
+        "chunk_count": len(records),
+        "duration_s": total_duration_s,
+        "sample_rate_hz": sample_rate,
+        "filter_edge_s": filter_edge_s,
+    }
 
 
 def atomic_json_dump(payload, path, *, indent=2):
@@ -220,7 +708,8 @@ def atomic_savez(path, **payload):
 
 
 def write_run_manifest(out_dir, *, pipeline, requested, completed, skipped, failed, config,
-                       run_id=None, run_state="complete", result_files_sha256=None):
+                       run_id=None, run_state="complete", result_files_sha256=None,
+                       extra_fields=None):
     requested = list(requested)
     completed = list(completed)
     skipped = list(skipped)
@@ -242,6 +731,40 @@ def write_run_manifest(out_dir, *, pipeline, requested, completed, skipped, fail
             raise ValueError(f"manifest {label} entries require a subject identifier")
         if len(values) != len(set(values)):
             raise ValueError(f"manifest {label} contains duplicate subject identifiers")
+    if run_state not in {"in_progress", "complete", "failed"}:
+        raise ValueError(
+            "manifest run_state must be 'in_progress', 'complete', or 'failed'")
+    requested_set = set(named_lists["requested"])
+    completed_set = set(named_lists["completed"])
+    skipped_set = set(named_lists["skipped"])
+    failed_set = set(named_lists["failed"])
+    terminal_sets = (completed_set, skipped_set, failed_set)
+    if any(values - requested_set for values in terminal_sets):
+        raise ValueError("manifest terminal subjects must all be requested")
+    if (
+        completed_set & skipped_set
+        or completed_set & failed_set
+        or skipped_set & failed_set
+    ):
+        raise ValueError(
+            "manifest completed, skipped, and failed partitions must be disjoint")
+    hashes = dict(result_files_sha256 or {})
+    if run_state == "in_progress":
+        if completed_set or skipped_set or failed_set or hashes:
+            raise ValueError(
+                "an in-progress manifest cannot claim terminal subjects or result hashes")
+    else:
+        if completed_set | skipped_set | failed_set != requested_set:
+            raise ValueError(
+                "a terminal manifest must account for every requested subject exactly once")
+        if run_state == "complete" and failed_set:
+            raise ValueError("a complete manifest cannot contain failed subjects")
+        if run_state == "failed" and not failed_set:
+            raise ValueError("a failed manifest must contain at least one failed subject")
+        expected_hashes = completed_set | skipped_set
+        if set(hashes) != expected_hashes:
+            raise ValueError(
+                "terminal manifest hashes must cover completed and skipped outputs exactly")
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     manifest = {
         "run_id": run_id or str(uuid.uuid4()),
@@ -259,8 +782,17 @@ def write_run_manifest(out_dir, *, pipeline, requested, completed, skipped, fail
         "skipped": skipped,
         "failed": failed,
         "config": config,
-        "result_files_sha256": dict(result_files_sha256 or {}),
+        "result_files_sha256": hashes,
     }
+    if run_state != "in_progress":
+        validate_terminal_run_manifest(
+            manifest, source=f"{pipeline} terminal output")
+    extra_fields = dict(extra_fields or {})
+    reserved = set(manifest) & set(extra_fields)
+    if reserved:
+        raise ValueError(
+            f"extra manifest fields cannot replace reserved keys: {sorted(reserved)}")
+    manifest.update(extra_fields)
     atomic_json_dump(manifest, os.path.join(out_dir, "RUN_MANIFEST.json"))
     return manifest
 

@@ -10,9 +10,12 @@ from calibrate_staging_windows import (
     _manifest_subjects,
     calibration_source_files_sha256,
     calibration_records,
+    update_staging_calibration_pin,
 )
 from pipeline_version import (
+    ANALYSIS_VERSION,
     CACHE_SCHEMA_VERSION,
+    atomic_json_dump,
     atomic_savez,
     cache_code_sha256,
     file_sha256,
@@ -119,4 +122,87 @@ with tempfile.TemporaryDirectory() as cache_dir:
     check(
         "calibration rejects a manifest-hashed cache with the wrong embedded subject",
         identity_rejected,
+    )
+
+
+with tempfile.TemporaryDirectory() as synthetic_root:
+    artifact_path = os.path.join(
+        synthetic_root, "outputs", "calibration.json")
+    profile_path = os.path.join(
+        synthetic_root, "analysis", "profiles.json")
+    artifact = {
+        "analysis_version": ANALYSIS_VERSION,
+        "cache_schema_version": CACHE_SCHEMA_VERSION,
+        "cache_manifest_sha256": "a" * 64,
+        "cache_pipeline": "stage_ds003848",
+        "cache_run_id": "synthetic-current-cache",
+        "recommended_minimum_valid_windows": 11,
+        "support_results": [{
+            "minimum_valid_windows": 11,
+            "exact_support": {"meets_calibration_targets": True},
+        }],
+    }
+    profile_set = {
+        "schema_version": "qc-profile-set-v1",
+        "method_config": {
+            "staging_calibration": {
+                "analysis_version": "old",
+                "artifact_relative_path": "old.json",
+                "artifact_sha256": "0" * 64,
+                "cache_manifest_sha256": "1" * 64,
+                "cache_pipeline": "stage_ds003848",
+                "cache_run_id": "old",
+                "cache_schema_version": "old",
+                "calibration_scope": "synthetic outcome-blind calibration",
+                "hup_transport_status": "not calibrated for HUP",
+                "not_a_paper_requirement": True,
+                "recommended_minimum_valid_windows": 11,
+            },
+        },
+    }
+    atomic_json_dump(artifact, artifact_path)
+    atomic_json_dump(profile_set, profile_path)
+    expected_artifact_sha = file_sha256(artifact_path)
+    pin = update_staging_calibration_pin(
+        artifact_path,
+        profile_path,
+        root=synthetic_root,
+    )
+    first_profile_sha = file_sha256(profile_path)
+    second_pin = update_staging_calibration_pin(
+        artifact_path,
+        profile_path,
+        root=synthetic_root,
+    )
+    check(
+        "calibration pin update is exact, contextual, and deterministic",
+        pin == second_pin
+        and file_sha256(profile_path) == first_profile_sha
+        and pin["artifact_relative_path"] == "outputs/calibration.json"
+        and pin["artifact_sha256"] == expected_artifact_sha
+        and pin["cache_run_id"] == "synthetic-current-cache"
+        and pin["calibration_scope"]
+        == "synthetic outcome-blind calibration",
+    )
+
+    changed = dict(artifact)
+    changed["recommended_minimum_valid_windows"] = 12
+    changed["support_results"] = [{
+        "minimum_valid_windows": 12,
+        "exact_support": {"meets_calibration_targets": True},
+    }]
+    atomic_json_dump(changed, artifact_path)
+    try:
+        update_staging_calibration_pin(
+            artifact_path,
+            profile_path,
+            root=synthetic_root,
+        )
+    except RuntimeError as exc:
+        changed_recommendation_rejected = "recommendation changed" in str(exc)
+    else:
+        changed_recommendation_rejected = False
+    check(
+        "pinning cannot silently change the locked calibration recommendation",
+        changed_recommendation_rejected,
     )

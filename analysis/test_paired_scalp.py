@@ -1,12 +1,16 @@
 """Fast integrity checks for the simultaneous scalp–iEEG sidecar and results."""
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import tempfile
 
 import numpy as np
 
+from compact_qc_grid_artifacts import validate_public_artifacts
+from paired_artifact_validation import validate_checked_in_paired_evidence
+from paired_reporting import _validate_csv_artifact
 from cache_paired_scalp import (
     SCALP_CACHE_SCHEMA,
     _normalize_scalp_label,
@@ -28,10 +32,48 @@ from pipeline_version import atomic_savez, file_sha256, source_tree_sha256
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--artifact-validation",
+        choices=("offline", "publication"),
+        default="publication",
+        help=(
+            "offline validates every checked-in artifact and skips only absent "
+            "data/derived manifests; publication also requires the live private "
+            "cache lineage"
+        ),
+    )
+    return parser.parse_args()
+
+
 def check(name, condition):
     print(f"  {'PASS' if condition else 'FAIL'}  {name}")
     if not condition:
         raise AssertionError(name)
+
+
+ARGS = parse_args()
+PUBLIC_QC_EVIDENCE = validate_public_artifacts()
+check(
+    "all compact QC summaries and the full locked-profile snapshot validate",
+    len(PUBLIC_QC_EVIDENCE) == 9,
+)
+PUBLIC_EVIDENCE = validate_checked_in_paired_evidence(ROOT)
+check(
+    "checked-in paired inventory and result evidence is complete and byte-pinned",
+    bool(PUBLIC_EVIDENCE["subject_results"]["subjects"]),
+)
+if ARGS.artifact_validation == "offline":
+    print(
+        "  INFO  non-publication CI skipped absent ignored lineage: "
+        + ", ".join(PUBLIC_EVIDENCE["skipped_derived_lineage"])
+    )
+else:
+    check(
+        "publication validation has every private derived manifest",
+        not PUBLIC_EVIDENCE["skipped_derived_lineage"],
+    )
 
 
 check(
@@ -102,7 +144,7 @@ check(
 inventory_path = os.path.join(
     ROOT, "outputs", "paired_scalp_inventory",
     "hup_scalp_channel_inventory.json")
-if os.path.isfile(inventory_path):
+if ARGS.artifact_validation == "publication":
     audited_subjects = [
         "HUP160_phaseII",
         "HUP185_phaseII",
@@ -186,120 +228,144 @@ with tempfile.TemporaryDirectory() as directory:
 
 
 result_dir = os.path.join(ROOT, "outputs", "paired_scalp_ieeg")
-result_manifest_path = os.path.join(result_dir, "RUN_MANIFEST.json")
-if os.path.isfile(result_manifest_path):
-    with open(result_manifest_path) as handle:
-        result_manifest = json.load(handle)
-    with open(os.path.join(result_dir, "subject_results.json")) as handle:
-        paired_results = json.load(handle)
+result_manifest = PUBLIC_EVIDENCE["result_manifest"]
+paired_results = PUBLIC_EVIDENCE["subject_results"]
 
-    role_pair_rows = _role_pair_csv_rows(paired_results["subjects"])
-    normalized_rows = _normalized_csv_rows(
-        paired_results["subjects"], role_pair_rows)
-    normalized_keys = [
+role_pair_rows = _role_pair_csv_rows(paired_results["subjects"])
+normalized_rows = _normalized_csv_rows(
+    paired_results["subjects"], role_pair_rows)
+
+
+actual_normalized_rows = _validate_csv_artifact(
+    os.path.join(result_dir, "paired_metrics.csv"),
+    normalized_rows,
+)
+actual_role_rows = _validate_csv_artifact(
+    os.path.join(result_dir, "role_pair_metrics.csv"),
+    role_pair_rows,
+)
+check(
+    "checked-in normalized CSV exactly matches subject_results-derived rows",
+    bool(actual_normalized_rows),
+)
+check(
+    "checked-in role-pair CSV exactly matches subject_results-derived rows",
+    bool(actual_role_rows),
+)
+
+normalized_keys = [
+    (
+        row["subject"],
+        row["question"],
+        row["stage"],
+        row["modality"],
+    )
+    for row in normalized_rows
+]
+check(
+    "normalized CSV has no duplicate subject/question/stage/modality",
+    len(normalized_keys) == len(set(normalized_keys))
+    and len(actual_normalized_rows) == len({
         (
             row["subject"],
             row["question"],
             row["stage"],
             row["modality"],
         )
-        for row in normalized_rows
-    ]
-    check(
-        "normalized CSV has no duplicate subject/question/stage/modality",
-        len(normalized_keys) == len(set(normalized_keys)),
+        for row in actual_normalized_rows
+    }),
+)
+normalized_ieeg_3b = [
+    row for row in normalized_rows
+    if row["question"] == "3B" and row["modality"] == "iEEG"
+]
+check(
+    "normalized CSV has exactly one iEEG 3B row per subject-stage",
+    len(normalized_ieeg_3b)
+    == len(paired_results["subjects"]) * len(STAGES_3B)
+    and all(
+        row["comparison_role"] == "subject_stage"
+        for row in normalized_ieeg_3b
+    ),
+)
+available_scalp_role_keys = {
+    (row["subject"], row["stage"], row["comparison_role"])
+    for row in role_pair_rows
+    if (
+        row["question"] == "3B"
+        and row["modality"] != "iEEG"
+        and row["sensor_available"]
     )
-    normalized_ieeg_3b = [
-        row for row in normalized_rows
-        if row["question"] == "3B" and row["modality"] == "iEEG"
-    ]
-    check(
-        "normalized CSV has exactly one iEEG 3B row per subject-stage",
-        len(normalized_ieeg_3b)
-        == len(paired_results["subjects"]) * len(STAGES_3B)
-        and all(
-            row["comparison_role"] == "subject_stage"
-            for row in normalized_ieeg_3b
-        ),
-    )
-    available_scalp_role_keys = {
-        (row["subject"], row["stage"], row["comparison_role"])
-        for row in role_pair_rows
-        if (
-            row["question"] == "3B"
-            and row["modality"] != "iEEG"
-            and row["sensor_available"]
-        )
-    }
-    ieeg_role_keys = {
-        (row["subject"], row["stage"], row["comparison_role"])
-        for row in role_pair_rows
-        if row["question"] == "3B" and row["modality"] == "iEEG"
-    }
-    check(
-        "role-pair CSV retains one iEEG mate for every available scalp role",
-        available_scalp_role_keys == ieeg_role_keys,
-    )
-    check(
-        "CSV normalization leaves authoritative group summary unchanged",
-        _group_summary(paired_results["subjects"])
-        == paired_results["group_summary"],
-    )
+}
+ieeg_role_keys = {
+    (row["subject"], row["stage"], row["comparison_role"])
+    for row in role_pair_rows
+    if row["question"] == "3B" and row["modality"] == "iEEG"
+}
+check(
+    "role-pair CSV retains one iEEG mate for every available scalp role",
+    available_scalp_role_keys == ieeg_role_keys,
+)
+check(
+    "CSV normalization leaves authoritative group summary unchanged",
+    _group_summary(paired_results["subjects"])
+    == paired_results["group_summary"],
+)
 
-    hashes_match = all(
-        file_sha256(os.path.join(result_dir, name)) == expected
-        for name, expected in result_manifest["result_files_sha256"].items()
+hashes_match = all(
+    file_sha256(os.path.join(result_dir, name)) == expected
+    for name, expected in result_manifest["result_files_sha256"].items()
+)
+check("paired result files match their terminal manifest", hashes_match)
+check(
+    "paired results identify the exact current analysis source tree",
+    result_manifest.get("source_tree_sha256") == source_tree_sha256(ROOT),
+)
+common_support_ok = True
+for subject_result in paired_results["subjects"]:
+    shared = subject_result["shared_inputs"]
+    geometry = shared["paired_3a_geometry_verification"]
+    left = subject_result["ieeg"]["result_3a"]
+    right = subject_result["scalp"]["result_3a"]
+    common_support_ok &= (
+        geometry["status"] == "exact_shared_geometry"
+        and shared["paired_3a_common_support"]["n_shared_seconds"] > 0
+        and left["n_bouts"] == right["n_bouts"]
+        and left["bout_seconds"] == right["bout_seconds"]
     )
-    check("paired result files match their terminal manifest", hashes_match)
-    check(
-        "paired results identify the exact current analysis source tree",
-        result_manifest.get("source_tree_sha256") == source_tree_sha256(ROOT),
+    left_coherence = left.get("coherence")
+    right_coherence = right.get("coherence")
+    common_support_ok &= (
+        (left_coherence is None) == (right_coherence is None)
     )
-    common_support_ok = True
-    for subject_result in paired_results["subjects"]:
-        shared = subject_result["shared_inputs"]
-        geometry = shared["paired_3a_geometry_verification"]
-        left = subject_result["ieeg"]["result_3a"]
-        right = subject_result["scalp"]["result_3a"]
+    if left_coherence is not None:
         common_support_ok &= (
-            geometry["status"] == "exact_shared_geometry"
-            and shared["paired_3a_common_support"]["n_shared_seconds"] > 0
-            and left["n_bouts"] == right["n_bouts"]
-            and left["bout_seconds"] == right["bout_seconds"]
-        )
-        left_coherence = left.get("coherence")
-        right_coherence = right.get("coherence")
-        common_support_ok &= (
-            (left_coherence is None) == (right_coherence is None)
-        )
-        if left_coherence is not None:
-            common_support_ok &= (
-                left_coherence["K"] == right_coherence["K"]
-                and left_coherence["n_valid"] == right_coherence["n_valid"]
-                and np.isclose(
-                    left_coherence["analytic_threshold"],
-                    right_coherence["analytic_threshold"],
-                    rtol=0,
-                    atol=1e-12,
-                )
+            left_coherence["K"] == right_coherence["K"]
+            and left_coherence["n_valid"] == right_coherence["n_valid"]
+            and np.isclose(
+                left_coherence["analytic_threshold"],
+                right_coherence["analytic_threshold"],
+                rtol=0,
+                atol=1e-12,
             )
-        left_xcorr = left.get("cross_correlation")
-        right_xcorr = right.get("cross_correlation")
-        common_support_ok &= (
-            (left_xcorr is None) == (right_xcorr is None)
         )
-        if left_xcorr is not None:
-            common_support_ok &= (
-                left_xcorr["n_intervals"] == right_xcorr["n_intervals"]
-                and geometry[
-                    "cross_correlation_retained_window_count"]
-                == left_xcorr["n_intervals"]
-                and bool(geometry[
-                    "cross_correlation_retained_window_starts_sha256"])
-            )
-    check(
-        "every saved primary 3A pair has exact shared support geometry",
-        common_support_ok,
+    left_xcorr = left.get("cross_correlation")
+    right_xcorr = right.get("cross_correlation")
+    common_support_ok &= (
+        (left_xcorr is None) == (right_xcorr is None)
     )
+    if left_xcorr is not None:
+        common_support_ok &= (
+            left_xcorr["n_intervals"] == right_xcorr["n_intervals"]
+            and geometry[
+                "cross_correlation_retained_window_count"]
+            == left_xcorr["n_intervals"]
+            and bool(geometry[
+                "cross_correlation_retained_window_starts_sha256"])
+        )
+check(
+    "every saved primary 3A pair has exact shared support geometry",
+    common_support_ok,
+)
 
 print("ALL PAIRED-SCALP CHECKS PASSED")

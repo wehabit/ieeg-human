@@ -2,25 +2,31 @@
 
 ## Status and construct
 
-These are the methods for the neutral-cache v8 QC-sensitivity analyses. The prior fixed-80
-production rerun remains reproducible as a historical profile, but it is not treated as a
-paper-derived or preregistered qualification rule. The authoritative numerical report is
-[QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md).
+These are the v9 methods for the neutral-cache QC-sensitivity analyses. The
+prior v8 fixed-80 and endpoint-local runs remain historical evidence, but they
+are not treated as current v9 results or as paper-derived/preregistered
+qualification rules. The historical numerical report is
+[QC_SENSITIVITY_RESULTS_2026-07.md](QC_SENSITIVITY_RESULTS_2026-07.md); the
+current fix/rebuild state is in
+[ISSUE_REGISTER_2026-07.md](ISSUE_REGISTER_2026-07.md).
 
 3A is an LC-motivated candidate signature. 3B is a cortical–autonomic timing measure. 3D is generic
 SO–spindle nesting. None is a validated human LC measurement. Direct LC/NE validation would require
 an independent LC/NE-sensitive signal or intervention.
 
-The current contract is `analysis_version = 2026-07-qc-sensitivity-v8` and
-`cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v8`.
+The current contract is `analysis_version = 2026-07-qc-sensitivity-v9` and
+`cache_schema_version = 2026-07-neutral-per-contact-gap-aware-source-pin-v9`.
 
-The complete six-subject RESPect cache and 25-request HUP cache pass exact cache-code,
+The historical complete six-subject RESPect cache and 25-request HUP v8 cache passed exact cache-code,
 input-identity, result-file, and runtime checks. HUP has 24 completed neutral caches and one
 structured skip (HUP116, no cortical-contact candidates). Under the outcome-blind endpoint-local
 base sensitivity, RESPect has 3/3/3 available 3A spectrum/coherence/cross-correlation records and
 0/1/2 available 3B N2/N3/pooled records. HUP has 19/14/15 available 3A records, 6/5/15 available
 3B records, and 7 descriptive 3D records. These are availability counts, not effect support.
 RESPect remains below the default cohort minimum; 3B and 3D inference is disabled.
+V9 changes acquisition/event fields and mandatory provenance, so these counts
+must not be labeled current until the rebuild sequence in
+[ARTIFACT_POLICY.md](ARTIFACT_POLICY.md) completes.
 
 ## Data
 
@@ -36,7 +42,7 @@ documented as SOZ, resected, edge, silicon/screw, CSF/white matter, lesion/glios
 or without a cortical atlas label are excluded. The remaining Destrieux labels define a
 parietal/postcentral/precuneus intersection for the 3A adaptation and a frontal intersection for
 3B. These are conservative metadata filters and motivated iEEG adaptations; they do not validate
-homology to Lecci's C3/parietal or Naji's F3/F4 scalp sensors.
+homology to Lecci's C3/parietal source or Naji's F3/A2 and F4/A1 scalp derivations.
 
 The HUP interval is selected from 6 s delta-ratio probes sampled every 30 min. Candidate 3 h windows
 are evaluated in their true physical positions across the complete record: failed probes stay
@@ -143,18 +149,23 @@ beat gap from later appearing as a fillable 5.0 s internal NaN run. Both RR and 
 stored at 1 and 4 Hz.
 
 The current cache uses NeuroKit2 `ecg_clean`/`ecg_peaks` with `method="neurokit"` and artifact
-correction. This is a documented deviation from Naji's 0.5–100 Hz preprocessing, Pan–Tompkins
-detector, and visual confirmation. Cache metadata records the algorithm and `visual_validation =
-false`; blinded manual validation and detector sensitivity analysis remain required.
+correction. Naji used 0.5–100 Hz ECG, Pan–Tompkins R-wave detection, and visual confirmation.
+Cache metadata records the current algorithm and `visual_validation = false`; blinded manual
+validation and detector sensitivity analysis remain required.
 
 ## 3A: infraslow sigma and cardiac dynamics
 
-Primary sigma is fixed 10–15 Hz; SWA 0.5–4 Hz is the negative-control band. For RESPect, both use
-the coverage-qualified non-pathological Destrieux parietal/postcentral/precuneus intersection.
-Individual FSP analysis is disabled until FSP can be estimated from all artifact-free NREM and
-manually quality-controlled.
+Lecci's human source analysis used scalp EEG/ECG, fixed 10–15 Hz sigma and 0.5–4 Hz SWA,
+artifact-free NREM bouts of at least 120 s within the first 210 min after sleep onset, and reported
+approximately 0.02-Hz modulation without directly recording LC or norepinephrine. In this
+adaptation, primary sigma is fixed 10–15 Hz and SWA 0.5–4 Hz is the negative-control band. For
+RESPect, both use the coverage-qualified non-pathological Destrieux
+parietal/postcentral/precuneus intersection. Individual FSP analysis is disabled until FSP can be
+estimated from all artifact-free NREM and manually quality-controlled.
 
-For every proxy-NREM run at least 120 s:
+The estimator retains at most the first 210 min of its selected analysis interval. Lecci anchored
+that window to sleep onset; the HUP high-delta candidate start is not verified sleep onset. Within
+that core, for every proxy-NREM run at least 120 s:
 
 1. Apply the mandatory symmetric 4 s smoothing.
 2. Compute a four-cycle Morlet spectrum from 0.001–0.12 Hz at 0.001 Hz spacing.
@@ -200,11 +211,11 @@ with 75 as the base sensitivity.
 
 For each channel, the 4 Hz RR tachogram is averaged in a ±5 s window around SO down-state troughs.
 The post-trough RR minimum defines the HR-burst time. Channel-specific times are averaged, matching
-Naji’s electrode timing endpoint. A participant magnitude is obtained from the average channel RR
-curve. Its stage baseline is calculated in the same RR domain and converted once to HR, so the
-percentage does not mix `60 / mean(RR)` with `mean(60 / RR)`. Observed and diagnostic-shift effects
-use that identical denominator. This is a documented consistency choice because the paper does not
-fully disambiguate the order of averaging and HR conversion for its stage baseline.
+Naji’s derivation-level timing endpoint. A participant magnitude is obtained from the average
+channel RR curve. Its stage baseline is calculated in the same RR domain and converted once to HR,
+so the percentage does not mix `60 / mean(RR)` with `mean(60 / RR)`. Observed and diagnostic-shift
+effects use that identical denominator. This is a documented consistency choice because the paper
+does not fully disambiguate the order of averaging and HR conversion for its stage baseline.
 
 The former null applies one common circular shift in eligible stage-time to the complete
 multichannel event ensemble, preserving cross-channel SO synchrony and fixing the older
@@ -214,8 +225,10 @@ event-locking p/z claim. It reports the raw Naji magnitude, local post-peak vers
 and shift-null diagnostic while a local-trend/dependence-preserving null is developed and
 validated.
 
-This is still an iEEG adaptation: Naji used visually scored stable sleep, F3/F4 scalp, absolute
-Dang-Vu criteria, visually checked R peaks, and a behavioral timing endpoint that is absent here.
+This is still an iEEG adaptation: Naji used scalp PSG derivations F3/A2 and F4/A1 in
+R&K-scored uninterrupted 3-min bins, absolute Dang-Vu criteria, Pan–Tompkins R-wave detection with
+visual confirmation, a 4 Hz piecewise-cubic-spline RR series, and a behavioral timing endpoint that
+is absent here. Naji did not measure LC.
 For RESPect, the production adaptation intersects the cache's fixed coverage-qualified contacts
 with the conservative Destrieux frontal ROI and requires at least two contacts to retain 30
 complete finite in-stage RR windows after final window eligibility. Intracranial voltage polarity
@@ -223,6 +236,9 @@ is not yet oriented to Naji's negative scalp downstate, so downstate timing rema
 source-transfer limitation rather than a validated homologous marker.
 
 ## 3D: independent-SO spindle phase
+
+Staresina and Helfrich provide SO–spindle event-detection and phase-coupling methods in
+artifact-free NREM; neither paper measures or validates LC activity.
 
 Per contact:
 

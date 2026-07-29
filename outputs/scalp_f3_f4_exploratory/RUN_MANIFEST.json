@@ -1,0 +1,148 @@
+{
+  "analysis_scope": "participant_level_scalp_only",
+  "analysis_version": "2026-07-qc-sensitivity-v9",
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
+  "code_dirty": false,
+  "code_revision": "e2d64d8439dfe9b4352e476387c55c2f0c99e701",
+  "generated_at_utc": "2026-07-29T22:44:07.266965+00:00",
+  "group_inference_performed": false,
+  "input_lineage": {
+    "channel_roles_json_sha256": "bcdc6ebdd4af2888c1b19a301462bfb49d1f95cf13afa90bedfbd97511e21626",
+    "ieeg_cache_manifest_path_relative": "data/derived/lc_infraslow/RUN_MANIFEST.json",
+    "ieeg_cache_manifest_run_id": "0ff4c279-41d8-4640-b777-94b8b353ee6d",
+    "ieeg_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
+    "ieeg_cache_path_relative": "data/derived/lc_infraslow/HUP138_phaseII.npz",
+    "ieeg_cache_sha256": "90af1163fcc21e1675680fec57ff05da51c58d3bae4429e3d5e0ad7cc6fb837a",
+    "inventory_channel_identity": {
+      "f3": {
+        "identity": {
+          "data_check": "26f835725ea9f1c46405181f7871c0fa-149",
+          "duration_us": 620837776367.0,
+          "end_time_us": 947372226776367,
+          "number_of_samples": 626365027,
+          "revision_id": "b0b45a7f-0f3c-4f93-a5db-97d5aa08d912",
+          "sample_rate_hz": 1024.0,
+          "start_time_us": 946751389000000
+        },
+        "label": "F3",
+        "same_geometry_as_pinned_reference": true
+      },
+      "f4": {
+        "identity": {
+          "data_check": "6157ddc836031e58b7636e934c44495b-148",
+          "duration_us": 620837776367.0,
+          "end_time_us": 947372226776367,
+          "number_of_samples": 626365027,
+          "revision_id": "85361ed8-b28f-4c7c-80e4-219ef7e51e3c",
+          "sample_rate_hz": 1024.0,
+          "start_time_us": 946751389000000
+        },
+        "label": "F4",
+        "same_geometry_as_pinned_reference": true
+      }
+    },
+    "inventory_manifest_path_relative": "outputs/paired_scalp_inventory/RUN_MANIFEST.json",
+    "inventory_manifest_sha256": "1166109b430fc9c15208991483fdb0a0b2e5e0dadf4983ba220f7dc2f880a53d",
+    "inventory_path_relative": "outputs/paired_scalp_inventory/hup_scalp_channel_inventory.json",
+    "inventory_sha256": "f4eae85e175a7e78bf8bba7f554621e6f5ab77c004fbd300994e23ad4fbe5b37",
+    "portal_source_identity": {
+      "dataset_name": "HUP138_phaseII",
+      "geometry_requirement": "same start/end/sample count/duration/sample rate as the pinned simultaneously recorded iEEG reference channel",
+      "reference_ieeg_channel": "LF12",
+      "reference_ieeg_identity": {
+        "data_check": "97ee9bb760cbbf25007920009d7a18fa-250",
+        "duration_us": 620837776367.0,
+        "end_time_us": 947372226776367,
+        "number_of_samples": 626365027,
+        "revision_id": "babfe9cb-afb8-4833-ab0b-7d63c4aa8bcf",
+        "sample_rate_hz": 1024.0,
+        "start_time_us": 946751389000000
+      },
+      "scalp_channels": {
+        "C3": {
+          "data_check": "128ba8cf21793981b377df39d4cba961-148",
+          "duration_us": 620837776367.0,
+          "end_time_us": 947372226776367,
+          "number_of_samples": 626365027,
+          "revision_id": "b04adbb2-5b8f-4533-b788-00a20469fc9a",
+          "sample_rate_hz": 1024.0,
+          "start_time_us": 946751389000000
+        },
+        "F3": {
+          "data_check": "26f835725ea9f1c46405181f7871c0fa-149",
+          "duration_us": 620837776367.0,
+          "end_time_us": 947372226776367,
+          "number_of_samples": 626365027,
+          "revision_id": "b0b45a7f-0f3c-4f93-a5db-97d5aa08d912",
+          "sample_rate_hz": 1024.0,
+          "start_time_us": 946751389000000
+        },
+        "F4": {
+          "data_check": "6157ddc836031e58b7636e934c44495b-148",
+          "duration_us": 620837776367.0,
+          "end_time_us": 947372226776367,
+          "number_of_samples": 626365027,
+          "revision_id": "85361ed8-b28f-4c7c-80e4-219ef7e51e3c",
+          "sample_rate_hz": 1024.0,
+          "start_time_us": 946751389000000
+        },
+        "FZ": {
+          "data_check": "b6f7772692cbfa2791abc5c12bf47d36-159",
+          "duration_us": 620837776367.0,
+          "end_time_us": 947372226776367,
+          "number_of_samples": 626365027,
+          "revision_id": "9a6fc664-f1f6-4951-82f1-0f55a35ec73b",
+          "sample_rate_hz": 1024.0,
+          "start_time_us": 946751389000000
+        }
+      },
+      "scalp_role_to_channel": {
+        "c3": "C3",
+        "f3": "F3",
+        "f4": "F4",
+        "fz": "FZ"
+      },
+      "snapshot_id": "bcf23cb4-0f18-4288-be52-017df125e000"
+    },
+    "qc_grid_path_relative": "outputs/qc_grid_public/locked/overlap11_endpoint_local__hup.json",
+    "qc_grid_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
+    "qc_grid_sha256": "c95fd41ac2c96a9ddc322aaaff9d686cd1a9abf7c8079c4600332b72407e21fa",
+    "rr_4_n_samples": 100800,
+    "rr_4_sha256": "5b6490b78fa1163dbdb751a8c7fe972a4a4884c7a0f1b7fe19cddce8f10332f7",
+    "scalp_sidecar_cache_dependency_sha256": "b92517ee92641133c9e76207307a93cc1261787b162117fab6b6291f53956541",
+    "scalp_sidecar_manifest_path_relative": "data/derived/paired_scalp/RUN_MANIFEST.json",
+    "scalp_sidecar_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
+    "scalp_sidecar_path_relative": "data/derived/paired_scalp/HUP138_phaseII.npz",
+    "scalp_sidecar_sha256": "31f62630d0b57b338412b1dde0d40f76e6553ee9603f557a5ffbfe6455643123",
+    "source_identity_json_sha256": "a7be06a3f464f13f37acbbe5b1eb093a5048772295bc6e451e7e359f3bedf40e",
+    "stage_lab_n_epochs": 840,
+    "stage_lab_sha256": "afea4e4fe246a250c91ba4e7f3f9d32610da18f41fe7da56df6c40518c2dbe06",
+    "validated_sidecar_roles": {
+      "c3": "C3",
+      "f3": "F3",
+      "f4": "F4",
+      "fz": "FZ"
+    }
+  },
+  "paired_comparison_performed": false,
+  "pipeline": "scalp_f3_f4_exploratory",
+  "result_files_sha256": {
+    "HUP138_phaseII_bilateral_3B.csv": "357b98168bc32074b8c0c91c6b5ced6659155f69f39d57f5baa1d5533138b62b",
+    "HUP138_phaseII_bilateral_3B.json": "65430d25591c67c7b9c179664353b6c9c0286d3079aecb23a33f1869ac017921",
+    "HUP138_phaseII_bilateral_3B.png": "45f8a930828a57bc8edb1e9d4fd3de23222fffec8754dcaf7a92765dff769479",
+    "HUP138_phaseII_bilateral_3B.svg": "52b0b16671c9eeb153ed4bd767f52fc2b0d66caebbcef125f6158b7268592ad3"
+  },
+  "run_state": "complete",
+  "runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "schema_version": "2026-07-hup138-scalp-f3-f4-exploratory-v1",
+  "source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7",
+  "subject": "HUP138_phaseII"
+}

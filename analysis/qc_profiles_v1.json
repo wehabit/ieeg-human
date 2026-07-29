@@ -216,10 +216,10 @@
     "staging_calibration": {
       "analysis_version": "2026-07-qc-sensitivity-v9",
       "artifact_relative_path": "outputs/qc_calibration/staging_window_calibration.json",
-      "artifact_sha256": "47b7b7c6cce6b5b8f8962c67d1b1aba0d651bdd3af0d1525fd09c717765c3fa5",
-      "cache_manifest_sha256": "6f84a44b677f45556ba928e8770d57dc12417d378ebe76e7a5ebb245cdc9f45b",
+      "artifact_sha256": "a974c00b0982a9f9b68bd59864776ab76fd33a6efba70fda57b1cae165692ff3",
+      "cache_manifest_sha256": "b8471773a98724eefde0210f844383c145814dda1f5ec9c5967a14d04ddb36e0",
       "cache_pipeline": "stage_ds003848",
-      "cache_run_id": "574adec3-c44f-4c79-8cc6-2694f7086de1",
+      "cache_run_id": "91e9f042-b5ff-4eff-a566-49016bd5e585",
       "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
       "calibration_scope": "six RESPect ds003848 subjects; outcome-blind SWA/delta-ratio reconstruction only",
       "hup_transport_status": "unvalidated transport sensitivity; not a calibrated HUP rule",

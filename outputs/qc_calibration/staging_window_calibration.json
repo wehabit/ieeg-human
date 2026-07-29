@@ -3,16 +3,16 @@
   "analysis_version": "2026-07-qc-sensitivity-v9",
   "cache_directory_relative": "data/derived/ds003848",
   "cache_files_sha256": {
-    "sub-RESP0521": "0560200e9c24aea53a15cf3963da2fef04ace522821972f0b3a7d198703d1726",
-    "sub-RESP0699": "b85ac60d3e22a6a7cdeefb67296757e08b215e5097dcad297762caabcde9f32d",
-    "sub-RESP0724": "9970ab280b0304061993393a8fe9c00cb4bc760bdbbbd26bce0b76577f81e453",
-    "sub-RESP0749": "bbd3c10e5fef4564b3407d0b5d1479f7262b917102a818fafe6d8b92b9a4f105",
-    "sub-RESP0779": "006dda191003892ec3129f0085c0a856a5a14e205e5cadb3cacfc694364dc2bb",
-    "sub-RESP0800": "2f1cf51e4d81eee7ef70ca954a0add72793df1343359a83ceebd13cb9aba0d28"
+    "sub-RESP0521": "67511f4639656c0705229ddffd1c5a3214abc1f0ef1fde1f7d6fc8aa72be046a",
+    "sub-RESP0699": "bb1c464eb16557dd6007b69bebb99ffa2208e0461ba1751f93af75dc5a385d89",
+    "sub-RESP0724": "dd8eeac1f1d98596ab1c4f57d1e1a3bb50badae592d6688870d4bbf91452cb9b",
+    "sub-RESP0749": "d2a5060733123579f8b6c9cce72e7faded518ba4ffc03ba318a1c91154ea6642",
+    "sub-RESP0779": "9b1d59c637300d80ce35a41dda4affbabe628ae1c2b775fae381b65c8ebac4fa",
+    "sub-RESP0800": "a673261bbdae7c94111849a926e97168e4056406702858fcbe7ccf5b3a28aaa3"
   },
-  "cache_manifest_sha256": "6f84a44b677f45556ba928e8770d57dc12417d378ebe76e7a5ebb245cdc9f45b",
+  "cache_manifest_sha256": "b8471773a98724eefde0210f844383c145814dda1f5ec9c5967a14d04ddb36e0",
   "cache_pipeline": "stage_ds003848",
-  "cache_run_id": "574adec3-c44f-4c79-8cc6-2694f7086de1",
+  "cache_run_id": "91e9f042-b5ff-4eff-a566-49016bd5e585",
   "cache_runtime_versions": {
     "ieeg": "1.6",
     "mne": "1.12.1",
@@ -35,7 +35,7 @@
     "minimum_records": 100,
     "minimum_spearman": 0.95
   },
-  "generated_at_utc": "2026-07-29T01:00:03.848593+00:00",
+  "generated_at_utc": "2026-07-29T06:37:15.370843+00:00",
   "limitations": [
     "does not validate the automatic artifact detector against human labels",
     "does not validate HUP/RESPect proxy sleep stages against PSG scoring",
@@ -55,7 +55,7 @@
     "scipy": "1.18.0"
   },
   "selection_blinding": "calibrated only against all-window SWA/delta-ratio reconstruction; 0.02-Hz, HR, SO timing, and spindle-phase outcomes were not inputs",
-  "source_tree_sha256": "b3315215cd5862248e9706003c551ba7119ae22d7a882aa9d369039359c477b1",
+  "source_tree_sha256": "8e0e466ce60012e03fa356cb78634fbca1f8e49d8a00ac8dde411244377ba37d",
   "subjects": [
     "sub-RESP0521",
     "sub-RESP0699",

@@ -1,14 +1,17 @@
 {
   "analysis_version": "2026-07-qc-sensitivity-v9",
-  "audit_script_sha256": "5eb20cabd79a38c46707caf0ad084a2983979d492add258627a1fe9dba65af62",
+  "audit_script_sha256": "29bec636c84da0a3ee4192a387600e99a01d151e0a94b8b34011f0d0b7a36776",
   "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "classification_counts": {
+    "c3_numerically_flat": 1,
     "c3_present_but_frozen_3a_spectrum_unavailable": 1,
     "no_c3_or_c03_label": 15,
-    "paired_3a_eligible": 8,
-    "requires_full_interval_activity_sidecar": 1
+    "paired_3a_eligible": 8
   },
   "classification_subjects": {
+    "c3_numerically_flat": [
+      "HUP138_phaseII"
+    ],
     "c3_present_but_frozen_3a_spectrum_unavailable": [
       "HUP182_phaseII"
     ],
@@ -38,21 +41,18 @@
       "HUP205_phaseII",
       "HUP211_phaseII",
       "HUP212_phaseII"
-    ],
-    "requires_full_interval_activity_sidecar": [
-      "HUP138_phaseII"
     ]
   },
   "code_dirty": false,
-  "code_revision": "14b28bf5e50b664932f2f3aed534a82a01ef322f",
+  "code_revision": "4656a0c9b74ad00501af700e0505a1beeacccbcd",
   "current_locked_qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "frozen_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
-  "generated_at_utc": "2026-07-29T18:54:33.415060+00:00",
+  "generated_at_utc": "2026-07-29T22:39:09.326216+00:00",
   "inventory_file": "hup_scalp_channel_inventory.json",
-  "inventory_file_sha256": "14488e0af2845b8f999faedf3078933ac2091da4554ac99d781c936c468a954f",
+  "inventory_file_sha256": "f4eae85e175a7e78bf8bba7f554621e6f5ab77c004fbd300994e23ad4fbe5b37",
   "n_requested": 25,
   "pipeline": "audit_hup_scalp_inventory",
-  "qc_grid_sha256": "3f20c15c2cb41a9e066247291dc694b262793b55caac3c10af136d18adcfd261",
+  "qc_grid_sha256": "c95fd41ac2c96a9ddc322aaaff9d686cd1a9abf7c8079c4600332b72407e21fa",
   "qc_profile_id": "overlap11_endpoint_local",
   "qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "query_error_subjects": [],
@@ -94,7 +94,7 @@
     "scipy": "1.18.0"
   },
   "schema_version": "2026-07-hup-scalp-channel-inventory-v2-versioned",
-  "sidecar_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
+  "sidecar_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
   "source_pin_sha256": "a3a08e6b69486b5ea9ea996aa4d975ba1e228ac68a72443b2bbed4f10991a123",
-  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7"
+  "source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7"
 }

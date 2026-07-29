@@ -1,14 +1,17 @@
 {
   "analysis_version": "2026-07-qc-sensitivity-v9",
-  "audit_script_sha256": "5eb20cabd79a38c46707caf0ad084a2983979d492add258627a1fe9dba65af62",
+  "audit_script_sha256": "29bec636c84da0a3ee4192a387600e99a01d151e0a94b8b34011f0d0b7a36776",
   "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "classification_counts": {
+    "c3_numerically_flat": 1,
     "c3_present_but_frozen_3a_spectrum_unavailable": 1,
     "no_c3_or_c03_label": 15,
-    "paired_3a_eligible": 8,
-    "requires_full_interval_activity_sidecar": 1
+    "paired_3a_eligible": 8
   },
   "classification_subjects": {
+    "c3_numerically_flat": [
+      "HUP138_phaseII"
+    ],
     "c3_present_but_frozen_3a_spectrum_unavailable": [
       "HUP182_phaseII"
     ],
@@ -38,21 +41,18 @@
       "HUP205_phaseII",
       "HUP211_phaseII",
       "HUP212_phaseII"
-    ],
-    "requires_full_interval_activity_sidecar": [
-      "HUP138_phaseII"
     ]
   },
   "code_dirty": false,
-  "code_revision": "14b28bf5e50b664932f2f3aed534a82a01ef322f",
+  "code_revision": "4656a0c9b74ad00501af700e0505a1beeacccbcd",
   "current_locked_qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "frozen_cache_manifest_path_relative": "data/derived/lc_infraslow/RUN_MANIFEST.json",
   "frozen_cache_manifest_sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637",
-  "generated_at_utc": "2026-07-29T18:54:33.415060+00:00",
+  "generated_at_utc": "2026-07-29T22:39:09.326216+00:00",
   "n_requested": 25,
   "pipeline": "audit_hup_scalp_inventory",
   "qc_grid_path_relative": "outputs/qc_grid_public/locked/overlap11_endpoint_local__hup.json",
-  "qc_grid_sha256": "3f20c15c2cb41a9e066247291dc694b262793b55caac3c10af136d18adcfd261",
+  "qc_grid_sha256": "c95fd41ac2c96a9ddc322aaaff9d686cd1a9abf7c8079c4600332b72407e21fa",
   "qc_profile_id": "overlap11_endpoint_local",
   "qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
   "query_error_subjects": [],
@@ -98,10 +98,10 @@
   "selection_inputs": "exact frozen cohort membership; pinned portal snapshot and channel metadata; exact C3/C03 label and geometry; frozen 3A spectrum availability; prespecified numerical activity QC from full-interval sidecars",
   "selection_was_blind_to_scalp_endpoint_values": true,
   "sidecar_manifest_path_relative": "data/derived/paired_scalp/RUN_MANIFEST.json",
-  "sidecar_manifest_sha256": "6eb7fc2198b72b1fe61974f466a1cd75f4b95ce6c8d8c55c311343c3bae268b1",
+  "sidecar_manifest_sha256": "0d352ba327dbadd212a352227aaaf111748465b808b06614464423edc89ebd28",
   "source_pin_path_relative": "analysis/hup_ieeg_source_pin.json",
   "source_pin_sha256": "a3a08e6b69486b5ea9ea996aa4d975ba1e228ac68a72443b2bbed4f10991a123",
-  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7",
+  "source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7",
   "subjects": [
     {
       "dataset_name": "HUP116_phaseII",
@@ -810,8 +810,79 @@
           "target_normalized_label": "M2"
         }
       },
-      "selection_classification": "requires_full_interval_activity_sidecar",
-      "sidecar": null,
+      "selection_classification": "c3_numerically_flat",
+      "sidecar": {
+        "channels": {
+          "C3": {
+            "finite_sample_count": 25804800,
+            "numerically_nonflat_full_interval": false,
+            "raw_dynamic_range": 0.0
+          },
+          "F3": {
+            "finite_sample_count": 25804800,
+            "numerically_nonflat_full_interval": false,
+            "raw_dynamic_range": 0.0
+          },
+          "F4": {
+            "finite_sample_count": 25804800,
+            "numerically_nonflat_full_interval": false,
+            "raw_dynamic_range": 0.0
+          },
+          "FZ": {
+            "finite_sample_count": 25804800,
+            "numerically_nonflat_full_interval": false,
+            "raw_dynamic_range": 0.0
+          }
+        },
+        "path_relative": "data/derived/paired_scalp/HUP138_phaseII.npz",
+        "roles": {
+          "c3": "C3",
+          "f3": "F3",
+          "f4": "F4",
+          "fz": "FZ"
+        },
+        "sha256": "31f62630d0b57b338412b1dde0d40f76e6553ee9603f557a5ffbfe6455643123",
+        "source_dataset": "HUP138_phaseII",
+        "source_identity_by_channel": {
+          "C3": {
+            "data_check": "128ba8cf21793981b377df39d4cba961-148",
+            "duration_us": 620837776367.0,
+            "end_time_us": 947372226776367,
+            "number_of_samples": 626365027,
+            "revision_id": "b04adbb2-5b8f-4533-b788-00a20469fc9a",
+            "sample_rate_hz": 1024.0,
+            "start_time_us": 946751389000000
+          },
+          "F3": {
+            "data_check": "26f835725ea9f1c46405181f7871c0fa-149",
+            "duration_us": 620837776367.0,
+            "end_time_us": 947372226776367,
+            "number_of_samples": 626365027,
+            "revision_id": "b0b45a7f-0f3c-4f93-a5db-97d5aa08d912",
+            "sample_rate_hz": 1024.0,
+            "start_time_us": 946751389000000
+          },
+          "F4": {
+            "data_check": "6157ddc836031e58b7636e934c44495b-148",
+            "duration_us": 620837776367.0,
+            "end_time_us": 947372226776367,
+            "number_of_samples": 626365027,
+            "revision_id": "85361ed8-b28f-4c7c-80e4-219ef7e51e3c",
+            "sample_rate_hz": 1024.0,
+            "start_time_us": 946751389000000
+          },
+          "FZ": {
+            "data_check": "b6f7772692cbfa2791abc5c12bf47d36-159",
+            "duration_us": 620837776367.0,
+            "end_time_us": 947372226776367,
+            "number_of_samples": 626365027,
+            "revision_id": "9a6fc664-f1f6-4951-82f1-0f55a35ec73b",
+            "sample_rate_hz": 1024.0,
+            "start_time_us": 946751389000000
+          }
+        },
+        "source_snapshot_id": "bcf23cb4-0f18-4288-be52-017df125e000"
+      },
       "snapshot_id": "bcf23cb4-0f18-4288-be52-017df125e000",
       "subject": "HUP138_phaseII"
     },
@@ -2239,7 +2310,38 @@
           "f3": "F3",
           "fz": "FZ"
         },
-        "sha256": "231ee289b16b2e9de3fbc7bd34e3fe80b5969213905f44c2f6e481eebb255e08"
+        "sha256": "46b8ef41fe9a8eb627e36b46bdf2a1e75ed1413fbb701e0c4657abf444c41d81",
+        "source_dataset": "HUP160_phaseII",
+        "source_identity_by_channel": {
+          "C3": {
+            "data_check": "23830aa523bbd387e9185a867046c281-522",
+            "duration_us": 1208256200195.0,
+            "end_time_us": 947952235200195,
+            "number_of_samples": 1233608376,
+            "revision_id": "f02e37b3-48e5-46db-81d3-e6d9a5a5ae50",
+            "sample_rate_hz": 1024.0,
+            "start_time_us": 946743979000000
+          },
+          "F3": {
+            "data_check": "1c36adc7f5fa9af26410d69d02eea4e8-509",
+            "duration_us": 1208256200195.0,
+            "end_time_us": 947952235200195,
+            "number_of_samples": 1233608376,
+            "revision_id": "f644bb53-f2aa-49b7-bbe6-d17520707a2e",
+            "sample_rate_hz": 1024.0,
+            "start_time_us": 946743979000000
+          },
+          "FZ": {
+            "data_check": "2b48e53ddd4dc5a1251be78f2c3f9365-505",
+            "duration_us": 1208256200195.0,
+            "end_time_us": 947952235200195,
+            "number_of_samples": 1233608376,
+            "revision_id": "7fb298db-a2be-4b96-8a00-be00ff9d8cf6",
+            "sample_rate_hz": 1024.0,
+            "start_time_us": 946743979000000
+          }
+        },
+        "source_snapshot_id": "c93ccfda-873a-438c-a2a8-2916706b7c48"
       },
       "snapshot_id": "c93ccfda-873a-438c-a2a8-2916706b7c48",
       "subject": "HUP160_phaseII"
@@ -3919,7 +4021,20 @@
         "roles": {
           "c3": "C3"
         },
-        "sha256": "9bf98d45716199afc06ede0b067a172465377646ddb026e507f7b8175ff11702"
+        "sha256": "73b62955cd03a4896faf7c07a788323b21138224287de6291eaa3df76a3968eb",
+        "source_dataset": "HUP182_phaseII",
+        "source_identity_by_channel": {
+          "C3": {
+            "data_check": "dbabedce4422efdbd18ea88ac095f5e6-199",
+            "duration_us": 935153791015.0,
+            "end_time_us": 947677503791015,
+            "number_of_samples": 457505225,
+            "revision_id": "efc904ce-e93d-43b9-b38c-04467a69fb90",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946742350000000
+          }
+        },
+        "source_snapshot_id": "74eeaaf2-701f-498f-92b0-44b134d20818"
       },
       "snapshot_id": "74eeaaf2-701f-498f-92b0-44b134d20818",
       "subject": "HUP182_phaseII"
@@ -4171,7 +4286,29 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "2a23c82501d338cfef36d8426c907a18794c3607e1d9562e6405d8e894e6e3fd"
+        "sha256": "c543be5c13cd0feceec989a17fbca18fb2041e363773371c1f89ca387612be38",
+        "source_dataset": "HUP185_phaseII",
+        "source_identity_by_channel": {
+          "C3": {
+            "data_check": "19a417b2e2c27b41cba3015f78d216e4-193",
+            "duration_us": 838115980468.0,
+            "end_time_us": 947590372980468,
+            "number_of_samples": 401124679,
+            "revision_id": "ead6946d-e282-4a46-9d9a-d2c2c187bf69",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946752257000000
+          },
+          "FZ": {
+            "data_check": "f0c38d2d1b82032276b3ac77ffeb456e-191",
+            "duration_us": 838115980468.0,
+            "end_time_us": 947590372980468,
+            "number_of_samples": 401124679,
+            "revision_id": "b5e244fc-2dcd-450f-805d-6596ee8fe534",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946752257000000
+          }
+        },
+        "source_snapshot_id": "3fcbea55-342b-429d-8e5e-8cbd5f50c3db"
       },
       "snapshot_id": "3fcbea55-342b-429d-8e5e-8cbd5f50c3db",
       "subject": "HUP185_phaseII"
@@ -4426,7 +4563,38 @@
           "f3": "F3",
           "fz": "FZ"
         },
-        "sha256": "49621df58ba4c2b33c2961f8148f0b8a51adcb818ba54bf6f2957048ecfc7d29"
+        "sha256": "927f3478949458dc738f9ce9613c30c3915712b38efc4e902bcfab3019cd5719",
+        "source_dataset": "HUP187_phaseII",
+        "source_identity_by_channel": {
+          "C3": {
+            "data_check": "6f4aad2cc6ee770068a268e3861b9482-144",
+            "duration_us": 638918959564.0,
+            "end_time_us": 947372738644086,
+            "number_of_samples": 320966540,
+            "revision_id": "471def03-8508-4597-b393-13a3d03ae2a9",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946733819684522
+          },
+          "F3": {
+            "data_check": "c1307f7c5ff7a9f24cc31c7f1b74a0ec-135",
+            "duration_us": 638918959564.0,
+            "end_time_us": 947372738644086,
+            "number_of_samples": 320966540,
+            "revision_id": "f4fdb836-5f84-4269-84f8-b6c03292dae2",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946733819684522
+          },
+          "FZ": {
+            "data_check": "d51bed13918c01e1b955f1b388fa4c8c-137",
+            "duration_us": 638918959564.0,
+            "end_time_us": 947372738644086,
+            "number_of_samples": 320966540,
+            "revision_id": "26683793-42bb-4c23-bac8-5580e7e068e9",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946733819684522
+          }
+        },
+        "source_snapshot_id": "a06e2e34-1c7a-482a-8031-89e80808e6fe"
       },
       "snapshot_id": "a06e2e34-1c7a-482a-8031-89e80808e6fe",
       "subject": "HUP187_phaseII"
@@ -4702,7 +4870,29 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "e3498682045da9da292e2b4b779010c2c012c29d0808030ca9912089274f66eb"
+        "sha256": "1b1f8856c94f88aacf12872eec97af14db30d750a25adf25edd15fba3e2ce853",
+        "source_dataset": "HUP191_phaseII",
+        "source_identity_by_channel": {
+          "C3": {
+            "data_check": "010879d1f1ca8b99ed2c09bb0703a3c9-153",
+            "duration_us": 778466589343.0,
+            "end_time_us": 947529869965343,
+            "number_of_samples": 380809894,
+            "revision_id": "15694b0f-b633-48b0-a8a9-c88dd3ba7aa4",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946751403376000
+          },
+          "FZ": {
+            "data_check": "ef6a963076aebf52f4c714ebef028fa7-157",
+            "duration_us": 778466589343.0,
+            "end_time_us": 947529869965343,
+            "number_of_samples": 380809894,
+            "revision_id": "62d96503-862b-4748-bf9b-5be829acf949",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946751403376000
+          }
+        },
+        "source_snapshot_id": "e33bad75-2b0a-40d3-9a62-2fe867448125"
       },
       "snapshot_id": "e33bad75-2b0a-40d3-9a62-2fe867448125",
       "subject": "HUP191_phaseII"
@@ -4978,7 +5168,29 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "d48f2c9b3af9f9de06fbd23d25dd38d276cee9c106d1717e44bfd8860f05368e"
+        "sha256": "fd5f2cdab408195ce73621ce7323709211a4f03cd380bd8d664f6d01224be504",
+        "source_dataset": "HUP199_phaseII",
+        "source_identity_by_channel": {
+          "C3": {
+            "data_check": "539829cae67bffe9e2d282079e61100e-103",
+            "duration_us": 533627090468.0,
+            "end_time_us": 947273890780468,
+            "number_of_samples": 264277285,
+            "revision_id": "f73bdb9e-efa5-43f6-afa5-63a91ccf67ae",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946740263690000
+          },
+          "FZ": {
+            "data_check": "eb316ade6b433d17e8ec423fa012f158-106",
+            "duration_us": 533627090468.0,
+            "end_time_us": 947273890780468,
+            "number_of_samples": 264277285,
+            "revision_id": "e8c8650f-aacd-4625-9e8e-3921f35d092f",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946740263690000
+          }
+        },
+        "source_snapshot_id": "3a0d1211-c75a-4b15-a6d7-6761c378d208"
       },
       "snapshot_id": "3a0d1211-c75a-4b15-a6d7-6761c378d208",
       "subject": "HUP199_phaseII"
@@ -5258,7 +5470,29 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "07738005f6af6db25b025958ce68742a1ac95ea4c0f1b76548395a2ed977d82b"
+        "sha256": "02c4d711ac5e12c6b0a2b2df2c516c15c2c20795e35ad78495d97ddaf0dd1a9e",
+        "source_dataset": "HUP205_phaseII",
+        "source_identity_by_channel": {
+          "C3": {
+            "data_check": "408f16907575f9f065b3beee1c9ad01d-131",
+            "duration_us": 711768304125.0,
+            "end_time_us": 947472022245125,
+            "number_of_samples": 323964542,
+            "revision_id": "86391aa2-a422-48e2-bdc9-3a770f078c96",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946760253941000
+          },
+          "FZ": {
+            "data_check": "bcb3f333e34f7e84abe1ed1036347a97-125",
+            "duration_us": 711768304125.0,
+            "end_time_us": 947472022245125,
+            "number_of_samples": 323964542,
+            "revision_id": "28766564-40b8-4682-8954-5daf6cdd550f",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946760253941000
+          }
+        },
+        "source_snapshot_id": "15444ee1-2327-4a0a-a7bf-c46c95cd9133"
       },
       "snapshot_id": "15444ee1-2327-4a0a-a7bf-c46c95cd9133",
       "subject": "HUP205_phaseII"
@@ -5630,7 +5864,29 @@
           "c3": "C3",
           "fz": "FZ"
         },
-        "sha256": "0a79560170d4a4608c4d8a0af10643d0cde00f3f8a5d4922f920aef92e282750"
+        "sha256": "619dc1003d8cd5d1f93c2f8f0a2decb3bae49f1785307f0c5afcffa3fbdaf5a0",
+        "source_dataset": "HUP211_phaseII",
+        "source_identity_by_channel": {
+          "C3": {
+            "data_check": "39eaa603493d2fe64f38b651bccd6385-144",
+            "duration_us": 756648898647.0,
+            "end_time_us": 947519133897429,
+            "number_of_samples": 354382464,
+            "revision_id": "85a1e58b-fe12-4d16-8762-44974fc36b51",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946762484998782
+          },
+          "FZ": {
+            "data_check": "9efda5fde1847421e00a84919b548203-144",
+            "duration_us": 756648898647.0,
+            "end_time_us": 947519133897429,
+            "number_of_samples": 354382464,
+            "revision_id": "246cbaf5-5e44-4c48-acc9-cf4589e5eb99",
+            "sample_rate_hz": 512.0,
+            "start_time_us": 946762484998782
+          }
+        },
+        "source_snapshot_id": "b4632b6a-d8a0-42da-a122-fcaf29ba823c"
       },
       "snapshot_id": "b4632b6a-d8a0-42da-a122-fcaf29ba823c",
       "subject": "HUP211_phaseII"
@@ -5878,7 +6134,29 @@
           "c3": "C03",
           "fz": "FZ"
         },
-        "sha256": "583a312d7ba2afb2317557b091a9f8c5d5c099bc2070cd1cc6a2a06b6d9ab749"
+        "sha256": "66ef82a7d6950ec1831b788bbeee64bbed1672f740f52f340ef390a835bef24d",
+        "source_dataset": "HUP212_phaseII",
+        "source_identity_by_channel": {
+          "C03": {
+            "data_check": "c30b9f08f3b129109958bb5ab851da83-263",
+            "duration_us": 734774445484.0,
+            "end_time_us": 947419863155102,
+            "number_of_samples": 678130528,
+            "revision_id": "c1cead94-f3f1-461c-a151-ebe2c551a7e6",
+            "sample_rate_hz": 1024.0,
+            "start_time_us": 946685088709618
+          },
+          "FZ": {
+            "data_check": "b1100410ba1315d361a824875c0126c5-265",
+            "duration_us": 734774445484.0,
+            "end_time_us": 947419863155102,
+            "number_of_samples": 678130528,
+            "revision_id": "29a59a19-637b-4df6-b0a1-913572c67c47",
+            "sample_rate_hz": 1024.0,
+            "start_time_us": 946685088709618
+          }
+        },
+        "source_snapshot_id": "8deb9e32-6dce-429c-8900-09492a6af9ce"
       },
       "snapshot_id": "8deb9e32-6dce-429c-8900-09492a6af9ce",
       "subject": "HUP212_phaseII"

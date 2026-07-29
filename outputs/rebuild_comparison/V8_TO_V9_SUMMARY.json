@@ -1,0 +1,185 @@
+{
+  "artifact_role": "portable exact summary of frozen-v8 versus regenerated-v9 QC-grid comparisons",
+  "artifact_schema_version": "2026-07-v8-v9-comparison-summary-v1",
+  "generated_at_utc": "2026-07-29T18:29:35Z",
+  "comparison_method": {
+    "availability_and_selected_field_comparator": "analysis/compare_qc_rebuilds.py",
+    "numeric_equality": "numpy.isclose(rtol=1e-9, atol=1e-12)",
+    "raw_report_policy": "local-only because the generated reports embed workstation input paths",
+    "subjects_added": [],
+    "subjects_removed": []
+  },
+  "locked_profile": {
+    "profile_id": "overlap11_endpoint_local",
+    "hup": {
+      "availability_changes": [
+        {
+          "after": true,
+          "before": false,
+          "endpoint": "3a_spectrum",
+          "subject": "HUP138_phaseII"
+        },
+        {
+          "after": true,
+          "before": false,
+          "endpoint": "3a_cross_correlation",
+          "subject": "HUP138_phaseII"
+        }
+      ],
+      "counts_after": {
+        "3a_coherence": 14,
+        "3a_cross_correlation": 16,
+        "3a_spectrum": 20,
+        "3b_N2": 6,
+        "3b_N3": 5,
+        "3b_pooled_NREM_exploratory": 15,
+        "3d_descriptive_effect": 7,
+        "3d_support_evaluable": 24,
+        "subjects": 24
+      },
+      "counts_before": {
+        "3a_coherence": 14,
+        "3a_cross_correlation": 15,
+        "3a_spectrum": 19,
+        "3b_N2": 6,
+        "3b_N3": 5,
+        "3b_pooled_NREM_exploratory": 15,
+        "3d_descriptive_effect": 7,
+        "3d_support_evaluable": 24,
+        "subjects": 24
+      },
+      "endpoint_count_changes": {
+        "3a_cross_correlation": 1,
+        "3a_spectrum": 1
+      },
+      "n_changed_selected_numeric_or_support_fields": 42,
+      "n_unchanged_selected_numeric_or_support_fields": 606,
+      "scientific_change_summary": [
+        "HUP138 newly has a descriptive 3A spectrum and cross-correlation; fixed-0.02-Hz coherence remains unavailable.",
+        "3B availability counts are unchanged; small endpoint values changed where terminal SO candidates were corrected.",
+        "3D availability counts are unchanged; complete-event extents and stage-restricted re-pairing changed the seven descriptive vectors and paired-event counts.",
+        "All 3A, 3B, and 3D inference remains disabled."
+      ]
+    },
+    "respect": {
+      "availability_changes": [],
+      "counts_after": {
+        "3a_coherence": 3,
+        "3a_cross_correlation": 3,
+        "3a_spectrum": 3,
+        "3b_N2": 0,
+        "3b_N3": 1,
+        "3b_pooled_NREM_exploratory": 2,
+        "3d_descriptive_effect": 0,
+        "3d_support_evaluable": 0,
+        "subjects": 6
+      },
+      "counts_before": {
+        "3a_coherence": 3,
+        "3a_cross_correlation": 3,
+        "3a_spectrum": 3,
+        "3b_N2": 0,
+        "3b_N3": 1,
+        "3b_pooled_NREM_exploratory": 2,
+        "3d_descriptive_effect": 0,
+        "3d_support_evaluable": 0,
+        "subjects": 6
+      },
+      "endpoint_count_changes": {},
+      "n_changed_selected_numeric_or_support_fields": 3,
+      "n_unchanged_selected_numeric_or_support_fields": 159,
+      "scientific_change_summary": [
+        "Availability and reporting-gate conclusions are unchanged.",
+        "sub-RESP0521 pooled-NREM SO count changed from 722 to 724; local change changed by 0.0043427595 percentage points and percent-above-stage-mean by 0.0007502856 percentage points.",
+        "All 3A and 3B inference remains disabled; 3D is outside the specified RESPect scope."
+      ]
+    }
+  },
+  "comparison_inputs": [
+    {
+      "after_sha256": "58e63e1d972c1d77414cefb93eb5ef77762534eede1e3ea350b45e0dc2e45b6c",
+      "before_sha256": "ec7b5da7cbb0e399bdccc9aa0c4b966e42ffbe7441fbb431fe412def4f12f63c",
+      "cohort": "hup",
+      "grid_id": "coverage_oat_v1",
+      "profile_id": "audit80"
+    },
+    {
+      "after_sha256": "9ced15eb49bfdc485bbb3230ea61c76554822518272576602aa68e4fcbd7d887",
+      "before_sha256": "402cc3257df377ad2d80d777f06cb3bfe16428ba48ecb933c0eeb8a563611ee6",
+      "cohort": "respect",
+      "grid_id": "coverage_oat_v1",
+      "profile_id": "audit80"
+    },
+    {
+      "after_sha256": "1fbd8b0fe2fe7bdbeb03ae1b5a61a77212863558f83864265fe23232bc8815fd",
+      "before_sha256": "4b69b01fd51a87fe99bd076b51caa858f0869606128c9118f5501d240fbbfcc8",
+      "cohort": "hup",
+      "grid_id": "staging_window_support_v1",
+      "profile_id": "overlap11_endpoint_local"
+    },
+    {
+      "after_sha256": "13c99fe878378a1c1a78c12b25071a346449084ca8815aa53a527168ec834950",
+      "before_sha256": "e6ca9c83ec3a157eae702463ad1956bb89d81da7709ef9f25334223868c62ac7",
+      "cohort": "respect",
+      "grid_id": "staging_window_support_v1",
+      "profile_id": "overlap11_endpoint_local"
+    },
+    {
+      "after_sha256": "7fc28ae10dfba28fbf76496ae1120bab47107ff699f6f176193fab0d66b3a31a",
+      "before_sha256": "af173e64d612d46e8047d8381cda85d1805d3e7e076ead180a310db64c6d76d3",
+      "cohort": "hup",
+      "grid_id": "auxiliary_window_support_v1",
+      "profile_id": "overlap11_endpoint_local"
+    },
+    {
+      "after_sha256": "a0b5a5ed75df61ee250a25abbe5e0aaf0acfb7b77e52fcf388617e77d8ab9483",
+      "before_sha256": "f210a40756728a6fcf826911e035299f54711bb05fd52abf3476085c8e23b997",
+      "cohort": "respect",
+      "grid_id": "auxiliary_window_support_v1",
+      "profile_id": "overlap11_endpoint_local"
+    },
+    {
+      "after_sha256": "500fd869686b97d8109a5a55b015d5561efa47d452b437c7488944cea1dc249e",
+      "before_sha256": "f0876c2fd01da0b4efc18a1bf672daffed371d57d5b8630f84f00065c268a057",
+      "cohort": "hup",
+      "grid_id": "event_count_oat_v1",
+      "profile_id": "overlap11_endpoint_local"
+    },
+    {
+      "after_sha256": "2764a243b1c133c98cbf153323aed96e6de41c1d5cab493b8aaaf1c6da92237c",
+      "before_sha256": "70a9ee274adb6176707ae48dcfb9a50be8e542e5aec0a8a1034c3a3dd9377842",
+      "cohort": "respect",
+      "grid_id": "event_count_oat_v1",
+      "profile_id": "overlap11_endpoint_local"
+    }
+  ],
+  "public_v9_evidence": {
+    "qc_grid_public_manifest_sha256": "5e0468b878232acd894a921d23ad2041a8e10e1c5e995305b6c19570816bc28f",
+    "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
+    "staging_calibration_artifact_sha256": "a974c00b0982a9f9b68bd59864776ab76fd33a6efba70fda57b1cae165692ff3"
+  },
+  "sensitivity_context": {
+    "calibrated_minimum_valid_welch_windows": 11,
+    "hup_counts_at_calibrated_11_of_14": {
+      "3a_coherence": 14,
+      "3a_cross_correlation": 16,
+      "3a_spectrum": 20,
+      "3b_N2": 6,
+      "3b_N3": 5,
+      "3b_pooled_NREM_exploratory": 15,
+      "3d_descriptive_effect": 7,
+      "3d_support_evaluable": 24
+    },
+    "hup_counts_at_strict_14_of_14": {
+      "3a_coherence": 7,
+      "3a_cross_correlation": 11,
+      "3a_spectrum": 11,
+      "3b_N2": 3,
+      "3b_N3": 2,
+      "3b_pooled_NREM_exploratory": 11,
+      "3d_descriptive_effect": 6,
+      "3d_support_evaluable": 22
+    },
+    "interpretation": "The 11-window choice is outcome-blind and calibrated only against feature reconstruction; variation across 1-14 windows is QC sensitivity, not evidence for an LC mechanism."
+  }
+}

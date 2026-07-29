@@ -14,6 +14,8 @@ Commit:
 
 - analysis code, locked configuration, source pins, and tests;
 - compact QC summaries under `outputs/qc_grid_public/`;
+- the portable, hash-pinned v8-to-v9 comparison summary under
+  `outputs/rebuild_comparison/`;
 - the one full locked-profile snapshot used by the paired scalp–iEEG
   exact-match check;
 - terminal result manifests, participant/group tables, and figures that are
@@ -23,6 +25,7 @@ Do not commit:
 
 - raw EEG, portal downloads, credentials, or derived NPZ caches under `data/`;
 - full profile-grid JSON under `outputs/qc_grid/`;
+- raw field-level rebuild-comparison reports, which embed local input paths;
 - temporary logs, interrupted-run files, local plotting caches, or obsolete
   free-text summaries from withdrawn writers.
 

@@ -7,20 +7,20 @@
     "sub-RESP0779",
     "sub-RESP0800"
   ],
-  "analysis_version": "2026-07-qc-sensitivity-v8",
+  "analysis_version": "2026-07-qc-sensitivity-v9",
   "artifact_role": "public QC sensitivity evidence: all profile definitions, cohort counts, and per-subject endpoint availability; numeric endpoint vectors remain in ignored regenerable full grids",
   "artifact_schema_version": "2026-07-qc-grid-public-summary-v1",
   "cache_directory_relative": "data/derived/ds003848",
   "cache_files_sha256": {
-    "sub-RESP0521": "ca240f6fd5deb4555e449159b6e17dd3a839a9b590057e1206c99d2fa52d80d1",
-    "sub-RESP0699": "882e2f77772bbc7e88718b604d10720acf5f737d665565d83d0c60c2de422681",
-    "sub-RESP0724": "540bf2153b2ae967967cb6e131d764313417ef055e01a9b9c40af4bbc11e50a8",
-    "sub-RESP0749": "036486bacacb75598770f4559d66a2696296e9cfef42205efbe58041887029a9",
-    "sub-RESP0779": "9ffbd84e993b0effdc132251adceded910eaa446635704fd3f6b955ac8b52c6b",
-    "sub-RESP0800": "8c643acf6c481de62107f87eb6b9d9d7ba28f1d4e021cd7292d6dd7e406ca87c"
+    "sub-RESP0521": "67511f4639656c0705229ddffd1c5a3214abc1f0ef1fde1f7d6fc8aa72be046a",
+    "sub-RESP0699": "bb1c464eb16557dd6007b69bebb99ffa2208e0461ba1751f93af75dc5a385d89",
+    "sub-RESP0724": "dd8eeac1f1d98596ab1c4f57d1e1a3bb50badae592d6688870d4bbf91452cb9b",
+    "sub-RESP0749": "d2a5060733123579f8b6c9cce72e7faded518ba4ffc03ba318a1c91154ea6642",
+    "sub-RESP0779": "9b1d59c637300d80ce35a41dda4affbabe628ae1c2b775fae381b65c8ebac4fa",
+    "sub-RESP0800": "a673261bbdae7c94111849a926e97168e4056406702858fcbe7ccf5b3a28aaa3"
   },
-  "cache_manifest_run_id": "75e8af2b-2ca9-4767-b080-d44a1c2ebf56",
-  "cache_manifest_sha256": "5eab2fbfb5bb65e0fd6ae39daa250352d4253683e6f7666b1cf0c854bdb78746",
+  "cache_manifest_run_id": "91e9f042-b5ff-4eff-a566-49016bd5e585",
+  "cache_manifest_sha256": "b8471773a98724eefde0210f844383c145814dda1f5ec9c5967a14d04ddb36e0",
   "cache_pipeline": "stage_ds003848",
   "cache_runtime_versions": {
     "ieeg": "1.6",
@@ -31,11 +31,11 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v8",
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "explicitly_skipped_subjects": [],
   "full_grid_path_relative": "outputs/qc_grid/auxiliary_window_support_v1/respect_qc_grid.json",
-  "full_grid_sha256": "f210a40756728a6fcf826911e035299f54711bb05fd52abf3476085c8e23b997",
-  "generated_at_utc": "2026-07-25T23:18:32.881403+00:00",
+  "full_grid_sha256": "a0b5a5ed75df61ee250a25abbe5e0aaf0acfb7b77e52fcf388617e77d8ab9483",
+  "generated_at_utc": "2026-07-29T07:21:13.094610+00:00",
   "grid_id": "auxiliary_window_support_v1",
   "grid_role": "post-audit sensitivity; no result-based profile selection",
   "limitations": [
@@ -100,7 +100,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "overlap11_endpoint_local",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
@@ -262,7 +262,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_1",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "75b9be5b469c9f4e63915fe7f7cb197f4b3c8212cb9ce507f6b4a48cd73c425f",
@@ -424,7 +424,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_2",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "9e4d246131234f9c45dd9cee3715833b8ecff0973736a763c81ea8b138a30b80",
@@ -586,7 +586,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_3",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "d8f552f73bd7eee8b3e0654419de5cb9358de6e913cd187770973ae7c4407393",
@@ -748,7 +748,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_4",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "22130eff3ddd3c77ef06a770692250fbb103586883d76aba1dad87e90f0446bb",
@@ -910,7 +910,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_5",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "b619e487f50daf3ebc09fc0ef1cfddcd8e588cdc33cdf9a396302340ac535e6e",
@@ -1072,7 +1072,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_6",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "e8933d39a51612ba4f7bc27a52fedcdda5ce3681d64ab313ecf53950a656b5d1",
@@ -1234,7 +1234,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_7",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "7c59fa49a1768efc92d5bd31a9234868ba80251c6d218d4bd4e1e43d76b3b49f",
@@ -1396,7 +1396,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_8",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "788421e494f8d59e37082a21019a1df94a7ccf9c12e9cd625cad9eba345e7223",
@@ -1558,7 +1558,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_9",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "60f632867f680e074d3945d43b5eaceff041e05ebea238c8321f1f680d23813a",
@@ -1720,7 +1720,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_10",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "3ae16e61c0530d11a0d559ed17271ad6a97723abb9ea16b10bc34c8c090a3f88",
@@ -1882,7 +1882,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_11",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "8775686718db51871be8dc0b595f68ba6d08c1a8965e06a7d960fe6f2e06ec77",
@@ -2044,7 +2044,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_12",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "6461d6760bc115d69433ec3cbbd6371c77a904d6569fe2445e9defdc5986b1ac",
@@ -2206,7 +2206,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "auxiliary_valid_windows_13",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "87bc36b8bc893e0d4237ae447f2f13e25539d455881de12b14a835ecafb7994a",
@@ -2331,28 +2331,28 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "source_tree_sha256": "b1056d65ef6cc9f885fc5de321cc2815b9318bd11fd3fda4b061fa1861ddf5df",
+  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7",
   "staging_calibration_application_to_this_cache": "same RESPect cache cohort used for outcome-blind calibration",
   "staging_calibration_provenance": {
-    "analysis_version": "2026-07-qc-sensitivity-v8",
+    "analysis_version": "2026-07-qc-sensitivity-v9",
     "artifact_relative_path": "outputs/qc_calibration/staging_window_calibration.json",
-    "artifact_sha256": "c6d4f1deccd3e0c7a03875185b2378116b1e33aab78323db91a39dc0b828af1f",
+    "artifact_sha256": "a974c00b0982a9f9b68bd59864776ab76fd33a6efba70fda57b1cae165692ff3",
     "cache_files_sha256": {
-      "sub-RESP0521": "ca240f6fd5deb4555e449159b6e17dd3a839a9b590057e1206c99d2fa52d80d1",
-      "sub-RESP0699": "882e2f77772bbc7e88718b604d10720acf5f737d665565d83d0c60c2de422681",
-      "sub-RESP0724": "540bf2153b2ae967967cb6e131d764313417ef055e01a9b9c40af4bbc11e50a8",
-      "sub-RESP0749": "036486bacacb75598770f4559d66a2696296e9cfef42205efbe58041887029a9",
-      "sub-RESP0779": "9ffbd84e993b0effdc132251adceded910eaa446635704fd3f6b955ac8b52c6b",
-      "sub-RESP0800": "8c643acf6c481de62107f87eb6b9d9d7ba28f1d4e021cd7292d6dd7e406ca87c"
+      "sub-RESP0521": "67511f4639656c0705229ddffd1c5a3214abc1f0ef1fde1f7d6fc8aa72be046a",
+      "sub-RESP0699": "bb1c464eb16557dd6007b69bebb99ffa2208e0461ba1751f93af75dc5a385d89",
+      "sub-RESP0724": "dd8eeac1f1d98596ab1c4f57d1e1a3bb50badae592d6688870d4bbf91452cb9b",
+      "sub-RESP0749": "d2a5060733123579f8b6c9cce72e7faded518ba4ffc03ba318a1c91154ea6642",
+      "sub-RESP0779": "9b1d59c637300d80ce35a41dda4affbabe628ae1c2b775fae381b65c8ebac4fa",
+      "sub-RESP0800": "a673261bbdae7c94111849a926e97168e4056406702858fcbe7ccf5b3a28aaa3"
     },
-    "cache_manifest_sha256": "5eab2fbfb5bb65e0fd6ae39daa250352d4253683e6f7666b1cf0c854bdb78746",
+    "cache_manifest_sha256": "b8471773a98724eefde0210f844383c145814dda1f5ec9c5967a14d04ddb36e0",
     "cache_pipeline": "stage_ds003848",
-    "cache_run_id": "75e8af2b-2ca9-4767-b080-d44a1c2ebf56",
-    "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v8",
+    "cache_run_id": "91e9f042-b5ff-4eff-a566-49016bd5e585",
+    "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
     "calibration_scope": "six RESPect ds003848 subjects; outcome-blind SWA/delta-ratio reconstruction only",
     "calibration_source_files_sha256": {
-      "analysis/calibrate_staging_windows.py": "85a782591a79a36c5f0aa85966b946d7339edfe86331e76320f38d5453b4fb35",
-      "analysis/pipeline_version.py": "9353a5cb719ecf7e9ba9589d698e97d9b310417fd8dd3fcc3981fc0571693e49"
+      "analysis/calibrate_staging_windows.py": "4077f122cb816336e768b0cd3aa25465bca17d26e0e9fb57546126138d4b7254",
+      "analysis/pipeline_version.py": "534f41d583deae843b4bee9f3d593ada06ebe8c5935f580248b98a7f4445bed3"
     },
     "hup_transport_status": "unvalidated transport sensitivity; not a calibrated HUP rule",
     "n_calibration_records": 42075,

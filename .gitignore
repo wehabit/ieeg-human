@@ -22,6 +22,9 @@ outputs/*.log
 # Full sensitivity grids are deterministic local build products.  Commit only
 # the compact evidence under outputs/qc_grid_public/.
 outputs/qc_grid/
+# Full before/after field-level reports contain workstation paths. Keep the
+# portable, hash-pinned comparison summary in Git instead.
+outputs/rebuild_comparison/*_v8_to_v9.json
 
 # ds003848 downloaded BrainVision (large, redistributable via OpenNeuro)
 data/ds003848_raw/

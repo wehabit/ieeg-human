@@ -7,20 +7,20 @@
     "sub-RESP0779",
     "sub-RESP0800"
   ],
-  "analysis_version": "2026-07-qc-sensitivity-v8",
+  "analysis_version": "2026-07-qc-sensitivity-v9",
   "artifact_role": "public QC sensitivity evidence: all profile definitions, cohort counts, and per-subject endpoint availability; numeric endpoint vectors remain in ignored regenerable full grids",
   "artifact_schema_version": "2026-07-qc-grid-public-summary-v1",
   "cache_directory_relative": "data/derived/ds003848",
   "cache_files_sha256": {
-    "sub-RESP0521": "ca240f6fd5deb4555e449159b6e17dd3a839a9b590057e1206c99d2fa52d80d1",
-    "sub-RESP0699": "882e2f77772bbc7e88718b604d10720acf5f737d665565d83d0c60c2de422681",
-    "sub-RESP0724": "540bf2153b2ae967967cb6e131d764313417ef055e01a9b9c40af4bbc11e50a8",
-    "sub-RESP0749": "036486bacacb75598770f4559d66a2696296e9cfef42205efbe58041887029a9",
-    "sub-RESP0779": "9ffbd84e993b0effdc132251adceded910eaa446635704fd3f6b955ac8b52c6b",
-    "sub-RESP0800": "8c643acf6c481de62107f87eb6b9d9d7ba28f1d4e021cd7292d6dd7e406ca87c"
+    "sub-RESP0521": "67511f4639656c0705229ddffd1c5a3214abc1f0ef1fde1f7d6fc8aa72be046a",
+    "sub-RESP0699": "bb1c464eb16557dd6007b69bebb99ffa2208e0461ba1751f93af75dc5a385d89",
+    "sub-RESP0724": "dd8eeac1f1d98596ab1c4f57d1e1a3bb50badae592d6688870d4bbf91452cb9b",
+    "sub-RESP0749": "d2a5060733123579f8b6c9cce72e7faded518ba4ffc03ba318a1c91154ea6642",
+    "sub-RESP0779": "9b1d59c637300d80ce35a41dda4affbabe628ae1c2b775fae381b65c8ebac4fa",
+    "sub-RESP0800": "a673261bbdae7c94111849a926e97168e4056406702858fcbe7ccf5b3a28aaa3"
   },
-  "cache_manifest_run_id": "75e8af2b-2ca9-4767-b080-d44a1c2ebf56",
-  "cache_manifest_sha256": "5eab2fbfb5bb65e0fd6ae39daa250352d4253683e6f7666b1cf0c854bdb78746",
+  "cache_manifest_run_id": "91e9f042-b5ff-4eff-a566-49016bd5e585",
+  "cache_manifest_sha256": "b8471773a98724eefde0210f844383c145814dda1f5ec9c5967a14d04ddb36e0",
   "cache_pipeline": "stage_ds003848",
   "cache_runtime_versions": {
     "ieeg": "1.6",
@@ -31,11 +31,11 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v8",
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "explicitly_skipped_subjects": [],
   "full_grid_path_relative": "outputs/qc_grid/staging_window_support_v1/respect_qc_grid.json",
-  "full_grid_sha256": "e6ca9c83ec3a157eae702463ad1956bb89d81da7709ef9f25334223868c62ac7",
-  "generated_at_utc": "2026-07-25T23:31:47.565103+00:00",
+  "full_grid_sha256": "13c99fe878378a1c1a78c12b25071a346449084ca8815aa53a527168ec834950",
+  "generated_at_utc": "2026-07-29T07:21:01.104002+00:00",
   "grid_id": "staging_window_support_v1",
   "grid_role": "post-audit sensitivity; no result-based profile selection",
   "limitations": [
@@ -100,7 +100,7 @@
           "minimum_valid_welch_windows": 11
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "overlap11_endpoint_local",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
@@ -262,7 +262,7 @@
           "minimum_valid_welch_windows": 1
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_1",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "8ae81e6bc508dd24046a7f493d5cf2f76ce58951e3d427e9502068fe9b76888c",
@@ -424,7 +424,7 @@
           "minimum_valid_welch_windows": 2
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_2",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "c3ea09825b97246fa2bb3123f457126970f199f62a37f21452052b299b698076",
@@ -586,7 +586,7 @@
           "minimum_valid_welch_windows": 3
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_3",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "045be6f314f68854e2f6689bb231f078f651c6771277245b1b917429483604f1",
@@ -599,7 +599,7 @@
             "3a_spectrum": true,
             "3b_N2": false,
             "3b_N3": false,
-            "3b_NREM": true,
+            "3b_NREM": false,
             "3d_descriptive_effect": false
           },
           "subject": "sub-RESP0521"
@@ -687,7 +687,7 @@
         "n_3a_spectrum": 3,
         "n_3b_N2": 0,
         "n_3b_N3": 1,
-        "n_3b_pooled_NREM_exploratory": 2,
+        "n_3b_pooled_NREM_exploratory": 1,
         "n_3d_descriptive_effect": 0,
         "n_3d_support_evaluable": 0,
         "n_subjects": 6
@@ -748,7 +748,7 @@
           "minimum_valid_welch_windows": 4
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_4",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "29a60472b2cfe3f4c5d62cc2af749e61a3ed9b6c56e55cb37b23d88e609d0cf5",
@@ -761,7 +761,7 @@
             "3a_spectrum": true,
             "3b_N2": false,
             "3b_N3": false,
-            "3b_NREM": true,
+            "3b_NREM": false,
             "3d_descriptive_effect": false
           },
           "subject": "sub-RESP0521"
@@ -849,7 +849,7 @@
         "n_3a_spectrum": 3,
         "n_3b_N2": 0,
         "n_3b_N3": 1,
-        "n_3b_pooled_NREM_exploratory": 2,
+        "n_3b_pooled_NREM_exploratory": 1,
         "n_3d_descriptive_effect": 0,
         "n_3d_support_evaluable": 0,
         "n_subjects": 6
@@ -910,7 +910,7 @@
           "minimum_valid_welch_windows": 5
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_5",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "84e300dd34a8b79f9e0285fd908d387b7394246c0eba959a6f533ab6f642a86b",
@@ -1072,7 +1072,7 @@
           "minimum_valid_welch_windows": 6
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_6",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "2dc5f6f3e3ddbdbd04275f919959d7745c55c43325806f5c0c5650e509c9bf57",
@@ -1085,7 +1085,7 @@
             "3a_spectrum": true,
             "3b_N2": false,
             "3b_N3": false,
-            "3b_NREM": true,
+            "3b_NREM": false,
             "3d_descriptive_effect": false
           },
           "subject": "sub-RESP0521"
@@ -1173,7 +1173,7 @@
         "n_3a_spectrum": 3,
         "n_3b_N2": 0,
         "n_3b_N3": 1,
-        "n_3b_pooled_NREM_exploratory": 2,
+        "n_3b_pooled_NREM_exploratory": 1,
         "n_3d_descriptive_effect": 0,
         "n_3d_support_evaluable": 0,
         "n_subjects": 6
@@ -1234,7 +1234,7 @@
           "minimum_valid_welch_windows": 7
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_7",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "4843bd6bc599efe23bcda6af7acb86a74bb71f5bce9ebf96c462dcf965cdf76b",
@@ -1247,7 +1247,7 @@
             "3a_spectrum": true,
             "3b_N2": false,
             "3b_N3": false,
-            "3b_NREM": true,
+            "3b_NREM": false,
             "3d_descriptive_effect": false
           },
           "subject": "sub-RESP0521"
@@ -1335,7 +1335,7 @@
         "n_3a_spectrum": 3,
         "n_3b_N2": 0,
         "n_3b_N3": 1,
-        "n_3b_pooled_NREM_exploratory": 2,
+        "n_3b_pooled_NREM_exploratory": 1,
         "n_3d_descriptive_effect": 0,
         "n_3d_support_evaluable": 0,
         "n_subjects": 6
@@ -1396,7 +1396,7 @@
           "minimum_valid_welch_windows": 8
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_8",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "ed72a548bb1db32478710668664ba817834c68e2e9943026de2688fe7ee8aa8a",
@@ -1409,7 +1409,7 @@
             "3a_spectrum": true,
             "3b_N2": false,
             "3b_N3": false,
-            "3b_NREM": true,
+            "3b_NREM": false,
             "3d_descriptive_effect": false
           },
           "subject": "sub-RESP0521"
@@ -1421,8 +1421,8 @@
             "3a_fixed_0p02_coherence": true,
             "3a_spectrum": true,
             "3b_N2": false,
-            "3b_N3": true,
-            "3b_NREM": true,
+            "3b_N3": false,
+            "3b_NREM": false,
             "3d_descriptive_effect": false
           },
           "subject": "sub-RESP0699"
@@ -1496,8 +1496,8 @@
         "n_3a_cross_correlation": 3,
         "n_3a_spectrum": 3,
         "n_3b_N2": 0,
-        "n_3b_N3": 1,
-        "n_3b_pooled_NREM_exploratory": 2,
+        "n_3b_N3": 0,
+        "n_3b_pooled_NREM_exploratory": 0,
         "n_3d_descriptive_effect": 0,
         "n_3d_support_evaluable": 0,
         "n_subjects": 6
@@ -1558,7 +1558,7 @@
           "minimum_valid_welch_windows": 9
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_9",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "05dfae354e56c04d2847d07cb728504523be7e060f1b3917c387d2e60ba9aa01",
@@ -1720,7 +1720,7 @@
           "minimum_valid_welch_windows": 10
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_10",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "2776179f7928df08976abf476e003d7cd9c2def69d8573861b602fc48c9fd171",
@@ -1882,7 +1882,7 @@
           "minimum_valid_welch_windows": 12
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_12",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "2500822120d59dbc2b654554171520327e099fe473b8eb4bc3635ac21e30e172",
@@ -2044,7 +2044,7 @@
           "minimum_valid_welch_windows": 13
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_13",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "3ff2c7128268db57ee0cb0113d429e74c17e079e06ced39f967c624ff1108ff7",
@@ -2206,7 +2206,7 @@
           "minimum_valid_welch_windows": 14
         }
       },
-      "qc_profile_file_sha256": "75c2c8375e33b0b858a5ef94d398c9a5b93fb1754cc72368bb56fc45d01cbd90",
+      "qc_profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
       "qc_profile_id": "staging_valid_welch_windows_14",
       "qc_profile_set_schema": "qc-profile-set-v1",
       "qc_profile_sha256": "9563f6181d473134cbbe3cc903afcdfbe01b26e552e0a25f0f92b93ddd0a7ff3",
@@ -2231,8 +2231,8 @@
             "3a_fixed_0p02_coherence": true,
             "3a_spectrum": true,
             "3b_N2": false,
-            "3b_N3": true,
-            "3b_NREM": true,
+            "3b_N3": false,
+            "3b_NREM": false,
             "3d_descriptive_effect": false
           },
           "subject": "sub-RESP0699"
@@ -2306,8 +2306,8 @@
         "n_3a_cross_correlation": 3,
         "n_3a_spectrum": 3,
         "n_3b_N2": 0,
-        "n_3b_N3": 1,
-        "n_3b_pooled_NREM_exploratory": 2,
+        "n_3b_N3": 0,
+        "n_3b_pooled_NREM_exploratory": 1,
         "n_3d_descriptive_effect": 0,
         "n_3d_support_evaluable": 0,
         "n_subjects": 6
@@ -2331,28 +2331,28 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "source_tree_sha256": "b1056d65ef6cc9f885fc5de321cc2815b9318bd11fd3fda4b061fa1861ddf5df",
+  "source_tree_sha256": "430b56f8eaba1881c4f890055274bd926e0d302a54af2940493d313a93715ac7",
   "staging_calibration_application_to_this_cache": "same RESPect cache cohort used for outcome-blind calibration",
   "staging_calibration_provenance": {
-    "analysis_version": "2026-07-qc-sensitivity-v8",
+    "analysis_version": "2026-07-qc-sensitivity-v9",
     "artifact_relative_path": "outputs/qc_calibration/staging_window_calibration.json",
-    "artifact_sha256": "c6d4f1deccd3e0c7a03875185b2378116b1e33aab78323db91a39dc0b828af1f",
+    "artifact_sha256": "a974c00b0982a9f9b68bd59864776ab76fd33a6efba70fda57b1cae165692ff3",
     "cache_files_sha256": {
-      "sub-RESP0521": "ca240f6fd5deb4555e449159b6e17dd3a839a9b590057e1206c99d2fa52d80d1",
-      "sub-RESP0699": "882e2f77772bbc7e88718b604d10720acf5f737d665565d83d0c60c2de422681",
-      "sub-RESP0724": "540bf2153b2ae967967cb6e131d764313417ef055e01a9b9c40af4bbc11e50a8",
-      "sub-RESP0749": "036486bacacb75598770f4559d66a2696296e9cfef42205efbe58041887029a9",
-      "sub-RESP0779": "9ffbd84e993b0effdc132251adceded910eaa446635704fd3f6b955ac8b52c6b",
-      "sub-RESP0800": "8c643acf6c481de62107f87eb6b9d9d7ba28f1d4e021cd7292d6dd7e406ca87c"
+      "sub-RESP0521": "67511f4639656c0705229ddffd1c5a3214abc1f0ef1fde1f7d6fc8aa72be046a",
+      "sub-RESP0699": "bb1c464eb16557dd6007b69bebb99ffa2208e0461ba1751f93af75dc5a385d89",
+      "sub-RESP0724": "dd8eeac1f1d98596ab1c4f57d1e1a3bb50badae592d6688870d4bbf91452cb9b",
+      "sub-RESP0749": "d2a5060733123579f8b6c9cce72e7faded518ba4ffc03ba318a1c91154ea6642",
+      "sub-RESP0779": "9b1d59c637300d80ce35a41dda4affbabe628ae1c2b775fae381b65c8ebac4fa",
+      "sub-RESP0800": "a673261bbdae7c94111849a926e97168e4056406702858fcbe7ccf5b3a28aaa3"
     },
-    "cache_manifest_sha256": "5eab2fbfb5bb65e0fd6ae39daa250352d4253683e6f7666b1cf0c854bdb78746",
+    "cache_manifest_sha256": "b8471773a98724eefde0210f844383c145814dda1f5ec9c5967a14d04ddb36e0",
     "cache_pipeline": "stage_ds003848",
-    "cache_run_id": "75e8af2b-2ca9-4767-b080-d44a1c2ebf56",
-    "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v8",
+    "cache_run_id": "91e9f042-b5ff-4eff-a566-49016bd5e585",
+    "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
     "calibration_scope": "six RESPect ds003848 subjects; outcome-blind SWA/delta-ratio reconstruction only",
     "calibration_source_files_sha256": {
-      "analysis/calibrate_staging_windows.py": "85a782591a79a36c5f0aa85966b946d7339edfe86331e76320f38d5453b4fb35",
-      "analysis/pipeline_version.py": "9353a5cb719ecf7e9ba9589d698e97d9b310417fd8dd3fcc3981fc0571693e49"
+      "analysis/calibrate_staging_windows.py": "4077f122cb816336e768b0cd3aa25465bca17d26e0e9fb57546126138d4b7254",
+      "analysis/pipeline_version.py": "534f41d583deae843b4bee9f3d593ada06ebe8c5935f580248b98a7f4445bed3"
     },
     "hup_transport_status": "unvalidated transport sensitivity; not a calibrated HUP rule",
     "n_calibration_records": 42075,

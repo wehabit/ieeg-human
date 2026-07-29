@@ -1,18 +1,18 @@
 {
   "accepted_population_recommended_minimum_valid_windows": 9,
-  "analysis_version": "2026-07-qc-sensitivity-v8",
+  "analysis_version": "2026-07-qc-sensitivity-v9",
   "cache_directory_relative": "data/derived/ds003848",
   "cache_files_sha256": {
-    "sub-RESP0521": "ca240f6fd5deb4555e449159b6e17dd3a839a9b590057e1206c99d2fa52d80d1",
-    "sub-RESP0699": "882e2f77772bbc7e88718b604d10720acf5f737d665565d83d0c60c2de422681",
-    "sub-RESP0724": "540bf2153b2ae967967cb6e131d764313417ef055e01a9b9c40af4bbc11e50a8",
-    "sub-RESP0749": "036486bacacb75598770f4559d66a2696296e9cfef42205efbe58041887029a9",
-    "sub-RESP0779": "9ffbd84e993b0effdc132251adceded910eaa446635704fd3f6b955ac8b52c6b",
-    "sub-RESP0800": "8c643acf6c481de62107f87eb6b9d9d7ba28f1d4e021cd7292d6dd7e406ca87c"
+    "sub-RESP0521": "0560200e9c24aea53a15cf3963da2fef04ace522821972f0b3a7d198703d1726",
+    "sub-RESP0699": "b85ac60d3e22a6a7cdeefb67296757e08b215e5097dcad297762caabcde9f32d",
+    "sub-RESP0724": "9970ab280b0304061993393a8fe9c00cb4bc760bdbbbd26bce0b76577f81e453",
+    "sub-RESP0749": "bbd3c10e5fef4564b3407d0b5d1479f7262b917102a818fafe6d8b92b9a4f105",
+    "sub-RESP0779": "006dda191003892ec3129f0085c0a856a5a14e205e5cadb3cacfc694364dc2bb",
+    "sub-RESP0800": "2f1cf51e4d81eee7ef70ca954a0add72793df1343359a83ceebd13cb9aba0d28"
   },
-  "cache_manifest_sha256": "5eab2fbfb5bb65e0fd6ae39daa250352d4253683e6f7666b1cf0c854bdb78746",
+  "cache_manifest_sha256": "6f84a44b677f45556ba928e8770d57dc12417d378ebe76e7a5ebb245cdc9f45b",
   "cache_pipeline": "stage_ds003848",
-  "cache_run_id": "75e8af2b-2ca9-4767-b080-d44a1c2ebf56",
+  "cache_run_id": "574adec3-c44f-4c79-8cc6-2694f7086de1",
   "cache_runtime_versions": {
     "ieeg": "1.6",
     "mne": "1.12.1",
@@ -22,10 +22,10 @@
     "scikit_learn": "1.9.0",
     "scipy": "1.18.0"
   },
-  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v8",
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "calibration_source_files_sha256": {
-    "analysis/calibrate_staging_windows.py": "85a782591a79a36c5f0aa85966b946d7339edfe86331e76320f38d5453b4fb35",
-    "analysis/pipeline_version.py": "9353a5cb719ecf7e9ba9589d698e97d9b310417fd8dd3fcc3981fc0571693e49"
+    "analysis/calibrate_staging_windows.py": "4077f122cb816336e768b0cd3aa25465bca17d26e0e9fb57546126138d4b7254",
+    "analysis/pipeline_version.py": "534f41d583deae843b4bee9f3d593ada06ebe8c5935f580248b98a7f4445bed3"
   },
   "calibration_targets": {
     "maximum_median_absolute_delta_ratio_error": 0.02,
@@ -35,7 +35,7 @@
     "minimum_records": 100,
     "minimum_spearman": 0.95
   },
-  "generated_at_utc": "2026-07-25T22:44:04.811355+00:00",
+  "generated_at_utc": "2026-07-29T01:00:03.848593+00:00",
   "limitations": [
     "does not validate the automatic artifact detector against human labels",
     "does not validate HUP/RESPect proxy sleep stages against PSG scoring",
@@ -55,7 +55,7 @@
     "scipy": "1.18.0"
   },
   "selection_blinding": "calibrated only against all-window SWA/delta-ratio reconstruction; 0.02-Hz, HR, SO timing, and spindle-phase outcomes were not inputs",
-  "source_tree_sha256": "47a09052107450fdbd823fef461df54bef0b98963f42bda7e11b746a735b101c",
+  "source_tree_sha256": "b3315215cd5862248e9706003c551ba7119ae22d7a882aa9d369039359c477b1",
   "subjects": [
     "sub-RESP0521",
     "sub-RESP0699",

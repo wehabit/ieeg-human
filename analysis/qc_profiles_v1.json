@@ -1,145 +1,30 @@
 {
-  "schema_version": "qc-profile-set-v1",
-  "provenance": {
-    "designed_without_selecting_on_lc_proxy_direction": true,
-    "prospectively_preregistered": false,
-    "statement": "These profiles are post-audit sensitivity specifications. They are not requirements from Lecci, Naji, Staresina, or Helfrich and must not be selected according to which profile produces the desired biological result."
-  },
-  "method_config": {
-    "auxiliary_window_support_statement": "The 11-window iEEG SWA/delta-ratio calibration does not validate EMG/EOG support. The endpoint-local profile therefore keeps 14 auxiliary windows and reports 1-14 only as a separate sensitivity grid.",
-    "lecci_core_minutes_from_available_sleep_onset_proxy": 210,
-    "lecci_nrem_bout_seconds": 120,
-    "naji_intracranial_amplitude_percentile_is_adaptation": true,
-    "naji_negative_half_duration_seconds": [
-      0.3,
-      1.5
-    ],
-    "naji_positive_half_maximum_seconds": 1.0,
-    "naji_stable_stage_seconds": 180,
-    "so_spindle_amplitude_percentile": 75,
-    "staging_calibration": {
-      "analysis_version": "2026-07-qc-sensitivity-v8",
-      "artifact_relative_path": "outputs/qc_calibration/staging_window_calibration.json",
-      "artifact_sha256": "c6d4f1deccd3e0c7a03875185b2378116b1e33aab78323db91a39dc0b828af1f",
-      "cache_manifest_sha256": "5eab2fbfb5bb65e0fd6ae39daa250352d4253683e6f7666b1cf0c854bdb78746",
-      "cache_pipeline": "stage_ds003848",
-      "cache_run_id": "75e8af2b-2ca9-4767-b080-d44a1c2ebf56",
-      "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v8",
-      "calibration_scope": "six RESPect ds003848 subjects; outcome-blind SWA/delta-ratio reconstruction only",
-      "hup_transport_status": "unvalidated transport sensitivity; not a calibrated HUP rule",
-      "not_a_paper_requirement": true,
-      "recommended_minimum_valid_windows": 11
-    },
-    "staging_psd": {
-      "detrend": "constant",
-      "overlap_seconds": 2,
-      "window": "hann",
-      "window_seconds": 4
-    }
-  },
-  "profiles": {
-    "audit80": {
-      "cohort": {
-        "minimum_participants": 5
-      },
-      "endpoint_3a": {
-        "minimum_cross_correlation_windows": 5,
-        "minimum_nrem_epochs": 40
-      },
-      "endpoint_3b": {
-        "minimum_contacts": 2,
-        "minimum_finite_rr_samples": 1000,
-        "minimum_finite_stage_samples": 400,
-        "minimum_so_per_contact": 30,
-        "so_amplitude_percentile": 75
-      },
-      "endpoint_3d": {
-        "minimum_events_per_contact": 20,
-        "minimum_paired_events": 200,
-        "minimum_contact_acquisition_fraction": 0.8,
-        "minimum_contact_event_valid_fraction": 0.8,
-        "minimum_valid_nrem_fraction_per_contact": 0.8,
-        "minimum_valid_nrem_seconds_per_contact": 1200,
-        "minimum_contacts": 3
-      },
-      "hr": {
-        "minimum_coverage": 0.8
-      },
-      "power": {
-        "aggregation": "fixed_contact_mean",
-        "minimum_aggregate_coverage": 0.8,
-        "minimum_clean_fraction_per_second": 0.5,
-        "minimum_contact_coverage": 0.8,
-        "minimum_contact_fraction_per_bin": 0.8,
-        "minimum_contacts": 3
-      },
-      "profile_id": "audit80",
-      "role": "historical_post_audit_reference",
-      "selection_blinded_to_endpoint_values": false,
-      "staging": {
-        "aggregation": "fixed_contact_median",
-        "auxiliary_aggregation": "fixed_channel_geometric_median",
-        "minimum_auxiliary_channel_coverage": 0.8,
-        "minimum_auxiliary_channel_fraction_per_epoch": 0.8,
-        "minimum_contact_feature_coverage": 0.8,
-        "minimum_contact_fraction_per_epoch": 0.8,
-        "minimum_contacts": 3,
-        "minimum_valid_auxiliary_windows": 14,
-        "minimum_valid_welch_windows": 14
-      }
-    },
-    "overlap11_endpoint_local": {
-      "cohort": {
-        "minimum_participants": 5
-      },
-      "endpoint_3a": {
-        "minimum_cross_correlation_windows": 1,
-        "minimum_nrem_epochs": 4
-      },
-      "endpoint_3b": {
-        "minimum_contacts": 2,
-        "minimum_finite_rr_samples": 1,
-        "minimum_finite_stage_samples": 100,
-        "minimum_so_per_contact": 30,
-        "so_amplitude_percentile": 75
-      },
-      "endpoint_3d": {
-        "minimum_events_per_contact": 20,
-        "minimum_paired_events": 200,
-        "minimum_contact_acquisition_fraction": 0.0,
-        "minimum_contact_event_valid_fraction": 0.0,
-        "minimum_valid_nrem_fraction_per_contact": 0.8,
-        "minimum_valid_nrem_seconds_per_contact": 1200,
-        "minimum_contacts": 3
-      },
-      "hr": {
-        "minimum_coverage": 0.0
-      },
-      "power": {
-        "aggregation": "overlap_connected_median_polish",
-        "minimum_aggregate_coverage": 0.0,
-        "minimum_clean_fraction_per_second": 0.5,
-        "minimum_contact_coverage": 0.0,
-        "minimum_contact_fraction_per_bin": 0.0,
-        "minimum_contacts": 1
-      },
-      "profile_id": "overlap11_endpoint_local",
-      "role": "post_audit_conservative_exact_support_sensitivity",
-      "selection_blinded_to_endpoint_values": true,
-      "staging": {
-        "aggregation": "overlap_connected_median_polish",
-        "auxiliary_aggregation": "overlap_connected_median_polish",
-        "minimum_auxiliary_channel_coverage": 0.0,
-        "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
-        "minimum_contact_feature_coverage": 0.0,
-        "minimum_contact_fraction_per_epoch": 0.0,
-        "minimum_contacts": 1,
-        "minimum_valid_auxiliary_windows": 14,
-        "minimum_valid_welch_windows": 11
-      }
-    }
-  },
   "grids": {
+    "auxiliary_window_support_v1": {
+      "axes": [
+        {
+          "id": "auxiliary_valid_windows",
+          "path": "staging.minimum_valid_auxiliary_windows"
+        }
+      ],
+      "base_profile": "overlap11_endpoint_local",
+      "levels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
     "coverage_oat_v1": {
       "axes": [
         {
@@ -203,56 +88,6 @@
         0.75,
         0.8,
         0.9
-      ]
-    },
-    "staging_window_support_v1": {
-      "axes": [
-        {
-          "id": "staging_valid_welch_windows",
-          "path": "staging.minimum_valid_welch_windows"
-        }
-      ],
-      "base_profile": "overlap11_endpoint_local",
-      "levels": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14
-      ]
-    },
-    "auxiliary_window_support_v1": {
-      "axes": [
-        {
-          "id": "auxiliary_valid_windows",
-          "path": "staging.minimum_valid_auxiliary_windows"
-        }
-      ],
-      "base_profile": "overlap11_endpoint_local",
-      "levels": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14
       ]
     },
     "event_count_oat_v1": {
@@ -339,6 +174,171 @@
         }
       ],
       "base_profile": "overlap11_endpoint_local"
+    },
+    "staging_window_support_v1": {
+      "axes": [
+        {
+          "id": "staging_valid_welch_windows",
+          "path": "staging.minimum_valid_welch_windows"
+        }
+      ],
+      "base_profile": "overlap11_endpoint_local",
+      "levels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
     }
-  }
+  },
+  "method_config": {
+    "auxiliary_window_support_statement": "The 11-window iEEG SWA/delta-ratio calibration does not validate EMG/EOG support. The endpoint-local profile therefore keeps 14 auxiliary windows and reports 1-14 only as a separate sensitivity grid.",
+    "lecci_core_minutes_from_available_sleep_onset_proxy": 210,
+    "lecci_nrem_bout_seconds": 120,
+    "naji_intracranial_amplitude_percentile_is_adaptation": true,
+    "naji_negative_half_duration_seconds": [
+      0.3,
+      1.5
+    ],
+    "naji_positive_half_maximum_seconds": 1.0,
+    "naji_stable_stage_seconds": 180,
+    "so_spindle_amplitude_percentile": 75,
+    "staging_calibration": {
+      "analysis_version": "2026-07-qc-sensitivity-v9",
+      "artifact_relative_path": "outputs/qc_calibration/staging_window_calibration.json",
+      "artifact_sha256": "47b7b7c6cce6b5b8f8962c67d1b1aba0d651bdd3af0d1525fd09c717765c3fa5",
+      "cache_manifest_sha256": "6f84a44b677f45556ba928e8770d57dc12417d378ebe76e7a5ebb245cdc9f45b",
+      "cache_pipeline": "stage_ds003848",
+      "cache_run_id": "574adec3-c44f-4c79-8cc6-2694f7086de1",
+      "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
+      "calibration_scope": "six RESPect ds003848 subjects; outcome-blind SWA/delta-ratio reconstruction only",
+      "hup_transport_status": "unvalidated transport sensitivity; not a calibrated HUP rule",
+      "not_a_paper_requirement": true,
+      "recommended_minimum_valid_windows": 11
+    },
+    "staging_psd": {
+      "detrend": "constant",
+      "overlap_seconds": 2,
+      "window": "hann",
+      "window_seconds": 4
+    }
+  },
+  "profiles": {
+    "audit80": {
+      "cohort": {
+        "minimum_participants": 5
+      },
+      "endpoint_3a": {
+        "minimum_cross_correlation_windows": 5,
+        "minimum_nrem_epochs": 40
+      },
+      "endpoint_3b": {
+        "minimum_contacts": 2,
+        "minimum_finite_rr_samples": 1000,
+        "minimum_finite_stage_samples": 400,
+        "minimum_so_per_contact": 30,
+        "so_amplitude_percentile": 75
+      },
+      "endpoint_3d": {
+        "minimum_contact_acquisition_fraction": 0.8,
+        "minimum_contact_event_valid_fraction": 0.8,
+        "minimum_contacts": 3,
+        "minimum_events_per_contact": 20,
+        "minimum_paired_events": 200,
+        "minimum_valid_nrem_fraction_per_contact": 0.8,
+        "minimum_valid_nrem_seconds_per_contact": 1200
+      },
+      "hr": {
+        "minimum_coverage": 0.8
+      },
+      "power": {
+        "aggregation": "fixed_contact_mean",
+        "minimum_aggregate_coverage": 0.8,
+        "minimum_clean_fraction_per_second": 0.5,
+        "minimum_contact_coverage": 0.8,
+        "minimum_contact_fraction_per_bin": 0.8,
+        "minimum_contacts": 3
+      },
+      "profile_id": "audit80",
+      "role": "historical_post_audit_reference",
+      "selection_blinded_to_endpoint_values": false,
+      "staging": {
+        "aggregation": "fixed_contact_median",
+        "auxiliary_aggregation": "fixed_channel_geometric_median",
+        "minimum_auxiliary_channel_coverage": 0.8,
+        "minimum_auxiliary_channel_fraction_per_epoch": 0.8,
+        "minimum_contact_feature_coverage": 0.8,
+        "minimum_contact_fraction_per_epoch": 0.8,
+        "minimum_contacts": 3,
+        "minimum_valid_auxiliary_windows": 14,
+        "minimum_valid_welch_windows": 14
+      }
+    },
+    "overlap11_endpoint_local": {
+      "cohort": {
+        "minimum_participants": 5
+      },
+      "endpoint_3a": {
+        "minimum_cross_correlation_windows": 1,
+        "minimum_nrem_epochs": 4
+      },
+      "endpoint_3b": {
+        "minimum_contacts": 2,
+        "minimum_finite_rr_samples": 1,
+        "minimum_finite_stage_samples": 100,
+        "minimum_so_per_contact": 30,
+        "so_amplitude_percentile": 75
+      },
+      "endpoint_3d": {
+        "minimum_contact_acquisition_fraction": 0.0,
+        "minimum_contact_event_valid_fraction": 0.0,
+        "minimum_contacts": 3,
+        "minimum_events_per_contact": 20,
+        "minimum_paired_events": 200,
+        "minimum_valid_nrem_fraction_per_contact": 0.8,
+        "minimum_valid_nrem_seconds_per_contact": 1200
+      },
+      "hr": {
+        "minimum_coverage": 0.0
+      },
+      "power": {
+        "aggregation": "overlap_connected_median_polish",
+        "minimum_aggregate_coverage": 0.0,
+        "minimum_clean_fraction_per_second": 0.5,
+        "minimum_contact_coverage": 0.0,
+        "minimum_contact_fraction_per_bin": 0.0,
+        "minimum_contacts": 1
+      },
+      "profile_id": "overlap11_endpoint_local",
+      "role": "post_audit_conservative_exact_support_sensitivity",
+      "selection_blinded_to_endpoint_values": true,
+      "staging": {
+        "aggregation": "overlap_connected_median_polish",
+        "auxiliary_aggregation": "overlap_connected_median_polish",
+        "minimum_auxiliary_channel_coverage": 0.0,
+        "minimum_auxiliary_channel_fraction_per_epoch": 0.0,
+        "minimum_contact_feature_coverage": 0.0,
+        "minimum_contact_fraction_per_epoch": 0.0,
+        "minimum_contacts": 1,
+        "minimum_valid_auxiliary_windows": 14,
+        "minimum_valid_welch_windows": 11
+      }
+    }
+  },
+  "provenance": {
+    "designed_without_selecting_on_lc_proxy_direction": true,
+    "prospectively_preregistered": false,
+    "statement": "These profiles are post-audit sensitivity specifications. They are not requirements from Lecci, Naji, Staresina, or Helfrich and must not be selected according to which profile produces the desired biological result."
+  },
+  "schema_version": "qc-profile-set-v1"
 }

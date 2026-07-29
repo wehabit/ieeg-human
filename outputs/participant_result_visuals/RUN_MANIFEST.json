@@ -1,0 +1,113 @@
+{
+  "analysis_source_tree_sha256": "e0f412e656b7199eaf3de27779ed27d701e11e9fb58c4eaa94fa5554df74fbf7",
+  "analysis_version": "2026-07-qc-sensitivity-v9",
+  "cache_runs": {
+    "HUP": {
+      "manifest": {
+        "path_relative": "data/derived/lc_infraslow/RUN_MANIFEST.json",
+        "sha256": "5961f8a35e4be9f23fdc615d9fc98a98dd01da153973288b4e9447f00d719637"
+      },
+      "pipeline": "cache_lc_series",
+      "run_id": "0ff4c279-41d8-4640-b777-94b8b353ee6d",
+      "selected_cache_files": {
+        "HUP160_phaseII": {
+          "path_relative": "data/derived/lc_infraslow/HUP160_phaseII.npz",
+          "sha256": "e1479f5fc261f7faa5553fb61d7f14e106462d8af42c856608063be22f893273"
+        },
+        "HUP172_phaseII": {
+          "path_relative": "data/derived/lc_infraslow/HUP172_phaseII.npz",
+          "sha256": "310f81a29bc131840ec7052ab02aa034df5e75b8017394e99830aaaed2af9f19"
+        }
+      }
+    },
+    "RESPect": {
+      "manifest": {
+        "path_relative": "data/derived/ds003848/RUN_MANIFEST.json",
+        "sha256": "b8471773a98724eefde0210f844383c145814dda1f5ec9c5967a14d04ddb36e0"
+      },
+      "pipeline": "stage_ds003848",
+      "run_id": "91e9f042-b5ff-4eff-a566-49016bd5e585",
+      "selected_cache_files": {
+        "sub-RESP0699": {
+          "path_relative": "data/derived/ds003848/sub-RESP0699.npz",
+          "sha256": "bb1c464eb16557dd6007b69bebb99ffa2208e0461ba1751f93af75dc5a385d89"
+        }
+      }
+    }
+  },
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
+  "code_dirty_at_start": false,
+  "code_revision": "cf57911ef8e89bcd2e9bf88c9a5adf16707304f5",
+  "generated_at_utc": "2026-07-29T23:04:24.120046+00:00",
+  "input_artifacts": {
+    "hup_locked_qc_artifact": {
+      "path_relative": "outputs/qc_grid_public/locked/overlap11_endpoint_local__hup.json",
+      "sha256": "c95fd41ac2c96a9ddc322aaaff9d686cd1a9abf7c8079c4600332b72407e21fa"
+    },
+    "public_qc_manifest": {
+      "path_relative": "outputs/qc_grid_public/RUN_MANIFEST.json",
+      "sha256": "61bef7fa48882ed7137f2a29fdec8771672745d8fcfe9c83ffdbce108b4bc001"
+    },
+    "respect_channels": {
+      "path_relative": "data/ds003848_raw/sub-RESP0699_ses-1_task-sleep_run-030608_channels.tsv",
+      "sha256": "7a9caba90bde7ec91c01df6d3cdaa7f9349d68e97e04ce60669ef3757a04425d"
+    },
+    "respect_full_staging_grid": {
+      "path_relative": "outputs/qc_grid/staging_window_support_v1/respect_qc_grid.json",
+      "sha256": "a9e462ba2bda27f2bdbfaee49918ad8325ef7c1541fa25076c4ab21e064be961"
+    },
+    "respect_metadata": {
+      "path_relative": "data/ds003848_raw/sub-RESP0699_ses-1_task-sleep_run-030608_ieeg.json",
+      "sha256": "2cf83fa19ff22e64444336a3fb3e8436341a0228689d6447e68214e0aa74b60f"
+    },
+    "respect_public_staging_summary": {
+      "path_relative": "outputs/qc_grid_public/staging_window_support_v1/respect_qc_grid_summary.json",
+      "sha256": "9f7f466f583c3a6ad29b190307a48ab63c746fc913f439edb95e95dba507c51b"
+    }
+  },
+  "pipeline": "make_participant_result_visuals",
+  "profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
+  "profile_id": "overlap11_endpoint_local",
+  "profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b",
+  "result_files_sha256": {
+    "outputs/participant_result_visuals/3A_RESP0699_all_three_measurements.png": "e085e0d7d7dcbb01b43a7fc4a41b22fa68892510093eed1fce18920c8fa3e0e3",
+    "outputs/participant_result_visuals/3A_RESP0699_all_three_measurements.svg": "2d0b0df012e06a98c32aeb92f4580cdd3e967431c014283dd1b9c548b01d984a",
+    "outputs/participant_result_visuals/3A_RESP0699_coherence_threshold_explained.png": "7e54409a44cf3e9a52a73e9795cd1ae9ae53348aed17f99904b993fe61af21ac",
+    "outputs/participant_result_visuals/3A_RESP0699_coherence_threshold_explained.svg": "1b2d3ee7fedd51efb27ae35d9d7142126ee280f4b744df12ecf1fca3124a2d18",
+    "outputs/participant_result_visuals/3B_HUP160_event_locked_heart_rate.png": "2ba4d59b0bbc0118b1fc5b59efbbae4491496feff2df5ca94adce08b09510457",
+    "outputs/participant_result_visuals/3B_HUP160_event_locked_heart_rate.svg": "19f0ebdf5c1b2559a96bbcda87213f5aabcc490e6604cb005dc123bd36af3048",
+    "outputs/participant_result_visuals/3B_RESP0699_naji_frontal_ecog_check.png": "2284507072c03eaf9d1f16c746c541141a1534ac1cf269ecf205989cdedc754b",
+    "outputs/participant_result_visuals/3B_RESP0699_naji_frontal_ecog_check.svg": "16126300bd1c570090dc9cfec9d7bbabfb32348d0a13712ae936d1a985799bbe",
+    "outputs/participant_result_visuals/3D_HUP172_SO_spindle_phase.png": "940ccbb8daf51819118378d500c14734d995fca044f127a150eb93e73c4d1b0f",
+    "outputs/participant_result_visuals/3D_HUP172_SO_spindle_phase.svg": "387d2b75c51b1d9f5872ccb4a793c796a6e4e89b7e555f551550bad63011c2ed",
+    "outputs/participant_result_visuals/README.md": "11446735664a31a1eadb2bfa1bbce3ee9cbdffae3474a1674800054ee1d0c5c4",
+    "outputs/participant_result_visuals/RESP0699_THRESHOLD_AND_NAJI_CHECK.md": "c1ef5a7a8070e3a6d34fbb6b85fff8d31ca9870ac33c173434e13ea7241f01df",
+    "outputs/participant_result_visuals/figure_values.json": "c4ad2cd0db8d6d06e27b17c1f24306d3b322ae8e9b9ab3da28b5352c3496c62d"
+  },
+  "run_id": "9f27cb6e-9514-45cc-9c37-1056ef08c705",
+  "run_state": "complete",
+  "runtime_versions": {
+    "ieeg": "1.6",
+    "mne": "1.12.1",
+    "neurokit2": "0.2.13",
+    "numpy": "2.5.1",
+    "python": "3.14.5",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0"
+  },
+  "schema_version": "2026-07-participant-result-visuals-v1",
+  "source_files_sha256": {
+    "generator": {
+      "path_relative": "visualization/make_participant_result_visuals.py",
+      "sha256": "62aeceb4ccb0b133f8cc4affcde700adcb6109e38d14da5e9ca12d40eaba75a3"
+    },
+    "narrative_renderer": {
+      "path_relative": "visualization/participant_visual_narratives.py",
+      "sha256": "048056daf938e51784fd6885952f267888e2984a63fb571ea34834bcc56c7cf1"
+    },
+    "provenance_helper": {
+      "path_relative": "visualization/participant_visual_provenance.py",
+      "sha256": "9e81a1c3b2720fd250c143e2c7b193249db574be35cbec2db4eac5efc9ed39c4"
+    }
+  }
+}

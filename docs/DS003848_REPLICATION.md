@@ -16,8 +16,8 @@
 - Endpoint-local 3B: N2 0/6, N3 1/6, and exploratory pooled NREM 2/6. RESP0699 N3 has a
   descriptive local HR change of +0.455% at a mean-channel latency of 2.35 s.
 - Historical `audit80`: 3A remains 0/6 because several locally introduced gates stack; 3B is
-  0/1/2 because the current endpoint-local design no longer lets a global power gate suppress
-  endpoint-local cardiac estimates.
+  0/1/2 because v9 resolves 3B cardiac/event support locally even while reconstructing the
+  historical `audit80` thresholds.
 - None reaches the default cohort minimum of five. No 3B p/z value is produced.
 
 The fixed 80% gate was neither a paper requirement nor preregistered. RESP0521 had approximately

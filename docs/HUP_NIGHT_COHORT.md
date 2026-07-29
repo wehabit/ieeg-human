@@ -1,4 +1,4 @@
-# Full-night SO coupling across HUP subjects (iEEG.org)
+# Selected-interval SO coupling across HUP subjects (iEEG.org)
 
 > **WITHDRAWN LEGACY RESULT — DO NOT CITE AS CURRENT LC-PROXY EVIDENCE.** These intervals were
 > not verified nights, contacts were not independent participants, SOZ/pathology was not excluded,
@@ -10,11 +10,11 @@
 > anatomy remain unvalidated and 3B/3D inference is disabled. See the v9 report; the legacy values
 > below remain withdrawn and do not prove LC tracking.
 
-Extends the single-subject full-night result (HUP165) to additional continuous full nights pulled
+Extends the single-subject selected-interval result (HUP165) to additional continuous candidate intervals pulled
 from iEEG.org, via `ieeg_pull_night.py` + `hup_night_cohort.py`. Same polarity-robust, cross-validated
 method; each subject's value = mean cross-val modulation over its bipolar MTL channels.
 
-## Result (independent full nights)
+## Result (independent selected intervals)
 
 | Subject | SO→spindle (mean; ch positive) | SO→ripple (mean; ch positive) |
 |---|---|---|

@@ -328,7 +328,8 @@ These are blockers, not optional polish.
 
 ## D. Publication acceptance gate
 
-Do not restore biological result language until all of the following pass:
+Do not promote descriptive observations to confirmatory, replication, or LC-specific claims until
+all of the following pass:
 
 1. every expected participant is completed or has one prespecified, documented exclusion;
 2. every cache/result has the current schema, cache-producer digest, complete configuration,

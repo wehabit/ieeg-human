@@ -55,8 +55,8 @@ to rise in deeper NREM. SWA is not a discrete slow-oscillation event and is not 
 
 - 3A power is computed per contact before averaging, so phase/polarity cancellation cannot erase
   power.
-- Per-contact power is normalized once over the full night, not independently in each 10-minute
-  chunk.
+- Per-contact power is normalized once over the complete selected analysis interval, not
+  independently in each 10-minute chunk.
 - Streamed cache filtering uses 30 s of context on both sides of every 10-minute chunk and writes
   only the core, preventing internal filter/Hilbert edge artifacts.
 - Original missing-sample masks are retained and dilated by 5 s; filled values are numerical filter
@@ -92,8 +92,9 @@ to rise in deeper NREM. SWA is not a discrete slow-oscillation event and is not 
   one observation graph/contact set, and median-polish aggregation fails closed on nonconvergence.
 - 3A reports the signed max-absolute cross-correlation only as a sensitivity and separately tests
   Lecci's source-defined direction: a positive association at 0–15 s with sigma following HR.
-  Opposite-sign coupling cannot count as paper-aligned support. Peak clustering is labeled as a
-  tightness test, not a test that peaks lie near 0.019 Hz.
+  Opposite-sign coupling cannot count as paper-aligned support. The current artifacts do not
+  publish a cohort peak-clustering test; the tightness-only calculation survives only in a
+  legacy/unshipped summarizer and is not a test that peaks lie near 0.019 Hz.
 - 3B thresholds clean SO candidates within stage, averages Naji derivation/contact peak times, and
   uses only uninterrupted stage runs of at least 180 s and cache/ROI-qualified contacts, with at
   least two contacts still contributing 30 complete in-stage RR windows. One shared within-stage

@@ -1,12 +1,14 @@
 {
+  "analysis_version": "2026-07-qc-sensitivity-v9",
+  "cache_schema_version": "2026-07-neutral-per-contact-gap-aware-source-pin-v9",
   "figures": {
     "3A": {
       "coherence_0p02": 0.6791990174659287,
       "coherence_threshold": 0.6315968501359612,
       "peak_hz": 0.016861663500460856,
-      "png": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3A_RESP0699_all_three_measurements.png",
+      "png": "outputs/participant_result_visuals/3A_RESP0699_all_three_measurements.png",
       "subject": "sub-RESP0699",
-      "svg": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3A_RESP0699_all_three_measurements.svg",
+      "svg": "outputs/participant_result_visuals/3A_RESP0699_all_three_measurements.svg",
       "xcorr_lag_s": 0.0,
       "xcorr_r": 0.3028459640560989
     },
@@ -17,9 +19,9 @@
       "evaluated_frequency_hz": 0.01953125,
       "nominal_pointwise_p": 0.033014678258454576,
       "observed_coherence": 0.6791990174659287,
-      "png": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3A_RESP0699_coherence_threshold_explained.png",
+      "png": "outputs/participant_result_visuals/3A_RESP0699_coherence_threshold_explained.png",
       "subject": "sub-RESP0699",
-      "svg": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3A_RESP0699_coherence_threshold_explained.svg",
+      "svg": "outputs/participant_result_visuals/3A_RESP0699_coherence_threshold_explained.svg",
       "three_participant_bonferroni_threshold_sensitivity": 0.7445635225354823,
       "welch_overlap_seconds": 128,
       "welch_window_seconds": 256,
@@ -31,7 +33,7 @@
       ]
     },
     "3B": {
-      "png": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3B_HUP160_event_locked_heart_rate.png",
+      "png": "outputs/participant_result_visuals/3B_HUP160_event_locked_heart_rate.png",
       "stages": {
         "N2": {
           "local_change_pct": 0.6063698959661561,
@@ -50,7 +52,7 @@
         }
       },
       "subject": "HUP160_phaseII",
-      "svg": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3B_HUP160_event_locked_heart_rate.svg"
+      "svg": "outputs/participant_result_visuals/3B_HUP160_event_locked_heart_rate.svg"
     },
     "3B_RESP0699_Naji_check": {
       "event_contact_ids": [
@@ -76,34 +78,41 @@
       },
       "participant_curve_peak_lag_s": 3.0,
       "pct_above_stage_mean": 1.4140307174131501,
-      "png": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3B_RESP0699_naji_frontal_ecog_check.png",
+      "png": "outputs/participant_result_visuals/3B_RESP0699_naji_frontal_ecog_check.png",
       "scalp_eeg_channel_count": 0,
       "stable_seconds": 510,
       "stage": "author-SWS-selected N3-like",
       "subject": "sub-RESP0699",
-      "svg": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3B_RESP0699_naji_frontal_ecog_check.svg"
+      "svg": "outputs/participant_result_visuals/3B_RESP0699_naji_frontal_ecog_check.svg"
     },
     "3D": {
       "inference_enabled": false,
-      "n_paired_events": 2421,
-      "participant_R": 0.19194004096615816,
-      "participant_preferred_phase_deg": 49.72038955001265,
-      "png": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3D_HUP172_SO_spindle_phase.png",
+      "n_paired_events": 2319,
+      "paired_events_by_contact": {
+        "LD12": 764,
+        "LJ12": 766,
+        "LM11": 789
+      },
+      "participant_R": 0.1925234092157241,
+      "participant_preferred_phase_deg": 48.458009021724344,
+      "png": "outputs/participant_result_visuals/3D_HUP172_SO_spindle_phase.png",
       "qualified_contacts": [
         "LD12",
         "LJ12",
         "LM11"
       ],
       "subject": "HUP172_phaseII",
-      "svg": "/Users/paris/Documents/Buzsakli Lab Github/ieeg-human-lc-infraslow-3ABD/outputs/participant_result_visuals/3D_HUP172_SO_spindle_phase.svg"
+      "svg": "outputs/participant_result_visuals/3D_HUP172_SO_spindle_phase.svg"
     }
   },
   "interpretation_contract": {
     "3b_inference_enabled": false,
     "3d_inference_enabled": false,
     "availability_pass_is_not_hypothesis_support": true,
-    "figures_are_recomputed_from_final_v8_neutral_caches": true,
+    "figures_are_recomputed_from_current_neutral_caches": true,
     "figures_are_synthetic": false
   },
-  "profile_id": "overlap11_endpoint_local"
+  "profile_file_sha256": "03ab78081988fe0db68f207951bdb28994b86a88924ddf730ec589bb31cfc98c",
+  "profile_id": "overlap11_endpoint_local",
+  "profile_sha256": "4702039dcbc55a767fccbe41a2e54a0ba268fd2074a003a536acdbf9e033667b"
 }

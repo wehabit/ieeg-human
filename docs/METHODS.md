@@ -124,7 +124,8 @@ For each contact:
 5. Compute band power per contact; never average raw voltages before power.
 6. Bin clean, measured envelope-squared power to 1 Hz while retaining the numerator and
    clean-sample denominator.
-7. Normalize each contact once over the full night, then aggregate contact powers offline.
+7. Normalize each contact once over the complete selected analysis interval, then aggregate
+   contact powers offline.
 
 The historical `audit80` profile reconstructs its fixed coverage-qualified contact set exactly.
 The outcome-blind endpoint-local profile instead finds an overlap-connected observation component,
@@ -158,9 +159,10 @@ Lecci's human source analysis used scalp EEG/ECG, fixed 10–15 Hz sigma and 0.5
 artifact-free NREM bouts of at least 120 s within the first 210 min after sleep onset, and reported
 approximately 0.02-Hz modulation without directly recording LC or norepinephrine. In this
 adaptation, primary sigma is fixed 10–15 Hz and SWA 0.5–4 Hz is the negative-control band. For
-RESPect, both use the coverage-qualified non-pathological Destrieux
-parietal/postcentral/precuneus intersection. Individual FSP analysis is disabled until FSP can be
-estimated from all artifact-free NREM and manually quality-controlled.
+RESPect, both start from active/nonflat, non-pathological contacts in the Destrieux
+parietal/postcentral/precuneus intersection, then resolve support with endpoint-local
+overlap-connected aggregation. Individual FSP analysis is disabled until FSP can be estimated
+from all artifact-free NREM and manually quality-controlled.
 
 The estimator retains at most the first 210 min of its selected analysis interval. Lecci anchored
 that window to sleep onset; the HUP high-delta candidate start is not verified sleep onset. Within

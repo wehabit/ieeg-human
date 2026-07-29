@@ -36,7 +36,7 @@ and is not an LC measurement.
 ### Signal/cache layer
 
 - Computes band power independently per contact before contact aggregation.
-- Stores per-contact full-night power and normalizes once over the complete night.
+- Stores per-contact power and normalizes once over the complete selected analysis interval.
 - Pulls 30 s of context around each 600 s cache chunk and writes only the core, removing internal
   filter/Hilbert boundary artifacts.
 - Retains the original finite-sample mask with a 5 s exclusion margin. Interpolated/filled values

@@ -23,7 +23,8 @@ These requirements describe candidate data, not validated measurements:
 
 ## Current inputs and historical candidate leads
 
-Every row is a lead that must be re-queried and revalidated from current raw metadata.
+HUP and RESPect below are the current pinned inputs for this analysis. The remaining archive rows
+are leads that must be re-queried before a new availability or exclusivity claim.
 
 | Source | Historical metadata observation | Current status |
 |---|---|---|
